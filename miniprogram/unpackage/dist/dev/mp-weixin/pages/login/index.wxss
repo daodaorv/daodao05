@@ -1,0 +1,138 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.login-page.data-v-d08ef7d4 {
+  min-height: 100vh;
+  background-color: #fff;
+  padding: 40px 30px;
+}
+.logo-section.data-v-d08ef7d4 {
+  text-align: center;
+  margin-bottom: 50px;
+}
+.logo-section .logo.data-v-d08ef7d4 {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+.logo-section .app-name.data-v-d08ef7d4 {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+.logo-section .app-slogan.data-v-d08ef7d4 {
+  display: block;
+  font-size: 14px;
+  color: #999;
+}
+.login-form .login-tabs.data-v-d08ef7d4 {
+  display: flex;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.login-form .login-tabs .tab-item.data-v-d08ef7d4 {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 16px;
+  color: #666;
+  position: relative;
+}
+.login-form .login-tabs .tab-item.active.data-v-d08ef7d4 {
+  color: #3cc51f;
+  font-weight: bold;
+}
+.login-form .login-tabs .tab-item.active.data-v-d08ef7d4::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background-color: #3cc51f;
+  border-radius: 2px;
+}
+.login-form .form-item.data-v-d08ef7d4 {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+.login-form .form-item .input.data-v-d08ef7d4 {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 15px;
+}
+.login-form .form-item .code-btn.data-v-d08ef7d4 {
+  padding: 5px 12px;
+  font-size: 13px;
+  color: #3cc51f;
+  background-color: transparent;
+  border: 1px solid #3cc51f;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+.login-form .form-item .code-btn[disabled].data-v-d08ef7d4 {
+  color: #999;
+  border-color: #ddd;
+}
+.login-form .login-btn.data-v-d08ef7d4 {
+  margin-top: 30px;
+  background: linear-gradient(135deg, #3cc51f 0%, #2ea516 100%);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+.login-form .register-link.data-v-d08ef7d4 {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+.login-form .register-link .link-text.data-v-d08ef7d4 {
+  color: #3cc51f;
+  margin-left: 5px;
+}
+.login-form .agreement.data-v-d08ef7d4 {
+  margin-top: 30px;
+}
+.login-form .agreement label.data-v-d08ef7d4 {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+.login-form .agreement label .agreement-text.data-v-d08ef7d4 {
+  color: #999;
+  margin: 0 3px;
+}
+.login-form .agreement label .link-text.data-v-d08ef7d4 {
+  color: #3cc51f;
+}

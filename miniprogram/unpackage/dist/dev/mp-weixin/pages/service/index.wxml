@@ -1,0 +1,1 @@
+<view class="service-page data-v-f6ccea2d"><view class="page-placeholder data-v-f6ccea2d"><uni-icons wx:if="{{a}}" class="data-v-f6ccea2d" u-i="f6ccea2d-0" bind:__l="__l" u-p="{{a}}"></uni-icons><text class="placeholder-text data-v-f6ccea2d">客服</text><text class="placeholder-desc data-v-f6ccea2d">功能开发中...</text></view></view>

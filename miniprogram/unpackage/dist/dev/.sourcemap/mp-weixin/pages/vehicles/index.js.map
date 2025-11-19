@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["D:/Program Files (x86)/HBuilderX/plugins/uniapp-cli-vite/uniPage:/cGFnZXMvdmVoaWNsZXMvaW5kZXgudnVl"],"sourcesContent":["import MiniProgramPage from 'E:/VMwareShare/daodao/miniprogram/pages/vehicles/index.vue'\nwx.createPage(MiniProgramPage)"],"names":[],"mappings":";;;;;;;;;;;;;;;;;AACA,GAAG,WAAW,eAAe;"}

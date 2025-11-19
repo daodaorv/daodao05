@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/community/index",
+    "pages/service/index",
+    "pages/profile/index",
+    "pages/login/index"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "叨叨房车",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "rgba(0, 0, 0, 0.6)",
+    "selectedColor": "#FF9F29",
+    "borderStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/community/index",
+        "iconPath": "static/tabbar/community.png",
+        "selectedIconPath": "static/tabbar/community-active.png",
+        "text": "社区"
+      },
+      {
+        "pagePath": "pages/service/index",
+        "iconPath": "static/tabbar/service.png",
+        "selectedIconPath": "static/tabbar/service-active.png",
+        "text": "客服"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "仅用于向客户提供最近门店服务"
+    }
+  },
+  "usingComponents": {}
+}

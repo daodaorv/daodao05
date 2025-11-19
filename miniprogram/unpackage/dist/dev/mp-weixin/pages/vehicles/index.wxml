@@ -1,0 +1,1 @@
+<view class="vehicles-page data-v-e1926776"><view class="page-placeholder data-v-e1926776"><uni-icons wx:if="{{a}}" class="data-v-e1926776" u-i="e1926776-0" bind:__l="__l" u-p="{{a}}"></uni-icons><text class="placeholder-text data-v-e1926776">车辆列表</text><text class="placeholder-desc data-v-e1926776">功能开发中...</text></view></view>

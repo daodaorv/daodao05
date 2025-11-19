@@ -1,0 +1,1 @@
+<view class="community-page data-v-35ff9bcb"><view class="page-placeholder data-v-35ff9bcb"><uni-icons wx:if="{{a}}" class="data-v-35ff9bcb" u-i="35ff9bcb-0" bind:__l="__l" u-p="{{a}}"></uni-icons><text class="placeholder-text data-v-35ff9bcb">社区</text><text class="placeholder-desc data-v-35ff9bcb">功能开发中...</text></view></view>

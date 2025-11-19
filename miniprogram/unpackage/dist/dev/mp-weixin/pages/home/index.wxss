@@ -1,0 +1,476 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.home-page.data-v-4978fed5 {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  padding-bottom: 32rpx;
+}
+.notice-bar.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 32rpx;
+  background-color: #ffffff;
+  gap: 16rpx;
+}
+.notice-bar .notice-text.data-v-4978fed5 {
+  flex: 1;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.banner-section.data-v-4978fed5 {
+  margin: 24rpx 32rpx;
+}
+.banner-section .banner-swiper.data-v-4978fed5 {
+  height: 320rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+.banner-section .banner-swiper .banner-item.data-v-4978fed5 {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+}
+.banner-section .banner-swiper .banner-item.banner1.data-v-4978fed5 {
+  background: linear-gradient(135deg, #4B91FF 0%, #67C23A 100%);
+}
+.banner-section .banner-swiper .banner-item.banner2.data-v-4978fed5 {
+  background: linear-gradient(135deg, #FF9F29 0%, #FF4D4F 100%);
+}
+.banner-section .banner-swiper .banner-item .banner-text.data-v-4978fed5 {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+.booking-section.data-v-4978fed5 {
+  margin: 0 32rpx 24rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx 24rpx;
+}
+.booking-section .booking-title.data-v-4978fed5 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 24rpx;
+}
+.booking-section .booking-item.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+.booking-section .booking-item.data-v-4978fed5:last-of-type {
+  border-bottom: none;
+}
+.booking-section .booking-item .item-label.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.booking-section .booking-item .item-label .label-text.data-v-4978fed5 {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.9);
+}
+.booking-section .booking-item .item-value.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.booking-section .booking-item .item-value .value-text.data-v-4978fed5 {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.9);
+}
+.booking-section .booking-item .item-value .value-text.placeholder.data-v-4978fed5 {
+  color: rgba(0, 0, 0, 0.4);
+}
+.booking-section .search-button.data-v-4978fed5 {
+  width: 100%;
+  height: 88rpx;
+  background: #FF9F29;
+  color: #ffffff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  margin-top: 32rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.3);
+}
+.booking-section .search-button.data-v-4978fed5::after {
+  border: none;
+}
+.booking-section .search-button.disabled.data-v-4978fed5 {
+  background: #f5f5f5;
+  color: rgba(0, 0, 0, 0.3);
+  box-shadow: none;
+}
+.booking-section .booking-tip.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin-top: 16rpx;
+}
+.booking-section .booking-tip .tip-text.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.section.data-v-4978fed5 {
+  margin: 0 32rpx 24rpx;
+}
+.section .section-header.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.section .section-header .section-title.data-v-4978fed5 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin-left: 8rpx;
+}
+.section .section-header .section-more.data-v-4978fed5 {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.4);
+}
+.coupon-grid.data-v-4978fed5 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+.coupon-grid .coupon-item.data-v-4978fed5 {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.coupon-grid .coupon-item.coupon-orange.data-v-4978fed5 {
+  background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+}
+.coupon-grid .coupon-item .coupon-amount.data-v-4978fed5 {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+}
+.coupon-grid .coupon-item .coupon-desc.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 4rpx;
+}
+.coupon-grid .coupon-item .coupon-valid.data-v-4978fed5 {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16rpx;
+}
+.coupon-grid .coupon-item .coupon-btn.data-v-4978fed5 {
+  width: 100%;
+  height: 56rpx;
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  border: none;
+  line-height: 56rpx;
+  padding: 0;
+}
+.coupon-grid .coupon-item .coupon-btn.data-v-4978fed5::after {
+  border: none;
+}
+.service-grid.data-v-4978fed5 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24rpx;
+  margin: 0 32rpx 24rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx 24rpx;
+}
+.service-grid .service-item.data-v-4978fed5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+.service-grid .service-item .service-name.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.9);
+}
+.member-card.data-v-4978fed5 {
+  margin: 0 32rpx 24rpx;
+  background: linear-gradient(135deg, #8860D0 0%, #A78BDB 100%);
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+.member-card .member-header.data-v-4978fed5 {
+  margin-bottom: 24rpx;
+}
+.member-card .member-header .member-title.data-v-4978fed5 {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+}
+.member-card .member-header .member-subtitle.data-v-4978fed5 {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+.member-card .member-benefits.data-v-4978fed5 {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+.member-card .member-benefits .benefit-item.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.member-card .member-benefits .benefit-item .benefit-text.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+.member-card .member-join-btn.data-v-4978fed5 {
+  width: 100%;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+}
+.member-card .member-join-btn.data-v-4978fed5::after {
+  border: none;
+}
+.recommend-tabs.data-v-4978fed5 {
+  display: flex;
+  gap: 32rpx;
+  margin-bottom: 24rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+.recommend-tabs .tab-item.data-v-4978fed5 {
+  padding: 16rpx 0;
+  position: relative;
+}
+.recommend-tabs .tab-item .tab-text.data-v-4978fed5 {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.recommend-tabs .tab-item.active .tab-text.data-v-4978fed5 {
+  color: #FF9F29;
+  font-weight: 500;
+}
+.recommend-tabs .tab-item.active.data-v-4978fed5::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: #FF9F29;
+  border-radius: 2rpx;
+}
+.recommend-list.data-v-4978fed5 {
+  display: flex;
+  gap: 24rpx;
+  overflow-x: auto;
+}
+.recommend-list .vehicle-card.data-v-4978fed5 {
+  flex-shrink: 0;
+  width: 280rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+.recommend-list .vehicle-card .vehicle-image.data-v-4978fed5 {
+  width: 100%;
+  height: 180rpx;
+  background: #f0f0f0;
+}
+.recommend-list .vehicle-card .vehicle-info.data-v-4978fed5 {
+  padding: 16rpx;
+}
+.recommend-list .vehicle-card .vehicle-info .vehicle-name.data-v-4978fed5 {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 12rpx;
+}
+.recommend-list .vehicle-card .vehicle-info .vehicle-meta.data-v-4978fed5 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.recommend-list .vehicle-card .vehicle-info .vehicle-meta .vehicle-price.data-v-4978fed5 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #FF9F29;
+}
+.recommend-list .vehicle-card .vehicle-info .vehicle-meta .vehicle-rating.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+.recommend-list .vehicle-card .vehicle-info .vehicle-meta .vehicle-rating .rating-text.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.recommend-list .crowdfunding-card.data-v-4978fed5 {
+  flex-shrink: 0;
+  width: 580rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+.recommend-list .crowdfunding-card .card-header.data-v-4978fed5 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.recommend-list .crowdfunding-card .card-header .project-name.data-v-4978fed5 {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+}
+.recommend-list .crowdfunding-card .card-header .project-tag.data-v-4978fed5 {
+  padding: 8rpx 16rpx;
+  background: rgba(255, 159, 41, 0.1);
+  color: #FF9F29;
+  font-size: 24rpx;
+  border-radius: 8rpx;
+}
+.recommend-list .crowdfunding-card .card-body .progress-info.data-v-4978fed5 {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+.recommend-list .crowdfunding-card .card-body .progress-info .progress-text.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.recommend-list .crowdfunding-card .card-body .progress-info .progress-amount.data-v-4978fed5 {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #FF9F29;
+}
+.recommend-list .crowdfunding-card .card-body .progress-info .progress-target.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.4);
+}
+.recommend-list .crowdfunding-card .card-body .progress-bar.data-v-4978fed5 {
+  height: 12rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+.recommend-list .crowdfunding-card .card-body .progress-bar .progress-fill.data-v-4978fed5 {
+  height: 100%;
+  background: linear-gradient(90deg, #FF9F29 0%, #FFB84D 100%);
+}
+.recommend-list .crowdfunding-card .card-body .project-meta.data-v-4978fed5 {
+  display: flex;
+  justify-content: space-between;
+}
+.recommend-list .crowdfunding-card .card-body .project-meta .meta-item.data-v-4978fed5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.recommend-list .crowdfunding-card .card-body .project-meta .meta-item .meta-label.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.6);
+}
+.recommend-list .crowdfunding-card .card-body .project-meta .meta-item .meta-value.data-v-4978fed5 {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.9);
+}
+.recommend-list .crowdfunding-card .card-body .project-meta .meta-item .meta-value.highlight.data-v-4978fed5 {
+  color: #FF4D4F;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+.recommend-list .post-item.data-v-4978fed5 {
+  flex-shrink: 0;
+  width: 280rpx;
+}
+.recommend-list .post-item .post-card.data-v-4978fed5 {
+  width: 100%;
+  height: 200rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16rpx;
+}
+.recommend-list .post-item .post-card.post-purple.data-v-4978fed5 {
+  background: linear-gradient(135deg, #8860D0 0%, #A78BDB 100%);
+}
+.recommend-list .post-item .post-card.post-green.data-v-4978fed5 {
+  background: linear-gradient(135deg, #67C23A 0%, #85CE61 100%);
+}
+.recommend-list .post-item .post-card .post-title.data-v-4978fed5 {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+.recommend-list .post-item .post-desc.data-v-4978fed5 {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+.recommend-list .post-item .post-meta.data-v-4978fed5 {
+  display: flex;
+  gap: 24rpx;
+}
+.recommend-list .post-item .post-meta .meta-item.data-v-4978fed5 {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.recommend-list .post-item .post-meta .meta-item .meta-text.data-v-4978fed5 {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.4);
+}

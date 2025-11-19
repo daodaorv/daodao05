@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0.35
+    restart: always
+    environment:
+      MYSQL_DATABASE: daodao
+      MYSQL_USER: daodao_dev
+      MYSQL_PASSWORD: daodao_dev_2024
+      MYSQL_ROOT_PASSWORD: daodao_root_password_2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=+08:00
+
+  redis:
+    image: redis:7.2.3
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  redis_data:
+
