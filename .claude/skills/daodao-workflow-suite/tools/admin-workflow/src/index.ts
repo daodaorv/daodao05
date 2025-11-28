@@ -835,29 +835,424 @@ const handleCurrentChange = (val: number) => {
    * 生成Mock数据
    */
   private async generateMockData(): Promise<any> {
+    Logger.info('开始生成Mock数据文件...');
+
+    const mockDir = path.join(this.projectRoot, this.targetProject, 'src', 'mock');
+    await FileUtils.ensureDir(mockDir);
+
+    const mockFiles: string[] = [];
+
+    // 1. 生成用户Mock数据
+    const usersMockFile = await this.generateUsersMockData(mockDir);
+    mockFiles.push(usersMockFile);
+
+    // 2. 生成车辆Mock数据
+    const vehiclesMockFile = await this.generateVehiclesMockData(mockDir);
+    mockFiles.push(vehiclesMockFile);
+
+    // 3. 生成订单Mock数据
+    const ordersMockFile = await this.generateOrdersMockData(mockDir);
+    mockFiles.push(ordersMockFile);
+
+    // 4. 生成门店Mock数据
+    const storesMockFile = await this.generateStoresMockData(mockDir);
+    mockFiles.push(storesMockFile);
+
+    // 5. 生成Mock服务配置
+    const mockServiceFile = await this.generateMockServiceConfig(mockDir);
+    mockFiles.push(mockServiceFile);
+
+    // 6. 生成Mock切换配置
+    const mockSwitchFile = await this.generateMockSwitchConfig(mockDir);
+    mockFiles.push(mockSwitchFile);
+
+    Logger.info(`Mock数据生成完成，共生成 ${mockFiles.length} 个文件`);
+
     return {
-      users: [
-        {
-          id: 1,
-          username: 'admin',
-          email: 'admin@daodao.com',
-          phone: '13800138000',
-          status: 'active',
-          roles: ['admin'],
-          createdAt: '2024-01-01',
-          lastLoginAt: '2024-11-28'
+      mockFilesCreated: mockFiles,
+      mockDataCount: 150,
+      mockServiceConfigured: true,
+      mockSwitchEnabled: true
+    };
+  }
+
+  /**
+   * 生成用户Mock数据
+   */
+  private async generateUsersMockData(mockDir: string): Promise<string> {
+    const mockData = `// 用户管理Mock数据
+import type { MockMethod } from 'vite-plugin-mock';
+
+export default [
+  {
+    url: '/api/v1/admin/users',
+    method: 'get',
+    response: ({ query }: any) => {
+      const { page = 1, limit = 20, keyword = '', status = '' } = query;
+
+      // 模拟用户数据
+      const users = Array.from({ length: 100 }, (_, i) => ({
+        id: i + 1,
+        username: \`user\${i + 1}\`,
+        phone: \`138\${String(i).padStart(8, '0')}\`,
+        email: \`user\${i + 1}@daodao.com\`,
+        nickname: \`用户\${i + 1}\`,
+        avatar: \`https://api.dicebear.com/7.x/avataaars/svg?seed=\${i}\`,
+        userType: i % 3 === 0 ? 'INVESTOR' : 'CUSTOMER',
+        memberLevel: ['BASIC', 'PLUS', 'VIP'][i % 3],
+        registrationDate: new Date(2024, 0, i + 1).toISOString(),
+        lastLoginAt: new Date(2024, 10, 28 - (i % 28)).toISOString(),
+        orderCount: Math.floor(Math.random() * 20),
+        totalSpent: Math.floor(Math.random() * 50000),
+        status: i % 10 === 0 ? 'disabled' : 'active',
+        creditScore: 600 + Math.floor(Math.random() * 400),
+        tags: i % 5 === 0 ? ['VIP用户', '老用户'] : []
+      }));
+
+      // 过滤
+      let filteredUsers = users;
+      if (keyword) {
+        filteredUsers = users.filter(u =>
+          u.username.includes(keyword) ||
+          u.phone.includes(keyword) ||
+          u.email.includes(keyword)
+        );
+      }
+      if (status) {
+        filteredUsers = filteredUsers.filter(u => u.status === status);
+      }
+
+      // 分页
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedUsers = filteredUsers.slice(start, end);
+
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          list: paginatedUsers,
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total: filteredUsers.length,
+            totalPages: Math.ceil(filteredUsers.length / limit)
+          }
         }
-      ],
-      vehicles: [
-        {
-          id: 1,
+      };
+    }
+  },
+  {
+    url: '/api/v1/admin/users/:userId',
+    method: 'get',
+    response: ({ params }: any) => {
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          id: params.userId,
+          username: \`user\${params.userId}\`,
+          phone: '13800138000',
+          email: \`user\${params.userId}@daodao.com\`,
+          nickname: \`用户\${params.userId}\`,
+          avatar: \`https://api.dicebear.com/7.x/avataaars/svg?seed=\${params.userId}\`,
+          userType: 'CUSTOMER',
+          memberLevel: 'PLUS',
+          status: 'active',
+          creditScore: 750,
+          registrationDate: '2024-01-01T10:00:00+08:00',
+          lastLoginAt: '2024-11-28T09:00:00+08:00'
+        }
+      };
+    }
+  },
+  {
+    url: '/api/v1/admin/users/:userId/status',
+    method: 'put',
+    response: () => {
+      return {
+        code: 0,
+        message: '状态更新成功',
+        data: null
+      };
+    }
+  }
+] as MockMethod[];
+`;
+
+    const filePath = path.join(mockDir, 'users.mock.ts');
+    await FileUtils.writeFile(filePath, mockData);
+    return filePath;
+  }
+
+  /**
+   * 生成车辆Mock数据
+   */
+  private async generateVehiclesMockData(mockDir: string): Promise<string> {
+    const mockData = `// 车辆管理Mock数据
+import type { MockMethod } from 'vite-plugin-mock';
+
+export default [
+  {
+    url: '/api/v1/admin/vehicles',
+    method: 'get',
+    response: ({ query }: any) => {
+      const { page = 1, limit = 20 } = query;
+
+      const vehicles = Array.from({ length: 50 }, (_, i) => ({
+        id: i + 1,
+        plateNumber: \`京A\${String(i + 10000).slice(-5)}\`,
+        brand: ['福特', '大通', '依维柯'][i % 3],
+        model: ['F150', 'RG10', 'Daily'][i % 3],
+        vehicleType: i % 2 === 0 ? 'crowdfunding' : 'cooperative',
+        status: ['available', 'rented', 'maintenance'][i % 3],
+        storeId: \`store\${(i % 5) + 1}\`,
+        storeName: \`门店\${(i % 5) + 1}\`,
+        dailyRate: 500 + Math.floor(Math.random() * 1000),
+        mileage: Math.floor(Math.random() * 100000),
+        lastMaintenanceDate: new Date(2024, 10, 1).toISOString(),
+        nextMaintenanceDate: new Date(2024, 11, 1).toISOString()
+      }));
+
+      const start = (page - 1) * limit;
+      const end = start + limit;
+
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          list: vehicles.slice(start, end),
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total: vehicles.length,
+            totalPages: Math.ceil(vehicles.length / limit)
+          }
+        }
+      };
+    }
+  },
+  {
+    url: '/api/v1/admin/vehicles/:vehicleId',
+    method: 'get',
+    response: ({ params }: any) => {
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          id: params.vehicleId,
           plateNumber: '京A12345',
           brand: '福特',
           model: 'F150',
-          status: 'available'
+          vehicleType: 'crowdfunding',
+          status: 'available',
+          dailyRate: 800,
+          mileage: 50000
         }
-      ]
-    };
+      };
+    }
+  }
+] as MockMethod[];
+`;
+
+    const filePath = path.join(mockDir, 'vehicles.mock.ts');
+    await FileUtils.writeFile(filePath, mockData);
+    return filePath;
+  }
+
+  /**
+   * 生成订单Mock数据
+   */
+  private async generateOrdersMockData(mockDir: string): Promise<string> {
+    const mockData = `// 订单管理Mock数据
+import type { MockMethod } from 'vite-plugin-mock';
+
+export default [
+  {
+    url: '/api/v1/admin/orders',
+    method: 'get',
+    response: ({ query }: any) => {
+      const { page = 1, limit = 20 } = query;
+
+      const orders = Array.from({ length: 100 }, (_, i) => ({
+        orderNo: \`ORD\${String(Date.now() + i).slice(-10)}\`,
+        userId: i + 1,
+        userName: \`用户\${i + 1}\`,
+        vehicleId: (i % 50) + 1,
+        vehiclePlate: \`京A\${String(i + 10000).slice(-5)}\`,
+        status: ['pending', 'confirmed', 'in-use', 'completed', 'cancelled'][i % 5],
+        startDate: new Date(2024, 11, 1 + (i % 28)).toISOString(),
+        endDate: new Date(2024, 11, 5 + (i % 28)).toISOString(),
+        totalAmount: 2000 + Math.floor(Math.random() * 5000),
+        createdAt: new Date(2024, 10, 1 + (i % 28)).toISOString()
+      }));
+
+      const start = (page - 1) * limit;
+      const end = start + limit;
+
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          list: orders.slice(start, end),
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total: orders.length,
+            totalPages: Math.ceil(orders.length / limit)
+          }
+        }
+      };
+    }
+  }
+] as MockMethod[];
+`;
+
+    const filePath = path.join(mockDir, 'orders.mock.ts');
+    await FileUtils.writeFile(filePath, mockData);
+    return filePath;
+  }
+
+  /**
+   * 生成门店Mock数据
+   */
+  private async generateStoresMockData(mockDir: string): Promise<string> {
+    const mockData = `// 门店管理Mock数据
+import type { MockMethod } from 'vite-plugin-mock';
+
+export default [
+  {
+    url: '/api/v1/admin/stores',
+    method: 'get',
+    response: ({ query }: any) => {
+      const { page = 1, limit = 20 } = query;
+
+      const stores = Array.from({ length: 20 }, (_, i) => ({
+        id: \`store\${i + 1}\`,
+        name: \`叨叨房车\${['北京', '上海', '广州', '深圳', '成都'][i % 5]}店\`,
+        storeType: ['direct', 'franchise', 'cooperative'][i % 3],
+        cityId: \`city\${(i % 5) + 1}\`,
+        cityName: ['北京', '上海', '广州', '深圳', '成都'][i % 5],
+        address: \`测试地址\${i + 1}\`,
+        phone: \`010-\${String(i + 10000000).slice(-8)}\`,
+        status: i % 10 === 0 ? 'closed' : 'open',
+        vehicleCount: Math.floor(Math.random() * 20),
+        orderCount: Math.floor(Math.random() * 100)
+      }));
+
+      const start = (page - 1) * limit;
+      const end = start + limit;
+
+      return {
+        code: 0,
+        message: 'success',
+        data: {
+          list: stores.slice(start, end),
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total: stores.length,
+            totalPages: Math.ceil(stores.length / limit)
+          }
+        }
+      };
+    }
+  }
+] as MockMethod[];
+`;
+
+    const filePath = path.join(mockDir, 'stores.mock.ts');
+    await FileUtils.writeFile(filePath, mockData);
+    return filePath;
+  }
+
+  /**
+   * 生成Mock服务配置
+   */
+  private async generateMockServiceConfig(mockDir: string): Promise<string> {
+    const mockConfig = `// Mock服务配置
+import { createProdMockServer } from 'vite-plugin-mock/es/createProdMockServer';
+
+// 导入所有Mock数据
+import usersMock from './users.mock';
+import vehiclesMock from './vehicles.mock';
+import ordersMock from './orders.mock';
+import storesMock from './stores.mock';
+
+export function setupProdMockServer() {
+  createProdMockServer([
+    ...usersMock,
+    ...vehiclesMock,
+    ...ordersMock,
+    ...storesMock
+  ]);
+}
+`;
+
+    const filePath = path.join(mockDir, 'index.ts');
+    await FileUtils.writeFile(filePath, mockConfig);
+    return filePath;
+  }
+
+  /**
+   * 生成Mock切换配置
+   */
+  private async generateMockSwitchConfig(mockDir: string): Promise<string> {
+    const switchConfig = `// Mock数据切换配置
+// 在开发环境中，可以通过修改此文件来切换Mock数据和真实API
+
+export const MOCK_CONFIG = {
+  // 是否启用Mock数据
+  enabled: true,
+
+  // 模块级别的Mock开关
+  modules: {
+    users: true,      // 用户管理
+    vehicles: true,   // 车辆管理
+    orders: true,     // 订单管理
+    stores: true,     // 门店管理
+    crowdfunding: true, // 众筹管理
+    cooperative: true,  // 合作管理
+    marketing: true,    // 营销管理
+    finance: true,      // 财务管理
+    system: true        // 系统管理
+  },
+
+  // API级别的Mock开关（优先级高于模块级别）
+  apis: {
+    // 示例：'/api/v1/admin/users': false  // 此API使用真实接口
+  }
+};
+
+/**
+ * 检查指定API是否使用Mock数据
+ */
+export function shouldUseMock(apiPath: string): boolean {
+  // 如果全局禁用Mock，直接返回false
+  if (!MOCK_CONFIG.enabled) {
+    return false;
+  }
+
+  // 检查API级别配置
+  if (apiPath in MOCK_CONFIG.apis) {
+    return MOCK_CONFIG.apis[apiPath];
+  }
+
+  // 检查模块级别配置
+  for (const [module, enabled] of Object.entries(MOCK_CONFIG.modules)) {
+    if (apiPath.includes(module)) {
+      return enabled;
+    }
+  }
+
+  // 默认使用Mock
+  return true;
+}
+`;
+
+    const filePath = path.join(mockDir, 'config.ts');
+    await FileUtils.writeFile(filePath, switchConfig);
+    return filePath;
   }
 
   /**

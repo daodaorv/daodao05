@@ -100,6 +100,10 @@ export interface APIIntegration {
   integrationStatus: Record<string, 'completed' | 'in-progress' | 'pending'>;
   pendingAPIs: APIInfo[];
   readyForTesting: APIInfo[];
+  mockAPIs: APIInfo[];
+  realAPIs: APIInfo[];
+  totalAPIs: number;
+  completedAPIs: number;
 }
 
 export interface APIInfo {
@@ -107,6 +111,17 @@ export interface APIInfo {
   method: string;
   description: string;
   status: 'completed' | 'in-progress' | 'pending';
+  useMock: boolean;
+}
+
+/**
+ * Mock数据生成结果接口
+ */
+export interface MockDataResult {
+  mockFilesCreated: string[];
+  mockDataCount: number;
+  mockServiceConfigured: boolean;
+  mockSwitchEnabled: boolean;
 }
 
 /**

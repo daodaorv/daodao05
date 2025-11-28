@@ -79,10 +79,7 @@ node_modules/.cache
 # 其他
 *.md~
 *~
-nul%
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
 nul
+
+# 大文件目录
+ziliao/常用车型【PPT介绍】/
