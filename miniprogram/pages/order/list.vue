@@ -186,6 +186,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import { orderApi } from '@/api/order';
 
 // 状态管理
@@ -459,7 +460,7 @@ const goBack = () => {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .order-list-page {
   min-height: 100vh;
   background-color: #f5f5f5;
@@ -582,26 +583,37 @@ const goBack = () => {
 }
 
 // 订单卡片
-.order-cards  { .order-card { background-color: #ffffff;
+.order-cards {
+  .order-card {
+    background-color: #ffffff;
     border-radius: 16rpx;
     margin-bottom: 24rpx;
     overflow: hidden;
     box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 
     // 订单头部
-    .order-header { display: flex;
+    .order-header {
+      display: flex;
       justify-content: space-between;
       align-items: flex-start;
       padding: 32rpx;
       border-bottom: 2rpx solid #f8f8f8;
 
-      .order-info { flex: 1;
+      .order-info {
+        flex: 1;
 
-        .order-no { display: block;
+        .order-no {
+          display: block;
           font-size: 28rpx;
           color: rgba(0, 0, 0, 0.9);
-          margin-bottom: 8rpx; }.order-time { font-size: 24rpx;
-          color: rgba(0, 0, 0, 0.6); } }
+          margin-bottom: 8rpx;
+        }
+
+        .order-time {
+          font-size: 24rpx;
+          color: rgba(0, 0, 0, 0.6);
+        }
+      }
 
       .order-status {
         padding: 8rpx 16rpx;

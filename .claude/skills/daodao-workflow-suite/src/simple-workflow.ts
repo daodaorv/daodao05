@@ -133,21 +133,33 @@ export class SimpleWorkflowEngine {
     if (!await fs.pathExists(apiDocPath)) {
       return {
         message: 'API文档不存在，跳过API集成检查',
-        status: 'skipped'
+        status: 'skipped',
+        totalAPIs: 0,
+        completedAPIs: 0,
+        mockAPIs: 0,
+        realAPIs: 0
       };
     }
 
     const apiDoc = await fs.readFile(apiDocPath, 'utf-8');
 
-    // 简单解析API文档
-    const apiCount = (apiDoc.match(/###/g) || []).length;
-    const completedAPIs = (apiDoc.match(/✅/g) || []).length;
+    // 解析API文档
+    const allAPIs = this.parseAPIDocument(apiDoc);
+    const completedAPIs = allAPIs.filter(api => api.status === 'completed').length;
+    const mockAPIs = allAPIs.filter(api => api.useMock).length;
+    const realAPIs = allAPIs.filter(api => !api.useMock && api.status === 'completed').length;
+
+    // 更新API文档状态
+    const updatedDoc = this.updateAPIDocumentStatus(apiDoc, allAPIs);
+    await fs.writeFile(apiDocPath, updatedDoc, 'utf-8');
 
     return {
-      totalAPIs: apiCount,
+      totalAPIs: allAPIs.length,
       completedAPIs,
-      pendingAPIs: apiCount - completedAPIs,
-      message: `API检查完成: ${completedAPIs}/${apiCount} 已完成`
+      mockAPIs,
+      realAPIs,
+      pendingAPIs: allAPIs.length - completedAPIs,
+      message: `API检查完成: ${completedAPIs}/${allAPIs.length} 已完成 (Mock: ${mockAPIs}, Real: ${realAPIs})`
     };
   }
 
@@ -156,17 +168,27 @@ export class SimpleWorkflowEngine {
    */
   private async step5_updateProgress(targetProject: string): Promise<any> {
     const planPath = path.join(this.projectRoot, targetProject, 'docs', '实施计划.md');
+    let planContent = await fs.readFile(planPath, 'utf-8');
 
-    // 简单的进度更新
+    // 更新进度标记（将 [ ] 更新为 [x]）
+    planContent = this.updateProgressMarkers(planContent);
+
+    // 添加更新时间戳
     const timestamp = new Date().toISOString().split('T')[0];
-    const updateNote = `\n\n<!-- 自动更新: ${timestamp} - 工作流执行完成 -->`;
+    const finalContent = planContent + `\n\n<!-- 自动更新: ${timestamp} - 工作流执行完成 -->`;
 
-    await fs.appendFile(planPath, updateNote);
+    await fs.writeFile(planPath, finalContent, 'utf-8');
+
+    // 计算更新后的进度
+    const completedTasks = this.extractCompletedTasks(finalContent);
+    const progressPercentage = this.calculateProgressPercentage(finalContent);
 
     return {
       updated: true,
       timestamp,
-      message: '进度已更新'
+      completedTasks: completedTasks.length,
+      progressPercentage,
+      message: `进度已更新: ${progressPercentage}% 完成`
     };
   }
 
@@ -288,6 +310,110 @@ onMounted(() => {
       '保持响应式布局',
       '确保良好的用户体验'
     ];
+  }
+
+  /**
+   * 更新进度标记
+   */
+  private updateProgressMarkers(planContent: string): string {
+    const lines = planContent.split('\n');
+    let updated = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      // 找到第一个未完成的任务
+      if (!updated && lines[i].match(/^(\s*)-\s*\[\s*\]\s+/)) {
+        lines[i] = lines[i].replace(/\[\s*\]/, '[x]');
+        updated = true;
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  /**
+   * 提取已完成任务
+   */
+  private extractCompletedTasks(content: string): string[] {
+    const lines = content.split('\n');
+    return lines.filter(line => line.match(/^(\s*)-\s*\[x\]\s+/));
+  }
+
+  /**
+   * 计算进度百分比
+   */
+  private calculateProgressPercentage(content: string): number {
+    const totalTasks = (content.match(/- \[\s*\]/g) || []).length + (content.match(/- \[x\]/g) || []).length;
+    const completedTasks = (content.match(/- \[x\]/g) || []).length;
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }
+
+  /**
+   * 解析API文档
+   */
+  private parseAPIDocument(apiDoc: string): Array<{
+    method: string;
+    endpoint: string;
+    description: string;
+    status: 'completed' | 'in-progress' | 'pending';
+    useMock: boolean;
+  }> {
+    const apis: Array<any> = [];
+    const lines = apiDoc.split('\n');
+    let currentAPI: any = {};
+
+    for (const line of lines) {
+      // 匹配API接口定义
+      const apiMatch = line.match(/\*\*接口\*\*:\s*`(GET|POST|PUT|DELETE|PATCH)\s+([^`]+)`/);
+      if (apiMatch) {
+        if (currentAPI.endpoint) {
+          apis.push(currentAPI);
+        }
+        currentAPI = {
+          method: apiMatch[1],
+          endpoint: apiMatch[2],
+          description: '',
+          status: 'pending',
+          useMock: true
+        };
+      }
+
+      // 匹配状态
+      const statusMatch = line.match(/\*\*状态\*\*:\s*(待开发|开发中|已完成|✅)/);
+      if (statusMatch && currentAPI.endpoint) {
+        if (statusMatch[1] === '已完成' || statusMatch[1] === '✅') {
+          currentAPI.status = 'completed';
+        } else if (statusMatch[1] === '开发中') {
+          currentAPI.status = 'in-progress';
+        } else {
+          currentAPI.status = 'pending';
+        }
+      }
+    }
+
+    if (currentAPI.endpoint) {
+      apis.push(currentAPI);
+    }
+
+    return apis;
+  }
+
+  /**
+   * 更新API文档状态
+   */
+  private updateAPIDocumentStatus(apiDoc: string, apis: Array<any>): string {
+    let updatedDoc = apiDoc;
+
+    for (const api of apis) {
+      if (api.status === 'completed') {
+        const pattern = new RegExp(
+          `(${api.method}\\s+${api.endpoint.replace(/\//g, '\\/')}[\\s\\S]*?\\*\\*状态\\*\\*:)\\s*待开发`,
+          'g'
+        );
+        updatedDoc = updatedDoc.replace(pattern, '$1 ✅ 已完成');
+      }
+    }
+
+    return updatedDoc;
   }
 }
 
