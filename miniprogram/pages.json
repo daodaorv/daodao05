@@ -20,6 +20,24 @@
 			}
 		},
 		{
+			"path": "pages/crowdfunding/detail",
+			"style": {
+				"navigationBarTitleText": "项目详情"
+			}
+		},
+		{
+			"path": "pages/campsite/list",
+			"style": {
+				"navigationBarTitleText": "营地预订"
+			}
+		},
+		{
+			"path": "pages/tour/list",
+			"style": {
+				"navigationBarTitleText": "房车旅游"
+			}
+		},
+		{
 			"path": "pages/vehicle/list",
 			"style": {
 				"navigationBarTitleText": "选择房车"
@@ -47,6 +65,7 @@
 			"path": "pages/order/list",
 			"style": {
 				"navigationBarTitleText": "我的订单",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -66,6 +85,37 @@
 			"path": "pages/profile/edit",
 			"style": {
 				"navigationBarTitleText": "个人信息"
+			}
+		},
+		{
+			"path": "pages/profile/favorites",
+			"style": {
+				"navigationBarTitleText": "我的收藏",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/profile/contacts",
+			"style": {
+				"navigationBarTitleText": "常用联系人"
+			}
+		},
+		{
+			"path": "pages/profile/contact-edit",
+			"style": {
+				"navigationBarTitleText": "添加联系人"
+			}
+		},
+		{
+			"path": "pages/profile/settings",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/profile/about",
+			"style": {
+				"navigationBarTitleText": "关于我们"
 			}
 		},
 		{

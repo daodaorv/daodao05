@@ -1,6 +1,11 @@
 <template>
 	<view class="vehicle-card" @tap="handleClick">
-		<image class="vehicle-image" :src="data.image" mode="aspectFill"></image>
+		<view class="image-wrapper">
+			<image class="vehicle-image" :src="data.image" mode="aspectFill"></image>
+			<view class="favorite-btn" @tap.stop="handleFavorite">
+				<uni-icons :type="favorited ? 'heart-filled' : 'heart'" size="20" :color="favorited ? '#FF4D4F' : '#FFFFFF'"></uni-icons>
+			</view>
+		</view>
 		<view class="vehicle-info">
 			<view class="header">
 				<text class="vehicle-name">{{ data.name }}</text>
@@ -19,16 +24,18 @@
 				<view class="price-box">
 					<text class="currency">¥</text>
 					<text class="price">{{ data.price }}</text>
-					<text class="unit">/日均</text>
+					<text class="unit">/天</text>
 				</view>
-				<button class="book-btn" @tap.stop="handleBook">预订</button>
+				<button class="book-btn" @tap.stop="handleBook">立即预订</button>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="ts">
-export interface Vehicle {
+import { ref } from 'vue';
+
+interface Vehicle {
 	id: string;
 	name: string;
 	image: string;
@@ -49,6 +56,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['click']);
 
+const favorited = ref(false);
+
 const handleClick = () => {
 	emit('click', props.data);
 };
@@ -56,6 +65,14 @@ const handleClick = () => {
 const handleBook = () => {
 	// 预订按钮也跳转到详情页,让用户查看完整信息
 	emit('click', props.data);
+};
+
+const handleFavorite = () => {
+	favorited.value = !favorited.value;
+	uni.showToast({
+		title: favorited.value ? '收藏成功' : '取消收藏',
+		icon: 'none'
+	});
 };
 </script>
 
@@ -70,10 +87,28 @@ const handleBook = () => {
 	flex-direction: column;
 }
 
+.image-wrapper {
+	position: relative;
+}
+
 .vehicle-image {
 	width: 100%;
 	height: 320rpx;
 	background-color: #F5F5F5;
+}
+
+.favorite-btn {
+	position: absolute;
+	top: 16rpx;
+	right: 16rpx;
+	width: 56rpx;
+	height: 56rpx;
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(4rpx);
 }
 
 .vehicle-info {
@@ -160,11 +195,11 @@ const handleBook = () => {
 	background-color: $uni-color-primary;
 	color: #FFFFFF;
 	border-radius: 32rpx;
-	
+
 	&::after {
 		border: none;
 	}
-	
+
 	&:active {
 		opacity: 0.9;
 	}

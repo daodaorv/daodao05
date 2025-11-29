@@ -1,7 +1,7 @@
 <template>
 	<view class="profile-page">
 		<!-- 头部用户信息 -->
-		<view class="header-section" @tap="handleLogin">
+		<view class="header-section" :style="{ paddingTop: headerPaddingTop + 'px' }" @tap="handleLogin">
 			<view class="user-info">
 				<view class="avatar-box">
 					<image 
@@ -89,7 +89,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+
+// 获取系统状态栏高度
+const statusBarHeight = ref(0);
+const getStatusBarHeight = () => {
+	const systemInfo = uni.getSystemInfoSync();
+	statusBarHeight.value = systemInfo.statusBarHeight || 0;
+};
+getStatusBarHeight();
+
+// 计算顶部安全区域高度(状态栏高度)
+const headerPaddingTop = computed(() => {
+	return statusBarHeight.value + 40; // 状态栏高度 + 额外内边距40rpx转px
+});
 
 // 登录状态模拟
 const isLogin = ref(true);
@@ -168,6 +181,10 @@ const handleMenuClick = (item: any) => {
 		uni.makePhoneCall({
 			phoneNumber: '400-123-4567'
 		});
+	} else if (item.path) {
+		uni.navigateTo({
+			url: item.path
+		});
 	} else {
 		uni.showToast({
 			title: `访问: ${item.name}`,
@@ -186,7 +203,6 @@ const handleMenuClick = (item: any) => {
 .header-section {
 	background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
 	padding: 40rpx 32rpx;
-	padding-top: calc(40rpx + env(safe-area-inset-top));
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

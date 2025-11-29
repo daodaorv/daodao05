@@ -1,0 +1,19 @@
+{
+  "name": "daodao-miniprogram",
+  "version": "1.0.0",
+  "description": "叨叨房车租赁小程序",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "uni-app",
+    "miniprogram",
+    "rental"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dayjs": "^1.11.10"
+  }
+}

@@ -1,14 +1,15 @@
-/**
- * uni-app全局类型声明
- */
+declare module 'vue' {
+    import type { App, Component } from '@vue/runtime-core'
+    export * from '@vue/runtime-core'
+    export { App, Component }
+}
 
-declare const uni: any;
-declare const wx: any;
-declare const plus: any;
-
-// 扩展Window接口
-interface Window {
-    uni: any;
-    wx: any;
-    plus: any;
+declare module '@dcloudio/uni-app' {
+    export function onLoad(callback: (options: any) => void): void
+    export function onShow(callback: () => void): void
+    export function onReady(callback: () => void): void
+    export function onHide(callback: () => void): void
+    export function onUnload(callback: () => void): void
+    export function onPullDownRefresh(callback: () => void): void
+    export function onReachBottom(callback: () => void): void
 }

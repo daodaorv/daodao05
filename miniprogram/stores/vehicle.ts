@@ -4,7 +4,7 @@
 
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getVehicles, getVehicleDetail, favoriteVehicle } from '@/api/vehicle';
+import { getVehicles, getVehicleDetail, favoriteVehicle, getFavoriteVehicles } from '@/api/vehicle';
 
 export const useVehicleStore = defineStore('vehicle', () => {
     // 状态
@@ -40,6 +40,24 @@ export const useVehicleStore = defineStore('vehicle', () => {
             return null;
         } catch (error) {
             console.error('获取车辆详情失败:', error);
+            return null;
+        }
+    };
+
+    // 获取收藏列表
+    const fetchFavoriteVehicles = async (params?: { page?: number; limit?: number }) => {
+        try {
+            const res = await getFavoriteVehicles(params);
+            if (res.code === 0) {
+                // 如果是第一页，覆盖列表；否则追加（这里简化处理，假设组件处理分页或每次全量）
+                // 实际业务中可能需要维护一个 separate list for favorites page
+                // 但考虑到 vehicleList 是通用的，我们可能需要一个专门的 favoritesList state
+                // 或者直接返回数据给组件处理
+                return res.data;
+            }
+            return null;
+        } catch (error) {
+            console.error('获取收藏列表失败:', error);
             return null;
         }
     };
@@ -93,6 +111,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
         // 方法
         fetchVehicles,
         fetchVehicleDetail,
+        fetchFavoriteVehicles,
         toggleFavorite,
         isFavorite,
         initFavorites,
