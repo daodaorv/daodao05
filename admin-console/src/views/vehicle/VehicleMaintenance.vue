@@ -1,204 +1,45 @@
 <template>
   <div class="vehicle-maintenance-container">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>维保管理</h2>
-      <p class="page-description">管理车辆维修保养计划、记录和成本</p>
-    </div>
+    <PageHeader title="维保管理" description="管理车辆维修保养计划、记录和成本" />
 
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-cards">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#409eff"><Calendar /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.planned }}</div>
-              <div class="stat-label">计划维保</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#e6a23c"><Tools /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.inProgress }}</div>
-              <div class="stat-label">维保中</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#67c23a"><CircleCheck /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.completed }}</div>
-              <div class="stat-label">已完成</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#f56c6c"><Money /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">¥{{ stats.totalCost.toLocaleString() }}</div>
-              <div class="stat-label">本月成本</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="车牌号">
-          <el-input
-            v-model="searchForm.plateNumber"
-            placeholder="请输入车牌号"
-            clearable
-            style="width: 150px"
-          />
-        </el-form-item>
-        <el-form-item label="维保类型">
-          <el-select
-            v-model="searchForm.type"
-            placeholder="请选择类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="常规保养" value="regular" />
-            <el-option label="维修" value="repair" />
-            <el-option label="年检" value="inspection" />
-            <el-option label="紧急维修" value="emergency" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="维保状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="计划中" value="planned" />
-            <el-option label="进行中" value="in_progress" />
-            <el-option label="已完成" value="completed" />
-            <el-option label="已取消" value="cancelled" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="时间范围">
-          <el-date-picker
-            v-model="searchForm.dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 240px"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增维保记录
-      </el-button>
-      <el-button :icon="Calendar">维保计划</el-button>
-      <el-button :icon="Download">导出记录</el-button>
-      <el-button :icon="DocumentCopy">成本报表</el-button>
-    </el-card>
-
-    <!-- 维保记录列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="maintenanceList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="plateNumber" label="车牌号" width="120" />
-        <el-table-column prop="modelName" label="车型" width="150" />
-        <el-table-column label="维保类型" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getTypeTag(row.type)" size="small">
-              {{ getTypeLabel(row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="维保内容" min-width="200" show-overflow-tooltip />
-        <el-table-column label="维保状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTag(row.status)" size="small">
-              {{ getStatusLabel(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="serviceProvider" label="服务商" width="150" />
-        <el-table-column prop="cost" label="费用" width="120">
-          <template #default="{ row }">
-            ¥{{ row.cost.toLocaleString() }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="scheduledDate" label="计划日期" width="120" />
-        <el-table-column prop="completedDate" label="完成日期" width="120" />
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button
-              link
-              type="success"
-              size="small"
-              @click="handleComplete(row)"
-              v-if="row.status !== 'completed' && row.status !== 'cancelled'"
-            >
-              完成
-            </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="maintenanceList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="250"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <template #type="{ row }">
+        <el-tag :type="getTypeTag(row.type)" size="small">
+          {{ getTypeLabel(row.type) }}
+        </el-tag>
+      </template>
+      <template #status="{ row }">
+        <el-tag :type="getStatusTag(row.status)" size="small">
+          {{ getStatusLabel(row.status) }}
+        </el-tag>
+      </template>
+      <template #cost="{ row }">
+        ¥{{ row.cost.toLocaleString() }}
+      </template>
+    </DataTable>
 
     <!-- 新增/编辑维保记录对话框 -->
     <el-dialog
@@ -374,12 +215,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
-  Search,
-  Refresh,
   Plus,
   Download,
   Calendar,
@@ -388,6 +227,13 @@ import {
   Money,
   DocumentCopy,
 } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import StatsCard from '@/components/common/StatsCard.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { StatItem } from '@/components/common/StatsCard.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import {
   getMaintenanceRecords,
   getMaintenanceRecordDetail,
@@ -415,10 +261,145 @@ const stats = reactive({
   totalCost: 0,
 })
 
+// 统计卡片配置
+const statsConfig = computed<StatItem[]>(() => [
+  {
+    label: '计划维保',
+    value: stats.planned,
+    icon: Calendar,
+    color: '#409eff',
+  },
+  {
+    label: '维保中',
+    value: stats.inProgress,
+    icon: Tools,
+    color: '#e6a23c',
+  },
+  {
+    label: '已完成',
+    value: stats.completed,
+    icon: CircleCheck,
+    color: '#67c23a',
+  },
+  {
+    label: '本月成本',
+    value: stats.totalCost,
+    icon: Money,
+    color: '#f56c6c',
+    format: 'currency',
+  },
+])
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'plateNumber',
+    label: '车牌号',
+    type: 'input',
+    placeholder: '请输入车牌号',
+    width: '150px',
+  },
+  {
+    prop: 'type',
+    label: '维保类型',
+    type: 'select',
+    placeholder: '请选择类型',
+    width: '150px',
+    options: [
+      { label: '常规保养', value: 'regular' },
+      { label: '维修', value: 'repair' },
+      { label: '年检', value: 'inspection' },
+      { label: '紧急维修', value: 'emergency' },
+    ],
+  },
+  {
+    prop: 'status',
+    label: '维保状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: [
+      { label: '计划中', value: 'planned' },
+      { label: '进行中', value: 'in_progress' },
+      { label: '已完成', value: 'completed' },
+      { label: '已取消', value: 'cancelled' },
+    ],
+  },
+  {
+    prop: 'dateRange',
+    label: '时间范围',
+    type: 'daterange',
+    width: '240px',
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'plateNumber', label: '车牌号', width: 120 },
+  { prop: 'modelName', label: '车型', width: 150 },
+  { prop: 'type', label: '维保类型', width: 120, slot: 'type' },
+  { prop: 'description', label: '维保内容', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'status', label: '维保状态', width: 100, slot: 'status' },
+  { prop: 'serviceProvider', label: '服务商', width: 150 },
+  { prop: 'cost', label: '费用', width: 120, slot: 'cost' },
+  { prop: 'scheduledDate', label: '计划日期', width: 120 },
+  { prop: 'completedDate', label: '完成日期', width: 120 },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增维保记录',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleCreate(),
+  },
+  {
+    label: '维保计划',
+    icon: Calendar,
+    onClick: () => ElMessage.info('维保计划功能开发中'),
+  },
+  {
+    label: '导出记录',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '成本报表',
+    icon: DocumentCopy,
+    onClick: () => ElMessage.info('成本报表功能开发中'),
+  },
+]
+
+// 表格操作列配置
+const tableActions: TableAction[] = [
+  {
+    label: '查看',
+    type: 'primary',
+    onClick: (row: MaintenanceRecord) => handleView(row),
+  },
+  {
+    label: '编辑',
+    type: 'primary',
+    onClick: (row: MaintenanceRecord) => handleEdit(row),
+  },
+  {
+    label: '完成',
+    type: 'success',
+    onClick: (row: MaintenanceRecord) => handleComplete(row),
+    show: (row: MaintenanceRecord) => row.status !== 'completed' && row.status !== 'cancelled',
+  },
+  {
+    label: '删除',
+    type: 'danger',
+    onClick: (row: MaintenanceRecord) => handleDelete(row),
+  },
+]
+
 // 维保记录列表
 const maintenanceList = ref<MaintenanceRecord[]>([])
 const vehicleList = ref<any[]>([])
-
 const loading = ref(false)
 
 // 分页
@@ -697,10 +678,12 @@ const handleDialogClose = () => {
 // 分页
 const handleSizeChange = (size: number) => {
   pagination.pageSize = size
+  loadMaintenanceRecords()
 }
 
 const handleCurrentChange = (page: number) => {
   pagination.page = page
+  loadMaintenanceRecords()
 }
 
 // 获取类型标签
@@ -758,73 +741,5 @@ onMounted(() => {
 <style scoped lang="scss">
 .vehicle-maintenance-container {
   padding: 20px;
-
-  .page-header {
-    margin-bottom: 20px;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #303133;
-    }
-
-    .page-description {
-      font-size: 14px;
-      color: #909399;
-      margin: 0;
-    }
-  }
-
-  .stats-cards {
-    margin-bottom: 20px;
-
-    .stat-card {
-      cursor: pointer;
-      transition: all 0.3s;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-content {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-
-        .stat-icon {
-          flex-shrink: 0;
-        }
-
-        .stat-info {
-          flex: 1;
-
-          .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #303133;
-          }
-
-          .stat-label {
-            font-size: 14px;
-            color: #909399;
-          }
-        }
-      }
-    }
-  }
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
 }
 </style>

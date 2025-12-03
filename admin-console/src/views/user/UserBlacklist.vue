@@ -1,129 +1,85 @@
 <template>
   <div class="user-blacklist-container">
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="用户信息">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="手机号/用户名"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="加入原因">
-          <el-select
-            v-model="searchForm.reason"
-            placeholder="请选择原因"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="欺诈行为" value="fraud" />
-            <el-option label="恶意投诉" value="complaint" />
-            <el-option label="违规操作" value="violation" />
-            <el-option label="其他" value="other" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 页面标题 -->
+    <PageHeader title="黑名单管理" description="管理平台黑名单用户，防范风险行为" />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleAdd">
-        添加黑名单
-      </el-button>
-      <el-button :icon="Download">导出</el-button>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 黑名单列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="blacklistData"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="用户信息" width="200">
-          <template #default="{ row }">
-            <div class="user-info">
-              <el-avatar :src="row.avatarUrl" :size="40">
-                {{ row.username.charAt(0) }}
-              </el-avatar>
-              <div class="user-detail">
-                <div>{{ row.username }}</div>
-                <div class="phone">{{ row.phone }}</div>
-              </div>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="加入原因" width="120">
-          <template #default="{ row }">
-            <el-tag type="danger">
-              {{ getReasonLabel(row.reason) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="详细说明" show-overflow-tooltip />
-        <el-table-column prop="addedBy" label="操作人" width="120" />
-        <el-table-column prop="addedAt" label="加入时间" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.addedAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.isActive ? 'danger' : 'info'">
-              {{ row.isActive ? '生效中' : '已解除' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看详情
-            </el-button>
-            <el-button
-              v-if="row.isActive"
-              link
-              type="success"
-              size="small"
-              @click="handleRemove(row)"
-            >
-              解除
-            </el-button>
-            <el-button
-              v-else
-              link
-              type="danger"
-              size="small"
-              @click="handleReactivate(row)"
-            >
-              重新加入
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="blacklistData"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="200"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 用户信息列 -->
+      <template #userInfo="{ row }">
+        <div class="user-info">
+          <el-avatar :src="row.avatarUrl" :size="40">
+            {{ row.username.charAt(0) }}
+          </el-avatar>
+          <div class="user-detail">
+            <div>{{ row.username }}</div>
+            <div class="phone">{{ row.phone }}</div>
+          </div>
+        </div>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 加入原因列 -->
+      <template #reason="{ row }">
+        <el-tag type="danger">
+          {{ getReasonLabel(row.reason) }}
+        </el-tag>
+      </template>
+
+      <!-- 加入时间列 -->
+      <template #addedAt="{ row }">
+        {{ formatDateTime(row.addedAt) }}
+      </template>
+
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="row.isActive ? 'danger' : 'info'">
+          {{ row.isActive ? '生效中' : '已解除' }}
+        </el-tag>
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看详情
+        </el-button>
+        <el-button
+          v-if="row.isActive"
+          link
+          type="success"
+          size="small"
+          @click="handleRemove(row)"
+        >
+          解除
+        </el-button>
+        <el-button
+          v-else
+          link
+          type="danger"
+          size="small"
+          @click="handleReactivate(row)"
+        >
+          重新加入
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 添加黑名单对话框 -->
     <el-dialog
@@ -229,7 +185,12 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
+import { Plus, Download } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 
 // 黑名单数据类型
 interface BlacklistUser {
@@ -258,6 +219,59 @@ const searchForm = reactive({
   keyword: '',
   reason: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '用户信息',
+    type: 'input',
+    placeholder: '手机号/用户名',
+    width: '200px',
+  },
+  {
+    prop: 'reason',
+    label: '加入原因',
+    type: 'select',
+    placeholder: '请选择原因',
+    width: '150px',
+    options: [
+      { label: '欺诈行为', value: 'fraud' },
+      { label: '恶意投诉', value: 'complaint' },
+      { label: '违规操作', value: 'violation' },
+      { label: '其他', value: 'other' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'userInfo', label: '用户信息', width: 200, slot: 'userInfo' },
+  { prop: 'reason', label: '加入原因', width: 120, slot: 'reason' },
+  { prop: 'description', label: '详细说明', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'addedBy', label: '操作人', width: 120 },
+  { prop: 'addedAt', label: '加入时间', width: 180, slot: 'addedAt' },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '添加黑名单',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleAdd(),
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 黑名单列表
 const blacklistData = ref<BlacklistUser[]>([
@@ -501,12 +515,6 @@ onMounted(() => {
 .user-blacklist-container {
   padding: 20px;
 
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
   .user-info {
     display: flex;
     align-items: center;
@@ -519,12 +527,6 @@ onMounted(() => {
         margin-top: 4px;
       }
     }
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
   }
 }
 </style>

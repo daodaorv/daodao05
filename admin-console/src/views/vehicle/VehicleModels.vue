@@ -1,172 +1,94 @@
 <template>
   <div class="vehicle-models-container">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>车型库管理</h2>
-      <p class="page-description">管理车辆品牌、型号和配置参数</p>
-    </div>
+    <PageHeader title="车型库管理" description="管理车辆品牌、型号和配置参数" />
 
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="品牌">
-          <el-select
-            v-model="searchForm.brandId"
-            placeholder="请选择品牌"
-            clearable
-            style="width: 150px"
-          >
-            <el-option
-              v-for="brand in brandsList"
-              :key="brand.id"
-              :label="brand.name"
-              :value="brand.id"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="车型名称">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="请输入车型名称"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="车辆类型">
-          <el-select
-            v-model="searchForm.vehicleType"
-            placeholder="请选择类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="自行式C型" value="c_type" />
-            <el-option label="自行式B型" value="b_type" />
-            <el-option label="拖挂式" value="trailer" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="启用" value="active" />
-            <el-option label="禁用" value="inactive" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增车型
-      </el-button>
-      <el-button :icon="Download">导出车型</el-button>
-      <el-button :icon="Upload">导入车型</el-button>
-    </el-card>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="modelsList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="250"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 车型图片列 -->
+      <template #image="{ row }">
+        <el-image
+          :src="row.image"
+          :preview-src-list="[row.image]"
+          fit="cover"
+          style="width: 80px; height: 60px; border-radius: 4px"
+        >
+          <template #error>
+            <div class="image-slot">
+              <el-icon><Picture /></el-icon>
+            </div>
+          </template>
+        </el-image>
+      </template>
 
-    <!-- 车型列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="modelsList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="车型图片" width="120">
-          <template #default="{ row }">
-            <el-image
-              :src="row.image"
-              :preview-src-list="[row.image]"
-              fit="cover"
-              style="width: 80px; height: 60px; border-radius: 4px"
-            >
-              <template #error>
-                <div class="image-slot">
-                  <el-icon><Picture /></el-icon>
-                </div>
-              </template>
-            </el-image>
-          </template>
-        </el-table-column>
-        <el-table-column prop="brandName" label="品牌" width="120" />
-        <el-table-column prop="modelName" label="车型名称" width="200" />
-        <el-table-column label="车辆类型" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getVehicleTypeTag(row.vehicleType)" size="small">
-              {{ getVehicleTypeLabel(row.vehicleType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="seats" label="核载人数" width="100">
-          <template #default="{ row }">
-            {{ row.seats }}人
-          </template>
-        </el-table-column>
-        <el-table-column prop="beds" label="床位数" width="100">
-          <template #default="{ row }">
-            {{ row.beds }}个
-          </template>
-        </el-table-column>
-        <el-table-column prop="dailyPrice" label="日租金" width="120">
-          <template #default="{ row }">
-            ¥{{ row.dailyPrice }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="vehicleCount" label="车辆数量" width="100" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'info'">
-              {{ row.status === 'active' ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createdAt" label="创建时间" width="180" />
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button
-              link
-              :type="row.status === 'active' ? 'warning' : 'success'"
-              size="small"
-              @click="handleStatusChange(row)"
-            >
-              {{ row.status === 'active' ? '禁用' : '启用' }}
-            </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <!-- 车辆类型列 -->
+      <template #vehicleType="{ row }">
+        <el-tag :type="getVehicleTypeTag(row.vehicleType)" size="small">
+          {{ getVehicleTypeLabel(row.vehicleType) }}
+        </el-tag>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 核载人数列 -->
+      <template #seats="{ row }">
+        {{ row.seats }}人
+      </template>
+
+      <!-- 床位数列 -->
+      <template #beds="{ row }">
+        {{ row.beds }}个
+      </template>
+
+      <!-- 日租金列 -->
+      <template #dailyPrice="{ row }">
+        ¥{{ row.dailyPrice }}
+      </template>
+
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
+          {{ row.status === 'active' ? '启用' : '禁用' }}
+        </el-tag>
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看
+        </el-button>
+        <el-button link type="primary" size="small" @click="handleEdit(row)">
+          编辑
+        </el-button>
+        <el-button
+          link
+          :type="row.status === 'active' ? 'warning' : 'success'"
+          size="small"
+          @click="handleStatusChange(row)"
+        >
+          {{ row.status === 'active' ? '禁用' : '启用' }}
+        </el-button>
+        <el-button link type="danger" size="small" @click="handleDelete(row)">
+          删除
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 新增/编辑车型对话框 -->
     <el-dialog
@@ -344,13 +266,16 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
-  Search,
-  Refresh,
   Plus,
   Download,
   Upload,
   Picture,
 } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import {
   getVehicleModels,
   createVehicleModel,
@@ -378,6 +303,86 @@ const searchForm = reactive({
   vehicleType: '',
   status: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'brandId',
+    label: '品牌',
+    type: 'select',
+    placeholder: '请选择品牌',
+    width: '150px',
+    options: [], // 动态加载
+  },
+  {
+    prop: 'keyword',
+    label: '车型名称',
+    type: 'input',
+    placeholder: '请输入车型名称',
+    width: '200px',
+  },
+  {
+    prop: 'vehicleType',
+    label: '车辆类型',
+    type: 'select',
+    placeholder: '请选择类型',
+    width: '150px',
+    options: [
+      { label: '自行式C型', value: 'c_type' },
+      { label: '自行式B型', value: 'b_type' },
+      { label: '拖挂式', value: 'trailer' },
+    ],
+  },
+  {
+    prop: 'status',
+    label: '状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: [
+      { label: '启用', value: 'active' },
+      { label: '禁用', value: 'inactive' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'image', label: '车型图片', width: 120, slot: 'image' },
+  { prop: 'brandName', label: '品牌', width: 120 },
+  { prop: 'modelName', label: '车型名称', width: 200 },
+  { prop: 'vehicleType', label: '车辆类型', width: 120, slot: 'vehicleType' },
+  { prop: 'seats', label: '核载人数', width: 100, slot: 'seats' },
+  { prop: 'beds', label: '床位数', width: 100, slot: 'beds' },
+  { prop: 'dailyPrice', label: '日租金', width: 120, slot: 'dailyPrice' },
+  { prop: 'vehicleCount', label: '车辆数量', width: 100 },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'createdAt', label: '创建时间', width: 180 },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增车型',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleCreate(),
+  },
+  {
+    label: '导出车型',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '导入车型',
+    icon: Upload,
+    onClick: () => ElMessage.info('导入功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 车型列表
 const modelsList = ref<VehicleModel[]>([])
@@ -457,6 +462,14 @@ const loadBrands = async () => {
   try {
     const res = await getBrands()
     brandsList.value = res.data
+    // 动态更新搜索字段的品牌选项
+    const brandField = searchFields.find(f => f.prop === 'brandId')
+    if (brandField) {
+      brandField.options = res.data.map((b: Brand) => ({
+        label: b.name,
+        value: b.id,
+      }))
+    }
   } catch (error) {
     ElMessage.error('加载品牌列表失败')
   }
@@ -677,29 +690,6 @@ onMounted(() => {
 .vehicle-models-container {
   padding: 20px;
 
-  .page-header {
-    margin-bottom: 20px;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #303133;
-    }
-
-    .page-description {
-      font-size: 14px;
-      color: #909399;
-      margin: 0;
-    }
-  }
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
   .image-slot {
     display: flex;
     align-items: center;
@@ -709,12 +699,6 @@ onMounted(() => {
     background-color: #f5f7fa;
     color: #909399;
     font-size: 24px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
   }
 
   .image-uploader {

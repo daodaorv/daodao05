@@ -1,231 +1,100 @@
 <template>
   <div class="vehicle-status-container">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>车辆状态管理</h2>
-      <p class="page-description">实时管理车辆可用性、维修、保养状态</p>
-    </div>
+    <PageHeader title="车辆状态管理" description="实时管理车辆可用性、维修、保养状态" />
 
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-cards">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card available">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40"><CircleCheck /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.available }}</div>
-              <div class="stat-label">可用车辆</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card rented">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40"><Van /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.rented }}</div>
-              <div class="stat-label">租用中</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card maintenance">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40"><Tools /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.maintenance }}</div>
-              <div class="stat-label">维修中</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card repair">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40"><CircleClose /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.repair }}</div>
-              <div class="stat-label">维修中</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="车牌号">
-          <el-input
-            v-model="searchForm.plateNumber"
-            placeholder="请输入车牌号"
-            clearable
-            style="width: 150px"
-          />
-        </el-form-item>
-        <el-form-item label="车辆状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="可用" value="available" />
-            <el-option label="租用中" value="rented" />
-            <el-option label="保养中" value="maintenance" />
-            <el-option label="维修中" value="repair" />
-            <el-option label="已退役" value="retired" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属门店">
-          <el-select
-            v-model="searchForm.storeId"
-            placeholder="请选择门店"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="北京朝阳店" :value="1" />
-            <el-option label="上海浦东店" :value="2" />
-            <el-option label="深圳南山店" :value="3" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="车辆来源">
-          <el-select
-            v-model="searchForm.source"
-            placeholder="请选择来源"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="众筹车辆" value="crowdfunding" />
-            <el-option label="合作车辆" value="cooperative" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Refresh" @click="handleRefresh">
-        刷新状态
-      </el-button>
-      <el-button :icon="Download">导出状态报表</el-button>
-      <el-button type="success" :icon="CircleCheck">批量设为可用</el-button>
-      <el-button type="warning" :icon="Tools">批量维修</el-button>
-    </el-card>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="vehicleStatusList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="350"
+      :show-selection="true"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      @selection-change="handleSelectionChange"
+    >
+      <!-- 车辆来源列 -->
+      <template #ownershipType="{ row }">
+        <el-tag :type="row.ownershipType === 'crowdfunding' ? 'primary' : 'success'" size="small">
+          {{ row.ownershipType === 'crowdfunding' ? '众筹车辆' : '合作车辆' }}
+        </el-tag>
+      </template>
 
-    <!-- 车辆状态列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="vehicleStatusList"
-        stripe
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="vehicleNumber" label="车牌号" width="120" />
-        <el-table-column prop="modelName" label="车型" width="150" />
-        <el-table-column label="车辆来源" width="120">
-          <template #default="{ row }">
-            <el-tag :type="row.ownershipType === 'crowdfunding' ? 'primary' : 'success'" size="small">
-              {{ row.ownershipType === 'crowdfunding' ? '众筹车辆' : '合作车辆' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="当前状态" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTag(row.status)" size="small">
-              {{ getStatusLabel(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="storeName" label="所属门店" width="150" />
-        <el-table-column prop="location" label="当前位置" width="150" show-overflow-tooltip />
-        <el-table-column label="最后更新" width="180">
-          <template #default="{ row }">
-            {{ row.updatedAt }}
-          </template>
-        </el-table-column>
-        <el-table-column label="状态持续时间" width="120">
-          <template #default="{ row }">
-            {{ getStatusDuration(row.updatedAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="350" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleViewHistory(row)">
-              状态历史
-            </el-button>
-            <el-button
-              link
-              type="success"
-              size="small"
-              @click="handleChangeStatus(row, 'available')"
-              :disabled="row.status === 'available'"
-            >
-              设为可用
-            </el-button>
-            <el-button
-              link
-              type="info"
-              size="small"
-              @click="handleChangeStatus(row, 'maintenance')"
-              :disabled="row.status === 'maintenance'"
-            >
-              保养
-            </el-button>
-            <el-button
-              link
-              type="warning"
-              size="small"
-              @click="handleChangeStatus(row, 'repair')"
-              :disabled="row.status === 'repair'"
-            >
-              维修
-            </el-button>
-            <el-button
-              link
-              type="danger"
-              size="small"
-              @click="handleChangeStatus(row, 'retired')"
-              :disabled="row.status === 'retired'"
-            >
-              退役
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <!-- 当前状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="getStatusTag(row.status)" size="small">
+          {{ getStatusLabel(row.status) }}
+        </el-tag>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 最后更新列 -->
+      <template #updatedAt="{ row }">
+        {{ row.updatedAt }}
+      </template>
+
+      <!-- 状态持续时间列 -->
+      <template #duration="{ row }">
+        {{ getStatusDuration(row.updatedAt) }}
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleViewHistory(row)">
+          状态历史
+        </el-button>
+        <el-button
+          link
+          type="success"
+          size="small"
+          @click="handleChangeStatus(row, 'available')"
+          :disabled="row.status === 'available'"
+        >
+          设为可用
+        </el-button>
+        <el-button
+          link
+          type="info"
+          size="small"
+          @click="handleChangeStatus(row, 'maintenance')"
+          :disabled="row.status === 'maintenance'"
+        >
+          保养
+        </el-button>
+        <el-button
+          link
+          type="warning"
+          size="small"
+          @click="handleChangeStatus(row, 'repair')"
+          :disabled="row.status === 'repair'"
+        >
+          维修
+        </el-button>
+        <el-button
+          link
+          type="danger"
+          size="small"
+          @click="handleChangeStatus(row, 'retired')"
+          :disabled="row.status === 'retired'"
+        >
+          退役
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 状态变更对话框 -->
     <el-dialog
@@ -333,7 +202,6 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
-  Search,
   Refresh,
   Download,
   CircleCheck,
@@ -342,6 +210,13 @@ import {
   Van,
   Right,
 } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import StatsCard from '@/components/common/StatsCard.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { StatItem } from '@/components/common/StatsCard.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import {
   getVehicles,
   getVehicleStatusStats,
@@ -367,6 +242,125 @@ const stats = reactive({
   repair: 0,
   retired: 0,
 })
+
+// 统计卡片配置
+const statsConfig = computed<StatItem[]>(() => [
+  {
+    label: '可用车辆',
+    value: stats.available,
+    icon: CircleCheck,
+    color: '#67c23a',
+  },
+  {
+    label: '租用中',
+    value: stats.rented,
+    icon: Van,
+    color: '#e6a23c',
+  },
+  {
+    label: '保养中',
+    value: stats.maintenance,
+    icon: Tools,
+    color: '#909399',
+  },
+  {
+    label: '维修中',
+    value: stats.repair,
+    icon: CircleClose,
+    color: '#f56c6c',
+  },
+])
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'plateNumber',
+    label: '车牌号',
+    type: 'input',
+    placeholder: '请输入车牌号',
+    width: '150px',
+  },
+  {
+    prop: 'status',
+    label: '车辆状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: [
+      { label: '可用', value: 'available' },
+      { label: '租用中', value: 'rented' },
+      { label: '保养中', value: 'maintenance' },
+      { label: '维修中', value: 'repair' },
+      { label: '已退役', value: 'retired' },
+    ],
+  },
+  {
+    prop: 'storeId',
+    label: '所属门店',
+    type: 'select',
+    placeholder: '请选择门店',
+    width: '150px',
+    options: [
+      { label: '北京朝阳店', value: 1 },
+      { label: '上海浦东店', value: 2 },
+      { label: '深圳南山店', value: 3 },
+    ],
+  },
+  {
+    prop: 'source',
+    label: '车辆来源',
+    type: 'select',
+    placeholder: '请选择来源',
+    width: '150px',
+    options: [
+      { label: '众筹车辆', value: 'crowdfunding' },
+      { label: '合作车辆', value: 'cooperative' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'vehicleNumber', label: '车牌号', width: 120 },
+  { prop: 'modelName', label: '车型', width: 150 },
+  { prop: 'ownershipType', label: '车辆来源', width: 120, slot: 'ownershipType' },
+  { prop: 'status', label: '当前状态', width: 120, slot: 'status' },
+  { prop: 'storeName', label: '所属门店', width: 150 },
+  { prop: 'location', label: '当前位置', width: 150, showOverflowTooltip: true },
+  { prop: 'updatedAt', label: '最后更新', width: 180, slot: 'updatedAt' },
+  { prop: 'duration', label: '状态持续时间', width: 120, slot: 'duration' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '刷新状态',
+    type: 'primary',
+    icon: Refresh,
+    onClick: () => handleRefresh(),
+  },
+  {
+    label: '导出状态报表',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '批量设为可用',
+    type: 'success',
+    icon: CircleCheck,
+    onClick: () => ElMessage.info('批量操作功能开发中'),
+  },
+  {
+    label: '批量维修',
+    type: 'warning',
+    icon: Tools,
+    onClick: () => ElMessage.info('批量操作功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 车辆状态列表
 const vehicleStatusList = ref<Vehicle[]>([])
@@ -594,109 +588,6 @@ onMounted(() => {
 <style scoped lang="scss">
 .vehicle-status-container {
   padding: 20px;
-
-  .page-header {
-    margin-bottom: 20px;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #303133;
-    }
-
-    .page-description {
-      font-size: 14px;
-      color: #909399;
-      margin: 0;
-    }
-  }
-
-  .stats-cards {
-    margin-bottom: 20px;
-
-    .stat-card {
-      cursor: pointer;
-      transition: all 0.3s;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-content {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-
-        .stat-icon {
-          flex-shrink: 0;
-        }
-
-        .stat-info {
-          flex: 1;
-
-          .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
-          }
-
-          .stat-label {
-            font-size: 14px;
-            color: #909399;
-          }
-        }
-      }
-
-      &.available {
-        .stat-icon {
-          color: #67c23a;
-        }
-        .stat-value {
-          color: #67c23a;
-        }
-      }
-
-      &.rented {
-        .stat-icon {
-          color: #e6a23c;
-        }
-        .stat-value {
-          color: #e6a23c;
-        }
-      }
-
-      &.maintenance {
-        .stat-icon {
-          color: #909399;
-        }
-        .stat-value {
-          color: #909399;
-        }
-      }
-
-      &.repair {
-        .stat-icon {
-          color: #f56c6c;
-        }
-        .stat-value {
-          color: #f56c6c;
-        }
-      }
-    }
-  }
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
 
   .history-item {
     .history-header {

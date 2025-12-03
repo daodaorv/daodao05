@@ -1,201 +1,100 @@
 <template>
   <div class="user-risk-container">
+    <!-- 页面标题 -->
+    <PageHeader title="风险用户管理" description="监控和管理平台风险用户，及时处理异常行为" />
+
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-row">
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="stat-card high-risk" shadow="hover">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon><WarningFilled /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.highRisk }}</div>
-              <div class="stat-label">高风险用户</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="stat-card medium-risk" shadow="hover">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon><Warning /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.mediumRisk }}</div>
-              <div class="stat-label">中风险用户</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="stat-card low-risk" shadow="hover">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon><InfoFilled /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.lowRisk }}</div>
-              <div class="stat-label">低风险用户</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="stat-card total" shadow="hover">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon><User /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.total }}</div>
-              <div class="stat-label">总风险用户</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="用户信息">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="手机号/用户名"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="风险等级">
-          <el-select
-            v-model="searchForm.riskLevel"
-            placeholder="请选择风险等级"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="高风险" value="high" />
-            <el-option label="中风险" value="medium" />
-            <el-option label="低风险" value="low" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="风险类型">
-          <el-select
-            v-model="searchForm.riskType"
-            placeholder="请选择风险类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="登录异常" value="login" />
-            <el-option label="行为异常" value="behavior" />
-            <el-option label="支付异常" value="payment" />
-            <el-option label="信用异常" value="credit" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 风险用户列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="riskList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="用户信息" width="200">
-          <template #default="{ row }">
-            <div class="user-info">
-              <el-avatar :src="row.avatarUrl" :size="40">
-                {{ row.username.charAt(0) }}
-              </el-avatar>
-              <div class="user-detail">
-                <div>{{ row.username }}</div>
-                <div class="phone">{{ row.phone }}</div>
-              </div>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="风险等级" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getRiskLevelType(row.riskLevel)">
-              {{ getRiskLevelLabel(row.riskLevel) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="风险类型" width="120">
-          <template #default="{ row }">
-            <el-tag type="info">
-              {{ getRiskTypeLabel(row.riskType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="riskScore" label="风险评分" width="100">
-          <template #default="{ row }">
-            <span :class="getRiskScoreClass(row.riskScore)">
-              {{ row.riskScore }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="riskReason" label="风险原因" show-overflow-tooltip />
-        <el-table-column prop="detectedAt" label="检测时间" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.detectedAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="处理状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">
-              {{ getStatusLabel(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看详情
-            </el-button>
-            <el-button
-              v-if="row.status === 'pending'"
-              link
-              type="success"
-              size="small"
-              @click="handleProcess(row)"
-            >
-              处理
-            </el-button>
-            <el-button
-              link
-              type="danger"
-              size="small"
-              @click="handleAddBlacklist(row)"
-            >
-              加入黑名单
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="riskList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :pagination="pagination"
+      :actions-width="250"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 用户信息列 -->
+      <template #userInfo="{ row }">
+        <div class="user-info">
+          <el-avatar :src="row.avatarUrl" :size="40">
+            {{ row.username.charAt(0) }}
+          </el-avatar>
+          <div class="user-detail">
+            <div>{{ row.username }}</div>
+            <div class="phone">{{ row.phone }}</div>
+          </div>
+        </div>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 风险等级列 -->
+      <template #riskLevel="{ row }">
+        <el-tag :type="getRiskLevelType(row.riskLevel)">
+          {{ getRiskLevelLabel(row.riskLevel) }}
+        </el-tag>
+      </template>
+
+      <!-- 风险类型列 -->
+      <template #riskType="{ row }">
+        <el-tag type="info">
+          {{ getRiskTypeLabel(row.riskType) }}
+        </el-tag>
+      </template>
+
+      <!-- 风险评分列 -->
+      <template #riskScore="{ row }">
+        <span :class="getRiskScoreClass(row.riskScore)">
+          {{ row.riskScore }}
+        </span>
+      </template>
+
+      <!-- 检测时间列 -->
+      <template #detectedAt="{ row }">
+        {{ formatDateTime(row.detectedAt) }}
+      </template>
+
+      <!-- 处理状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="getStatusType(row.status)">
+          {{ getStatusLabel(row.status) }}
+        </el-tag>
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看详情
+        </el-button>
+        <el-button
+          v-if="row.status === 'pending'"
+          link
+          type="success"
+          size="small"
+          @click="handleProcess(row)"
+        >
+          处理
+        </el-button>
+        <el-button
+          link
+          type="danger"
+          size="small"
+          @click="handleAddBlacklist(row)"
+        >
+          加入黑名单
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 处理风险对话框 -->
     <el-dialog
@@ -245,17 +144,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
-  Search,
-  Refresh,
   WarningFilled,
   Warning,
   InfoFilled,
   User,
 } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import StatsCard from '@/components/common/StatsCard.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { StatItem } from '@/components/common/StatsCard.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction } from '@/components/common/DataTable.vue'
 
 // 风险用户数据类型
 interface RiskUser {
@@ -279,12 +183,91 @@ const stats = reactive({
   total: 25,
 })
 
+// 统计卡片配置
+const statsConfig = computed<StatItem[]>(() => [
+  {
+    label: '高风险用户',
+    value: stats.highRisk,
+    icon: WarningFilled,
+    color: '#f56c6c',
+  },
+  {
+    label: '中风险用户',
+    value: stats.mediumRisk,
+    icon: Warning,
+    color: '#e6a23c',
+  },
+  {
+    label: '低风险用户',
+    value: stats.lowRisk,
+    icon: InfoFilled,
+    color: '#909399',
+  },
+  {
+    label: '总风险用户',
+    value: stats.total,
+    icon: User,
+    color: '#409eff',
+  },
+])
+
 // 搜索表单
 const searchForm = reactive({
   keyword: '',
   riskLevel: '',
   riskType: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '用户信息',
+    type: 'input',
+    placeholder: '手机号/用户名',
+    width: '200px',
+  },
+  {
+    prop: 'riskLevel',
+    label: '风险等级',
+    type: 'select',
+    placeholder: '请选择风险等级',
+    width: '150px',
+    options: [
+      { label: '高风险', value: 'high' },
+      { label: '中风险', value: 'medium' },
+      { label: '低风险', value: 'low' },
+    ],
+  },
+  {
+    prop: 'riskType',
+    label: '风险类型',
+    type: 'select',
+    placeholder: '请选择风险类型',
+    width: '150px',
+    options: [
+      { label: '登录异常', value: 'login' },
+      { label: '行为异常', value: 'behavior' },
+      { label: '支付异常', value: 'payment' },
+      { label: '信用异常', value: 'credit' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'userInfo', label: '用户信息', width: 200, slot: 'userInfo' },
+  { prop: 'riskLevel', label: '风险等级', width: 120, slot: 'riskLevel' },
+  { prop: 'riskType', label: '风险类型', width: 120, slot: 'riskType' },
+  { prop: 'riskScore', label: '风险评分', width: 100, slot: 'riskScore' },
+  { prop: 'riskReason', label: '风险原因', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'detectedAt', label: '检测时间', width: 180, slot: 'detectedAt' },
+  { prop: 'status', label: '处理状态', width: 100, slot: 'status' },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 风险用户列表
 const riskList = ref<RiskUser[]>([
@@ -513,92 +496,6 @@ onMounted(() => {
 .user-risk-container {
   padding: 20px;
 
-  .stats-row {
-    margin-bottom: 20px;
-
-    .stat-card {
-      .stat-content {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-
-        .stat-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 28px;
-        }
-
-        .stat-info {
-          flex: 1;
-
-          .stat-value {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 4px;
-          }
-
-          .stat-label {
-            font-size: 14px;
-            color: #909399;
-          }
-        }
-      }
-
-      &.high-risk {
-        .stat-icon {
-          background: #fef0f0;
-          color: #f56c6c;
-        }
-
-        .stat-value {
-          color: #f56c6c;
-        }
-      }
-
-      &.medium-risk {
-        .stat-icon {
-          background: #fdf6ec;
-          color: #e6a23c;
-        }
-
-        .stat-value {
-          color: #e6a23c;
-        }
-      }
-
-      &.low-risk {
-        .stat-icon {
-          background: #f4f4f5;
-          color: #909399;
-        }
-
-        .stat-value {
-          color: #909399;
-        }
-      }
-
-      &.total {
-        .stat-icon {
-          background: #ecf5ff;
-          color: #409eff;
-        }
-
-        .stat-value {
-          color: #409eff;
-        }
-      }
-    }
-  }
-
-  .search-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
   .user-info {
     display: flex;
     align-items: center;
@@ -625,12 +522,6 @@ onMounted(() => {
 
   .risk-score-low {
     color: #909399;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
   }
 }
 </style>

@@ -1,147 +1,76 @@
 <template>
   <div class="employee-list-container">
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="员工信息">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="姓名/手机号/工号"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="所属门店">
-          <el-select
-            v-model="searchForm.storeId"
-            placeholder="请选择门店"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="北京朝阳店" :value="1" />
-            <el-option label="上海浦东店" :value="2" />
-            <el-option label="深圳南山店" :value="3" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="员工角色">
-          <el-select
-            v-model="searchForm.roleId"
-            placeholder="请选择角色"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="平台管理员" :value="1" />
-            <el-option label="区域经理" :value="2" />
-            <el-option label="门店经理" :value="3" />
-            <el-option label="门店员工" :value="4" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="员工状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="在职" value="active" />
-            <el-option label="离职" value="inactive" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 页面标题 -->
+    <PageHeader title="员工管理" description="管理平台员工信息、角色分配和在职状态" />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增员工
-      </el-button>
-      <el-button :icon="Download">导出</el-button>
-      <el-button :icon="Upload">导入</el-button>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 员工列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="employeeList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="员工信息" width="200">
-          <template #default="{ row }">
-            <div class="employee-info">
-              <el-avatar :src="row.avatar" :size="40">
-                {{ row.realName.charAt(0) }}
-              </el-avatar>
-              <div class="employee-detail">
-                <div class="name">{{ row.realName }}</div>
-                <div class="job-number">工号：{{ row.jobNumber }}</div>
-              </div>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column prop="email" label="邮箱" width="180" show-overflow-tooltip />
-        <el-table-column label="角色" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getRoleTypeTag(row.role)" size="small">
-              {{ row.role }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="storeName" label="所属门店" width="150" />
-        <el-table-column prop="department" label="部门" width="120" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'info'">
-              {{ row.status === 'active' ? '在职' : '离职' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="joinDate" label="入职日期" width="120" />
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleAssignRole(row)">
-              分配角色
-            </el-button>
-            <el-button
-              link
-              :type="row.status === 'active' ? 'danger' : 'success'"
-              size="small"
-              @click="handleStatusChange(row)"
-            >
-              {{ row.status === 'active' ? '离职' : '复职' }}
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="employeeList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="250"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 员工信息列 -->
+      <template #employeeInfo="{ row }">
+        <div class="employee-info">
+          <el-avatar :src="row.avatar" :size="40">
+            {{ row.realName.charAt(0) }}
+          </el-avatar>
+          <div class="employee-detail">
+            <div class="name">{{ row.realName }}</div>
+            <div class="job-number">工号：{{ row.jobNumber }}</div>
+          </div>
+        </div>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 角色列 -->
+      <template #role="{ row }">
+        <el-tag :type="getRoleTypeTag(row.role)" size="small">
+          {{ row.role }}
+        </el-tag>
+      </template>
+
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="row.status === 'active' ? 'success' : 'info'">
+          {{ row.status === 'active' ? '在职' : '离职' }}
+        </el-tag>
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看
+        </el-button>
+        <el-button link type="primary" size="small" @click="handleEdit(row)">
+          编辑
+        </el-button>
+        <el-button link type="primary" size="small" @click="handleAssignRole(row)">
+          分配角色
+        </el-button>
+        <el-button
+          link
+          :type="row.status === 'active' ? 'danger' : 'success'"
+          size="small"
+          @click="handleStatusChange(row)"
+        >
+          {{ row.status === 'active' ? '离职' : '复职' }}
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 新增/编辑员工对话框 -->
     <el-dialog
@@ -259,13 +188,12 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  Plus,
-  Download,
-  Upload,
-} from '@element-plus/icons-vue'
+import { Plus, Download, Upload } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 
 const router = useRouter()
 
@@ -292,6 +220,89 @@ const searchForm = reactive({
   roleId: null as number | null,
   status: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '员工信息',
+    type: 'input',
+    placeholder: '姓名/手机号/工号',
+    width: '200px',
+  },
+  {
+    prop: 'storeId',
+    label: '所属门店',
+    type: 'select',
+    placeholder: '请选择门店',
+    width: '150px',
+    options: [
+      { label: '北京朝阳店', value: 1 },
+      { label: '上海浦东店', value: 2 },
+      { label: '深圳南山店', value: 3 },
+    ],
+  },
+  {
+    prop: 'roleId',
+    label: '员工角色',
+    type: 'select',
+    placeholder: '请选择角色',
+    width: '150px',
+    options: [
+      { label: '平台管理员', value: 1 },
+      { label: '区域经理', value: 2 },
+      { label: '门店经理', value: 3 },
+      { label: '门店员工', value: 4 },
+    ],
+  },
+  {
+    prop: 'status',
+    label: '员工状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: [
+      { label: '在职', value: 'active' },
+      { label: '离职', value: 'inactive' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'employeeInfo', label: '员工信息', width: 200, slot: 'employeeInfo' },
+  { prop: 'phone', label: '手机号', width: 130 },
+  { prop: 'email', label: '邮箱', width: 180, showOverflowTooltip: true },
+  { prop: 'role', label: '角色', width: 120, slot: 'role' },
+  { prop: 'storeName', label: '所属门店', width: 150 },
+  { prop: 'department', label: '部门', width: 120 },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'joinDate', label: '入职日期', width: 120 },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增员工',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleCreate(),
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '导入',
+    icon: Upload,
+    onClick: () => ElMessage.info('导入功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 员工列表
 const employeeList = ref<Employee[]>([
@@ -571,12 +582,6 @@ onMounted(() => {
 .employee-list-container {
   padding: 20px;
 
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
   .employee-info {
     display: flex;
     align-items: center;
@@ -593,12 +598,6 @@ onMounted(() => {
         color: #909399;
       }
     }
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
   }
 }
 </style>

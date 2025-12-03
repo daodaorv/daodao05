@@ -1,206 +1,44 @@
 <template>
-  <div class="vehicle-maintenance-container">
+  <div class="vehicle-violations-container">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <h2>维保管理</h2>
-      <p class="page-description">管理车辆维修保养计划、记录和成本</p>
-    </div>
+    <PageHeader title="违章管理" description="管理车辆违章记录、违章处理和罚款缴纳" />
 
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-cards">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#409eff"><Calendar /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.planned }}</div>
-              <div class="stat-label">计划维保</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#e6a23c"><Tools /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.inProgress }}</div>
-              <div class="stat-label">维保中</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#67c23a"><CircleCheck /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.completed }}</div>
-              <div class="stat-label">已完成</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="40" color="#f56c6c"><Money /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">¥{{ stats.totalCost.toLocaleString() }}</div>
-              <div class="stat-label">本月成本</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="车牌号">
-          <el-input
-            v-model="searchForm.plateNumber"
-            placeholder="请输入车牌号"
-            clearable
-            style="width: 150px"
-          />
-        </el-form-item>
-        <el-form-item label="维保类型">
-          <el-select
-            v-model="searchForm.type"
-            placeholder="请选择类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="常规保养" value="regular" />
-            <el-option label="维修" value="repair" />
-            <el-option label="年检" value="inspection" />
-            <el-option label="紧急维修" value="emergency" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="维保状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="计划中" value="planned" />
-            <el-option label="进行中" value="in_progress" />
-            <el-option label="已完成" value="completed" />
-            <el-option label="已取消" value="cancelled" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="时间范围">
-          <el-date-picker
-            v-model="searchForm.dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 240px"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增维保记录
-      </el-button>
-      <el-button :icon="Calendar">维保计划</el-button>
-      <el-button :icon="Download">导出记录</el-button>
-      <el-button :icon="DocumentCopy">成本报表</el-button>
-    </el-card>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="violationList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 罚款金额列 -->
+      <template #fineAmount="{ row }">
+        ¥{{ row.fineAmount }}
+      </template>
 
-    <!-- 维保记录列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="maintenanceList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="plateNumber" label="车牌号" width="120" />
-        <el-table-column prop="modelName" label="车型" width="150" />
-        <el-table-column label="维保类型" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getTypeTag(row.type)" size="small">
-              {{ getTypeLabel(row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="维保内容" min-width="200" show-overflow-tooltip />
-        <el-table-column label="维保状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTag(row.status)" size="small">
-              {{ getStatusLabel(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="serviceProvider" label="服务商" width="150" />
-        <el-table-column prop="cost" label="费用" width="120">
-          <template #default="{ row }">
-            ¥{{ row.cost.toLocaleString() }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="scheduledDate" label="计划日期" width="120" />
-        <el-table-column prop="completedDate" label="完成日期" width="120" />
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button
-              link
-              type="success"
-              size="small"
-              @click="handleComplete(row)"
-              v-if="row.status !== 'completed' && row.status !== 'cancelled'"
-            >
-              完成
-            </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="getStatusTag(row.status)" size="small">
+          {{ getStatusLabel(row.status) }}
+        </el-tag>
+      </template>
+    </DataTable>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
-
-    <!-- 新增/编辑维保记录对话框 -->
+    <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
@@ -224,53 +62,62 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="维保类型" prop="type">
-              <el-select v-model="form.type" placeholder="请选择类型" style="width: 100%">
-                <el-option label="常规保养" value="regular" />
-                <el-option label="维修" value="repair" />
-                <el-option label="年检" value="inspection" />
-                <el-option label="紧急维修" value="emergency" />
+            <el-form-item label="违章类型" prop="violationType">
+              <el-select v-model="form.violationType" placeholder="请选择类型" style="width: 100%">
+                <el-option label="超速行驶" value="超速行驶" />
+                <el-option label="违法停车" value="违法停车" />
+                <el-option label="闯红灯" value="闯红灯" />
+                <el-option label="未系安全带" value="未系安全带" />
+                <el-option label="违法变道" value="违法变道" />
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="维保内容" prop="description">
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入维保内容"
-          />
-        </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="服务商" prop="serviceProvider">
-              <el-input v-model="form.serviceProvider" placeholder="请输入服务商名称" />
+            <el-form-item label="违章代码" prop="violationCode">
+              <el-input v-model="form.violationCode" placeholder="请输入违章代码" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="联系电话">
-              <el-input v-model="form.contactPhone" placeholder="请输入联系电话" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="计划日期" prop="scheduledDate">
+            <el-form-item label="违章日期" prop="violationDate">
               <el-date-picker
-                v-model="form.scheduledDate"
+                v-model="form.violationDate"
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%"
               />
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-form-item label="违章地点" prop="violationLocation">
+          <el-input v-model="form.violationLocation" placeholder="请输入违章地点" />
+        </el-form-item>
+        <el-form-item label="违章描述" prop="violationDescription">
+          <el-input
+            v-model="form.violationDescription"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入违章描述"
+          />
+        </el-form-item>
+        <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="预计费用" prop="estimatedCost">
+            <el-form-item label="扣分" prop="penaltyPoints">
               <el-input-number
-                v-model="form.estimatedCost"
+                v-model="form.penaltyPoints"
                 :min="0"
-                :step="100"
+                :max="12"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="罚款金额" prop="fineAmount">
+              <el-input-number
+                v-model="form.fineAmount"
+                :min="0"
+                :step="50"
                 style="width: 100%"
               />
             </el-form-item>
@@ -278,23 +125,13 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="当前里程">
-              <el-input-number
-                v-model="form.currentMileage"
-                :min="0"
-                :step="100"
-                style="width: 100%"
-              />
+            <el-form-item label="驾驶人" prop="driverName">
+              <el-input v-model="form.driverName" placeholder="请输入驾驶人姓名" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="下次保养里程">
-              <el-input-number
-                v-model="form.nextMaintenanceMileage"
-                :min="0"
-                :step="1000"
-                style="width: 100%"
-              />
+            <el-form-item label="驾驶证号" prop="driverLicense">
+              <el-input v-model="form.driverLicense" placeholder="请输入驾驶证号" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -315,55 +152,62 @@
       </template>
     </el-dialog>
 
-    <!-- 维保详情对话框 -->
+    <!-- 违章详情对话框 -->
     <el-dialog
       v-model="detailDialogVisible"
-      title="维保记录详情"
+      title="违章记录详情"
       width="800px"
     >
       <el-descriptions :column="2" border v-if="currentRecord">
         <el-descriptions-item label="车牌号">
-          {{ currentRecord.plateNumber }}
+          {{ currentRecord.vehicleNumber }}
         </el-descriptions-item>
         <el-descriptions-item label="车型">
           {{ currentRecord.modelName }}
         </el-descriptions-item>
-        <el-descriptions-item label="维保类型">
-          <el-tag :type="getTypeTag(currentRecord.type)" size="small">
-            {{ getTypeLabel(currentRecord.type) }}
-          </el-tag>
+        <el-descriptions-item label="违章类型">
+          {{ currentRecord.violationType }}
         </el-descriptions-item>
-        <el-descriptions-item label="维保状态">
+        <el-descriptions-item label="违章代码">
+          {{ currentRecord.violationCode }}
+        </el-descriptions-item>
+        <el-descriptions-item label="违章日期">
+          {{ currentRecord.violationDate }}
+        </el-descriptions-item>
+        <el-descriptions-item label="违章状态">
           <el-tag :type="getStatusTag(currentRecord.status)" size="small">
             {{ getStatusLabel(currentRecord.status) }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="维保内容" :span="2">
-          {{ currentRecord.description }}
+        <el-descriptions-item label="违章地点" :span="2">
+          {{ currentRecord.violationLocation }}
         </el-descriptions-item>
-        <el-descriptions-item label="服务商">
-          {{ currentRecord.serviceProvider }}
+        <el-descriptions-item label="违章描述" :span="2">
+          {{ currentRecord.violationDescription }}
         </el-descriptions-item>
-        <el-descriptions-item label="联系电话">
-          {{ currentRecord.contactPhone }}
+        <el-descriptions-item label="扣分">
+          {{ currentRecord.penaltyPoints }}分
         </el-descriptions-item>
-        <el-descriptions-item label="计划日期">
-          {{ currentRecord.scheduledDate }}
+        <el-descriptions-item label="罚款金额">
+          ¥{{ currentRecord.fineAmount }}
         </el-descriptions-item>
-        <el-descriptions-item label="完成日期">
-          {{ currentRecord.completedDate || '-' }}
+        <el-descriptions-item label="驾驶人">
+          {{ currentRecord.driverName }}
         </el-descriptions-item>
-        <el-descriptions-item label="预计费用">
-          ¥{{ currentRecord.estimatedCost?.toLocaleString() }}
+        <el-descriptions-item label="驾驶证号">
+          {{ currentRecord.driverLicense }}
         </el-descriptions-item>
-        <el-descriptions-item label="实际费用">
-          ¥{{ currentRecord.cost.toLocaleString() }}
+        <el-descriptions-item label="处理日期">
+          {{ currentRecord.processDate || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="当前里程">
-          {{ currentRecord.currentMileage }}km
+        <el-descriptions-item label="缴款日期">
+          {{ currentRecord.paymentDate || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="下次保养里程">
-          {{ currentRecord.nextMaintenanceMileage }}km
+        <el-descriptions-item label="缴款方式">
+          {{ currentRecord.paymentMethod || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item label="处理人">
+          {{ currentRecord.handler || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="备注" :span="2">
           {{ currentRecord.remark || '-' }}
@@ -374,63 +218,181 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
+import { Plus, Download, Warning, Clock, CircleCheck, Money } from '@element-plus/icons-vue'
 import {
-  Search,
-  Refresh,
-  Plus,
-  Download,
-  Calendar,
-  Tools,
-  CircleCheck,
-  Money,
-  DocumentCopy,
-} from '@element-plus/icons-vue'
-import {
-  getMaintenanceRecords,
-  getMaintenanceRecordDetail,
-  createMaintenanceRecord,
-  updateMaintenanceRecord,
-  deleteMaintenanceRecord,
-  getMaintenanceStats,
-  getVehicles,
-  type MaintenanceRecord,
+  getViolationRecords,
+  getViolationRecordDetail,
+  createViolationRecord,
+  updateViolationRecord,
+  deleteViolationRecord,
+  processViolation,
+  getViolationStats,
+  type ViolationRecord,
 } from '@/api/vehicle'
+import PageHeader from '@/components/common/PageHeader.vue'
+import StatsCard from '@/components/common/StatsCard.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { StatItem } from '@/components/common/StatsCard.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 
 // 搜索表单
 const searchForm = reactive({
-  plateNumber: '',
-  type: '',
+  vehicleNumber: '',
+  violationType: '',
   status: '',
   dateRange: [] as Date[],
 })
 
 // 统计数据
 const stats = reactive({
-  planned: 0,
-  inProgress: 0,
-  completed: 0,
-  totalCost: 0,
+  pendingViolations: 0,
+  processingViolations: 0,
+  paidViolations: 0,
+  totalFines: 0,
 })
 
-// 维保记录列表
-const maintenanceList = ref<MaintenanceRecord[]>([])
-const vehicleList = ref<any[]>([])
+// 统计卡片配置
+const statsConfig = computed<StatItem[]>(() => [
+  {
+    label: '待处理',
+    value: stats.pendingViolations,
+    icon: Warning,
+    color: '#e6a23c',
+  },
+  {
+    label: '处理中',
+    value: stats.processingViolations,
+    icon: Clock,
+    color: '#409eff',
+  },
+  {
+    label: '已缴款',
+    value: stats.paidViolations,
+    icon: CircleCheck,
+    color: '#67c23a',
+  },
+  {
+    label: '总罚款',
+    value: stats.totalFines,
+    icon: Money,
+    color: '#f56c6c',
+    format: 'currency',
+  },
+])
 
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'vehicleNumber',
+    label: '车牌号',
+    type: 'input',
+    placeholder: '请输入车牌号',
+  },
+  {
+    prop: 'violationType',
+    label: '违章类型',
+    type: 'select',
+    options: [
+      { label: '超速行驶', value: '超速行驶' },
+      { label: '违法停车', value: '违法停车' },
+      { label: '闯红灯', value: '闯红灯' },
+      { label: '未系安全带', value: '未系安全带' },
+      { label: '违法变道', value: '违法变道' },
+    ],
+  },
+  {
+    prop: 'status',
+    label: '违章状态',
+    type: 'select',
+    options: [
+      { label: '待处理', value: 'pending' },
+      { label: '处理中', value: 'processing' },
+      { label: '已缴款', value: 'paid' },
+      { label: '申诉中', value: 'appealing' },
+      { label: '已取消', value: 'cancelled' },
+    ],
+  },
+  {
+    prop: 'dateRange',
+    label: '时间范围',
+    type: 'daterange',
+    width: '240px',
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'vehicleNumber', label: '车牌号', width: 120 },
+  { prop: 'modelName', label: '车型', width: 150 },
+  { prop: 'violationType', label: '违章类型', width: 120 },
+  { prop: 'violationLocation', label: '违章地点', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'violationDate', label: '违章日期', width: 120 },
+  { prop: 'penaltyPoints', label: '扣分', width: 80 },
+  { prop: 'fineAmount', label: '罚款', width: 100, slot: 'fineAmount' },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'driverName', label: '驾驶人', width: 100 },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增违章记录',
+    type: 'primary',
+    icon: Plus,
+    onClick: handleCreate,
+  },
+  {
+    label: '导出记录',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+]
+
+// 表格操作配置
+const tableActions: TableAction[] = [
+  {
+    label: '查看',
+    type: 'primary',
+    onClick: handleView,
+  },
+  {
+    label: '编辑',
+    type: 'primary',
+    onClick: handleEdit,
+  },
+  {
+    label: '处理',
+    type: 'success',
+    onClick: handleProcess,
+    show: (row) => row.status === 'pending' || row.status === 'processing',
+  },
+  {
+    label: '删除',
+    type: 'danger',
+    onClick: handleDelete,
+  },
+]
+
+// 违章记录列表
+const violationList = ref<ViolationRecord[]>([])
 const loading = ref(false)
 
 // 分页
 const pagination = reactive({
   page: 1,
   pageSize: 10,
-  total: 5,
+  total: 0,
 })
 
 // 对话框
 const dialogVisible = ref(false)
-const dialogTitle = ref('新增维保记录')
+const dialogTitle = ref('新增违章记录')
 const isEdit = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
@@ -438,65 +400,57 @@ const formRef = ref<FormInstance>()
 const form = reactive({
   id: 0,
   vehicleId: null as number | null,
-  type: '',
-  description: '',
-  serviceProvider: '',
-  contactPhone: '',
-  scheduledDate: '',
-  estimatedCost: 0,
-  currentMileage: 0,
-  nextMaintenanceMileage: 0,
+  violationType: '',
+  violationCode: '',
+  violationDate: '',
+  violationLocation: '',
+  violationDescription: '',
+  penaltyPoints: 0,
+  fineAmount: 0,
+  driverName: '',
+  driverLicense: '',
   remark: '',
 })
 
 const formRules: FormRules = {
-  vehicleId: [
-    { required: true, message: '请选择车辆', trigger: 'change' },
-  ],
-  type: [
-    { required: true, message: '请选择维保类型', trigger: 'change' },
-  ],
-  description: [
-    { required: true, message: '请输入维保内容', trigger: 'blur' },
-  ],
-  serviceProvider: [
-    { required: true, message: '请输入服务商名称', trigger: 'blur' },
-  ],
-  scheduledDate: [
-    { required: true, message: '请选择计划日期', trigger: 'change' },
-  ],
-  estimatedCost: [
-    { required: true, message: '请输入预计费用', trigger: 'blur' },
-  ],
+  vehicleId: [{ required: true, message: '请选择车辆', trigger: 'change' }],
+  violationType: [{ required: true, message: '请选择违章类型', trigger: 'change' }],
+  violationCode: [{ required: true, message: '请输入违章代码', trigger: 'blur' }],
+  violationDate: [{ required: true, message: '请选择违章日期', trigger: 'change' }],
+  violationLocation: [{ required: true, message: '请输入违章地点', trigger: 'blur' }],
+  violationDescription: [{ required: true, message: '请输入违章描述', trigger: 'blur' }],
+  penaltyPoints: [{ required: true, message: '请输入扣分', trigger: 'blur' }],
+  fineAmount: [{ required: true, message: '请输入罚款金额', trigger: 'blur' }],
+  driverName: [{ required: true, message: '请输入驾驶人姓名', trigger: 'blur' }],
+  driverLicense: [{ required: true, message: '请输入驾驶证号', trigger: 'blur' }],
 }
 
 // 详情对话框
 const detailDialogVisible = ref(false)
-const currentRecord = ref<MaintenanceRecord | null>(null)
+const currentRecord = ref<ViolationRecord | null>(null)
 
-// 加载维保记录列表
-const loadMaintenanceRecords = async () => {
+// 加载违章记录列表
+const loadViolationRecords = async () => {
   loading.value = true
   try {
     const params: any = {
       page: pagination.page,
       pageSize: pagination.pageSize,
-      vehicleNumber: searchForm.plateNumber,
-      type: searchForm.type,
+      vehicleNumber: searchForm.vehicleNumber,
+      violationType: searchForm.violationType,
       status: searchForm.status,
     }
 
-    // 处理日期范围
     if (searchForm.dateRange && searchForm.dateRange.length === 2) {
       params.startDate = searchForm.dateRange[0].toISOString().split('T')[0]
       params.endDate = searchForm.dateRange[1].toISOString().split('T')[0]
     }
 
-    const res = await getMaintenanceRecords(params)
-    maintenanceList.value = res.data.list
+    const res = await getViolationRecords(params)
+    violationList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载维保记录失败')
+    ElMessage.error('加载违章记录失败')
   } finally {
     loading.value = false
   }
@@ -505,111 +459,100 @@ const loadMaintenanceRecords = async () => {
 // 加载统计数据
 const loadStats = async () => {
   try {
-    const res = await getMaintenanceStats()
-    stats.planned = res.data.pendingRecords
-    stats.inProgress = res.data.inProgressRecords
-    stats.completed = res.data.completedRecords
-    stats.totalCost = res.data.totalCost
+    const res = await getViolationStats()
+    stats.pendingViolations = res.data.pendingViolations
+    stats.processingViolations = res.data.processingViolations
+    stats.paidViolations = res.data.paidViolations
+    stats.totalFines = res.data.totalFines
   } catch (error) {
     ElMessage.error('加载统计数据失败')
-  }
-}
-
-// 加载车辆列表
-const loadVehicles = async () => {
-  try {
-    const res = await getVehicles({ page: 1, pageSize: 100 })
-    vehicleList.value = res.data.list
-  } catch (error) {
-    ElMessage.error('加载车辆列表失败')
   }
 }
 
 // 搜索
 const handleSearch = () => {
   pagination.page = 1
-  loadMaintenanceRecords()
+  loadViolationRecords()
 }
 
 // 重置
 const handleReset = () => {
-  searchForm.plateNumber = ''
-  searchForm.type = ''
+  searchForm.vehicleNumber = ''
+  searchForm.violationType = ''
   searchForm.status = ''
   searchForm.dateRange = []
   pagination.page = 1
-  loadMaintenanceRecords()
+  loadViolationRecords()
 }
 
-// 新增维保记录
-const handleCreate = () => {
-  dialogTitle.value = '新增维保记录'
+// 新增违章记录
+function handleCreate() {
+  dialogTitle.value = '新增违章记录'
   isEdit.value = false
   dialogVisible.value = true
 }
 
-// 查看维保记录
-const handleView = async (row: MaintenanceRecord) => {
+// 查看违章记录
+async function handleView(row: ViolationRecord) {
   try {
-    const res = await getMaintenanceRecordDetail(row.id)
+    const res = await getViolationRecordDetail(row.id)
     currentRecord.value = res.data
     detailDialogVisible.value = true
   } catch (error) {
-    ElMessage.error('加载维保记录详情失败')
+    ElMessage.error('加载违章记录详情失败')
   }
 }
 
-// 编辑维保记录
-const handleEdit = (row: MaintenanceRecord) => {
-  dialogTitle.value = '编辑维保记录'
+// 编辑违章记录
+function handleEdit(row: ViolationRecord) {
+  dialogTitle.value = '编辑违章记录'
   isEdit.value = true
   form.id = row.id
   form.vehicleId = row.vehicleId
-  form.type = row.type
-  form.description = row.description
-  form.serviceProvider = row.serviceProvider
-  form.contactPhone = row.contactPhone || ''
-  form.scheduledDate = row.maintenanceDate
-  form.estimatedCost = row.totalCost
-  form.currentMileage = row.mileage
-  form.nextMaintenanceMileage = 0
-  form.remark = row.remark
+  form.violationType = row.violationType
+  form.violationCode = row.violationCode
+  form.violationDate = row.violationDate
+  form.violationLocation = row.violationLocation
+  form.violationDescription = row.violationDescription
+  form.penaltyPoints = row.penaltyPoints
+  form.fineAmount = row.fineAmount
+  form.driverName = row.driverName
+  form.driverLicense = row.driverLicense
+  form.remark = row.remark || ''
   dialogVisible.value = true
 }
 
-// 完成维保
-const handleComplete = async (row: MaintenanceRecord) => {
+// 处理违章
+async function handleProcess(row: ViolationRecord) {
   try {
-    await ElMessageBox.confirm(
-      `确定要将维保记录 "${row.description}" 标记为已完成吗？`,
-      '完成确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'success',
-      }
-    )
-
-    await updateMaintenanceRecord(row.id, {
-      status: 'completed',
-      completionDate: new Date().toISOString().split('T')[0],
+    await ElMessageBox.prompt('请输入处理备注', '处理违章', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入处理备注',
     })
 
-    ElMessage.success('维保记录已完成')
-    loadMaintenanceRecords()
+    await processViolation(row.id, {
+      processDate: new Date().toISOString().split('T')[0],
+      handler: '当前用户',
+      remark: '已处理',
+    })
+
+    ElMessage.success('处理成功')
+    loadViolationRecords()
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      ElMessage.error('处理失败')
     }
   }
 }
 
-// 删除维保记录
-const handleDelete = async (row: MaintenanceRecord) => {
+// 删除违章记录
+async function handleDelete(row: ViolationRecord) {
   try {
     await ElMessageBox.confirm(
-      `确定要删除维保记录 "${row.description}" 吗？`,
+      `确定要删除违章记录 "${row.violationType}" 吗？`,
       '删除确认',
       {
         confirmButtonText: '确定',
@@ -618,9 +561,9 @@ const handleDelete = async (row: MaintenanceRecord) => {
       }
     )
 
-    await deleteMaintenanceRecord(row.id)
+    await deleteViolationRecord(row.id)
     ElMessage.success('删除成功')
-    loadMaintenanceRecords()
+    loadViolationRecords()
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
@@ -640,35 +583,33 @@ const handleSubmit = async () => {
     try {
       const data: any = {
         vehicleId: form.vehicleId,
-        type: form.type,
-        category: form.type === 'maintenance' ? '定期保养' : '故障维修',
-        mileage: form.currentMileage,
-        maintenanceDate: form.scheduledDate,
-        status: 'pending',
-        serviceProvider: form.serviceProvider,
-        serviceLocation: '',
-        items: [],
-        totalCost: form.estimatedCost,
-        laborCost: 0,
-        partsCost: 0,
-        description: form.description,
-        solution: '',
-        technician: '',
-        inspector: '',
+        vehicleNumber: '',
+        modelName: '',
+        violationType: form.violationType,
+        violationCode: form.violationCode,
+        violationDate: form.violationDate,
+        violationLocation: form.violationLocation,
+        violationDescription: form.violationDescription,
+        penaltyPoints: form.penaltyPoints,
+        fineAmount: form.fineAmount,
+        driverName: form.driverName,
+        driverLicense: form.driverLicense,
         remark: form.remark,
+        status: 'pending',
+        handler: '',
         attachments: [],
       }
 
       if (isEdit.value) {
-        await updateMaintenanceRecord(form.id, data)
+        await updateViolationRecord(form.id, data)
         ElMessage.success('更新成功')
       } else {
-        await createMaintenanceRecord(data)
+        await createViolationRecord(data)
         ElMessage.success('创建成功')
       }
 
       dialogVisible.value = false
-      loadMaintenanceRecords()
+      loadViolationRecords()
       loadStats()
     } catch (error) {
       ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
@@ -683,54 +624,36 @@ const handleDialogClose = () => {
   formRef.value?.resetFields()
   form.id = 0
   form.vehicleId = null
-  form.type = ''
-  form.description = ''
-  form.serviceProvider = ''
-  form.contactPhone = ''
-  form.scheduledDate = ''
-  form.estimatedCost = 0
-  form.currentMileage = 0
-  form.nextMaintenanceMileage = 0
+  form.violationType = ''
+  form.violationCode = ''
+  form.violationDate = ''
+  form.violationLocation = ''
+  form.violationDescription = ''
+  form.penaltyPoints = 0
+  form.fineAmount = 0
+  form.driverName = ''
+  form.driverLicense = ''
   form.remark = ''
 }
 
 // 分页
 const handleSizeChange = (size: number) => {
   pagination.pageSize = size
+  loadViolationRecords()
 }
 
 const handleCurrentChange = (page: number) => {
   pagination.page = page
-}
-
-// 获取类型标签
-const getTypeTag = (type: string) => {
-  const tagMap: Record<string, any> = {
-    regular: 'primary',
-    repair: 'warning',
-    inspection: 'success',
-    emergency: 'danger',
-  }
-  return tagMap[type] || 'info'
-}
-
-// 获取类型标签文本
-const getTypeLabel = (type: string) => {
-  const labelMap: Record<string, string> = {
-    regular: '常规保养',
-    repair: '维修',
-    inspection: '年检',
-    emergency: '紧急维修',
-  }
-  return labelMap[type] || type
+  loadViolationRecords()
 }
 
 // 获取状态标签
 const getStatusTag = (status: string) => {
   const tagMap: Record<string, any> = {
-    planned: 'info',
-    in_progress: 'warning',
-    completed: 'success',
+    pending: 'warning',
+    processing: 'primary',
+    paid: 'success',
+    appealing: 'info',
     cancelled: 'danger',
   }
   return tagMap[status] || 'info'
@@ -739,9 +662,10 @@ const getStatusTag = (status: string) => {
 // 获取状态标签文本
 const getStatusLabel = (status: string) => {
   const labelMap: Record<string, string> = {
-    planned: '计划中',
-    in_progress: '进行中',
-    completed: '已完成',
+    pending: '待处理',
+    processing: '处理中',
+    paid: '已缴款',
+    appealing: '申诉中',
     cancelled: '已取消',
   }
   return labelMap[status] || status
@@ -749,82 +673,13 @@ const getStatusLabel = (status: string) => {
 
 // 页面加载
 onMounted(() => {
-  loadMaintenanceRecords()
+  loadViolationRecords()
   loadStats()
-  loadVehicles()
 })
 </script>
 
 <style scoped lang="scss">
-.vehicle-maintenance-container {
+.vehicle-violations-container {
   padding: 20px;
-
-  .page-header {
-    margin-bottom: 20px;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #303133;
-    }
-
-    .page-description {
-      font-size: 14px;
-      color: #909399;
-      margin: 0;
-    }
-  }
-
-  .stats-cards {
-    margin-bottom: 20px;
-
-    .stat-card {
-      cursor: pointer;
-      transition: all 0.3s;
-
-      &:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-content {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-
-        .stat-icon {
-          flex-shrink: 0;
-        }
-
-        .stat-info {
-          flex: 1;
-
-          .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #303133;
-          }
-
-          .stat-label {
-            font-size: 14px;
-            color: #909399;
-          }
-        }
-      }
-    }
-  }
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
 }
 </style>

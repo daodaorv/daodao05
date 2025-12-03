@@ -1,138 +1,71 @@
 <template>
   <div class="permission-logs-container">
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="操作人">
-          <el-input
-            v-model="searchForm.operator"
-            placeholder="请输入操作人"
-            clearable
-            style="width: 150px"
-          />
-        </el-form-item>
-        <el-form-item label="操作模块">
-          <el-select
-            v-model="searchForm.module"
-            placeholder="请选择模块"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="用户管理" value="user" />
-            <el-option label="角色管理" value="role" />
-            <el-option label="权限管理" value="permission" />
-            <el-option label="车辆管理" value="vehicle" />
-            <el-option label="订单管理" value="order" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="操作类型">
-          <el-select
-            v-model="searchForm.action"
-            placeholder="请选择类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="创建" value="create" />
-            <el-option label="更新" value="update" />
-            <el-option label="删除" value="delete" />
-            <el-option label="查询" value="query" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="操作时间">
-          <el-date-picker
-            v-model="searchForm.dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 240px"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 页面标题 -->
+    <PageHeader title="操作日志" description="查看和管理系统操作日志记录" />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button :icon="Download">导出日志</el-button>
-      <el-button :icon="Delete" type="danger">清理日志</el-button>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 日志列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="logList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="操作人" width="150">
-          <template #default="{ row }">
-            <div class="operator-info">
-              <el-avatar :size="32" :src="row.operatorAvatar">
-                {{ row.operator.charAt(0) }}
-              </el-avatar>
-              <span class="operator-name">{{ row.operator }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作模块" width="120">
-          <template #default="{ row }">
-            <el-tag type="info" size="small">
-              {{ getModuleLabel(row.module) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作类型" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getActionType(row.action)" size="small">
-              {{ getActionLabel(row.action) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="操作描述" show-overflow-tooltip />
-        <el-table-column prop="ip" label="IP地址" width="150" />
-        <el-table-column prop="userAgent" label="浏览器" width="200" show-overflow-tooltip />
-        <el-table-column label="执行结果" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 'success' ? 'success' : 'danger'" size="small">
-              {{ row.status === 'success' ? '成功' : '失败' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createdAt" label="操作时间" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.createdAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看详情
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="logList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="120"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 操作人列 -->
+      <template #operator="{ row }">
+        <div class="operator-info">
+          <el-avatar :size="32" :src="row.operatorAvatar">
+            {{ row.operator.charAt(0) }}
+          </el-avatar>
+          <span class="operator-name">{{ row.operator }}</span>
+        </div>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+      <!-- 操作模块列 -->
+      <template #module="{ row }">
+        <el-tag type="info" size="small">
+          {{ getModuleLabel(row.module) }}
+        </el-tag>
+      </template>
+
+      <!-- 操作类型列 -->
+      <template #action="{ row }">
+        <el-tag :type="getActionType(row.action)" size="small">
+          {{ getActionLabel(row.action) }}
+        </el-tag>
+      </template>
+
+      <!-- 执行结果列 -->
+      <template #status="{ row }">
+        <el-tag :type="row.status === 'success' ? 'success' : 'danger'" size="small">
+          {{ row.status === 'success' ? '成功' : '失败' }}
+        </el-tag>
+      </template>
+
+      <!-- 操作时间列 -->
+      <template #createdAt="{ row }">
+        {{ formatDateTime(row.createdAt) }}
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看详情
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 日志详情对话框 -->
     <el-dialog
@@ -199,12 +132,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  Download,
-  Delete,
-} from '@element-plus/icons-vue'
+import { Download, Delete } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 
 // 日志数据类型
 interface OperationLog {
@@ -230,6 +163,81 @@ const searchForm = reactive({
   action: '',
   dateRange: [] as any[],
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'operator',
+    label: '操作人',
+    type: 'input',
+    placeholder: '请输入操作人',
+    width: '150px',
+  },
+  {
+    prop: 'module',
+    label: '操作模块',
+    type: 'select',
+    placeholder: '请选择模块',
+    width: '150px',
+    options: [
+      { label: '用户管理', value: 'user' },
+      { label: '角色管理', value: 'role' },
+      { label: '权限管理', value: 'permission' },
+      { label: '车辆管理', value: 'vehicle' },
+      { label: '订单管理', value: 'order' },
+    ],
+  },
+  {
+    prop: 'action',
+    label: '操作类型',
+    type: 'select',
+    placeholder: '请选择类型',
+    width: '150px',
+    options: [
+      { label: '创建', value: 'create' },
+      { label: '更新', value: 'update' },
+      { label: '删除', value: 'delete' },
+      { label: '查询', value: 'query' },
+    ],
+  },
+  {
+    prop: 'dateRange',
+    label: '操作时间',
+    type: 'daterange',
+    width: '240px',
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'operator', label: '操作人', width: 150, slot: 'operator' },
+  { prop: 'module', label: '操作模块', width: 120, slot: 'module' },
+  { prop: 'action', label: '操作类型', width: 100, slot: 'action' },
+  { prop: 'description', label: '操作描述', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'ip', label: 'IP地址', width: 150 },
+  { prop: 'userAgent', label: '浏览器', width: 200, showOverflowTooltip: true },
+  { prop: 'status', label: '执行结果', width: 100, slot: 'status' },
+  { prop: 'createdAt', label: '操作时间', width: 180, slot: 'createdAt' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '导出日志',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '清理日志',
+    type: 'danger',
+    icon: Delete,
+    onClick: () => ElMessage.info('清理功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 日志列表
 const logList = ref<OperationLog[]>([
@@ -381,12 +389,6 @@ onMounted(() => {
 .permission-logs-container {
   padding: 20px;
 
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
   .operator-info {
     display: flex;
     align-items: center;
@@ -395,12 +397,6 @@ onMounted(() => {
     .operator-name {
       font-size: 14px;
     }
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
   }
 }
 </style>

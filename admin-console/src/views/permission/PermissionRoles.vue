@@ -1,123 +1,79 @@
 <template>
   <div class="permission-roles-container">
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="角色名称">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="请输入角色名称"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="角色状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="启用" value="active" />
-            <el-option label="禁用" value="inactive" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
-          </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 页面标题 -->
+    <PageHeader title="角色管理" description="管理系统角色、权限配置和数据权限范围" />
 
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增角色
-      </el-button>
-      <el-button :icon="Download">导出</el-button>
-    </el-card>
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-    <!-- 角色列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="roleList"
-        stripe
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="角色名称" width="150" />
-        <el-table-column prop="code" label="角色编码" width="150" />
-        <el-table-column label="角色类型" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getRoleTypeTag(row.type)">
-              {{ getRoleTypeLabel(row.type) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="角色描述" show-overflow-tooltip />
-        <el-table-column label="数据权限范围" width="150">
-          <template #default="{ row }">
-            <el-tag type="info" size="small">
-              {{ getDataScopeLabel(row.dataScope) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="userCount" label="用户数" width="100" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-switch
-              v-model="row.status"
-              active-value="active"
-              inactive-value="inactive"
-              @change="handleStatusChange(row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="createdAt" label="创建时间" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.createdAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="250" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button link type="primary" size="small" @click="handlePermission(row)">
-              配置权限
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleViewUsers(row)">
-              查看用户
-            </el-button>
-            <el-button
-              link
-              type="danger"
-              size="small"
-              :disabled="row.isSystem"
-              @click="handleDelete(row)"
-            >
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!-- 数据表格 -->
+    <DataTable
+      :data="roleList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="250"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+      <!-- 角色类型列 -->
+      <template #roleType="{ row }">
+        <el-tag :type="getRoleTypeTag(row.type)">
+          {{ getRoleTypeLabel(row.type) }}
+        </el-tag>
+      </template>
 
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+      <!-- 数据权限范围列 -->
+      <template #dataScope="{ row }">
+        <el-tag type="info" size="small">
+          {{ getDataScopeLabel(row.dataScope) }}
+        </el-tag>
+      </template>
+
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-switch
+          v-model="row.status"
+          active-value="active"
+          inactive-value="inactive"
+          @change="handleStatusChange(row)"
         />
-      </div>
-    </el-card>
+      </template>
+
+      <!-- 创建时间列 -->
+      <template #createdAt="{ row }">
+        {{ formatDateTime(row.createdAt) }}
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleEdit(row)">
+          编辑
+        </el-button>
+        <el-button link type="primary" size="small" @click="handlePermission(row)">
+          配置权限
+        </el-button>
+        <el-button link type="primary" size="small" @click="handleViewUsers(row)">
+          查看用户
+        </el-button>
+        <el-button
+          link
+          type="danger"
+          size="small"
+          :disabled="row.isSystem"
+          @click="handleDelete(row)"
+        >
+          删除
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 新增/编辑角色对话框 -->
     <el-dialog
@@ -252,12 +208,12 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  Plus,
-  Download,
-} from '@element-plus/icons-vue'
+import { Plus, Download } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import { roleApi, type Role } from '@/api/role'
 
 const router = useRouter()
@@ -267,6 +223,59 @@ const searchForm = reactive({
   keyword: '',
   status: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '角色名称',
+    type: 'input',
+    placeholder: '请输入角色名称',
+    width: '200px',
+  },
+  {
+    prop: 'status',
+    label: '角色状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: [
+      { label: '启用', value: 'active' },
+      { label: '禁用', value: 'inactive' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'name', label: '角色名称', width: 150 },
+  { prop: 'code', label: '角色编码', width: 150 },
+  { prop: 'roleType', label: '角色类型', width: 120, slot: 'roleType' },
+  { prop: 'description', label: '角色描述', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'dataScope', label: '数据权限范围', width: 150, slot: 'dataScope' },
+  { prop: 'userCount', label: '用户数', width: 100 },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'createdAt', label: '创建时间', width: 180, slot: 'createdAt' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增角色',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleCreate(),
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 角色列表
 const roleList = ref<Role[]>([])
@@ -627,18 +636,6 @@ onMounted(() => {
 <style scoped lang="scss">
 .permission-roles-container {
   padding: 20px;
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
 
   .permission-config {
     .permission-group {

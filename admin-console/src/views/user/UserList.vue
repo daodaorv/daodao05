@@ -1,157 +1,92 @@
 <template>
   <div class="user-list-container">
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline>
-        <el-form-item label="手机号">
-          <el-input
-            v-model="searchForm.phone"
-            placeholder="请输入手机号"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="用户名">
-          <el-input
-            v-model="searchForm.username"
-            placeholder="请输入用户名"
-            clearable
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="用户类型">
-          <el-select
-            v-model="searchForm.userType"
-            placeholder="请选择用户类型"
-            clearable
-            style="width: 150px"
-          >
-            <el-option label="普通用户" value="customer" />
-            <el-option label="移动管理员" value="mobile_admin" />
-            <el-option label="PC管理员" value="pc_admin" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select
-            v-model="searchForm.status"
-            placeholder="请选择状态"
-            clearable
-            style="width: 120px"
-          >
-            <el-option label="正常" value="active" />
-            <el-option label="禁用" value="inactive" />
-            <el-option label="封禁" value="banned" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">
-            搜索
+    <!-- 页面标题 -->
+    <PageHeader title="用户管理" description="管理平台用户信息、权限和状态" />
+
+    <!-- 搜索表单 -->
+    <SearchForm
+      v-model="searchForm"
+      :fields="searchFields"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
+
+    <!-- 数据表格 -->
+    <DataTable
+      :data="userList"
+      :columns="tableColumns"
+      :loading="loading"
+      :actions="tableActions"
+      :toolbar-buttons="toolbarButtons"
+      :pagination="pagination"
+      :actions-width="280"
+      :show-selection="true"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      @selection-change="handleSelectionChange"
+    >
+      <!-- 头像列 -->
+      <template #avatar="{ row }">
+        <el-avatar :src="row.avatarUrl" :size="40">
+          {{ row.username?.charAt(0) || 'U' }}
+        </el-avatar>
+      </template>
+
+      <!-- 用户类型列 -->
+      <template #userType="{ row }">
+        <el-tag :type="getUserTypeTagType(row.userType)" size="small">
+          {{ getUserTypeLabel(row.userType) }}
+        </el-tag>
+      </template>
+
+      <!-- 状态列 -->
+      <template #status="{ row }">
+        <el-tag :type="getStatusTagType(row.status)" size="small">
+          {{ getStatusLabel(row.status) }}
+        </el-tag>
+      </template>
+
+      <!-- 最后登录列 -->
+      <template #lastLoginAt="{ row }">
+        {{ formatDateTime(row.lastLoginAt) }}
+      </template>
+
+      <!-- 创建时间列 -->
+      <template #createdAt="{ row }">
+        {{ formatDateTime(row.createdAt) }}
+      </template>
+
+      <!-- 自定义操作列 -->
+      <template #actions="{ row }">
+        <el-button link type="primary" size="small" @click="handleView(row)">
+          查看
+        </el-button>
+        <el-button link type="primary" size="small" @click="handleEdit(row)">
+          编辑
+        </el-button>
+        <el-dropdown @command="(cmd) => handleStatusChange(row, cmd)">
+          <el-button link type="primary" size="small">
+            状态<el-icon class="el-icon--right"><ArrowDown /></el-icon>
           </el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <!-- 操作栏 -->
-    <el-card class="toolbar-card" shadow="never">
-      <el-button type="primary" :icon="Plus" @click="handleCreate">
-        新增用户
-      </el-button>
-      <el-button :icon="Download">导出</el-button>
-    </el-card>
-
-    <!-- 用户列表 -->
-    <el-card class="table-card" shadow="never">
-      <el-table
-        v-loading="loading"
-        :data="userList"
-        stripe
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="头像" width="80">
-          <template #default="{ row }">
-            <el-avatar :src="row.avatarUrl" :size="40">
-              {{ row.username.charAt(0) }}
-            </el-avatar>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="active" :disabled="row.status === 'active'">
+                启用
+              </el-dropdown-item>
+              <el-dropdown-item command="inactive" :disabled="row.status === 'inactive'">
+                禁用
+              </el-dropdown-item>
+              <el-dropdown-item command="banned" :disabled="row.status === 'banned'">
+                封禁
+              </el-dropdown-item>
+            </el-dropdown-menu>
           </template>
-        </el-table-column>
-        <el-table-column prop="username" label="用户名" width="120" />
-        <el-table-column prop="realName" label="真实姓名" width="120" />
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column prop="email" label="邮箱" width="180" show-overflow-tooltip />
-        <el-table-column label="用户类型" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getUserTypeTagType(row.userType)">
-              {{ getUserTypeLabel(row.userType) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status)">
-              {{ getStatusLabel(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="lastLoginAt" label="最后登录" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.lastLoginAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="createdAt" label="创建时间" width="180">
-          <template #default="{ row }">
-            {{ formatDateTime(row.createdAt) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-dropdown @command="(cmd) => handleStatusChange(row, cmd)">
-              <el-button link type="primary" size="small">
-                状态<el-icon class="el-icon--right"><ArrowDown /></el-icon>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="active" :disabled="row.status === 'active'">
-                    启用
-                  </el-dropdown-item>
-                  <el-dropdown-item command="inactive" :disabled="row.status === 'inactive'">
-                    禁用
-                  </el-dropdown-item>
-                  <el-dropdown-item command="banned" :disabled="row.status === 'banned'">
-                    封禁
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
-          :total="pagination.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+        </el-dropdown>
+        <el-button link type="danger" size="small" @click="handleDelete(row)">
+          删除
+        </el-button>
+      </template>
+    </DataTable>
 
     <!-- 新增/编辑用户对话框 -->
     <el-dialog
@@ -216,7 +151,12 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { Search, Refresh, Plus, Download, ArrowDown } from '@element-plus/icons-vue'
+import { Plus, Download, ArrowDown } from '@element-plus/icons-vue'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SearchForm from '@/components/common/SearchForm.vue'
+import DataTable from '@/components/common/DataTable.vue'
+import type { SearchField } from '@/components/common/SearchForm.vue'
+import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import { userApi } from '@/api/user'
 import type { UserInfo, UserListParams } from '@/api/user'
 
@@ -231,6 +171,80 @@ const searchForm = reactive<UserListParams>({
   userType: '',
   status: '',
 })
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'phone',
+    label: '手机号',
+    type: 'input',
+    placeholder: '请输入手机号',
+    width: '200px',
+  },
+  {
+    prop: 'username',
+    label: '用户名',
+    type: 'input',
+    placeholder: '请输入用户名',
+    width: '200px',
+  },
+  {
+    prop: 'userType',
+    label: '用户类型',
+    type: 'select',
+    placeholder: '请选择用户类型',
+    width: '150px',
+    options: [
+      { label: '普通用户', value: 'customer' },
+      { label: '移动管理员', value: 'mobile_admin' },
+      { label: 'PC管理员', value: 'pc_admin' },
+    ],
+  },
+  {
+    prop: 'status',
+    label: '状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '120px',
+    options: [
+      { label: '正常', value: 'active' },
+      { label: '禁用', value: 'inactive' },
+      { label: '封禁', value: 'banned' },
+    ],
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'avatar', label: '头像', width: 80, slot: 'avatar' },
+  { prop: 'username', label: '用户名', width: 120 },
+  { prop: 'realName', label: '真实姓名', width: 120 },
+  { prop: 'phone', label: '手机号', width: 130 },
+  { prop: 'email', label: '邮箱', width: 180, showOverflowTooltip: true },
+  { prop: 'userType', label: '用户类型', width: 120, slot: 'userType' },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'lastLoginAt', label: '最后登录', width: 180, slot: 'lastLoginAt' },
+  { prop: 'createdAt', label: '创建时间', width: 180, slot: 'createdAt' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增用户',
+    type: 'primary',
+    icon: Plus,
+    onClick: () => handleCreate(),
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
 
 // 用户列表
 const userList = ref<UserInfo[]>([])
@@ -543,17 +557,5 @@ onMounted(() => {
 <style scoped lang="scss">
 .user-list-container {
   padding: 20px;
-
-  .search-card,
-  .toolbar-card,
-  .table-card {
-    margin-bottom: 20px;
-  }
-
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
 }
 </style>
