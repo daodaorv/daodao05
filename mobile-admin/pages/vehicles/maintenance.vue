@@ -8,20 +8,11 @@
       <!-- 车辆信息 -->
       <view class="info-section">
         <view class="section-title">车辆信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">车辆名称</text>
-            <text class="value">{{ vehicle.name }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">车牌号</text>
-            <text class="value">{{ vehicle.plate }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">当前里程</text>
-            <text class="value">{{ vehicle.mileage }} km</text>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="车辆名称" :value="vehicle.name" />
+          <u-cell title="车牌号" :value="vehicle.plate" />
+          <u-cell title="当前里程" :value="`${vehicle.mileage} km`" />
+        </u-cell-group>
       </view>
 
       <!-- 维保类型 -->
@@ -35,7 +26,7 @@
             :class="{ active: formData.type === type.value }"
             @click="formData.type = type.value"
           >
-            <text class="type-icon">{{ type.icon }}</text>
+            <u-icon :name="type.icon" size="40" :color="formData.type === type.value ? '#1890ff' : '#666'"></u-icon>
             <text class="type-text">{{ type.label }}</text>
           </view>
         </view>
@@ -61,28 +52,29 @@
       <!-- 维保里程 -->
       <view class="form-section">
         <view class="section-title">维保里程（km） <text class="required">*</text></view>
-        <input
-          v-model.number="formData.mileage"
+        <u-input
+          v-model="formData.mileage"
           type="number"
-          class="input-field"
           placeholder="请输入维保时的里程数"
+          border="surround"
         />
       </view>
 
       <!-- 维保项目 -->
       <view class="form-section">
         <view class="section-title">维保项目 <text class="required">*</text></view>
-        <view class="items-selector">
-          <view
-            v-for="item in maintenanceItems"
-            :key="item.value"
-            class="item-tag"
-            :class="{ active: formData.items.includes(item.value) }"
-            @click="toggleItem(item.value)"
-          >
-            <text>{{ item.label }}</text>
+        <u-checkbox-group v-model="formData.items">
+          <view class="items-selector">
+            <u-checkbox
+              v-for="item in maintenanceItems"
+              :key="item.value"
+              :name="item.value"
+              :label="item.label"
+              shape="square"
+              activeColor="#1890ff"
+            />
           </view>
-        </view>
+        </u-checkbox-group>
       </view>
 
       <!-- 维保费用 -->
