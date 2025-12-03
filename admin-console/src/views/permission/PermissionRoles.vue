@@ -100,18 +100,22 @@
         </el-form-item>
         <el-form-item label="角色类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择角色类型" style="width: 100%">
-            <el-option label="平台管理员" value="platform_admin" />
-            <el-option label="区域经理" value="regional_manager" />
-            <el-option label="门店经理" value="store_manager" />
-            <el-option label="门店员工" value="store_staff" />
+            <el-option
+              v-for="option in ROLE_TYPE_OPTIONS"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="数据权限范围" prop="dataScope">
           <el-select v-model="form.dataScope" placeholder="请选择数据权限范围" style="width: 100%">
-            <el-option label="全部数据" value="all" />
-            <el-option label="所辖区域数据" value="region" />
-            <el-option label="本门店数据" value="store" />
-            <el-option label="仅本人数据" value="self" />
+            <el-option
+              v-for="option in DATA_SCOPE_OPTIONS"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="角色描述" prop="description">
@@ -215,8 +219,15 @@ import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import { roleApi, type Role } from '@/api/role'
+import { useErrorHandler, useEnumLabel, useDateFormat } from '@/composables'
+import { ROLE_STATUS_OPTIONS, ROLE_TYPE_OPTIONS, DATA_SCOPE_OPTIONS } from '@/constants'
 
 const router = useRouter()
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getRoleTypeLabel, getDataScopeLabel } = useEnumLabel()
+const { formatDateTime } = useDateFormat()
 
 // 搜索表单
 const searchForm = reactive({
@@ -239,10 +250,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择状态',
     width: '150px',
-    options: [
-      { label: '启用', value: 'active' },
-      { label: '禁用', value: 'inactive' },
-    ],
+    options: ROLE_STATUS_OPTIONS,
   },
 ]
 
@@ -293,8 +301,8 @@ const loadRoleList = async () => {
     })
     roleList.value = response.data.list
     pagination.total = response.data.total
-  } catch (error: any) {
-    ElMessage.error(error.message || '加载角色列表失败')
+  } catch (error) {
+    handleApiError(error, '加载角色列表失败')
   } finally {
     loading.value = false
   }
