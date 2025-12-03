@@ -431,14 +431,6 @@ export default {
   margin-bottom: 16rpx;
 }
 
-.item-tag {
-  padding: 8rpx 16rpx;
-  background: #fff;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-  color: #666;
-}
-
 .maintenance-footer {
   display: flex;
   flex-direction: column;
@@ -473,19 +465,10 @@ export default {
   border-radius: 12rpx;
 }
 
-.doc-icon {
-  font-size: 40rpx;
-}
-
 .doc-name {
   flex: 1;
   font-size: 28rpx;
   color: #333;
-}
-
-.doc-arrow {
-  font-size: 40rpx;
-  color: #ccc;
 }
 
 /* 底部操作 */
@@ -500,68 +483,5 @@ export default {
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
-}
-
-/* 状态弹窗 */
-.status-popup {
-  background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
-  padding: 40rpx;
-}
-
-.popup-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-bottom: 30rpx;
-}
-
-.status-options {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-  margin-bottom: 30rpx;
-}
-
-.status-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx;
-  background: #f8f8f8;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-}
-
-.option-text {
-  color: #333;
-}
-
-.option-check {
-  color: #3cc51f;
-  font-size: 32rpx;
-  font-weight: bold;
-}
-
-.cancel-button {
-  width: 100%;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
-  background: #f5f5f5;
-  color: #666;
-  border: none;
-}
-
-.cancel-button::after {
-  border: none;
 }
 </style>
