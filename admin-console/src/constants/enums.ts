@@ -24,6 +24,34 @@ export const USER_STATUS_MAP: Record<string, string> = {
 } as const
 
 /**
+ * 风险等级映射
+ */
+export const RISK_LEVEL_MAP: Record<string, string> = {
+  high: '高风险',
+  medium: '中风险',
+  low: '低风险'
+} as const
+
+/**
+ * 风险类型映射
+ */
+export const RISK_TYPE_MAP: Record<string, string> = {
+  login: '登录风险',
+  behavior: '行为风险',
+  payment: '支付风险',
+  credit: '信用风险'
+} as const
+
+/**
+ * 风险状态映射
+ */
+export const RISK_STATUS_MAP: Record<string, string> = {
+  pending: '待处理',
+  processed: '已处理',
+  ignored: '已忽略'
+} as const
+
+/**
  * 车辆状态映射
  */
 export const VEHICLE_STATUS_MAP: Record<string, string> = {

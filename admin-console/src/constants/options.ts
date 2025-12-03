@@ -7,6 +7,9 @@
 import {
   USER_TYPE_MAP,
   USER_STATUS_MAP,
+  RISK_LEVEL_MAP,
+  RISK_TYPE_MAP,
+  RISK_STATUS_MAP,
   VEHICLE_STATUS_MAP,
   VEHICLE_OWNERSHIP_TYPE_MAP,
   ORDER_STATUS_MAP,
@@ -60,6 +63,21 @@ export const USER_TYPE_OPTIONS = mapToOptions(USER_TYPE_MAP)
  * 用户状态选项
  */
 export const USER_STATUS_OPTIONS = mapToOptions(USER_STATUS_MAP)
+
+/**
+ * 风险等级选项
+ */
+export const RISK_LEVEL_OPTIONS = mapToOptions(RISK_LEVEL_MAP)
+
+/**
+ * 风险类型选项
+ */
+export const RISK_TYPE_OPTIONS = mapToOptions(RISK_TYPE_MAP)
+
+/**
+ * 风险状态选项
+ */
+export const RISK_STATUS_OPTIONS = mapToOptions(RISK_STATUS_MAP)
 
 /**
  * 车辆状态选项
