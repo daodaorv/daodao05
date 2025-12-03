@@ -126,7 +126,7 @@
 |------|--------|--------|------|
 | **UI 组件库** | 仅 uni-ui（50+ 组件） | uView Plus 3.x（100+ 组件） | ⬆️ 100% |
 | **自定义组件** | 6个 | 4个 | ⬇️ 33% |
-| **已重构页面** | 0个 | 5个 | ✅ 进行中 |
+| **已重构页面** | 0个 | 8个 | ✅ 持续进行中 |
 | **项目完成度** | 87% | 100% | ⬆️ 13% |
 
 ### 2. 已重构的组件和页面
@@ -140,7 +140,7 @@
 | StatusBadge.vue | 删除（u-tag 替代） | - | ✅ 完成 |
 | ConfirmDialog.vue | 删除（u-modal 替代） | - | ✅ 完成 |
 
-#### 页面重构（5个完成）
+#### 页面重构（8个完成）
 
 | 页面 | 重构内容 | 代码变化 | 组件使用 | 状态 |
 |------|---------|---------|---------|------|
@@ -149,6 +149,9 @@
 | vehicles/index.vue | u-search、u-tabs、u-tag、u-button、u-empty、u-loading-icon | 427行 → 374行（-12.4%） | 6个 uView Plus 组件 | ✅ 完成 |
 | orders/verification.vue | u-cell、u-checkbox、u-radio、u-input、u-textarea、u-upload、u-popup、u-modal、u-button、u-icon | 770行 → 710行（-7.8%） | 10个 uView Plus 组件 | ✅ 完成 |
 | orders/pickup.vue | u-steps、u-cell、u-tag、u-upload、u-checkbox、u-input、u-button、u-icon | 871行 → 693行（-20.4%） | 9个 uView Plus 组件 | ✅ 完成 |
+| orders/detail.vue | u-tag、u-cell、u-button、u-modal、u-empty | 561行 → 473行（-15.7%） | 5个 uView Plus 组件 | ✅ 完成 |
+| vehicles/detail.vue | u-tag、u-cell、u-icon、u-button、u-action-sheet、u-empty | 568行 → 487行（-14.3%） | 6个 uView Plus 组件 | ✅ 完成 |
+| vehicles/maintenance.vue | u-cell、u-icon、u-input、u-checkbox、u-textarea、u-upload、u-button、u-modal | 650行 → 588行（-9.5%） | 8个 uView Plus 组件 | ✅ 完成 |
 
 ### 3. 实际投入成本
 
@@ -156,9 +159,9 @@
 |------|------|---------|
 | **基础配置** | 安装、配置、字体修复 | 2.5 小时 |
 | **组件重构** | 2个组件重构 + 2个组件删除 | 1 小时 |
-| **页面重构** | dashboard + orders + vehicles + verification + pickup（5个页面） | 10.5 小时 |
+| **页面重构** | dashboard + orders + vehicles + verification + pickup + detail + maintenance（8个页面） | 15 小时 |
 | **文档生成** | 5份详细文档 + 更新总结 | 2.5 小时 |
-| **总计** | - | **16.5 小时** |
+| **总计** | - | **21 小时** |
 
 ---
 
@@ -178,11 +181,17 @@
 **已实现**：
 - ✅ 自定义组件减少 33%（6个 → 4个）
 - ✅ 组件代码更简洁（LoadingSpinner -17%）
-- ✅ 页面代码显著减少（orders -11.2%，vehicles -12.4%，verification -7.8%，pickup -20.4%）
-- ✅ 统一的组件风格（5个页面使用 uView Plus 组件）
-- ✅ 更少的自定义样式代码（移除大量自定义进度条、checkbox、input、button、popup、上传框样式）
+- ✅ 页面代码显著减少（平均减少 11.6%）
+  - orders/index -11.2%，vehicles/index -12.4%
+  - orders/verification -7.8%，orders/pickup -20.4%
+  - orders/detail -15.7%，vehicles/detail -14.3%
+  - vehicles/maintenance -9.5%
+- ✅ 统一的组件风格（8个页面使用 uView Plus 组件）
+- ✅ 更少的自定义样式代码（移除大量自定义进度条、checkbox、input、button、popup、上传框、标签样式）
 - ✅ 表单组件标准化（使用 u-input、u-textarea、u-checkbox、u-radio、u-upload）
 - ✅ 步骤流程组件标准化（使用 u-steps）
+- ✅ 数据展示组件标准化（使用 u-cell-group、u-cell）
+- ✅ 交互组件标准化（使用 u-modal、u-action-sheet）
 
 ### 3. 用户体验提升
 
@@ -252,8 +261,11 @@
 - vehicles/index.vue：代码减少 53行（-12.4%）
 - orders/verification.vue：代码减少 60行（-7.8%）
 - orders/pickup.vue：代码减少 178行（-20.4%）
-- **总计减少 346行代码**
-- 移除大量自定义样式代码（进度条、checkbox、input、button、popup、上传框等）
+- orders/detail.vue：代码减少 88行（-15.7%）
+- vehicles/detail.vue：代码减少 81行（-14.3%）
+- vehicles/maintenance.vue：代码减少 62行（-9.5%）
+- **总计减少 577行代码**
+- 移除大量自定义样式代码（进度条、checkbox、input、button、popup、上传框、标签、图标等）
 - 统一组件风格和交互体验
 - 成功替换 ImageUploader 和 ConfirmDialog 组件
 
@@ -262,9 +274,9 @@
 - 维护成本降低 30%
 - 代码量减少 30-40%
 
-**当前投资回报率**：**97%**（16小时 / 16.5小时）
+**当前投资回报率**：**76%**（16小时 / 21小时）
 
-**完全重构后投资回报率**：**预计 194%+**（(16+16)/16.5）
+**完全重构后投资回报率**：**预计 152%+**（(16+16)/21）
 
 ---
 
@@ -430,11 +442,11 @@
 - 2个未使用组件删除
 - 组件代码质量提升
 
-**✅ 页面重构全部完成**
-- 5个核心页面重构完成（dashboard、orders/index、vehicles/index、orders/verification、orders/pickup）
-- 平均代码减少 10.7%（dashboard -1.6%，orders -11.2%，vehicles -12.4%，verification -7.8%，pickup -20.4%）
+**✅ 页面重构持续推进**
+- 8个页面重构完成（dashboard、orders/index、vehicles/index、orders/verification、orders/pickup、orders/detail、vehicles/detail、vehicles/maintenance）
+- 平均代码减少 11.6%（dashboard -1.6%，orders/index -11.2%，vehicles/index -12.4%，orders/verification -7.8%，orders/pickup -20.4%，orders/detail -15.7%，vehicles/detail -14.3%，vehicles/maintenance -9.5%）
 - 统一使用 uView Plus 组件
-- 移除大量自定义样式代码（进度条、checkbox、input、button、popup、上传框等）
+- 移除大量自定义样式代码（进度条、checkbox、input、button、popup、上传框、标签、图标等）
 - 成功替换 ImageUploader 和 ConfirmDialog 组件
 
 **✅ 完整的文档体系**
