@@ -235,12 +235,12 @@ export default {
 
       // 维保类型
       maintenanceTypes: [
-        { value: 'maintenance', label: '常规保养', icon: '🔧' },
-        { value: 'repair', label: '维修', icon: '🔨' },
-        { value: 'inspection', label: '年检', icon: '📋' },
-        { value: 'insurance', label: '保险', icon: '🛡️' },
-        { value: 'cleaning', label: '清洁美容', icon: '✨' },
-        { value: 'other', label: '其他', icon: '📝' }
+        { value: 'maintenance', label: '常规保养', icon: 'setting' },
+        { value: 'repair', label: '维修', icon: 'tools' },
+        { value: 'inspection', label: '年检', icon: 'list' },
+        { value: 'insurance', label: '保险', icon: 'shield' },
+        { value: 'cleaning', label: '清洁美容', icon: 'star' },
+        { value: 'other', label: '其他', icon: 'edit-pen' }
       ],
 
       // 维保项目
@@ -307,19 +307,21 @@ export default {
       this.formData.nextDate = e.detail.value
     },
 
-    toggleItem(value) {
-      const index = this.formData.items.indexOf(value)
-      if (index > -1) {
-        this.formData.items.splice(index, 1)
-      } else {
-        this.formData.items.push(value)
-      }
+    afterReadPhoto(event) {
+      const { file } = event
+      this.photoList.push({ url: file.url, status: 'success', message: '' })
+      this.formData.photos.push(file.url)
+    },
+
+    deletePhoto(event) {
+      const { index } = event
+      this.photoList.splice(index, 1)
+      this.formData.photos.splice(index, 1)
     },
 
     handleCancel() {
       this.dialogTitle = '取消添加'
       this.dialogMessage = '确定要取消添加维保记录吗？已填写的内容将不会保存。'
-      this.dialogType = 'default'
       this.dialogVisible = true
     },
 
@@ -331,7 +333,6 @@ export default {
 
       this.dialogTitle = '保存记录'
       this.dialogMessage = '确认保存维保记录吗？'
-      this.dialogType = 'default'
       this.dialogVisible = true
     },
 
@@ -450,28 +451,6 @@ export default {
   margin-left: 8rpx;
 }
 
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 28rpx;
-}
-
-.label {
-  color: #999;
-}
-
-.value {
-  color: #333;
-  font-weight: 500;
-}
-
 /* 类型选择器 */
 .type-selector {
   display: grid;
@@ -494,10 +473,6 @@ export default {
 .type-item.active {
   background: #e6f7ff;
   border-color: #1890ff;
-}
-
-.type-icon {
-  font-size: 40rpx;
 }
 
 .type-text {
@@ -526,59 +501,36 @@ export default {
   color: #999;
 }
 
-.picker-arrow {
-  font-size: 40rpx;
-  color: #ccc;
-}
-
-/* 输入框 */
-.input-field {
-  width: 100%;
-  height: 80rpx;
-  padding: 0 24rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-}
-
-.textarea-field {
-  width: 100%;
-  min-height: 200rpx;
-  padding: 20rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-}
-
-.char-count {
-  text-align: right;
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 12rpx;
-}
-
 /* 项目选择器 */
 .items-selector {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 16rpx;
 }
 
-.item-tag {
-  padding: 16rpx 28rpx;
+/* 上传提示 */
+.upload-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
   background: #f5f5f5;
-  border-radius: 40rpx;
-  font-size: 26rpx;
-  color: #666;
-  border: 2rpx solid transparent;
-  transition: all 0.3s;
+  border-radius: 8rpx;
+  border: 2rpx dashed #ddd;
 }
 
-.item-tag.active {
-  background: #e6f7ff;
-  color: #1890ff;
-  border-color: #1890ff;
+.upload-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.upload-tip {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 12rpx;
 }
 
 /* 提醒设置 */
@@ -601,11 +553,6 @@ export default {
 
 .reminder-input {
   flex: 1;
-  height: 70rpx;
-  padding: 0 20rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
 }
 
 .reminder-unit {
@@ -637,12 +584,5 @@ export default {
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
 }
 </style>
