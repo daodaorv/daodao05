@@ -80,55 +80,64 @@
       <!-- 维保费用 -->
       <view class="form-section">
         <view class="section-title">维保费用（元） <text class="required">*</text></view>
-        <input
-          v-model.number="formData.cost"
+        <u-input
+          v-model="formData.cost"
           type="digit"
-          class="input-field"
           placeholder="请输入维保费用"
+          border="surround"
         />
       </view>
 
       <!-- 维保机构 -->
       <view class="form-section">
         <view class="section-title">维保机构</view>
-        <input
+        <u-input
           v-model="formData.organization"
-          class="input-field"
           placeholder="请输入维保机构名称"
+          border="surround"
         />
       </view>
 
       <!-- 维保人员 -->
       <view class="form-section">
         <view class="section-title">维保人员</view>
-        <input
+        <u-input
           v-model="formData.technician"
-          class="input-field"
           placeholder="请输入维保人员姓名"
+          border="surround"
         />
       </view>
 
       <!-- 维保照片 -->
       <view class="form-section">
         <view class="section-title">维保照片</view>
-        <ImageUploader
-          v-model="formData.photos"
-          :max-count="6"
-          add-text="上传照片"
-          tip="可上传维保前后对比照片、维保单据等"
-        />
+        <u-upload
+          :fileList="photoList"
+          @afterRead="afterReadPhoto"
+          @delete="deletePhoto"
+          :maxCount="6"
+          :previewFullImage="true"
+          multiple
+          width="160"
+          height="160"
+        >
+          <view class="upload-slot">
+            <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+            <text class="upload-text">上传照片</text>
+          </view>
+        </u-upload>
+        <view class="upload-tip">可上传维保前后对比照片、维保单据等</view>
       </view>
 
       <!-- 维保说明 -->
       <view class="form-section">
         <view class="section-title">维保说明</view>
-        <textarea
+        <u-textarea
           v-model="formData.remark"
-          class="textarea-field"
           placeholder="请输入维保详细说明、更换配件、注意事项等"
-          maxlength="500"
+          :maxlength="500"
+          count
         />
-        <view class="char-count">{{ formData.remark.length }}/500</view>
       </view>
 
       <!-- 下次维保提醒 -->
