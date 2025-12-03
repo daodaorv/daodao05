@@ -1,6 +1,9 @@
 import {
   USER_TYPE_MAP,
   USER_STATUS_MAP,
+  RISK_LEVEL_MAP,
+  RISK_TYPE_MAP,
+  RISK_STATUS_MAP,
   VEHICLE_STATUS_MAP,
   VEHICLE_OWNERSHIP_TYPE_MAP,
   ORDER_STATUS_MAP,
@@ -35,6 +38,27 @@ export function useEnumLabel() {
    */
   const getUserStatusLabel = (status: string): string => {
     return USER_STATUS_MAP[status] || status
+  }
+
+  /**
+   * 获取风险等级标签
+   */
+  const getRiskLevelLabel = (level: string): string => {
+    return RISK_LEVEL_MAP[level] || level
+  }
+
+  /**
+   * 获取风险类型标签
+   */
+  const getRiskTypeLabel = (type: string): string => {
+    return RISK_TYPE_MAP[type] || type
+  }
+
+  /**
+   * 获取风险状态标签
+   */
+  const getRiskStatusLabel = (status: string): string => {
+    return RISK_STATUS_MAP[status] || status
   }
 
   /**
@@ -91,6 +115,9 @@ export function useEnumLabel() {
   return {
     getUserTypeLabel,
     getUserStatusLabel,
+    getRiskLevelLabel,
+    getRiskTypeLabel,
+    getRiskStatusLabel,
     getVehicleStatusLabel,
     getVehicleOwnershipTypeLabel,
     getOrderStatusLabel,
