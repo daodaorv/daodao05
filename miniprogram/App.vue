@@ -15,6 +15,8 @@
 
 <style lang="scss">
 	/*每个页面公共css */
+	/* 必须先导入 uni.scss 变量，再导入 uview-ui */
+	@import '@/uni.scss';
 	@import 'uview-ui/index.scss';
 	/* #ifndef APP-NVUE */
 	@import '@/static/customicons.css';
