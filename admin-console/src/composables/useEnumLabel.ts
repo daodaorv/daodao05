@@ -11,7 +11,8 @@ import {
   PAYMENT_METHOD_MAP,
   GENDER_MAP,
   BLACKLIST_REASON_MAP,
-  VEHICLE_TYPE_MAP
+  VEHICLE_TYPE_MAP,
+  VIOLATION_STATUS_MAP
 } from '@/constants/enums'
 
 /**
@@ -120,6 +121,13 @@ export function useEnumLabel() {
   }
 
   /**
+   * 获取违章状态标签
+   */
+  const getViolationStatusLabel = (status: string): string => {
+    return VIOLATION_STATUS_MAP[status] || status
+  }
+
+  /**
    * 通用枚举标签获取
    * @param value 枚举值
    * @param map 枚举映射对象
@@ -142,6 +150,7 @@ export function useEnumLabel() {
     getGenderLabel,
     getBlacklistReasonLabel,
     getVehicleTypeLabel,
+    getViolationStatusLabel,
     getEnumLabel
   }
 }
