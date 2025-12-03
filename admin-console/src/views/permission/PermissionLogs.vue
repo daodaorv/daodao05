@@ -36,14 +36,14 @@
       <!-- 操作模块列 -->
       <template #module="{ row }">
         <el-tag type="info" size="small">
-          {{ getModuleLabel(row.module) }}
+          {{ getLogModuleLabel(row.module) }}
         </el-tag>
       </template>
 
       <!-- 操作类型列 -->
       <template #action="{ row }">
         <el-tag :type="getActionType(row.action)" size="small">
-          {{ getActionLabel(row.action) }}
+          {{ getLogActionLabel(row.action) }}
         </el-tag>
       </template>
 
@@ -81,11 +81,11 @@
           {{ currentLog?.operator }}
         </el-descriptions-item>
         <el-descriptions-item label="操作模块">
-          {{ getModuleLabel(currentLog?.module) }}
+          {{ getLogModuleLabel(currentLog?.module) }}
         </el-descriptions-item>
         <el-descriptions-item label="操作类型">
           <el-tag :type="getActionType(currentLog?.action)" size="small">
-            {{ getActionLabel(currentLog?.action) }}
+            {{ getLogActionLabel(currentLog?.action) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="操作描述" :span="2">
@@ -138,6 +138,12 @@ import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
+import { useEnumLabel, useDateFormat } from '@/composables'
+import { LOG_MODULE_OPTIONS, LOG_ACTION_OPTIONS } from '@/constants'
+
+// Composables
+const { getLogModuleLabel, getLogActionLabel } = useEnumLabel()
+const { formatDateTime } = useDateFormat()
 
 // 日志数据类型
 interface OperationLog {
@@ -179,13 +185,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择模块',
     width: '150px',
-    options: [
-      { label: '用户管理', value: 'user' },
-      { label: '角色管理', value: 'role' },
-      { label: '权限管理', value: 'permission' },
-      { label: '车辆管理', value: 'vehicle' },
-      { label: '订单管理', value: 'order' },
-    ],
+    options: LOG_MODULE_OPTIONS,
   },
   {
     prop: 'action',
@@ -193,12 +193,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择类型',
     width: '150px',
-    options: [
-      { label: '创建', value: 'create' },
-      { label: '更新', value: 'update' },
-      { label: '删除', value: 'delete' },
-      { label: '查询', value: 'query' },
-    ],
+    options: LOG_ACTION_OPTIONS,
   },
   {
     prop: 'dateRange',
@@ -331,19 +326,7 @@ const handleCurrentChange = (page: number) => {
   pagination.page = page
 }
 
-// 获取模块标签
-const getModuleLabel = (module?: string) => {
-  const labelMap: Record<string, string> = {
-    user: '用户管理',
-    role: '角色管理',
-    permission: '权限管理',
-    vehicle: '车辆管理',
-    order: '订单管理',
-  }
-  return labelMap[module || ''] || module
-}
-
-// 获取操作类型标签
+// 获取操作类型标签类型
 const getActionType = (action?: string) => {
   const typeMap: Record<string, any> = {
     create: 'success',
@@ -352,31 +335,6 @@ const getActionType = (action?: string) => {
     query: 'info',
   }
   return typeMap[action || ''] || 'info'
-}
-
-// 获取操作类型标签文本
-const getActionLabel = (action?: string) => {
-  const labelMap: Record<string, string> = {
-    create: '创建',
-    update: '更新',
-    delete: '删除',
-    query: '查询',
-  }
-  return labelMap[action || ''] || action
-}
-
-// 格式化日期时间
-const formatDateTime = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
 }
 
 // 页面加载

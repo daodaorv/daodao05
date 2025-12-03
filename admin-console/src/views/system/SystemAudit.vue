@@ -36,14 +36,14 @@
       <!-- 操作模块列 -->
       <template #module="{ row }">
         <el-tag type="info" size="small">
-          {{ getModuleLabel(row.module) }}
+          {{ getLogModuleLabel(row.module) }}
         </el-tag>
       </template>
 
       <!-- 操作类型列 -->
       <template #action="{ row }">
         <el-tag :type="getActionType(row.action)" size="small">
-          {{ getActionLabel(row.action) }}
+          {{ getLogActionLabel(row.action) }}
         </el-tag>
       </template>
 
@@ -81,11 +81,11 @@
           {{ currentAudit?.operator }}
         </el-descriptions-item>
         <el-descriptions-item label="操作模块">
-          {{ getModuleLabel(currentAudit?.module) }}
+          {{ getLogModuleLabel(currentAudit?.module) }}
         </el-descriptions-item>
         <el-descriptions-item label="操作类型">
           <el-tag :type="getActionType(currentAudit?.action)" size="small">
-            {{ getActionLabel(currentAudit?.action) }}
+            {{ getLogActionLabel(currentAudit?.action) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="操作描述" :span="2">
@@ -184,6 +184,13 @@ import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
+import { useErrorHandler, useEnumLabel, useDateFormat } from '@/composables'
+import { LOG_MODULE_OPTIONS, LOG_ACTION_OPTIONS } from '@/constants'
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getLogModuleLabel, getLogActionLabel } = useEnumLabel()
+const { formatDateTime } = useDateFormat()
 
 // 审计日志数据类型
 interface AuditLog {
@@ -226,13 +233,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择模块',
     width: '150px',
-    options: [
-      { label: '用户管理', value: 'user' },
-      { label: '角色管理', value: 'role' },
-      { label: '权限管理', value: 'permission' },
-      { label: '系统配置', value: 'system' },
-      { label: '数据备份', value: 'backup' },
-    ],
+    options: LOG_MODULE_OPTIONS,
   },
   {
     prop: 'action',
@@ -240,13 +241,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择类型',
     width: '150px',
-    options: [
-      { label: '创建', value: 'create' },
-      { label: '更新', value: 'update' },
-      { label: '删除', value: 'delete' },
-      { label: '查询', value: 'query' },
-      { label: '导出', value: 'export' },
-    ],
+    options: LOG_ACTION_OPTIONS,
   },
   {
     prop: 'status',
@@ -446,7 +441,7 @@ const handleConfirmClean = async () => {
     cleanDialogVisible.value = false
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('日志清理失败')
+      handleApiError(error, '日志清理失败')
     }
   }
 }
@@ -471,19 +466,7 @@ const handleCurrentChange = (page: number) => {
   pagination.page = page
 }
 
-// 获取模块标签
-const getModuleLabel = (module?: string) => {
-  const labelMap: Record<string, string> = {
-    user: '用户管理',
-    role: '角色管理',
-    permission: '权限管理',
-    system: '系统配置',
-    backup: '数据备份',
-  }
-  return labelMap[module || ''] || module
-}
-
-// 获取操作类型标签
+// 获取操作类型标签类型
 const getActionType = (action?: string) => {
   const typeMap: Record<string, any> = {
     create: 'success',
@@ -493,18 +476,6 @@ const getActionType = (action?: string) => {
     export: 'primary',
   }
   return typeMap[action || ''] || 'info'
-}
-
-// 获取操作类型标签文本
-const getActionLabel = (action?: string) => {
-  const labelMap: Record<string, string> = {
-    create: '创建',
-    update: '更新',
-    delete: '删除',
-    query: '查询',
-    export: '导出',
-  }
-  return labelMap[action || ''] || action
 }
 
 // 页面加载

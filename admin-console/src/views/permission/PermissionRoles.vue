@@ -461,9 +461,9 @@ const handleDelete = async (row: Role) => {
     await roleApi.deleteRole(row.id)
     ElMessage.success('删除成功')
     loadRoleList()
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.message || '删除失败')
+      handleApiError(error, '删除失败')
     }
   }
 }
@@ -476,8 +476,8 @@ const handleStatusChange = async (row: Role) => {
       status: row.status,
     })
     ElMessage.success(`角色状态已${row.status === 'active' ? '启用' : '禁用'}`)
-  } catch (error: any) {
-    ElMessage.error(error.message || '状态更新失败')
+  } catch (error) {
+    handleApiError(error, '状态更新失败')
     // 恢复原状态
     row.status = row.status === 'active' ? 'inactive' : 'active'
   }
@@ -504,8 +504,8 @@ const handleViewUsers = async (row: Role) => {
     const response = await roleApi.getRoleUsers(row.id)
     roleUsers.value = response.data.list as any
     usersDialogVisible.value = true
-  } catch (error: any) {
-    ElMessage.error(error.message || '获取用户列表失败')
+  } catch (error) {
+    handleApiError(error, '获取用户列表失败')
   }
 }
 
@@ -541,8 +541,8 @@ const handleSubmit = async () => {
       }
       dialogVisible.value = false
       loadRoleList()
-    } catch (error: any) {
-      ElMessage.error(error.message || (isEdit.value ? '更新失败' : '创建失败'))
+    } catch (error) {
+      handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitLoading.value = false
     }
@@ -562,8 +562,8 @@ const handlePermissionSubmit = async () => {
     })
     ElMessage.success('权限配置保存成功')
     permissionDialogVisible.value = false
-  } catch (error: any) {
-    ElMessage.error(error.message || '权限配置失败')
+  } catch (error) {
+    handleApiError(error, '权限配置失败')
   }
 }
 
@@ -590,7 +590,7 @@ const handleCurrentChange = (page: number) => {
   loadRoleList()
 }
 
-// 获取角色类型标签
+// 获取角色类型标签类型
 const getRoleTypeTag = (type: string) => {
   const typeMap: Record<string, any> = {
     platform_admin: 'danger',
@@ -599,40 +599,6 @@ const getRoleTypeTag = (type: string) => {
     store_staff: 'info',
   }
   return typeMap[type] || 'info'
-}
-
-// 获取角色类型标签文本
-const getRoleTypeLabel = (type: string) => {
-  const labelMap: Record<string, string> = {
-    platform_admin: '平台管理员',
-    regional_manager: '区域经理',
-    store_manager: '门店经理',
-    store_staff: '门店员工',
-  }
-  return labelMap[type] || type
-}
-
-// 获取数据权限范围标签
-const getDataScopeLabel = (scope: string) => {
-  const labelMap: Record<string, string> = {
-    all: '全部数据',
-    region: '所辖区域',
-    store: '本门店',
-    self: '仅本人',
-  }
-  return labelMap[scope] || scope
-}
-
-// 格式化日期时间
-const formatDateTime = (dateStr: string) => {
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 // 页面加载
