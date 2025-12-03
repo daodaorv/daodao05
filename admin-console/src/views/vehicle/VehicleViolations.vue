@@ -1,12 +1,9 @@
 <template>
   <div class="vehicle-violations-container">
-    <!-- 页面标题 -->
     <PageHeader title="违章管理" description="管理车辆违章记录、违章处理和罚款缴纳" />
 
-    <!-- 统计卡片 -->
     <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -14,7 +11,6 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
       :data="violationList"
       :columns="tableColumns"
@@ -25,15 +21,13 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     >
-      <!-- 罚款金额列 -->
       <template #fineAmount="{ row }">
         ¥{{ row.fineAmount }}
       </template>
 
-      <!-- 状态列 -->
       <template #status="{ row }">
-        <el-tag :type="getStatusTag(row.status)" size="small">
-          {{ getStatusLabel(row.status) }}
+        <el-tag :type="getViolationStatusTag(row.status)" size="small">
+          {{ getViolationStatusLabel(row.status) }}
         </el-tag>
       </template>
     </DataTable>
@@ -55,20 +49,24 @@
           <el-col :span="12">
             <el-form-item label="车辆" prop="vehicleId">
               <el-select v-model="form.vehicleId" placeholder="请选择车辆" style="width: 100%">
-                <el-option label="京A12345 - 大通RV80" :value="1" />
-                <el-option label="沪B67890 - 福特全顺" :value="2" />
-                <el-option label="粤C11111 - 依维柯拖挂" :value="3" />
+                <el-option
+                  v-for="option in VEHICLE_OPTIONS"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="违章类型" prop="violationType">
               <el-select v-model="form.violationType" placeholder="请选择类型" style="width: 100%">
-                <el-option label="超速行驶" value="超速行驶" />
-                <el-option label="违法停车" value="违法停车" />
-                <el-option label="闯红灯" value="闯红灯" />
-                <el-option label="未系安全带" value="未系安全带" />
-                <el-option label="违法变道" value="违法变道" />
+                <el-option
+                  v-for="option in VIOLATION_TYPE_OPTIONS"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
               </el-select>
             </el-form-item>
           </el-col>
@@ -175,8 +173,8 @@
           {{ currentRecord.violationDate }}
         </el-descriptions-item>
         <el-descriptions-item label="违章状态">
-          <el-tag :type="getStatusTag(currentRecord.status)" size="small">
-            {{ getStatusLabel(currentRecord.status) }}
+          <el-tag :type="getViolationStatusTag(currentRecord.status)" size="small">
+            {{ getViolationStatusLabel(currentRecord.status) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="违章地点" :span="2">
@@ -239,6 +237,28 @@ import DataTable from '@/components/common/DataTable.vue'
 import type { StatItem } from '@/components/common/StatsCard.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
+import { useErrorHandler, useEnumLabel } from '@/composables'
+import { VIOLATION_STATUS_OPTIONS } from '@/constants'
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getViolationStatusLabel } = useEnumLabel()
+
+// 违章类型选项
+const VIOLATION_TYPE_OPTIONS = [
+  { label: '超速行驶', value: '超速行驶' },
+  { label: '违法停车', value: '违法停车' },
+  { label: '闯红灯', value: '闯红灯' },
+  { label: '未系安全带', value: '未系安全带' },
+  { label: '违法变道', value: '违法变道' },
+]
+
+// 车辆选项 (Mock数据)
+const VEHICLE_OPTIONS = [
+  { label: '京A12345 - 大通RV80', value: 1 },
+  { label: '沪B67890 - 福特全顺', value: 2 },
+  { label: '粤C11111 - 依维柯拖挂', value: 3 },
+]
 
 // 搜索表单
 const searchForm = reactive({
@@ -297,25 +317,13 @@ const searchFields: SearchField[] = [
     prop: 'violationType',
     label: '违章类型',
     type: 'select',
-    options: [
-      { label: '超速行驶', value: '超速行驶' },
-      { label: '违法停车', value: '违法停车' },
-      { label: '闯红灯', value: '闯红灯' },
-      { label: '未系安全带', value: '未系安全带' },
-      { label: '违法变道', value: '违法变道' },
-    ],
+    options: VIOLATION_TYPE_OPTIONS,
   },
   {
     prop: 'status',
     label: '违章状态',
     type: 'select',
-    options: [
-      { label: '待处理', value: 'pending' },
-      { label: '处理中', value: 'processing' },
-      { label: '已缴款', value: 'paid' },
-      { label: '申诉中', value: 'appealing' },
-      { label: '已取消', value: 'cancelled' },
-    ],
+    options: VIOLATION_STATUS_OPTIONS,
   },
   {
     prop: 'dateRange',
@@ -450,7 +458,7 @@ const loadViolationRecords = async () => {
     violationList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载违章记录失败')
+    handleApiError(error, '加载违章记录失败')
   } finally {
     loading.value = false
   }
@@ -465,7 +473,7 @@ const loadStats = async () => {
     stats.paidViolations = res.data.paidViolations
     stats.totalFines = res.data.totalFines
   } catch (error) {
-    ElMessage.error('加载统计数据失败')
+    handleApiError(error, '加载统计数据失败')
   }
 }
 
@@ -499,7 +507,7 @@ async function handleView(row: ViolationRecord) {
     currentRecord.value = res.data
     detailDialogVisible.value = true
   } catch (error) {
-    ElMessage.error('加载违章记录详情失败')
+    handleApiError(error, '加载违章记录详情失败')
   }
 }
 
@@ -543,7 +551,7 @@ async function handleProcess(row: ViolationRecord) {
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('处理失败')
+      handleApiError(error, '处理失败')
     }
   }
 }
@@ -567,7 +575,7 @@ async function handleDelete(row: ViolationRecord) {
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      handleApiError(error, '删除失败')
     }
   }
 }
@@ -612,7 +620,7 @@ const handleSubmit = async () => {
       loadViolationRecords()
       loadStats()
     } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+      handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitLoading.value = false
     }
@@ -647,9 +655,9 @@ const handleCurrentChange = (page: number) => {
   loadViolationRecords()
 }
 
-// 获取状态标签
-const getStatusTag = (status: string) => {
-  const tagMap: Record<string, any> = {
+// 获取违章状态标签类型
+const getViolationStatusTag = (status: string) => {
+  const tagMap: Record<string, string> = {
     pending: 'warning',
     processing: 'primary',
     paid: 'success',
@@ -657,18 +665,6 @@ const getStatusTag = (status: string) => {
     cancelled: 'danger',
   }
   return tagMap[status] || 'info'
-}
-
-// 获取状态标签文本
-const getStatusLabel = (status: string) => {
-  const labelMap: Record<string, string> = {
-    pending: '待处理',
-    processing: '处理中',
-    paid: '已缴款',
-    appealing: '申诉中',
-    cancelled: '已取消',
-  }
-  return labelMap[status] || status
 }
 
 // 页面加载

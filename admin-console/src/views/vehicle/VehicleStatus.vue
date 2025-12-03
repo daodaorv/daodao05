@@ -1,12 +1,9 @@
 <template>
   <div class="vehicle-status-container">
-    <!-- 页面标题 -->
     <PageHeader title="车辆状态管理" description="实时管理车辆可用性、维修、保养状态" />
 
-    <!-- 统计卡片 -->
     <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -14,7 +11,6 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
       :data="vehicleStatusList"
       :columns="tableColumns"
@@ -28,31 +24,26 @@
       @current-change="handleCurrentChange"
       @selection-change="handleSelectionChange"
     >
-      <!-- 车辆来源列 -->
       <template #ownershipType="{ row }">
         <el-tag :type="row.ownershipType === 'crowdfunding' ? 'primary' : 'success'" size="small">
-          {{ row.ownershipType === 'crowdfunding' ? '众筹车辆' : '合作车辆' }}
+          {{ getOwnershipTypeLabel(row.ownershipType) }}
         </el-tag>
       </template>
 
-      <!-- 当前状态列 -->
       <template #status="{ row }">
-        <el-tag :type="getStatusTag(row.status)" size="small">
-          {{ getStatusLabel(row.status) }}
+        <el-tag :type="getVehicleStatusTag(row.status)" size="small">
+          {{ getVehicleStatusLabel(row.status) }}
         </el-tag>
       </template>
 
-      <!-- 最后更新列 -->
       <template #updatedAt="{ row }">
-        {{ row.updatedAt }}
+        {{ formatDateTime(row.updatedAt) }}
       </template>
 
-      <!-- 状态持续时间列 -->
       <template #duration="{ row }">
         {{ getStatusDuration(row.updatedAt) }}
       </template>
 
-      <!-- 自定义操作列 -->
       <template #actions="{ row }">
         <el-button link type="primary" size="small" @click="handleViewHistory(row)">
           状态历史
@@ -112,17 +103,18 @@
           <div>{{ currentVehicle?.vehicleNumber }} - {{ currentVehicle?.modelName }}</div>
         </el-form-item>
         <el-form-item label="当前状态">
-          <el-tag :type="getStatusTag(currentVehicle?.status || '')" size="small">
-            {{ getStatusLabel(currentVehicle?.status || '') }}
+          <el-tag :type="getVehicleStatusTag(currentVehicle?.status || '')" size="small">
+            {{ getVehicleStatusLabel(currentVehicle?.status || '') }}
           </el-tag>
         </el-form-item>
         <el-form-item label="变更为" prop="newStatus">
           <el-select v-model="statusForm.newStatus" placeholder="请选择新状态" style="width: 100%">
-            <el-option label="可用" value="available" />
-            <el-option label="租用中" value="rented" />
-            <el-option label="保养中" value="maintenance" />
-            <el-option label="维修中" value="repair" />
-            <el-option label="已退役" value="retired" />
+            <el-option
+              v-for="option in VEHICLE_STATUS_OPTIONS"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="变更原因" prop="reason">
@@ -169,25 +161,25 @@
         <el-timeline-item
           v-for="item in statusHistory"
           :key="item.id"
-          :timestamp="item.createdAt"
+          :timestamp="formatDateTime(item.createdAt)"
           placement="top"
           :type="getTimelineType(item.newStatus)"
         >
           <el-card>
             <div class="history-item">
               <div class="history-header">
-                <el-tag :type="getStatusTag(item.oldStatus)" size="small">
-                  {{ getStatusLabel(item.oldStatus) }}
+                <el-tag :type="getVehicleStatusTag(item.oldStatus)" size="small">
+                  {{ getVehicleStatusLabel(item.oldStatus) }}
                 </el-tag>
                 <el-icon><Right /></el-icon>
-                <el-tag :type="getStatusTag(item.newStatus)" size="small">
-                  {{ getStatusLabel(item.newStatus) }}
+                <el-tag :type="getVehicleStatusTag(item.newStatus)" size="small">
+                  {{ getVehicleStatusLabel(item.newStatus) }}
                 </el-tag>
               </div>
               <div class="history-content">
-                <p><strong>变更原因：</strong>{{ item.reason }}</p>
-                <p v-if="item.remark"><strong>备注：</strong>{{ item.remark }}</p>
-                <p><strong>操作人：</strong>{{ item.operator }}</p>
+                <p><strong>变更原因:</strong>{{ item.reason }}</p>
+                <p v-if="item.remark"><strong>备注:</strong>{{ item.remark }}</p>
+                <p><strong>操作人:</strong>{{ item.operator }}</p>
               </div>
             </div>
           </el-card>
@@ -199,7 +191,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
   Refresh,
@@ -225,6 +217,19 @@ import {
   type Vehicle,
   type VehicleStatusHistory,
 } from '@/api/vehicle'
+import { useDateFormat, useErrorHandler, useEnumLabel } from '@/composables'
+import { VEHICLE_STATUS_OPTIONS, STORE_OPTIONS } from '@/constants'
+
+// Composables
+const { formatDateTime } = useDateFormat()
+const { handleApiError } = useErrorHandler()
+const { getVehicleStatusLabel, getOwnershipTypeLabel } = useEnumLabel()
+
+// 车辆来源选项
+const OWNERSHIP_TYPE_OPTIONS = [
+  { label: '众筹车辆', value: 'crowdfunding' },
+  { label: '合作车辆', value: 'cooperative' },
+]
 
 // 搜索表单
 const searchForm = reactive({
@@ -286,13 +291,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择状态',
     width: '150px',
-    options: [
-      { label: '可用', value: 'available' },
-      { label: '租用中', value: 'rented' },
-      { label: '保养中', value: 'maintenance' },
-      { label: '维修中', value: 'repair' },
-      { label: '已退役', value: 'retired' },
-    ],
+    options: VEHICLE_STATUS_OPTIONS,
   },
   {
     prop: 'storeId',
@@ -300,11 +299,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择门店',
     width: '150px',
-    options: [
-      { label: '北京朝阳店', value: 1 },
-      { label: '上海浦东店', value: 2 },
-      { label: '深圳南山店', value: 3 },
-    ],
+    options: STORE_OPTIONS,
   },
   {
     prop: 'source',
@@ -312,10 +307,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择来源',
     width: '150px',
-    options: [
-      { label: '众筹车辆', value: 'crowdfunding' },
-      { label: '合作车辆', value: 'cooperative' },
-    ],
+    options: OWNERSHIP_TYPE_OPTIONS,
   },
 ]
 
@@ -417,7 +409,7 @@ const loadVehicles = async () => {
     vehicleStatusList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载车辆列表失败')
+    handleApiError(error, '加载车辆列表失败')
   } finally {
     loading.value = false
   }
@@ -429,7 +421,7 @@ const loadStats = async () => {
     const res = await getVehicleStatusStats()
     Object.assign(stats, res.data)
   } catch (error) {
-    ElMessage.error('加载统计数据失败')
+    handleApiError(error, '加载统计数据失败')
   }
 }
 
@@ -469,7 +461,7 @@ const handleViewHistory = async (row: Vehicle) => {
     statusHistory.value = res.data
     historyDialogVisible.value = true
   } catch (error) {
-    ElMessage.error('加载状态历史失败')
+    handleApiError(error, '加载状态历史失败')
   }
 }
 
@@ -480,7 +472,7 @@ const handleChangeStatus = (row: Vehicle, newStatus: string) => {
   statusForm.reason = ''
   statusForm.estimatedRecoveryTime = ''
   statusForm.remark = ''
-  statusDialogTitle.value = `变更车辆状态：${row.vehicleNumber}`
+  statusDialogTitle.value = `变更车辆状态:${row.vehicleNumber}`
   statusDialogVisible.value = true
 }
 
@@ -508,7 +500,7 @@ const handleStatusSubmit = async () => {
       loadVehicles()
       loadStats()
     } catch (error) {
-      ElMessage.error('状态变更失败')
+      handleApiError(error, '状态变更失败')
     } finally {
       submitLoading.value = false
     }
@@ -542,9 +534,9 @@ const getStatusDuration = (updatedAt: string) => {
   return '刚刚'
 }
 
-// 获取状态标签
-const getStatusTag = (status: string) => {
-  const tagMap: Record<string, any> = {
+// 获取车辆状态标签类型
+const getVehicleStatusTag = (status: string) => {
+  const tagMap: Record<string, string> = {
     available: 'success',
     rented: 'warning',
     maintenance: 'info',
@@ -554,21 +546,9 @@ const getStatusTag = (status: string) => {
   return tagMap[status] || 'info'
 }
 
-// 获取状态标签文本
-const getStatusLabel = (status: string) => {
-  const labelMap: Record<string, string> = {
-    available: '可用',
-    rented: '租用中',
-    maintenance: '保养中',
-    repair: '维修中',
-    retired: '已退役',
-  }
-  return labelMap[status] || status
-}
-
 // 获取时间线类型
 const getTimelineType = (status: string) => {
-  const typeMap: Record<string, any> = {
+  const typeMap: Record<string, string> = {
     available: 'success',
     rented: 'warning',
     maintenance: 'info',

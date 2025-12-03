@@ -1,9 +1,7 @@
 <template>
   <div class="vehicle-models-container">
-    <!-- 页面标题 -->
     <PageHeader title="车型库管理" description="管理车辆品牌、型号和配置参数" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -11,7 +9,6 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
       :data="modelsList"
       :columns="tableColumns"
@@ -23,7 +20,6 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     >
-      <!-- 车型图片列 -->
       <template #image="{ row }">
         <el-image
           :src="row.image"
@@ -39,36 +35,30 @@
         </el-image>
       </template>
 
-      <!-- 车辆类型列 -->
       <template #vehicleType="{ row }">
         <el-tag :type="getVehicleTypeTag(row.vehicleType)" size="small">
           {{ getVehicleTypeLabel(row.vehicleType) }}
         </el-tag>
       </template>
 
-      <!-- 核载人数列 -->
       <template #seats="{ row }">
         {{ row.seats }}人
       </template>
 
-      <!-- 床位数列 -->
       <template #beds="{ row }">
         {{ row.beds }}个
       </template>
 
-      <!-- 日租金列 -->
       <template #dailyPrice="{ row }">
         ¥{{ row.dailyPrice }}
       </template>
 
-      <!-- 状态列 -->
       <template #status="{ row }">
         <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
           {{ row.status === 'active' ? '启用' : '禁用' }}
         </el-tag>
       </template>
 
-      <!-- 自定义操作列 -->
       <template #actions="{ row }">
         <el-button link type="primary" size="small" @click="handleView(row)">
           查看
@@ -128,9 +118,12 @@
               <el-col :span="12">
                 <el-form-item label="车辆类型" prop="vehicleType">
                   <el-select v-model="form.vehicleType" placeholder="请选择类型" style="width: 100%">
-                    <el-option label="自行式C型" value="c_type" />
-                    <el-option label="自行式B型" value="b_type" />
-                    <el-option label="拖挂式" value="trailer" />
+                    <el-option
+                      v-for="option in VEHICLE_TYPE_OPTIONS"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -285,6 +278,18 @@ import {
   getBrands,
 } from '@/api/vehicle'
 import type { VehicleModel } from '@/mock/vehicles'
+import { useErrorHandler, useEnumLabel } from '@/composables'
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getVehicleTypeLabel } = useEnumLabel()
+
+// 车辆类型选项
+const VEHICLE_TYPE_OPTIONS = [
+  { label: '自行式C型', value: 'c_type' },
+  { label: '自行式B型', value: 'b_type' },
+  { label: '拖挂式', value: 'trailer' },
+]
 
 // 品牌列表
 interface Brand {
@@ -327,11 +332,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择类型',
     width: '150px',
-    options: [
-      { label: '自行式C型', value: 'c_type' },
-      { label: '自行式B型', value: 'b_type' },
-      { label: '拖挂式', value: 'trailer' },
-    ],
+    options: VEHICLE_TYPE_OPTIONS,
   },
   {
     prop: 'status',
@@ -451,7 +452,7 @@ const loadVehicleModels = async () => {
     modelsList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载车型列表失败')
+    handleApiError(error, '加载车型列表失败')
   } finally {
     loading.value = false
   }
@@ -471,7 +472,7 @@ const loadBrands = async () => {
       }))
     }
   } catch (error) {
-    ElMessage.error('加载品牌列表失败')
+    handleApiError(error, '加载品牌列表失败')
   }
 }
 
@@ -547,7 +548,7 @@ const handleStatusChange = async (row: VehicleModel) => {
     ElMessage.success(`${action}成功`)
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(`${action}失败`)
+      handleApiError(error, `${action}失败`)
     }
   }
 }
@@ -568,9 +569,9 @@ const handleDelete = async (row: VehicleModel) => {
     await deleteVehicleModel(row.id)
     ElMessage.success('删除成功')
     loadVehicleModels()
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.message || '删除失败')
+      handleApiError(error, '删除失败')
     }
   }
 }
@@ -622,7 +623,7 @@ const handleSubmit = async () => {
       dialogVisible.value = false
       loadVehicleModels()
     } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+      handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitLoading.value = false
     }
@@ -659,24 +660,14 @@ const handleCurrentChange = (page: number) => {
   loadVehicleModels()
 }
 
-// 获取车辆类型标签
+// 获取车辆类型标签类型
 const getVehicleTypeTag = (type: string) => {
-  const tagMap: Record<string, any> = {
+  const tagMap: Record<string, string> = {
     c_type: 'primary',
     b_type: 'success',
     trailer: 'warning',
   }
   return tagMap[type] || 'info'
-}
-
-// 获取车辆类型标签文本
-const getVehicleTypeLabel = (type: string) => {
-  const labelMap: Record<string, string> = {
-    c_type: '自行式C型',
-    b_type: '自行式B型',
-    trailer: '拖挂式',
-  }
-  return labelMap[type] || type
 }
 
 // 页面加载

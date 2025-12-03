@@ -1,9 +1,7 @@
 <template>
   <div class="user-blacklist-container">
-    <!-- 页面标题 -->
     <PageHeader title="黑名单管理" description="管理平台黑名单用户，防范风险行为" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -11,9 +9,8 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
-      :data="blacklistData"
+      :data="list"
       :columns="tableColumns"
       :loading="loading"
       :actions="tableActions"
@@ -23,11 +20,10 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     >
-      <!-- 用户信息列 -->
       <template #userInfo="{ row }">
         <div class="user-info">
           <el-avatar :src="row.avatarUrl" :size="40">
-            {{ row.username.charAt(0) }}
+            {{ row.username?.charAt(0) || 'U' }}
           </el-avatar>
           <div class="user-detail">
             <div>{{ row.username }}</div>
@@ -36,26 +32,22 @@
         </div>
       </template>
 
-      <!-- 加入原因列 -->
       <template #reason="{ row }">
         <el-tag type="danger">
-          {{ getReasonLabel(row.reason) }}
+          {{ getBlacklistReasonLabel(row.reason) }}
         </el-tag>
       </template>
 
-      <!-- 加入时间列 -->
       <template #addedAt="{ row }">
         {{ formatDateTime(row.addedAt) }}
       </template>
 
-      <!-- 状态列 -->
       <template #status="{ row }">
         <el-tag :type="row.isActive ? 'danger' : 'info'">
           {{ row.isActive ? '生效中' : '已解除' }}
         </el-tag>
       </template>
 
-      <!-- 自定义操作列 -->
       <template #actions="{ row }">
         <el-button link type="primary" size="small" @click="handleView(row)">
           查看详情
@@ -81,100 +73,55 @@
       </template>
     </DataTable>
 
-    <!-- 添加黑名单对话框 -->
-    <el-dialog
-      v-model="addDialogVisible"
+    <FormDialog
+      v-model="dialogVisible"
       title="添加黑名单"
-      width="600px"
-      @close="handleDialogClose"
-    >
-      <el-form
-        ref="addFormRef"
-        :model="addForm"
-        :rules="addFormRules"
-        label-width="100px"
-      >
-        <el-form-item label="选择用户" prop="userId">
-          <el-select
-            v-model="addForm.userId"
-            filterable
-            remote
-            placeholder="请输入手机号或用户名搜索"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="user in userList"
-              :key="user.id"
-              :label="`${user.username} (${user.phone})`"
-              :value="user.id"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="加入原因" prop="reason">
-          <el-select v-model="addForm.reason" placeholder="请选择原因" style="width: 100%">
-            <el-option label="欺诈行为" value="fraud" />
-            <el-option label="恶意投诉" value="complaint" />
-            <el-option label="违规操作" value="violation" />
-            <el-option label="其他" value="other" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="详细说明" prop="description">
-          <el-input
-            v-model="addForm.description"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入详细说明"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="addDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
-          确定
-        </el-button>
-      </template>
-    </el-dialog>
+      :fields="formFields"
+      :form-data="formData"
+      :rules="formRules"
+      :loading="submitLoading"
+      @submit="handleSubmit"
+    />
 
-    <!-- 查看详情对话框 -->
     <el-dialog
       v-model="detailDialogVisible"
       title="黑名单详情"
       width="600px"
     >
-      <el-descriptions :column="1" border>
+      <el-descriptions :column="1" border v-if="currentBlacklist">
         <el-descriptions-item label="用户ID">
-          {{ currentBlacklist?.id }}
+          {{ currentBlacklist.id }}
         </el-descriptions-item>
         <el-descriptions-item label="用户名">
-          {{ currentBlacklist?.username }}
+          {{ currentBlacklist.username }}
         </el-descriptions-item>
         <el-descriptions-item label="手机号">
-          {{ currentBlacklist?.phone }}
+          {{ currentBlacklist.phone }}
         </el-descriptions-item>
         <el-descriptions-item label="加入原因">
           <el-tag type="danger">
-            {{ getReasonLabel(currentBlacklist?.reason) }}
+            {{ getBlacklistReasonLabel(currentBlacklist.reason) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="详细说明">
-          {{ currentBlacklist?.description }}
+          {{ currentBlacklist.description }}
         </el-descriptions-item>
         <el-descriptions-item label="操作人">
-          {{ currentBlacklist?.addedBy }}
+          {{ currentBlacklist.addedBy }}
         </el-descriptions-item>
         <el-descriptions-item label="加入时间">
-          {{ formatDateTime(currentBlacklist?.addedAt) }}
+          {{ formatDateTime(currentBlacklist.addedAt) }}
         </el-descriptions-item>
         <el-descriptions-item label="当前状态">
-          <el-tag :type="currentBlacklist?.isActive ? 'danger' : 'info'">
-            {{ currentBlacklist?.isActive ? '生效中' : '已解除' }}
+          <el-tag :type="currentBlacklist.isActive ? 'danger' : 'info'">
+            {{ currentBlacklist.isActive ? '生效中' : '已解除' }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item v-if="!currentBlacklist?.isActive" label="解除时间">
-          {{ formatDateTime(currentBlacklist?.removedAt) }}
+        <el-descriptions-item v-if="!currentBlacklist.isActive" label="解除时间">
+          {{ formatDateTime(currentBlacklist.removedAt) }}
         </el-descriptions-item>
-        <el-descriptions-item v-if="!currentBlacklist?.isActive" label="解除原因">
-          {{ currentBlacklist?.removeReason }}
+        <el-descriptions-item v-if="!currentBlacklist.isActive" label="解除原因">
+          {{ currentBlacklist.removeReason }}
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -182,15 +129,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
 import { Plus, Download } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
+import FormDialog from '@/components/common/FormDialog.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
+import type { FormField } from '@/components/common/FormDialog.vue'
+import { useDateFormat, useErrorHandler, useEnumLabel } from '@/composables'
+import { BLACKLIST_REASON_OPTIONS } from '@/constants'
+
+// Composables
+const { formatDateTime } = useDateFormat()
+const { handleApiError } = useErrorHandler()
+const { getBlacklistReasonLabel } = useEnumLabel()
 
 // 黑名单数据类型
 interface BlacklistUser {
@@ -214,67 +169,8 @@ interface UserInfo {
   phone: string
 }
 
-// 搜索表单
-const searchForm = reactive({
-  keyword: '',
-  reason: '',
-})
-
-// 搜索字段配置
-const searchFields: SearchField[] = [
-  {
-    prop: 'keyword',
-    label: '用户信息',
-    type: 'input',
-    placeholder: '手机号/用户名',
-    width: '200px',
-  },
-  {
-    prop: 'reason',
-    label: '加入原因',
-    type: 'select',
-    placeholder: '请选择原因',
-    width: '150px',
-    options: [
-      { label: '欺诈行为', value: 'fraud' },
-      { label: '恶意投诉', value: 'complaint' },
-      { label: '违规操作', value: 'violation' },
-      { label: '其他', value: 'other' },
-    ],
-  },
-]
-
-// 表格列配置
-const tableColumns: TableColumn[] = [
-  { prop: 'id', label: 'ID', width: 80 },
-  { prop: 'userInfo', label: '用户信息', width: 200, slot: 'userInfo' },
-  { prop: 'reason', label: '加入原因', width: 120, slot: 'reason' },
-  { prop: 'description', label: '详细说明', minWidth: 200, showOverflowTooltip: true },
-  { prop: 'addedBy', label: '操作人', width: 120 },
-  { prop: 'addedAt', label: '加入时间', width: 180, slot: 'addedAt' },
-  { prop: 'status', label: '状态', width: 100, slot: 'status' },
-]
-
-// 工具栏按钮配置
-const toolbarButtons: ToolbarButton[] = [
-  {
-    label: '添加黑名单',
-    type: 'primary',
-    icon: Plus,
-    onClick: () => handleAdd(),
-  },
-  {
-    label: '导出',
-    icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
-  },
-]
-
-// 表格操作列配置 - 使用自定义插槽
-const tableActions: TableAction[] = []
-
-// 黑名单列表
-const blacklistData = ref<BlacklistUser[]>([
+// Mock 数据（实际应该从 API 获取）
+const list = ref<BlacklistUser[]>([
   {
     id: 1,
     username: '周八',
@@ -312,14 +208,13 @@ const blacklistData = ref<BlacklistUser[]>([
   },
 ])
 
-// 用户列表（用于添加黑名单）
-const userList = ref<UserInfo[]>([
-  { id: 1, username: '张三', phone: '13800138000' },
-  { id: 2, username: '李四', phone: '13800138001' },
-  { id: 3, username: '王五', phone: '13800138002' },
-])
-
 const loading = ref(false)
+
+// 搜索表单
+const searchForm = reactive({
+  keyword: '',
+  reason: '',
+})
 
 // 分页
 const pagination = reactive({
@@ -328,18 +223,101 @@ const pagination = reactive({
   total: 3,
 })
 
-// 添加对话框
-const addDialogVisible = ref(false)
-const submitLoading = ref(false)
-const addFormRef = ref<FormInstance>()
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '用户信息',
+    type: 'input',
+    placeholder: '手机号/用户名',
+    width: '200px',
+  },
+  {
+    prop: 'reason',
+    label: '加入原因',
+    type: 'select',
+    placeholder: '请选择原因',
+    width: '150px',
+    options: BLACKLIST_REASON_OPTIONS,
+  },
+]
 
-const addForm = reactive({
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'userInfo', label: '用户信息', width: 200, slot: 'userInfo' },
+  { prop: 'reason', label: '加入原因', width: 120, slot: 'reason' },
+  { prop: 'description', label: '详细说明', minWidth: 200, showOverflowTooltip: true },
+  { prop: 'addedBy', label: '操作人', width: 120 },
+  { prop: 'addedAt', label: '加入时间', width: 180, slot: 'addedAt' },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '添加黑名单',
+    type: 'primary',
+    icon: Plus,
+    onClick: handleAdd,
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
+
+// 用户列表（用于添加黑名单）
+const userList = ref<UserInfo[]>([
+  { id: 1, username: '张三', phone: '13800138000' },
+  { id: 2, username: '李四', phone: '13800138001' },
+  { id: 3, username: '王五', phone: '13800138002' },
+])
+
+// 对话框
+const dialogVisible = ref(false)
+const submitLoading = ref(false)
+
+const formData = reactive({
   userId: null as number | null,
   reason: '',
   description: '',
 })
 
-const addFormRules: FormRules = {
+// 表单字段配置
+const formFields: FormField[] = [
+  {
+    prop: 'userId',
+    label: '选择用户',
+    type: 'select',
+    placeholder: '请输入手机号或用户名搜索',
+    options: userList.value.map(u => ({
+      label: `${u.username} (${u.phone})`,
+      value: u.id
+    })),
+    filterable: true,
+  },
+  {
+    prop: 'reason',
+    label: '加入原因',
+    type: 'select',
+    placeholder: '请选择原因',
+    options: BLACKLIST_REASON_OPTIONS,
+  },
+  {
+    prop: 'description',
+    label: '详细说明',
+    type: 'textarea',
+    rows: 4,
+    placeholder: '请输入详细说明',
+  },
+]
+
+const formRules = {
   userId: [
     { required: true, message: '请选择用户', trigger: 'change' },
   ],
@@ -357,74 +335,65 @@ const detailDialogVisible = ref(false)
 const currentBlacklist = ref<BlacklistUser | null>(null)
 
 // 搜索
-const handleSearch = () => {
+function handleSearch() {
   pagination.page = 1
   ElMessage.success('搜索功能开发中...')
 }
 
 // 重置
-const handleReset = () => {
+function handleReset() {
   searchForm.keyword = ''
   searchForm.reason = ''
   pagination.page = 1
 }
 
 // 添加黑名单
-const handleAdd = () => {
-  addDialogVisible.value = true
+function handleAdd() {
+  Object.assign(formData, {
+    userId: null,
+    reason: '',
+    description: '',
+  })
+  dialogVisible.value = true
 }
 
 // 提交添加
-const handleSubmit = async () => {
-  if (!addFormRef.value) return
-
-  await addFormRef.value.validate(async (valid) => {
-    if (!valid) return
-
-    submitLoading.value = true
-    try {
-      const user = userList.value.find(u => u.id === addForm.userId)
-      if (user) {
-        const newBlacklist: BlacklistUser = {
-          id: blacklistData.value.length + 1,
-          username: user.username,
-          phone: user.phone,
-          avatarUrl: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-          reason: addForm.reason as any,
-          description: addForm.description,
-          addedBy: '当前管理员',
-          addedAt: new Date().toISOString(),
-          isActive: true,
-        }
-        blacklistData.value.unshift(newBlacklist)
-        pagination.total++
+async function handleSubmit() {
+  submitLoading.value = true
+  try {
+    const user = userList.value.find(u => u.id === formData.userId)
+    if (user) {
+      const newBlacklist: BlacklistUser = {
+        id: list.value.length + 1,
+        username: user.username,
+        phone: user.phone,
+        avatarUrl: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
+        reason: formData.reason as any,
+        description: formData.description,
+        addedBy: '当前管理员',
+        addedAt: new Date().toISOString(),
+        isActive: true,
       }
-      ElMessage.success('添加成功')
-      addDialogVisible.value = false
-    } catch (error) {
-      ElMessage.error('添加失败')
-    } finally {
-      submitLoading.value = false
+      list.value.unshift(newBlacklist)
+      pagination.total++
     }
-  })
-}
-
-// 对话框关闭
-const handleDialogClose = () => {
-  addFormRef.value?.resetFields()
-  addForm.userId = null
-  addForm.reason = ''
-  addForm.description = ''
+    ElMessage.success('添加成功')
+    dialogVisible.value = false
+  } catch (error) {
+    handleApiError(error, '添加失败')
+  } finally {
+    submitLoading.value = false
+  }
 }
 
 // 查看详情
-const handleView = (row: BlacklistUser) => {
+function handleView(row: BlacklistUser) {
   currentBlacklist.value = row
   detailDialogVisible.value = true
 }
 
 // 解除黑名单
-const handleRemove = async (row: BlacklistUser) => {
+async function handleRemove(row: BlacklistUser) {
   try {
     const { value } = await ElMessageBox.prompt(
       `确定要解除用户 "${row.username}" 的黑名单吗？请输入解除原因：`,
@@ -443,13 +412,13 @@ const handleRemove = async (row: BlacklistUser) => {
     ElMessage.success('解除成功')
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('解除失败')
+      handleApiError(error, '解除失败')
     }
   }
 }
 
 // 重新加入黑名单
-const handleReactivate = async (row: BlacklistUser) => {
+async function handleReactivate(row: BlacklistUser) {
   try {
     await ElMessageBox.confirm(
       `确定要重新将用户 "${row.username}" 加入黑名单吗？`,
@@ -467,48 +436,19 @@ const handleReactivate = async (row: BlacklistUser) => {
     ElMessage.success('重新加入成功')
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      handleApiError(error, '操作失败')
     }
   }
 }
 
 // 分页
-const handleSizeChange = (size: number) => {
+function handleSizeChange(size: number) {
   pagination.pageSize = size
 }
 
-const handleCurrentChange = (page: number) => {
+function handleCurrentChange(page: number) {
   pagination.page = page
 }
-
-// 获取原因标签
-const getReasonLabel = (reason?: string) => {
-  const labelMap: Record<string, string> = {
-    fraud: '欺诈行为',
-    complaint: '恶意投诉',
-    violation: '违规操作',
-    other: '其他',
-  }
-  return labelMap[reason || ''] || reason
-}
-
-// 格式化日期时间
-const formatDateTime = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-// 页面加载
-onMounted(() => {
-  // TODO: 加载黑名单列表
-})
 </script>
 
 <style scoped lang="scss">

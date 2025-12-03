@@ -1,9 +1,7 @@
 <template>
   <div class="employee-list-container">
-    <!-- 页面标题 -->
     <PageHeader title="员工管理" description="管理平台员工信息、角色分配和在职状态" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -11,9 +9,8 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
-      :data="employeeList"
+      :data="list"
       :columns="tableColumns"
       :loading="loading"
       :actions="tableActions"
@@ -23,11 +20,10 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     >
-      <!-- 员工信息列 -->
       <template #employeeInfo="{ row }">
         <div class="employee-info">
           <el-avatar :src="row.avatar" :size="40">
-            {{ row.realName.charAt(0) }}
+            {{ row.realName?.charAt(0) || 'E' }}
           </el-avatar>
           <div class="employee-detail">
             <div class="name">{{ row.realName }}</div>
@@ -36,21 +32,18 @@
         </div>
       </template>
 
-      <!-- 角色列 -->
       <template #role="{ row }">
         <el-tag :type="getRoleTypeTag(row.role)" size="small">
           {{ row.role }}
         </el-tag>
       </template>
 
-      <!-- 状态列 -->
       <template #status="{ row }">
         <el-tag :type="row.status === 'active' ? 'success' : 'info'">
           {{ row.status === 'active' ? '在职' : '离职' }}
         </el-tag>
       </template>
 
-      <!-- 自定义操作列 -->
       <template #actions="{ row }">
         <el-button link type="primary" size="small" @click="handleView(row)">
           查看
@@ -72,130 +65,54 @@
       </template>
     </DataTable>
 
-    <!-- 新增/编辑员工对话框 -->
-    <el-dialog
+    <FormDialog
       v-model="dialogVisible"
       :title="dialogTitle"
+      :fields="formFields"
+      :form-data="formData"
+      :rules="formRules"
+      :loading="submitLoading"
       width="700px"
-      @close="handleDialogClose"
-    >
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="formRules"
-        label-width="100px"
-      >
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="真实姓名" prop="realName">
-              <el-input v-model="form.realName" placeholder="请输入真实姓名" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="工号" prop="jobNumber">
-              <el-input v-model="form.jobNumber" placeholder="请输入工号" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="手机号" prop="phone">
-              <el-input v-model="form.phone" placeholder="请输入手机号" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="所属门店" prop="storeId">
-              <el-select v-model="form.storeId" placeholder="请选择门店" style="width: 100%">
-                <el-option label="北京朝阳店" :value="1" />
-                <el-option label="上海浦东店" :value="2" />
-                <el-option label="深圳南山店" :value="3" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门" prop="department">
-              <el-input v-model="form.department" placeholder="请输入部门" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="入职日期" prop="joinDate">
-              <el-date-picker
-                v-model="form.joinDate"
-                type="date"
-                placeholder="选择日期"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="员工状态" prop="status">
-              <el-radio-group v-model="form.status">
-                <el-radio label="active">在职</el-radio>
-                <el-radio label="inactive">离职</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
-          确定
-        </el-button>
-      </template>
-    </el-dialog>
+      @submit="handleSubmit"
+    />
 
-    <!-- 分配角色对话框 -->
-    <el-dialog
+    <FormDialog
       v-model="roleDialogVisible"
       title="分配角色"
+      :fields="roleFormFields"
+      :form-data="roleFormData"
+      :loading="roleSubmitLoading"
       width="500px"
+      @submit="handleRoleSubmit"
     >
-      <el-form label-width="100px">
-        <el-form-item label="员工">
-          <div>{{ currentEmployee?.realName }} ({{ currentEmployee?.jobNumber }})</div>
-        </el-form-item>
-        <el-form-item label="选择角色">
-          <el-select v-model="selectedRoles" multiple placeholder="请选择角色" style="width: 100%">
-            <el-option label="平台管理员" :value="1" />
-            <el-option label="区域经理" :value="2" />
-            <el-option label="门店经理" :value="3" />
-            <el-option label="门店员工" :value="4" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="roleDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleRoleSubmit">
-          确定
-        </el-button>
+      <template #header>
+        <div style="margin-bottom: 16px;">
+          <strong>员工：</strong>{{ currentEmployee?.realName }} ({{ currentEmployee?.jobNumber }})
+        </div>
       </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
 import { Plus, Download, Upload } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
+import FormDialog from '@/components/common/FormDialog.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
+import type { FormField } from '@/components/common/FormDialog.vue'
+import { useErrorHandler } from '@/composables'
+import { EMPLOYEE_STATUS_OPTIONS } from '@/constants'
 
 const router = useRouter()
+
+// Composables
+const { handleApiError } = useErrorHandler()
 
 // 员工数据类型
 interface Employee {
@@ -213,99 +130,8 @@ interface Employee {
   joinDate: string
 }
 
-// 搜索表单
-const searchForm = reactive({
-  keyword: '',
-  storeId: null as number | null,
-  roleId: null as number | null,
-  status: '',
-})
-
-// 搜索字段配置
-const searchFields: SearchField[] = [
-  {
-    prop: 'keyword',
-    label: '员工信息',
-    type: 'input',
-    placeholder: '姓名/手机号/工号',
-    width: '200px',
-  },
-  {
-    prop: 'storeId',
-    label: '所属门店',
-    type: 'select',
-    placeholder: '请选择门店',
-    width: '150px',
-    options: [
-      { label: '北京朝阳店', value: 1 },
-      { label: '上海浦东店', value: 2 },
-      { label: '深圳南山店', value: 3 },
-    ],
-  },
-  {
-    prop: 'roleId',
-    label: '员工角色',
-    type: 'select',
-    placeholder: '请选择角色',
-    width: '150px',
-    options: [
-      { label: '平台管理员', value: 1 },
-      { label: '区域经理', value: 2 },
-      { label: '门店经理', value: 3 },
-      { label: '门店员工', value: 4 },
-    ],
-  },
-  {
-    prop: 'status',
-    label: '员工状态',
-    type: 'select',
-    placeholder: '请选择状态',
-    width: '150px',
-    options: [
-      { label: '在职', value: 'active' },
-      { label: '离职', value: 'inactive' },
-    ],
-  },
-]
-
-// 表格列配置
-const tableColumns: TableColumn[] = [
-  { prop: 'id', label: 'ID', width: 80 },
-  { prop: 'employeeInfo', label: '员工信息', width: 200, slot: 'employeeInfo' },
-  { prop: 'phone', label: '手机号', width: 130 },
-  { prop: 'email', label: '邮箱', width: 180, showOverflowTooltip: true },
-  { prop: 'role', label: '角色', width: 120, slot: 'role' },
-  { prop: 'storeName', label: '所属门店', width: 150 },
-  { prop: 'department', label: '部门', width: 120 },
-  { prop: 'status', label: '状态', width: 100, slot: 'status' },
-  { prop: 'joinDate', label: '入职日期', width: 120 },
-]
-
-// 工具栏按钮配置
-const toolbarButtons: ToolbarButton[] = [
-  {
-    label: '新增员工',
-    type: 'primary',
-    icon: Plus,
-    onClick: () => handleCreate(),
-  },
-  {
-    label: '导出',
-    icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
-  },
-  {
-    label: '导入',
-    icon: Upload,
-    onClick: () => ElMessage.info('导入功能开发中'),
-  },
-]
-
-// 表格操作列配置 - 使用自定义插槽
-const tableActions: TableAction[] = []
-
-// 员工列表
-const employeeList = ref<Employee[]>([
+// Mock 数据（实际应该从 API 获取）
+const list = ref<Employee[]>([
   {
     id: 1,
     realName: '张三',
@@ -352,6 +178,14 @@ const employeeList = ref<Employee[]>([
 
 const loading = ref(false)
 
+// 搜索表单
+const searchForm = reactive({
+  keyword: '',
+  storeId: null as number | null,
+  roleId: null as number | null,
+  status: '',
+})
+
 // 分页
 const pagination = reactive({
   page: 1,
@@ -359,14 +193,99 @@ const pagination = reactive({
   total: 3,
 })
 
+// 门店选项
+const STORE_OPTIONS = [
+  { label: '北京朝阳店', value: 1 },
+  { label: '上海浦东店', value: 2 },
+  { label: '深圳南山店', value: 3 },
+]
+
+// 角色选项
+const ROLE_OPTIONS = [
+  { label: '平台管理员', value: 1 },
+  { label: '区域经理', value: 2 },
+  { label: '门店经理', value: 3 },
+  { label: '门店员工', value: 4 },
+]
+
+// 搜索字段配置
+const searchFields: SearchField[] = [
+  {
+    prop: 'keyword',
+    label: '员工信息',
+    type: 'input',
+    placeholder: '姓名/手机号/工号',
+    width: '200px',
+  },
+  {
+    prop: 'storeId',
+    label: '所属门店',
+    type: 'select',
+    placeholder: '请选择门店',
+    width: '150px',
+    options: STORE_OPTIONS,
+  },
+  {
+    prop: 'roleId',
+    label: '员工角色',
+    type: 'select',
+    placeholder: '请选择角色',
+    width: '150px',
+    options: ROLE_OPTIONS,
+  },
+  {
+    prop: 'status',
+    label: '员工状态',
+    type: 'select',
+    placeholder: '请选择状态',
+    width: '150px',
+    options: EMPLOYEE_STATUS_OPTIONS,
+  },
+]
+
+// 表格列配置
+const tableColumns: TableColumn[] = [
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'employeeInfo', label: '员工信息', width: 200, slot: 'employeeInfo' },
+  { prop: 'phone', label: '手机号', width: 130 },
+  { prop: 'email', label: '邮箱', width: 180, showOverflowTooltip: true },
+  { prop: 'role', label: '角色', width: 120, slot: 'role' },
+  { prop: 'storeName', label: '所属门店', width: 150 },
+  { prop: 'department', label: '部门', width: 120 },
+  { prop: 'status', label: '状态', width: 100, slot: 'status' },
+  { prop: 'joinDate', label: '入职日期', width: 120 },
+]
+
+// 工具栏按钮配置
+const toolbarButtons: ToolbarButton[] = [
+  {
+    label: '新增员工',
+    type: 'primary',
+    icon: Plus,
+    onClick: handleCreate,
+  },
+  {
+    label: '导出',
+    icon: Download,
+    onClick: () => ElMessage.info('导出功能开发中'),
+  },
+  {
+    label: '导入',
+    icon: Upload,
+    onClick: () => ElMessage.info('导入功能开发中'),
+  },
+]
+
+// 表格操作列配置 - 使用自定义插槽
+const tableActions: TableAction[] = []
+
 // 对话框
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增员工')
 const isEdit = ref(false)
 const submitLoading = ref(false)
-const formRef = ref<FormInstance>()
 
-const form = reactive({
+const formData = reactive({
   id: 0,
   realName: '',
   jobNumber: '',
@@ -378,7 +297,96 @@ const form = reactive({
   status: 'active' as Employee['status'],
 })
 
-const formRules: FormRules = {
+// 表单字段配置
+const formFields: FormField[] = [
+  {
+    type: 'row',
+    prop: 'row1',
+    label: '',
+    columns: [
+      {
+        prop: 'realName',
+        label: '真实姓名',
+        type: 'input',
+        placeholder: '请输入真实姓名',
+        span: 12,
+      },
+      {
+        prop: 'jobNumber',
+        label: '工号',
+        type: 'input',
+        placeholder: '请输入工号',
+        span: 12,
+      },
+    ],
+  },
+  {
+    type: 'row',
+    prop: 'row2',
+    label: '',
+    columns: [
+      {
+        prop: 'phone',
+        label: '手机号',
+        type: 'input',
+        placeholder: '请输入手机号',
+        span: 12,
+      },
+      {
+        prop: 'email',
+        label: '邮箱',
+        type: 'input',
+        placeholder: '请输入邮箱',
+        span: 12,
+      },
+    ],
+  },
+  {
+    type: 'row',
+    prop: 'row3',
+    label: '',
+    columns: [
+      {
+        prop: 'storeId',
+        label: '所属门店',
+        type: 'select',
+        placeholder: '请选择门店',
+        options: STORE_OPTIONS,
+        span: 12,
+      },
+      {
+        prop: 'department',
+        label: '部门',
+        type: 'input',
+        placeholder: '请输入部门',
+        span: 12,
+      },
+    ],
+  },
+  {
+    type: 'row',
+    prop: 'row4',
+    label: '',
+    columns: [
+      {
+        prop: 'joinDate',
+        label: '入职日期',
+        type: 'date',
+        placeholder: '选择日期',
+        span: 12,
+      },
+      {
+        prop: 'status',
+        label: '员工状态',
+        type: 'radio',
+        options: EMPLOYEE_STATUS_OPTIONS,
+        span: 12,
+      },
+    ],
+  },
+]
+
+const formRules = {
   realName: [
     { required: true, message: '请输入真实姓名', trigger: 'blur' },
   ],
@@ -401,16 +409,31 @@ const formRules: FormRules = {
 // 角色分配对话框
 const roleDialogVisible = ref(false)
 const currentEmployee = ref<Employee | null>(null)
-const selectedRoles = ref<number[]>([])
+const roleSubmitLoading = ref(false)
+
+const roleFormData = reactive({
+  roles: [] as number[],
+})
+
+const roleFormFields: FormField[] = [
+  {
+    prop: 'roles',
+    label: '选择角色',
+    type: 'select',
+    placeholder: '请选择角色',
+    options: ROLE_OPTIONS,
+    multiple: true,
+  },
+]
 
 // 搜索
-const handleSearch = () => {
+function handleSearch() {
   pagination.page = 1
   ElMessage.success('搜索功能开发中...')
 }
 
 // 重置
-const handleReset = () => {
+function handleReset() {
   searchForm.keyword = ''
   searchForm.storeId = null
   searchForm.roleId = null
@@ -419,42 +442,55 @@ const handleReset = () => {
 }
 
 // 新增员工
-const handleCreate = () => {
+function handleCreate() {
   dialogTitle.value = '新增员工'
   isEdit.value = false
+  Object.assign(formData, {
+    id: 0,
+    realName: '',
+    jobNumber: '',
+    phone: '',
+    email: '',
+    storeId: null,
+    department: '',
+    joinDate: '',
+    status: 'active',
+  })
   dialogVisible.value = true
 }
 
 // 查看员工
-const handleView = (row: Employee) => {
+function handleView(row: Employee) {
   router.push(`/employees/detail/${row.id}`)
 }
 
 // 编辑员工
-const handleEdit = (row: Employee) => {
+function handleEdit(row: Employee) {
   dialogTitle.value = '编辑员工'
   isEdit.value = true
-  form.id = row.id
-  form.realName = row.realName
-  form.jobNumber = row.jobNumber
-  form.phone = row.phone
-  form.email = row.email
-  form.storeId = row.storeId
-  form.department = row.department
-  form.joinDate = row.joinDate
-  form.status = row.status
+  Object.assign(formData, {
+    id: row.id,
+    realName: row.realName,
+    jobNumber: row.jobNumber,
+    phone: row.phone,
+    email: row.email,
+    storeId: row.storeId,
+    department: row.department,
+    joinDate: row.joinDate,
+    status: row.status,
+  })
   dialogVisible.value = true
 }
 
 // 分配角色
-const handleAssignRole = (row: Employee) => {
+function handleAssignRole(row: Employee) {
   currentEmployee.value = row
-  selectedRoles.value = []
+  roleFormData.roles = []
   roleDialogVisible.value = true
 }
 
 // 状态变更
-const handleStatusChange = async (row: Employee) => {
+async function handleStatusChange(row: Employee) {
   const action = row.status === 'active' ? '离职' : '复职'
   try {
     await ElMessageBox.confirm(
@@ -470,100 +506,88 @@ const handleStatusChange = async (row: Employee) => {
     ElMessage.success(`${action}成功`)
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(`${action}失败`)
+      handleApiError(error, `${action}失败`)
     }
   }
 }
 
 // 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return
-
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return
-
-    submitLoading.value = true
-    try {
-      if (isEdit.value) {
-        const index = employeeList.value.findIndex(e => e.id === form.id)
-        if (index > -1) {
-          employeeList.value[index] = {
-            ...employeeList.value[index],
-            realName: form.realName,
-            jobNumber: form.jobNumber,
-            phone: form.phone,
-            email: form.email,
-            storeId: form.storeId!,
-            department: form.department,
-            joinDate: form.joinDate,
-            status: form.status,
-          }
+async function handleSubmit() {
+  submitLoading.value = true
+  try {
+    if (isEdit.value) {
+      const index = list.value.findIndex(e => e.id === formData.id)
+      if (index > -1) {
+        list.value[index] = {
+          ...list.value[index],
+          realName: formData.realName,
+          jobNumber: formData.jobNumber,
+          phone: formData.phone,
+          email: formData.email,
+          storeId: formData.storeId!,
+          department: formData.department,
+          joinDate: formData.joinDate,
+          status: formData.status,
         }
-        ElMessage.success('更新成功')
-      } else {
-        const newEmployee: Employee = {
-          id: employeeList.value.length + 1,
-          realName: form.realName,
-          jobNumber: form.jobNumber,
-          phone: form.phone,
-          email: form.email,
-          role: '门店员工',
-          storeId: form.storeId!,
-          storeName: '北京朝阳店',
-          department: form.department,
-          status: form.status,
-          avatar: '',
-          joinDate: form.joinDate,
-        }
-        employeeList.value.push(newEmployee)
-        pagination.total++
-        ElMessage.success('创建成功')
       }
-      dialogVisible.value = false
-    } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
-    } finally {
-      submitLoading.value = false
+      ElMessage.success('更新成功')
+    } else {
+      const newEmployee: Employee = {
+        id: list.value.length + 1,
+        realName: formData.realName,
+        jobNumber: formData.jobNumber,
+        phone: formData.phone,
+        email: formData.email,
+        role: '门店员工',
+        storeId: formData.storeId!,
+        storeName: '北京朝阳店',
+        department: formData.department,
+        status: formData.status,
+        avatar: '',
+        joinDate: formData.joinDate,
+      }
+      list.value.push(newEmployee)
+      pagination.total++
+      ElMessage.success('创建成功')
     }
-  })
+    dialogVisible.value = false
+  } catch (error) {
+    handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
+  } finally {
+    submitLoading.value = false
+  }
 }
 
 // 提交角色分配
-const handleRoleSubmit = () => {
-  if (selectedRoles.value.length === 0) {
+async function handleRoleSubmit() {
+  if (roleFormData.roles.length === 0) {
     ElMessage.warning('请选择至少一个角色')
     return
   }
-  ElMessage.success('角色分配成功')
-  roleDialogVisible.value = false
-}
 
-// 对话框关闭
-const handleDialogClose = () => {
-  formRef.value?.resetFields()
-  form.id = 0
-  form.realName = ''
-  form.jobNumber = ''
-  form.phone = ''
-  form.email = ''
-  form.storeId = null
-  form.department = ''
-  form.joinDate = ''
-  form.status = 'active'
+  roleSubmitLoading.value = true
+  try {
+    ElMessage.success('角色分配成功')
+    roleDialogVisible.value = false
+  } catch (error) {
+    handleApiError(error, '角色分配失败')
+  } finally {
+    roleSubmitLoading.value = false
+  }
 }
 
 // 分页
-const handleSizeChange = (size: number) => {
+function handleSizeChange(size: number) {
   pagination.pageSize = size
 }
 
-const handleCurrentChange = (page: number) => {
+function handleCurrentChange(page: number) {
   pagination.page = page
 }
 
 // 获取角色类型标签
-const getRoleTypeTag = (role: string) => {
-  const typeMap: Record<string, any> = {
+function getRoleTypeTag(role: string) {
+  const typeMap: Record<string, string> = {
     '平台管理员': 'danger',
     '区域经理': 'warning',
     '门店经理': 'success',
@@ -571,11 +595,6 @@ const getRoleTypeTag = (role: string) => {
   }
   return typeMap[role] || 'info'
 }
-
-// 页面加载
-onMounted(() => {
-  // TODO: 加载员工列表
-})
 </script>
 
 <style scoped lang="scss">
