@@ -11,7 +11,7 @@
 							mode="aspectFill"
 						></image>
 						<view v-if="isLogin" class="vip-badge">
-							<uni-icons type="vip-filled" :size="12" :color="'#8F5E1E'"></uni-icons>
+							<u-icon name="vip-fill" :size="12" :color="'#8F5E1E'"></u-icon>
 						</view>
 					</view>
 					<view class="info-col">
@@ -24,18 +24,18 @@
 							<text class="sub-tip">登录后享受更多权益</text>
 						</view>
 					</view>
-					<uni-icons type="right" :size="16" :color="'#999'"></uni-icons>
+					<u-icon name="right" :size="16" :color="'#999'"></u-icon>
 				</view>
 
 				<!-- 会员卡片 -->
 				<view class="vip-card-entry" v-if="isLogin">
 					<view class="vip-left">
-						<uni-icons type="vip-filled" :size="20" :color="'#FFD700'"></uni-icons>
+						<u-icon name="vip-fill" :size="20" :color="'#FFD700'"></u-icon>
 						<text class="vip-title">{{ userInfo.levelName }}</text>
 					</view>
 					<view class="vip-right">
 						<text class="vip-desc">查看权益</text>
-						<uni-icons type="right" :size="12" :color="'#FFD700'"></uni-icons>
+						<u-icon name="right" :size="12" :color="'#FFD700'"></u-icon>
 					</view>
 				</view>
 			</view>
@@ -47,34 +47,34 @@
 				<text class="title">我的订单</text>
 				<view class="more">
 					<text>全部订单</text>
-					<uni-icons type="right" size="12" color="#999"></uni-icons>
+					<u-icon name="right" size="12" color="#999"></u-icon>
 				</view>
 			</view>
 			<view class="status-grid">
 				<view class="status-item" @tap="navigateToOrders(1)">
 					<view class="icon-wrapper">
-						<uni-icons type="wallet" :size="28" :color="'#666'"></uni-icons>
+						<u-icon name="wallet" :size="28" :color="'#666'"></u-icon>
 						<view v-if="orderCounts.pendingPayment > 0" class="badge">{{ orderCounts.pendingPayment }}</view>
 					</view>
 					<text class="status-text">待付款</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(2)">
 					<view class="icon-wrapper">
-						<uni-icons type="shop" :size="28" :color="'#666'"></uni-icons>
+						<u-icon name="shop" :size="28" :color="'#666'"></u-icon>
 						<view v-if="orderCounts.pendingConfirm > 0" class="badge">{{ orderCounts.pendingConfirm }}</view>
 					</view>
 					<text class="status-text">待门店确认</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(3)">
 					<view class="icon-wrapper">
-						<uni-icons type="calendar" :size="28" :color="'#666'"></uni-icons>
+						<u-icon name="calendar" :size="28" :color="'#666'"></u-icon>
 						<view v-if="orderCounts.pendingPickup > 0" class="badge">{{ orderCounts.pendingPickup }}</view>
 					</view>
 					<text class="status-text">待取车</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(4)">
 					<view class="icon-wrapper">
-						<uni-icons type="paperplane" :size="28" :color="'#666'"></uni-icons>
+						<u-icon name="paperplane" :size="28" :color="'#666'"></u-icon>
 						<view v-if="orderCounts.renting > 0" class="badge">{{ orderCounts.renting }}</view>
 					</view>
 					<text class="status-text">租赁中</text>
@@ -91,13 +91,13 @@
 				@tap="handleMenuClick(item)"
 			>
 				<view class="menu-left">
-					<uni-icons :type="item.icon" :size="24" :color="item.iconColor"></uni-icons>
+					<u-icon :name="item.icon" :size="24" :color="item.iconColor"></u-icon>
 					<text class="menu-name">{{ item.name }}</text>
 				</view>
 				<view class="menu-right">
 					<text v-if="item.badge" class="menu-badge">{{ item.badge }}</text>
 					<text v-if="item.amount" class="menu-amount">¥{{ item.amount }}</text>
-					<uni-icons type="right" :size="16" :color="'#999'"></uni-icons>
+					<u-icon name="right" :size="16" :color="'#999'"></u-icon>
 				</view>
 			</view>
 		</view>

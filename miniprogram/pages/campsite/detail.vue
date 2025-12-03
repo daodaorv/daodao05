@@ -19,7 +19,7 @@
       <!-- 评分信息 -->
       <view class="rating-section">
         <view class="rating-main">
-          <uni-icons type="star-filled" size="18" color="#FF9F29"></uni-icons>
+          <u-icon name="star-fill" size="18" color="#FF9F29"></u-icon>
           <text class="rating-score">{{ campsiteDetail.rating }}</text>
           <text class="rating-count">({{ campsiteDetail.reviewCount }}条评价)</text>
         </view>
@@ -27,7 +27,7 @@
 
       <!-- 位置信息 -->
       <view class="location-section">
-        <uni-icons type="location" size="16" color="#FF9F29"></uni-icons>
+        <u-icon name="location" size="16" color="#FF9F29"></u-icon>
         <text class="location-text">{{ campsiteDetail.address }}</text>
         <text class="distance-text">距离{{ campsiteDetail.distance }}km</text>
       </view>
@@ -49,7 +49,7 @@
       </view>
       <view class="feature-tags">
         <view class="feature-tag" v-for="feature in (campsiteDetail.features || [])" :key="feature">
-          <uni-icons type="checkmarkempty" size="16" color="#67C23A"></uni-icons>
+          <u-icon name="checkbox-mark" size="16" color="#67C23A"></u-icon>
           <text class="feature-text">{{ feature }}</text>
         </view>
       </view>
@@ -62,7 +62,7 @@
       </view>
       <view class="facility-grid">
         <view class="facility-item" v-for="facility in (campsiteDetail.facilities || [])" :key="facility.name">
-          <uni-icons :type="facility.icon" size="24" color="#FF9F29"></uni-icons>
+          <u-icon :name="facility.icon" size="24" color="#FF9F29"></u-icon>
           <text class="facility-name">{{ facility.name }}</text>
         </view>
       </view>
@@ -133,7 +133,7 @@
       <view class="policy-list">
         <view class="policy-item" v-for="policy in (campsiteDetail.cancellationPolicy || [])" :key="policy.condition">
           <view class="policy-condition">
-            <uni-icons type="info-filled" size="16" color="#FF9F29"></uni-icons>
+            <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
             <text class="condition-text">{{ policy.condition }}</text>
           </view>
           <text class="policy-result">{{ policy.result }}</text>
@@ -154,13 +154,13 @@
             <view class="user-info">
               <text class="user-name">{{ review.userName }}</text>
               <view class="review-rating">
-                <uni-icons
+                <u-icon
                   v-for="star in 5"
                   :key="star"
-                  type="star-filled"
+                  name="star-fill"
                   size="12"
                   :color="star <= review.rating ? '#FF9F29' : '#E0E0E0'"
-                ></uni-icons>
+                ></u-icon>
               </view>
             </view>
             <text class="review-date">{{ formatDate(review.createdAt) }}</text>
@@ -190,7 +190,7 @@
       </view>
       <view class="bar-actions">
         <button class="contact-btn" @tap="contactService">
-          <uni-icons type="chatbubble" size="18" color="#FF9F29"></uni-icons>
+          <u-icon name="chat" size="18" color="#FF9F29"></u-icon>
           <text>咨询</text>
         </button>
         <button class="book-btn" @tap="showBookingOptions">

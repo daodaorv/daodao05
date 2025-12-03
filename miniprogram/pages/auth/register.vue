@@ -15,10 +15,10 @@
 					<text class="required">*</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="phone" size="20" color="#999999" />
+					<u-icon name="phone" size="20" color="#999999" />
 					<input
 						v-model="formData.phone"
-						type="number"
+						name="number"
 						maxlength="11"
 						placeholder="请输入手机号"
 						class="input"
@@ -33,10 +33,10 @@
 					<text class="required">*</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="chatboxes" size="20" color="#999999" />
+					<u-icon name="chatboxes" size="20" color="#999999" />
 					<input
 						v-model="formData.code"
-						type="number"
+						name="number"
 						maxlength="6"
 						placeholder="请输入验证码"
 						class="input"
@@ -58,15 +58,15 @@
 					<text class="optional">（可选）</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="locked" size="20" color="#999999" />
+					<u-icon name="locked" size="20" color="#999999" />
 					<input
 						v-model="formData.password"
 						:password="!showPassword"
 						placeholder="6-20位字母、数字或符号"
 						class="input"
 					/>
-					<uni-icons
-						:type="showPassword ? 'eye-filled' : 'eye-slash-filled'"
+					<u-icon
+						:name="showPassword ? 'eye-filled' : 'eye-slash-filled'"
 						size="20"
 						color="#999999"
 						@click="showPassword = !showPassword"
@@ -82,7 +82,7 @@
 					<text class="optional">（可选）</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="person" size="20" color="#999999" />
+					<u-icon name="person" size="20" color="#999999" />
 					<input
 						v-model="formData.nickname"
 						maxlength="20"
@@ -99,7 +99,7 @@
 					<text class="optional">（可选）</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="gift" size="20" color="#999999" />
+					<u-icon name="gift" size="20" color="#999999" />
 					<input
 						v-model="formData.inviteCode"
 						maxlength="8"

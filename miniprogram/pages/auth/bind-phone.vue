@@ -16,10 +16,10 @@
 					<text class="required">*</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="phone" size="20" color="#999999" />
+					<u-icon name="phone" size="20" color="#999999" />
 					<input
 						v-model="formData.phone"
-						type="number"
+						name="number"
 						maxlength="11"
 						placeholder="请输入手机号"
 						class="input"
@@ -34,10 +34,10 @@
 					<text class="required">*</text>
 				</view>
 				<view class="input-wrapper">
-					<uni-icons type="chatboxes" size="20" color="#999999" />
+					<u-icon name="chatboxes" size="20" color="#999999" />
 					<input
 						v-model="formData.code"
-						type="number"
+						name="number"
 						maxlength="6"
 						placeholder="请输入验证码"
 						class="input"
@@ -55,11 +55,11 @@
 			<!-- 提示信息 -->
 			<view class="tips">
 				<view class="tip-item">
-					<uni-icons type="info" size="16" color="#FF9F29" />
+					<u-icon name="info" size="16" color="#FF9F29" />
 					<text class="tip-text">绑定手机号后可使用手机号登录</text>
 				</view>
 				<view class="tip-item">
-					<uni-icons type="info" size="16" color="#FF9F29" />
+					<u-icon name="info" size="16" color="#FF9F29" />
 					<text class="tip-text">手机号将用于接收订单通知和重要信息</text>
 				</view>
 			</view>
@@ -76,7 +76,7 @@
 		<!-- 安全说明 -->
 		<view class="security-info">
 			<view class="info-title">
-				<uni-icons type="locked" size="16" color="#4CAF50" />
+				<u-icon name="locked" size="16" color="#4CAF50" />
 				<text class="title-text">安全保障</text>
 			</view>
 			<view class="info-list">

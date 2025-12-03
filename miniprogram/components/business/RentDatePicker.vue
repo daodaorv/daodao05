@@ -1,5 +1,5 @@
 <template>
-	<uni-popup ref="popup" type="bottom" :safe-area="false">
+	<u-popup v-model="show" mode="bottom" :closeable="false">
 		<view class="rent-date-picker">
 			<!-- 顶部标题栏 -->
 			<view class="popup-header">
@@ -73,14 +73,14 @@
 								@tap="onTimeClick(time)"
 							>
 								<text class="time-text">{{ time }}</text>
-								<uni-icons v-if="tempTime === time" type="checkmarkempty" size="12" color="#FFFFFF" class="check-icon"></uni-icons>
+								<u-icon v-if="tempTime === time" name="checkbox-mark" size="12" color="#FFFFFF" class="check-icon"></u-icon>
 							</view>
 						</view>
 					</scroll-view>
 				</view>
 			</view>
 		</view>
-	</uni-popup>
+	</u-popup>
 </template>
 
 <script setup lang="ts">
@@ -101,7 +101,7 @@ interface Month {
 }
 
 const emit = defineEmits(['confirm']);
-const popup = ref();
+const show = ref(false);
 const calendarData = ref<Month[]>([]);
 const timeList = ref<string[]>([]);
 
@@ -224,11 +224,11 @@ const open = (pickupDate?: string, returnDate?: string, time?: string) => {
 	tempPickupDate.value = pickupDate || '';
 	tempReturnDate.value = returnDate || '';
 	tempTime.value = time || '10:00';
-	popup.value?.open();
+	show.value = true;
 };
 
 const close = () => {
-	popup.value?.close();
+	show.value = false;
 };
 
 const confirm = () => {

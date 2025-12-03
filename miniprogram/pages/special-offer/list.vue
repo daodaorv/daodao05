@@ -4,15 +4,15 @@
     <view class="filter-bar">
       <view class="filter-item" @tap="showRouteFilter">
         <text class="filter-text">{{ currentRoute || '全部路线' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view class="filter-item" @tap="showPriceFilter">
         <text class="filter-text">{{ currentPrice || '价格' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view class="filter-item" @tap="showSortFilter">
         <text class="filter-text">{{ currentSort || '综合排序' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
     </view>
 
@@ -27,7 +27,7 @@
     >
       <!-- 空状态 -->
       <view v-if="offers.length === 0 && !loading" class="empty-state">
-        <uni-icons type="gift" size="80" color="#DDD"></uni-icons>
+        <u-icon name="gift" size="80" color="#DDD"></u-icon>
         <text class="empty-text">暂无特惠套餐</text>
         <text class="empty-tip">敬请期待更多优惠活动</text>
       </view>
@@ -82,7 +82,7 @@
 
             <!-- 时间段信息 -->
             <view class="time-info">
-              <uni-icons type="calendar" size="14" color="#999"></uni-icons>
+              <u-icon name="calendar" size="14" color="#999"></u-icon>
               <text class="time-text">{{ formatDateRange(offer.availableTimeRange) }}</text>
             </view>
 
@@ -122,7 +122,7 @@
       <view class="filter-popup">
         <view class="popup-header">
           <text class="popup-title">{{ filterTitle }}</text>
-          <uni-icons type="closeempty" size="20" color="#666" @tap="closeFilter"></uni-icons>
+          <u-icon name="close" size="20" color="#666" @tap="closeFilter"></u-icon>
         </view>
         <view class="popup-content">
           <view
@@ -133,7 +133,7 @@
             @tap="selectFilter(item)"
           >
             <text class="option-text">{{ item.label }}</text>
-            <uni-icons v-if="item.value === currentFilterValue" type="checkmarkempty" size="18" color="#FF9F29"></uni-icons>
+            <u-icon v-if="item.value === currentFilterValue" name="checkbox-mark" size="18" color="#FF9F29"></u-icon>
           </view>
         </view>
       </view>

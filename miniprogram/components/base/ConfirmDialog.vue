@@ -1,17 +1,19 @@
 <template>
-	<uni-popup ref="popup" type="dialog">
-		<uni-popup-dialog 
-			:type="type"
-			:mode="mode"
-			:title="title" 
-			:content="content"
-			:placeholder="placeholder"
-			:before-close="true"
-			@confirm="handleConfirm"
-			@close="handleClose"
-		>
-		</uni-popup-dialog>
-	</uni-popup>
+	<u-popup v-model="show" mode="center" :closeable="true" @close="handleClose">
+		<view class="dialog-container">
+			<view class="dialog-header">
+				<text class="dialog-title">{{ title }}</text>
+			</view>
+			<view class="dialog-content">
+				<text v-if="mode === 'base'" class="dialog-text">{{ content }}</text>
+				<input v-else v-model="inputValue" class="dialog-input" :placeholder="placeholder" />
+			</view>
+			<view class="dialog-footer">
+				<button class="dialog-button cancel" @tap="handleClose">取消</button>
+				<button class="dialog-button confirm" @tap="handleConfirm">确定</button>
+			</view>
+		</view>
+	</u-popup>
 </template>
 
 <script setup lang="ts">
@@ -35,23 +37,26 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['confirm', 'close']);
 
-const popup = ref();
+const show = ref(false);
+const inputValue = ref('');
 
 const open = () => {
-	popup.value?.open();
+	show.value = true;
+	inputValue.value = '';
 };
 
 const close = () => {
-	popup.value?.close();
+	show.value = false;
 };
 
-const handleConfirm = (value?: string) => {
-	emit('confirm', value);
+const handleConfirm = () => {
+	emit('confirm', props.mode === 'input' ? inputValue.value : undefined);
 	close();
 };
 
 const handleClose = () => {
 	emit('close');
+	close();
 };
 
 defineExpose({
@@ -61,5 +66,64 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-// uni-popup样式由uni-ui提供
+.dialog-container {
+	background-color: #FFFFFF;
+	border-radius: $uni-border-radius-lg;
+	width: 560rpx;
+	overflow: hidden;
+}
+
+.dialog-header {
+	padding: 32rpx 32rpx 24rpx;
+	text-align: center;
+	border-bottom: 1rpx solid $uni-border-color;
+}
+
+.dialog-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: $uni-text-color;
+}
+
+.dialog-content {
+	padding: 32rpx;
+	min-height: 100rpx;
+}
+
+.dialog-text {
+	font-size: 28rpx;
+	color: $uni-text-color-secondary;
+	line-height: 1.6;
+}
+
+.dialog-input {
+	width: 100%;
+	padding: 16rpx;
+	border: 1rpx solid $uni-border-color;
+	border-radius: $uni-border-radius-sm;
+	font-size: 28rpx;
+}
+
+.dialog-footer {
+	display: flex;
+	border-top: 1rpx solid $uni-border-color;
+}
+
+.dialog-button {
+	flex: 1;
+	padding: 24rpx;
+	font-size: 28rpx;
+	border: none;
+	background-color: transparent;
+
+	&.cancel {
+		color: $uni-text-color-secondary;
+	}
+
+	&.confirm {
+		color: $uni-color-primary;
+		font-weight: bold;
+		border-left: 1rpx solid $uni-border-color;
+	}
+}
 </style>

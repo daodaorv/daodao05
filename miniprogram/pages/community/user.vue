@@ -72,11 +72,11 @@
 						<text class="post-title">{{ post.title }}</text>
 						<view class="post-meta">
 							<view class="meta-item">
-								<uni-icons type="hand-thumbsup" size="14" color="#999999" />
+								<u-icon name="thumb-up" size="14" color="#999999" />
 								<text class="meta-text">{{ post.likeCount }}</text>
 							</view>
 							<view class="meta-item">
-								<uni-icons type="chat" size="14" color="#999999" />
+								<u-icon name="chat" size="14" color="#999999" />
 								<text class="meta-text">{{ post.commentCount }}</text>
 							</view>
 							<text class="meta-time">{{ formatTime(post.createdAt) }}</text>
@@ -86,7 +86,7 @@
 
 				<!-- 空状态 -->
 				<view v-if="userProfile.posts.length === 0" class="empty-state">
-					<uni-icons type="compose" size="64" color="#CCCCCC" />
+					<u-icon name="compose" size="64" color="#CCCCCC" />
 					<text class="empty-text">暂无发布内容</text>
 				</view>
 			</view>
@@ -94,7 +94,7 @@
 			<!-- 关注列表 -->
 			<view v-if="currentTab === 'following'" class="user-list">
 				<view class="empty-state">
-					<uni-icons type="person" size="64" color="#CCCCCC" />
+					<u-icon name="person" size="64" color="#CCCCCC" />
 					<text class="empty-text">暂无关注</text>
 				</view>
 			</view>
@@ -102,7 +102,7 @@
 			<!-- 粉丝列表 -->
 			<view v-if="currentTab === 'followers'" class="user-list">
 				<view class="empty-state">
-					<uni-icons type="person" size="64" color="#CCCCCC" />
+					<u-icon name="person" size="64" color="#CCCCCC" />
 					<text class="empty-text">暂无粉丝</text>
 				</view>
 			</view>

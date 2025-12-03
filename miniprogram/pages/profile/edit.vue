@@ -6,7 +6,7 @@
 				<text class="label">头像</text>
 				<view class="right-content">
 					<image class="avatar" :src="userInfo.avatar" mode="aspectFill"></image>
-					<uni-icons type="right" size="14" color="#CCC"></uni-icons>
+					<u-icon name="right" size="14" color="#CCC"></u-icon>
 				</view>
 			</view>
 			
@@ -15,7 +15,7 @@
 				<text class="label">昵称</text>
 				<input 
 					class="input" 
-					type="text" 
+					name="text" 
 					v-model="userInfo.nickname" 
 					placeholder="请输入昵称" 
 					placeholder-class="placeholder"
@@ -34,7 +34,7 @@
 					<view class="picker-value">
 						<text v-if="userInfo.gender">{{ userInfo.gender }}</text>
 						<text v-else class="placeholder">请选择性别</text>
-						<uni-icons type="right" size="14" color="#CCC"></uni-icons>
+						<u-icon name="right" size="14" color="#CCC"></u-icon>
 					</view>
 				</picker>
 			</view>
@@ -44,7 +44,7 @@
 				<text class="label">手机号</text>
 				<view class="right-content">
 					<text class="value">{{ userInfo.mobile || '未绑定' }}</text>
-					<uni-icons type="right" size="14" color="#CCC"></uni-icons>
+					<u-icon name="right" size="14" color="#CCC"></u-icon>
 				</view>
 			</view>
 			
@@ -60,7 +60,7 @@
 					<view class="picker-value">
 						<text v-if="userInfo.birthday">{{ userInfo.birthday }}</text>
 						<text v-else class="placeholder">请选择生日</text>
-						<uni-icons type="right" size="14" color="#CCC"></uni-icons>
+						<u-icon name="right" size="14" color="#CCC"></u-icon>
 					</view>
 				</picker>
 			</view>

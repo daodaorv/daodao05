@@ -3,7 +3,7 @@
     <!-- 订单状态头部 -->
     <view class="status-header" :style="{ backgroundColor: getStatusColor(order.statusId) }">
       <view class="status-icon">
-        <uni-icons :type="getStatusIcon(order.statusId)" size="32" color="#fff"></uni-icons>
+        <u-icon :name="getStatusIcon(order.statusId)" size="32" color="#fff"></u-icon>
       </view>
       <view class="status-info">
         <text class="status-title">{{ getStatusText(order.statusId) }}</text>
@@ -115,7 +115,7 @@
       <view class="location-card">
         <view class="location-item">
           <view class="location-header">
-            <uni-icons type="location" size="20" color="#FF9F29"></uni-icons>
+            <u-icon name="location" size="20" color="#FF9F29"></u-icon>
             <text class="location-title">取车</text>
           </view>
           <view class="location-info">
@@ -127,12 +127,12 @@
 
         <view class="location-separator">
           <view class="separator-line"></view>
-          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
+          <u-icon name="right" size="16" color="#ccc"></u-icon>
         </view>
 
         <view class="location-item">
           <view class="location-header">
-            <uni-icons type="location-filled" size="20" color="#52C41A"></uni-icons>
+            <u-icon name="location-fill" size="20" color="#52C41A"></u-icon>
             <text class="location-title">还车</text>
           </view>
           <view class="location-info">
@@ -187,7 +187,7 @@
           <text class="contact-label">联系电话</text>
           <view class="contact-phone" @tap="makePhoneCall(order.pickupContactPhone)">
             <text class="phone-number">{{ order.pickupContactPhone }}</text>
-            <uni-icons type="phone" size="16" color="#FF9F29"></uni-icons>
+            <u-icon name="phone" size="16" color="#FF9F29"></u-icon>
           </view>
         </view>
         <view class="contact-item" v-if="order.specialRequirements">

@@ -29,19 +29,19 @@
 				<view class="section-title">车辆规格</view>
 				<view class="specs-row">
 					<view class="spec-item-inline">
-						<uni-icons type="car-filled" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="car-fill" size="16" color="#FF9F29"></u-icon>
 						<text class="spec-text">{{ vehicle.type }}</text>
 					</view>
 					<view class="spec-item-inline">
-						<uni-icons type="person-filled" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="account-fill" size="16" color="#FF9F29"></u-icon>
 						<text class="spec-text">{{ vehicle.seats }}座</text>
 					</view>
 					<view class="spec-item-inline">
-						<uni-icons type="home-filled" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="home-fill" size="16" color="#FF9F29"></u-icon>
 						<text class="spec-text">{{ vehicle.beds }}卧</text>
 					</view>
 					<view class="spec-item-inline">
-						<uni-icons type="gear-filled" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="setting-fill" size="16" color="#FF9F29"></u-icon>
 						<text class="spec-text">{{ vehicle.transmission }}</text>
 					</view>
 				</view>
@@ -52,7 +52,7 @@
 				<view class="section-title">车辆配置</view>
 				<view class="features-list">
 					<view v-for="(feature, index) in vehicle.features" :key="index" class="feature-item">
-						<uni-icons type="checkmarkempty" size="16" color="#4CAF50"></uni-icons>
+						<u-icon name="checkbox-mark" size="16" color="#4CAF50"></u-icon>
 						<text class="feature-text">{{ feature }}</text>
 					</view>
 				</view>
@@ -80,11 +80,11 @@
 							<text class="review-date">{{ review.date }}</text>
 						</view>
 						<view class="review-rating">
-							<uni-icons v-for="star in 5" :key="star" 
-								:type="star <= review.rating ? 'star-filled' : 'star'" 
+							<u-icon v-for="star in 5" :key="star" 
+								:name="star <= review.rating ? 'star-filled' : 'star'" 
 								size="14" 
 								:color="star <= review.rating ? '#FFB400' : '#DDD'">
-							</uni-icons>
+							</u-icon>
 						</view>
 						<text class="review-content">{{ review.content }}</text>
 					</view>

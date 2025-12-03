@@ -3,7 +3,7 @@
 		<slot v-if="!hasError"></slot>
 		<view v-else class="error-container">
 			<view class="error-icon">
-				<uni-icons type="closeempty" size="80" color="#F44336"></uni-icons>
+				<u-icon name="close" size="80" color="#F44336"></u-icon>
 			</view>
 			<text class="error-title">页面加载失败</text>
 			<text class="error-message">{{ errorMessage }}</text>

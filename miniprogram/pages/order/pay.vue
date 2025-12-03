@@ -27,7 +27,7 @@
 			<view class="payment-item">
 				<view class="payment-info">
 					<view class="icon-box balance">
-						<uni-icons type="wallet-filled" size="24" color="#FFFFFF"></uni-icons>
+						<u-icon name="wallet-fill" size="24" color="#FFFFFF"></u-icon>
 					</view>
 					<view class="payment-text">
 						<text class="name">余额支付</text>
@@ -55,19 +55,19 @@
 			>
 				<view class="payment-info">
 					<view class="icon-box wechat">
-						<uni-icons type="weixin" size="24" color="#FFFFFF"></uni-icons>
+						<u-icon name="weixin" size="24" color="#FFFFFF"></u-icon>
 					</view>
 					<view class="payment-text">
 						<text class="name">微信支付</text>
 						<text class="desc">推荐使用微信支付</text>
 					</view>
 				</view>
-				<uni-icons 
+				<u-icon 
 					v-if="!isBalanceCovered"
-					:type="selectedPayment === 'wxpay' ? 'checkbox-filled' : 'circle'" 
+					:name="selectedPayment === 'wxpay' ? 'checkbox-filled' : 'circle'" 
 					size="24" 
 					:color="selectedPayment === 'wxpay' ? '#FF9F29' : '#DDD'">
-				</uni-icons>
+				</u-icon>
 			</view>
 			<!-- #endif -->
 
@@ -87,12 +87,12 @@
 						<text class="desc">数亿用户的选择</text>
 					</view>
 				</view>
-				<uni-icons 
+				<u-icon 
 					v-if="!isBalanceCovered"
-					:type="selectedPayment === 'alipay' ? 'checkbox-filled' : 'circle'" 
+					:name="selectedPayment === 'alipay' ? 'checkbox-filled' : 'circle'" 
 					size="24" 
 					:color="selectedPayment === 'alipay' ? '#FF9F29' : '#DDD'">
-				</uni-icons>
+				</u-icon>
 			</view>
 			<!-- #endif -->
 		</view>

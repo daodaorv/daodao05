@@ -3,16 +3,16 @@
 		<!-- 搜索框 -->
 		<view class="search-section">
 			<view class="search-box">
-				<uni-icons type="search" size="20" color="#999999" />
+				<u-icon name="search" size="20" color="#999999" />
 				<input
 					v-model="searchKeyword"
 					class="search-input"
 					placeholder="搜索帮助内容"
-					confirm-type="search"
+					confirm-name="search"
 					@confirm="handleSearch"
 				/>
 				<view v-if="searchKeyword" class="clear-btn" @click="clearSearch">
-					<uni-icons type="close" size="16" color="#999999" />
+					<u-icon name="close" size="16" color="#999999" />
 				</view>
 			</view>
 		</view>
@@ -21,7 +21,7 @@
 		<view class="hot-section">
 			<view class="section-header">
 				<text class="section-title">热门问题</text>
-				<uni-icons type="fire" size="20" color="#FF9F29" />
+				<u-icon name="fire" size="20" color="#FF9F29" />
 			</view>
 			<view class="hot-list">
 				<view
@@ -31,14 +31,14 @@
 					@click="viewArticle(article.id)"
 				>
 					<view class="hot-icon">
-						<uni-icons type="help" size="20" color="#FF9F29" />
+						<u-icon name="help" size="20" color="#FF9F29" />
 					</view>
 					<view class="hot-content">
 						<text class="hot-title">{{ article.title }}</text>
 						<text class="hot-summary">{{ article.summary }}</text>
 					</view>
 					<view class="hot-arrow">
-						<uni-icons type="right" size="16" color="#CCCCCC" />
+						<u-icon name="right" size="16" color="#CCCCCC" />
 					</view>
 				</view>
 			</view>
@@ -57,7 +57,7 @@
 					@click="viewCategory(category.id)"
 				>
 					<view class="category-icon">
-						<uni-icons :type="getCategoryIcon(category.icon)" size="32" color="#FF9F29" />
+						<u-icon :name="getCategoryIcon(category.icon)" size="32" color="#FF9F29" />
 					</view>
 					<text class="category-name">{{ category.name }}</text>
 					<text class="category-count">{{ category.articleCount }}篇</text>
@@ -80,7 +80,7 @@
 					<view class="article-header">
 						<text class="article-category">{{ article.categoryName }}</text>
 						<view class="article-stats">
-							<uni-icons type="eye" size="14" color="#999999" />
+							<u-icon name="eye" size="14" color="#999999" />
 							<text class="stat-text">{{ article.views }}</text>
 						</view>
 					</view>
@@ -94,7 +94,7 @@
 		<view class="contact-section">
 			<view class="contact-card">
 				<view class="contact-icon">
-					<uni-icons type="chatbubble-filled" size="40" color="#FF9F29" />
+					<u-icon name="chat-fill" size="40" color="#FF9F29" />
 				</view>
 				<view class="contact-content">
 					<text class="contact-title">没有找到答案？</text>

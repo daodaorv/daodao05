@@ -24,15 +24,15 @@
       <!-- 行程信息 -->
       <view class="tour-meta">
         <view class="meta-item">
-          <uni-icons type="calendar" size="16" color="#FF9F29"></uni-icons>
+          <u-icon name="calendar" size="16" color="#FF9F29"></u-icon>
           <text class="meta-text">{{ tourDetail.duration }}天{{ tourDetail.duration - 1 }}晚</text>
         </view>
         <view class="meta-item">
-          <uni-icons type="person" size="16" color="#FF9F29"></uni-icons>
+          <u-icon name="person" size="16" color="#FF9F29"></u-icon>
           <text class="meta-text">{{ tourDetail.minPeople }}-{{ tourDetail.maxPeople }}人成团</text>
         </view>
         <view class="meta-item">
-          <uni-icons type="location" size="16" color="#FF9F29"></uni-icons>
+          <u-icon name="location" size="16" color="#FF9F29"></u-icon>
           <text class="meta-text">{{ tourDetail.destination }}</text>
         </view>
       </view>
@@ -105,7 +105,7 @@
       </view>
       <view class="include-list">
         <view class="include-item" v-for="item in tourDetail.priceIncludes" :key="item">
-          <uni-icons type="checkmarkempty" size="18" color="#67C23A"></uni-icons>
+          <u-icon name="checkbox-mark" size="18" color="#67C23A"></u-icon>
           <text class="include-text">{{ item }}</text>
         </view>
       </view>
@@ -118,7 +118,7 @@
       </view>
       <view class="exclude-list">
         <view class="exclude-item" v-for="item in tourDetail.priceExcludes" :key="item">
-          <uni-icons type="closeempty" size="18" color="#F44336"></uni-icons>
+          <u-icon name="close" size="18" color="#F44336"></u-icon>
           <text class="exclude-text">{{ item }}</text>
         </view>
       </view>
@@ -145,7 +145,7 @@
       <view class="policy-list">
         <view class="policy-item" v-for="policy in tourDetail.cancellationPolicy" :key="policy.condition">
           <view class="policy-condition">
-            <uni-icons type="info-filled" size="16" color="#FF9F29"></uni-icons>
+            <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
             <text class="condition-text">{{ policy.condition }}</text>
           </view>
           <text class="policy-result">{{ policy.result }}</text>
@@ -164,7 +164,7 @@
       </view>
       <view class="bar-actions">
         <button class="contact-btn" @tap="contactService">
-          <uni-icons type="chatbubble" size="18" color="#FF9F29"></uni-icons>
+          <u-icon name="chat" size="18" color="#FF9F29"></u-icon>
           <text>咨询</text>
         </button>
         <button class="book-btn" @tap="bookTour" :disabled="!selectedBatch">

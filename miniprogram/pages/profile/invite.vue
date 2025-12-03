@@ -29,7 +29,7 @@
 		<!-- 邀请方式 -->
 		<view class="invite-methods">
 			<view class="section-title">
-				<uni-icons type="gift" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="gift" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">邀请方式</text>
 			</view>
 
@@ -41,7 +41,7 @@
 				</view>
 				<view class="code-right">
 					<button class="copy-btn" @tap="copyInviteCode">
-						<uni-icons type="copy" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="copy" size="16" color="#FF9F29"></u-icon>
 						<text class="btn-text">复制</text>
 					</button>
 				</view>
@@ -50,11 +50,11 @@
 			<!-- 分享按钮 -->
 			<view class="share-buttons">
 				<button class="share-btn primary" @tap="generatePoster">
-					<uni-icons type="image" size="20" color="#FFFFFF"></uni-icons>
+					<u-icon name="image" size="20" color="#FFFFFF"></u-icon>
 					<text class="btn-text">生成邀请海报</text>
 				</button>
 				<button class="share-btn" @tap="shareToWechat">
-					<uni-icons type="chatbubble" size="20" color="#FF9F29"></uni-icons>
+					<u-icon name="chat" size="20" color="#FF9F29"></u-icon>
 					<text class="btn-text">分享给好友</text>
 				</button>
 			</view>
@@ -63,7 +63,7 @@
 		<!-- 奖励规则 -->
 		<view class="reward-rules">
 			<view class="section-title">
-				<uni-icons type="help" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="help" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">奖励规则</text>
 			</view>
 			<view class="rules-content">
@@ -82,12 +82,12 @@
 		<!-- 邀请记录 -->
 		<view class="invite-records">
 			<view class="section-title">
-				<uni-icons type="list" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="list" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">邀请记录</text>
 			</view>
 
 			<view v-if="inviteRecords.length === 0" class="empty-state">
-				<uni-icons type="person" size="80" color="#CCCCCC"></uni-icons>
+				<u-icon name="person" size="80" color="#CCCCCC"></u-icon>
 				<text class="empty-text">暂无邀请记录</text>
 				<text class="empty-hint">快去邀请好友吧</text>
 			</view>
@@ -97,7 +97,7 @@
 					<view class="record-left">
 						<view class="user-avatar">
 							<image v-if="record.avatar" :src="record.avatar" mode="aspectFill"></image>
-							<uni-icons v-else type="person" size="24" color="#999"></uni-icons>
+							<u-icon v-else name="person" size="24" color="#999"></u-icon>
 						</view>
 						<view class="user-info">
 							<text class="user-name">{{ maskUsername(record.username) }}</text>
@@ -109,11 +109,11 @@
 							<text class="status-text">{{ getStatusText(record.status) }}</text>
 						</view>
 						<view class="reward-info" v-if="record.rewardStatus === 'granted'">
-							<uni-icons type="checkmarkempty" size="14" color="#52C41A"></uni-icons>
+							<u-icon name="checkbox-mark" size="14" color="#52C41A"></u-icon>
 							<text class="reward-text">已发放</text>
 						</view>
 						<view class="reward-info pending" v-else-if="record.rewardStatus === 'pending'">
-							<uni-icons type="clock" size="14" color="#FF9F29"></uni-icons>
+							<u-icon name="clock" size="14" color="#FF9F29"></u-icon>
 							<text class="reward-text">待发放</text>
 						</view>
 					</view>
@@ -122,12 +122,12 @@
 		</view>
 
 		<!-- 邀请海报弹窗 -->
-		<uni-popup ref="posterPopup" type="center">
+		<uni-popup ref="posterPopup" name="center">
 			<view class="poster-dialog">
 				<view class="poster-header">
 					<text class="poster-title">邀请海报</text>
 					<view class="close-btn" @tap="closePoster">
-						<uni-icons type="closeempty" size="24" color="#999"></uni-icons>
+						<u-icon name="close" size="24" color="#999"></u-icon>
 					</view>
 				</view>
 				<view class="poster-content">
@@ -140,7 +140,7 @@
 				</view>
 				<view class="poster-actions">
 					<button class="action-btn" @tap="savePoster">
-						<uni-icons type="download" size="18" color="#FFFFFF"></uni-icons>
+						<u-icon name="download" size="18" color="#FFFFFF"></u-icon>
 						<text class="btn-text">保存到相册</text>
 					</button>
 				</view>

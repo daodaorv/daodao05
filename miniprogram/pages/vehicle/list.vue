@@ -9,7 +9,7 @@
 				<!-- 按门店分组 -->
 				<view v-for="(group, index) in groupedVehicles" :key="index" class="store-group">
 					<view class="store-header">
-						<uni-icons type="shop-filled" size="18" color="#FF9F29"></uni-icons>
+						<u-icon name="shop-fill" size="18" color="#FF9F29"></u-icon>
 						<text class="store-name">{{ group.storeName }}</text>
 						<text class="vehicle-count">{{ group.vehicles.length }}辆可租</text>
 					</view>
@@ -26,7 +26,7 @@
 
 				<!-- 空状态 -->
 				<view v-if="groupedVehicles.length === 0" class="empty-state">
-					<uni-icons type="info-filled" size="48" color="#CCC"></uni-icons>
+					<u-icon name="info-circle-fill" size="48" color="#CCC"></u-icon>
 					<text class="empty-text">暂无符合条件的房车</text>
 				</view>
 			</view>

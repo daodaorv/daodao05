@@ -4,15 +4,15 @@
     <view class="filter-bar">
       <view class="filter-item" @tap="showDurationFilter">
         <text class="filter-text">{{ currentDuration || '行程天数' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view class="filter-item" @tap="showPriceFilter">
         <text class="filter-text">{{ currentPrice || '价格' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view class="filter-item" @tap="showStatusFilter">
         <text class="filter-text">{{ currentStatus || '状态' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
     </view>
 
@@ -27,7 +27,7 @@
     >
       <!-- 空状态 -->
       <view v-if="tours.length === 0 && !loading" class="empty-state">
-        <uni-icons type="map" size="80" color="#DDD"></uni-icons>
+        <u-icon name="map" size="80" color="#DDD"></u-icon>
         <text class="empty-text">暂无旅游线路</text>
         <text class="empty-tip">敬请期待更多精彩线路</text>
       </view>
@@ -55,11 +55,11 @@
 
             <view class="tour-details">
               <view class="detail-item">
-                <uni-icons type="calendar" size="14" color="#999"></uni-icons>
+                <u-icon name="calendar" size="14" color="#999"></u-icon>
                 <text class="detail-text">{{ item.days }}天{{ item.days - 1 }}晚</text>
               </view>
               <view class="detail-item">
-                <uni-icons type="person" size="14" color="#999"></uni-icons>
+                <u-icon name="account" size="14" color="#999"></u-icon>
                 <text class="detail-text">{{ item.minPeople }}-{{ item.maxPeople }}人成团</text>
               </view>
             </view>
@@ -102,7 +102,7 @@
       <view class="filter-popup">
         <view class="popup-header">
           <text class="popup-title">{{ filterTitle }}</text>
-          <uni-icons type="closeempty" size="20" color="#666" @tap="closeFilter"></uni-icons>
+          <u-icon name="close" size="20" color="#666" @tap="closeFilter"></u-icon>
         </view>
         <view class="popup-content">
           <view
@@ -113,7 +113,7 @@
             @tap="selectFilter(item)"
           >
             <text class="option-text">{{ item.label }}</text>
-            <uni-icons v-if="item.value === currentFilterValue" type="checkmarkempty" size="18" color="#FF9F29"></uni-icons>
+            <u-icon v-if="item.value === currentFilterValue" name="checkbox-mark" size="18" color="#FF9F29"></u-icon>
           </view>
         </view>
       </view>

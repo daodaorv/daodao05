@@ -4,7 +4,7 @@
     <view class="header">
       <view class="nav-bar">
         <view class="nav-item back-btn" @tap="goBack">
-          <uni-icons type="arrowleft" size="20" color="#333"></uni-icons>
+          <u-icon name="arrow-left" size="20" color="#333"></u-icon>
         </view>
         <text class="nav-title">我的订单</text>
         <view class="nav-item"></view>
@@ -92,17 +92,17 @@
           <!-- 租赁信息 -->
           <view class="order-rental">
             <view class="rental-item">
-              <uni-icons type="location" size="14" color="#999"></uni-icons>
+              <u-icon name="location" size="14" color="#999"></u-icon>
               <text class="rental-text">{{ order.pickupStore.name }}</text>
             </view>
             <view class="rental-item">
-              <uni-icons type="calendar" size="14" color="#999"></uni-icons>
+              <u-icon name="calendar" size="14" color="#999"></u-icon>
               <text class="rental-text">
                 {{ formatDate(order.pickupTime) }} - {{ formatDate(order.returnTime) }}
               </text>
             </view>
             <view class="rental-item" v-if="order.returnStore.id !== order.pickupStore.id">
-              <uni-icons type="flag" size="14" color="#4B91FF"></uni-icons>
+              <u-icon name="flag" size="14" color="#4B91FF"></u-icon>
               <text class="rental-text">异地还车</text>
             </view>
           </view>

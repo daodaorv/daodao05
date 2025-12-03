@@ -1,20 +1,20 @@
 <template>
   <view class="contact-edit-page">
     <view class="form-container">
-      <uni-forms ref="form" :modelValue="formData" :rules="rules">
-        <uni-forms-item label="姓名" name="name" required>
-          <uni-easyinput v-model="formData.name" placeholder="请输入真实姓名" />
-        </uni-forms-item>
-        <uni-forms-item label="手机号" name="phone" required>
-          <uni-easyinput v-model="formData.phone" placeholder="请输入手机号码" type="number" maxlength="11" />
-        </uni-forms-item>
-        <uni-forms-item label="身份证" name="idCard" required>
-          <uni-easyinput v-model="formData.idCard" placeholder="请输入身份证号码" maxlength="18" />
-        </uni-forms-item>
-        <uni-forms-item label="设为默认" name="isDefault">
+      <u-form ref="form" :model="formData" :rules="rules">
+        <u-form-item label="姓名" prop="name" required>
+          <u-input v-model="formData.name" placeholder="请输入真实姓名" />
+        </u-form-item>
+        <u-form-item label="手机号" prop="phone" required>
+          <u-input v-model="formData.phone" placeholder="请输入手机号码" type="number" maxlength="11" />
+        </u-form-item>
+        <u-form-item label="身份证" prop="idCard" required>
+          <u-input v-model="formData.idCard" placeholder="请输入身份证号码" maxlength="18" />
+        </u-form-item>
+        <u-form-item label="设为默认" prop="isDefault">
           <switch :checked="formData.isDefault" @change="handleSwitchChange" color="#FF9F29" style="transform: scale(0.8)" />
-        </uni-forms-item>
-      </uni-forms>
+        </u-form-item>
+      </u-form>
     </view>
     
     <view class="footer-btn">

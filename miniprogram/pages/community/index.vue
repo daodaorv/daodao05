@@ -45,7 +45,7 @@
               </view>
               <view class="interactions">
                 <view class="like-box">
-                  <uni-icons type="heart" size="14" color="#999"></uni-icons>
+                  <u-icon name="heart" size="14" color="#999"></u-icon>
                   <text>{{ post.likes }}</text>
                 </view>
               </view>
@@ -65,7 +65,7 @@
               </view>
               <view class="interactions">
                 <view class="like-box">
-                  <uni-icons type="heart" size="14" color="#999"></uni-icons>
+                  <u-icon name="heart" size="14" color="#999"></u-icon>
                   <text>{{ post.likes }}</text>
                 </view>
               </view>
@@ -77,7 +77,7 @@
 
     <!-- 发布按钮 -->
     <view class="float-btn" @click="handlePublish">
-      <uni-icons type="plus-filled" size="28" color="#FFFFFF"></uni-icons>
+      <u-icon name="plus-circle-fill" size="28" color="#FFFFFF"></u-icon>
     </view>
   </view>
 </template>

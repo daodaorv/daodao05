@@ -8,7 +8,7 @@
 					:class="{ active: reportType === 'accident' }"
 					@tap="reportType = 'accident'"
 				>
-					<uni-icons type="info-filled" size="24" :color="reportType === 'accident' ? '#FF4D4F' : '#999'"></uni-icons>
+					<u-icon name="info-circle-fill" size="24" :color="reportType === 'accident' ? '#FF4D4F' : '#999'"></u-icon>
 					<text>交通事故</text>
 				</view>
 				<view 
@@ -16,7 +16,7 @@
 					:class="{ active: reportType === 'breakdown' }"
 					@tap="reportType = 'breakdown'"
 				>
-					<uni-icons type="gear-filled" size="24" :color="reportType === 'breakdown' ? '#FF9F29' : '#999'"></uni-icons>
+					<u-icon name="setting-fill" size="24" :color="reportType === 'breakdown' ? '#FF9F29' : '#999'"></u-icon>
 					<text>车辆故障</text>
 				</view>
 			</view>
@@ -25,7 +25,7 @@
 		<view class="form-section">
 			<view class="section-title">情况描述</view>
 			<uni-easyinput 
-				type="textarea" 
+				name="textarea" 
 				v-model="description" 
 				placeholder="请详细描述发生的情况..." 
 				:maxlength="200"
@@ -37,7 +37,7 @@
 			<view class="section-title">现场照片</view>
 			<uni-file-picker 
 				v-model="imageValue" 
-				fileMediatype="image" 
+				fileMedianame="image" 
 				mode="grid" 
 				:limit="9"
 				title="最多上传9张照片"
@@ -49,7 +49,7 @@
 			<uni-easyinput 
 				v-model="contactPhone" 
 				placeholder="请输入联系电话" 
-				type="number"
+				name="number"
 			></uni-easyinput>
 		</view>
 
@@ -57,17 +57,17 @@
 			<view class="section-title">当前位置</view>
 			<view class="location-box" @tap="chooseLocation">
 				<view class="location-info">
-					<uni-icons type="location-filled" size="20" color="#FF9F29"></uni-icons>
+					<u-icon name="location-fill" size="20" color="#FF9F29"></u-icon>
 					<text class="address">{{ currentAddress || '点击获取当前位置' }}</text>
 				</view>
-				<uni-icons type="right" size="16" color="#999"></uni-icons>
+				<u-icon name="right" size="16" color="#999"></u-icon>
 			</view>
 		</view>
 
 		<view class="submit-section">
 			<button class="btn-submit" @tap="submitReport">提交申报</button>
 			<view class="tips">
-				<uni-icons type="info" size="14" color="#999"></uni-icons>
+				<u-icon name="info" size="14" color="#999"></u-icon>
 				<text>提交后，我们的客服人员将尽快与您联系</text>
 			</view>
 		</view>

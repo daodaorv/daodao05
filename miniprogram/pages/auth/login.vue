@@ -45,10 +45,10 @@
 				<!-- 手机号输入 -->
 				<view class="form-item">
 					<view class="input-wrapper">
-						<uni-icons type="phone" size="20" color="#999999" />
+						<u-icon name="phone" size="20" color="#999999" />
 						<input
 							v-model="phoneForm.phone"
-							type="number"
+							name="number"
 							maxlength="11"
 							placeholder="请输入手机号"
 							class="input"
@@ -77,10 +77,10 @@
 				<!-- 验证码输入 -->
 				<view v-if="phoneLoginMethod === 'code'" class="form-item">
 					<view class="input-wrapper">
-						<uni-icons type="chatboxes" size="20" color="#999999" />
+						<u-icon name="chatboxes" size="20" color="#999999" />
 						<input
 							v-model="phoneForm.code"
-							type="number"
+							name="number"
 							maxlength="6"
 							placeholder="请输入验证码"
 							class="input"
@@ -98,15 +98,15 @@
 				<!-- 密码输入 -->
 				<view v-if="phoneLoginMethod === 'password'" class="form-item">
 					<view class="input-wrapper">
-						<uni-icons type="locked" size="20" color="#999999" />
+						<u-icon name="locked" size="20" color="#999999" />
 						<input
 							v-model="phoneForm.password"
 							:password="!showPassword"
 							placeholder="请输入密码"
 							class="input"
 						/>
-						<uni-icons
-							:type="showPassword ? 'eye-filled' : 'eye-slash-filled'"
+						<u-icon
+							:name="showPassword ? 'eye-filled' : 'eye-slash-filled'"
 							size="20"
 							color="#999999"
 							@click="showPassword = !showPassword"
@@ -125,7 +125,7 @@
 				<!-- 用户名输入 -->
 				<view class="form-item">
 					<view class="input-wrapper">
-						<uni-icons type="person" size="20" color="#999999" />
+						<u-icon name="person" size="20" color="#999999" />
 						<input
 							v-model="usernameForm.username"
 							placeholder="请输入用户名/邮箱"
@@ -137,15 +137,15 @@
 				<!-- 密码输入 -->
 				<view class="form-item">
 					<view class="input-wrapper">
-						<uni-icons type="locked" size="20" color="#999999" />
+						<u-icon name="locked" size="20" color="#999999" />
 						<input
 							v-model="usernameForm.password"
 							:password="!showPassword"
 							placeholder="请输入密码"
 							class="input"
 						/>
-						<uni-icons
-							:type="showPassword ? 'eye-filled' : 'eye-slash-filled'"
+						<u-icon
+							:name="showPassword ? 'eye-filled' : 'eye-slash-filled'"
 							size="20"
 							color="#999999"
 							@click="showPassword = !showPassword"

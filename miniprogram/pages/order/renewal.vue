@@ -17,7 +17,7 @@
         <text class="label">续租天数</text>
         <view class="number-input">
           <button class="num-btn" @tap="decreaseDays">-</button>
-          <input type="number" v-model="days" class="num-value" disabled />
+          <input name="number" v-model="days" class="num-value" disabled />
           <button class="num-btn" @tap="increaseDays">+</button>
         </view>
       </view>

@@ -7,11 +7,11 @@
       </view>
       <view class="tour-meta">
         <view class="meta-item">
-          <uni-icons type="calendar" size="14" color="#999"></uni-icons>
+          <u-icon name="calendar" size="14" color="#999"></u-icon>
           <text class="meta-text">{{ tourInfo.duration }}天{{ tourInfo.duration - 1 }}晚</text>
         </view>
         <view class="meta-item">
-          <uni-icons type="flag" size="14" color="#999"></uni-icons>
+          <u-icon name="flag" size="14" color="#999"></u-icon>
           <text class="meta-text">出发日期：{{ formatDate(batchInfo.departureDate) }}</text>
         </view>
       </view>
@@ -33,11 +33,11 @@
         <view class="item-value">
           <view class="stepper">
             <button class="stepper-btn" @tap="decreaseAdults" :disabled="bookingForm.adults <= 1">
-              <uni-icons type="minus" size="16" color="#666"></uni-icons>
+              <u-icon name="minus" size="16" color="#666"></u-icon>
             </button>
             <text class="stepper-value">{{ bookingForm.adults }}人</text>
             <button class="stepper-btn" @tap="increaseAdults" :disabled="totalPeople >= maxPeople">
-              <uni-icons type="plus" size="16" color="#666"></uni-icons>
+              <u-icon name="plus" size="16" color="#666"></u-icon>
             </button>
           </view>
           <text class="price-text">¥{{ tourInfo.pricePerPerson }}/人</text>
@@ -53,11 +53,11 @@
         <view class="item-value">
           <view class="stepper">
             <button class="stepper-btn" @tap="decreaseChildren" :disabled="bookingForm.children <= 0">
-              <uni-icons type="minus" size="16" color="#666"></uni-icons>
+              <u-icon name="minus" size="16" color="#666"></u-icon>
             </button>
             <text class="stepper-value">{{ bookingForm.children }}人</text>
             <button class="stepper-btn" @tap="increaseChildren" :disabled="totalPeople >= maxPeople">
-              <uni-icons type="plus" size="16" color="#666"></uni-icons>
+              <u-icon name="plus" size="16" color="#666"></u-icon>
             </button>
           </view>
           <text class="price-text">¥{{ tourInfo.childPrice }}/人</text>
@@ -102,7 +102,7 @@
           <input
             class="input-field"
             v-model="bookingForm.contactPhone"
-            type="number"
+            name="number"
             maxlength="11"
             placeholder="请输入手机号"
             placeholder-class="input-placeholder"
@@ -153,7 +153,7 @@
           <input
             class="input-field"
             v-model="bookingForm.emergencyPhone"
-            type="number"
+            name="number"
             maxlength="11"
             placeholder="请输入紧急联系电话"
             placeholder-class="input-placeholder"

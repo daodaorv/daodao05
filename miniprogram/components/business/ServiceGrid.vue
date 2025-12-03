@@ -7,7 +7,7 @@
 			@tap="handleServiceClick(service)"
 		>
 			<view class="service-icon">
-				<uni-icons :type="service.icon" size="28" color="#FF9F29"></uni-icons>
+				<u-icon :name="service.icon" size="28" color="#FF9F29"></u-icon>
 			</view>
 			<text class="service-name">{{ service.name }}</text>
 		</view>

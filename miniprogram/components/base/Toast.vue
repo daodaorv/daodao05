@@ -1,7 +1,7 @@
 <template>
 	<view class="toast-container" :class="{ 'toast-show': visible }">
 		<view class="toast-content" :class="`toast-${type}`">
-			<uni-icons v-if="showIcon" :type="iconType" size="20" color="#FFFFFF"></uni-icons>
+			<u-icon v-if="showIcon" :name="iconType" size="20" color="#FFFFFF"></u-icon>
 			<text class="toast-text">{{ message }}</text>
 		</view>
 	</view>
@@ -29,10 +29,10 @@ let timer: any = null;
 
 const iconType = computed(() => {
 	const iconMap = {
-		success: 'checkmarkempty',
-		error: 'closeempty',
-		warning: 'info',
-		info: 'info'
+		success: 'checkbox-mark',
+		error: 'close',
+		warning: 'info-circle',
+		info: 'info-circle'
 	};
 	return iconMap[props.type];
 });

@@ -25,8 +25,8 @@
 					class="star-item"
 					@click="handleStarClick(star)"
 				>
-					<uni-icons
-						:type="star <= rating ? 'star-filled' : 'star'"
+					<u-icon
+						:name="star <= rating ? 'star-filled' : 'star'"
 						:color="star <= rating ? '#FF9F29' : '#E0E0E0'"
 						size="40"
 					/>
@@ -87,7 +87,7 @@
 				>
 					<image :src="image" mode="aspectFill" class="image"></image>
 					<view class="image-delete" @click="deleteImage(index)">
-						<uni-icons type="close" color="#FFFFFF" size="16" />
+						<u-icon name="close" color="#FFFFFF" size="16" />
 					</view>
 				</view>
 				<view
@@ -95,7 +95,7 @@
 					class="image-upload"
 					@click="chooseImage"
 				>
-					<uni-icons type="camera" color="#999999" size="40" />
+					<u-icon name="camera" color="#999999" size="40" />
 					<text class="upload-text">上传图片</text>
 				</view>
 			</view>
@@ -105,7 +105,7 @@
 		<view class="reward-section">
 			<view class="reward-card">
 				<view class="reward-icon">
-					<uni-icons type="gift-filled" color="#FF9F29" size="32" />
+					<u-icon name="gift-fill" color="#FF9F29" size="32" />
 				</view>
 				<view class="reward-content">
 					<text class="reward-title">评价奖励</text>

@@ -39,7 +39,7 @@
     <!-- 申请表单 -->
     <view class="form-section">
       <input class="input" v-model="form.name" placeholder="姓名" />
-      <input class="input" v-model="form.phone" type="number" placeholder="联系电话" />
+      <input class="input" v-model="form.phone" name="number" placeholder="联系电话" />
       <input class="input" v-model="form.idCard" placeholder="身份证号" />
     </view>
 

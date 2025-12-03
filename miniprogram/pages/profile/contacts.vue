@@ -12,10 +12,10 @@
         </view>
         <view class="actions">
           <view class="action-btn edit" @tap="handleEdit(contact)">
-            <uni-icons type="compose" size="20" color="#666"></uni-icons>
+            <u-icon name="compose" size="20" color="#666"></u-icon>
           </view>
           <view class="action-btn delete" @tap="handleDelete(contact)">
-            <uni-icons type="trash" size="20" color="#F44336"></uni-icons>
+            <u-icon name="trash" size="20" color="#F44336"></u-icon>
           </view>
         </view>
       </view>

@@ -64,7 +64,7 @@
 						<view class="comment-user-row">
 							<text class="username">{{ comment.userName }}</text>
 							<view class="like-action" @click="likeComment(comment.id)">
-								<uni-icons :type="comment.isLiked ? 'heart-filled' : 'heart'" size="14" :color="comment.isLiked ? '#FF4D4F' : '#999'" />
+								<u-icon :name="comment.isLiked ? 'heart-fill' : 'heart'" size="14" :color="comment.isLiked ? '#FF4D4F' : '#999'" />
 								<text class="count" v-if="comment.likeCount > 0">{{ comment.likeCount }}</text>
 							</view>
 						</view>
@@ -96,20 +96,20 @@
 		<!-- 底部操作栏 -->
 		<view class="bottom-action-bar">
 			<view class="input-box" @click="focusInput">
-				<uni-icons type="compose" size="16" color="#666" />
+				<u-icon name="compose" size="16" color="#666" />
 				<text class="placeholder">说点什么...</text>
 			</view>
 			<view class="actions">
 				<view class="action-btn" @click="handleLike">
-					<uni-icons :type="post.isLiked ? 'heart-filled' : 'heart'" size="24" :color="post.isLiked ? '#FF4D4F' : '#333'" />
+					<u-icon :name="post.isLiked ? 'heart-fill' : 'heart'" size="24" :color="post.isLiked ? '#FF4D4F' : '#333'" />
 					<text class="count">{{ post.likeCount || '点赞' }}</text>
 				</view>
 				<view class="action-btn" @click="handleFavorite">
-					<uni-icons :type="post.isFavorited ? 'star-filled' : 'star'" size="24" :color="post.isFavorited ? '#FF9F29' : '#333'" />
+					<u-icon :name="post.isFavorited ? 'star-fill' : 'star'" size="24" :color="post.isFavorited ? '#FF9F29' : '#333'" />
 					<text class="count">{{ post.favoriteCount || '收藏' }}</text>
 				</view>
 				<view class="action-btn">
-					<uni-icons type="chat" size="24" color="#333" />
+					<u-icon name="chat" size="24" color="#333" />
 					<text class="count">{{ post.commentCount || '评论' }}</text>
 				</view>
 			</view>

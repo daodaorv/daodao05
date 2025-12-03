@@ -12,7 +12,7 @@
 				<button class="action-btn" @tap="showWithdrawDialog">提现</button>
 			</view>
 			<view v-if="walletInfo.frozenAmount > 0" class="frozen-tip">
-				<uni-icons type="info" size="14" color="#FF9F29"></uni-icons>
+				<u-icon name="info" size="14" color="#FF9F29"></u-icon>
 				<text>冻结金额:¥{{ walletInfo.frozenAmount.toFixed(2) }}</text>
 			</view>
 		</view>
@@ -25,7 +25,7 @@
 
 			<!-- 空状态 -->
 			<view v-if="transactions.length === 0" class="empty-state">
-				<uni-icons type="list" size="80" color="#DDD"></uni-icons>
+				<u-icon name="list" size="80" color="#DDD"></u-icon>
 				<text class="empty-text">暂无交易记录</text>
 			</view>
 
@@ -38,11 +38,11 @@
 				>
 					<view class="transaction-info">
 						<view class="transaction-type">
-							<uni-icons 
-								:type="getTransactionIcon(item.type)" 
+							<u-icon 
+								:name="getTransactionIcon(item.type)" 
 								size="20" 
 								:color="getTransactionColor(item.type)"
-							></uni-icons>
+							></u-icon>
 							<text class="type-text">{{ item.description }}</text>
 						</view>
 						<text class="transaction-time">{{ item.time }}</text>
@@ -55,12 +55,12 @@
 		</view>
 
 		<!-- 充值弹窗 -->
-		<uni-popup ref="rechargePopup" type="center">
+		<u-popup v-model="showRechargePopup" mode="center" :closeable="true">
 			<view class="dialog">
 				<text class="dialog-title">充值</text>
 				<view class="amount-options">
-					<view 
-						v-for="amount in rechargeOptions" 
+					<view
+						v-for="amount in rechargeOptions"
 						:key="amount"
 						class="amount-option"
 						:class="{ 'selected': rechargeAmount === amount }"
@@ -69,10 +69,10 @@
 						<text>¥{{ amount }}</text>
 					</view>
 				</view>
-				<input 
-					class="custom-input" 
+				<input
+					class="custom-input"
 					v-model.number="customAmount"
-					type="digit"
+					name="digit"
 					placeholder="自定义金额"
 				/>
 				<view class="dialog-actions">
@@ -80,20 +80,20 @@
 					<button class="confirm-btn" @tap="confirmRecharge">确定充值</button>
 				</view>
 			</view>
-		</uni-popup>
+		</u-popup>
 
 		<!-- 提现弹窗 -->
-		<uni-popup ref="withdrawPopup" type="center">
+		<u-popup v-model="showWithdrawPopup" mode="center" :closeable="true">
 			<view class="dialog">
 				<text class="dialog-title">提现</text>
 				<view class="withdraw-info">
 					<text class="info-text">可提现余额:¥{{ walletInfo.balance.toFixed(2) }}</text>
 					<text class="info-tip">提现将在1-3个工作日到账</text>
 				</view>
-				<input 
-					class="custom-input" 
+				<input
+					class="custom-input"
 					v-model.number="withdrawAmount"
-					type="digit"
+					name="digit"
 					placeholder="请输入提现金额"
 				/>
 				<view class="dialog-actions">
@@ -101,7 +101,7 @@
 					<button class="confirm-btn" @tap="confirmWithdraw">确定提现</button>
 				</view>
 			</view>
-		</uni-popup>
+		</u-popup>
 	</view>
 </template>
 
@@ -122,9 +122,9 @@ const customAmount = ref<number | null>(null);
 // 提现金额
 const withdrawAmount = ref<number | null>(null);
 
-// 弹窗引用
-const rechargePopup = ref(null);
-const withdrawPopup = ref(null);
+// 弹窗显示状态
+const showRechargePopup = ref(false);
+const showWithdrawPopup = ref(false);
 
 // Mock交易记录
 const transactions = ref([
@@ -197,12 +197,12 @@ const selectRechargeAmount = (amount: number) => {
 
 // 显示充值弹窗
 const showRechargeDialog = () => {
-	rechargePopup.value?.open();
+	showRechargePopup.value = true;
 };
 
 // 关闭充值弹窗
 const closeRechargeDialog = () => {
-	rechargePopup.value?.close();
+	showRechargePopup.value = false;
 	rechargeAmount.value = 0;
 	customAmount.value = null;
 };
@@ -242,12 +242,12 @@ const confirmRecharge = () => {
 
 // 显示提现弹窗
 const showWithdrawDialog = () => {
-	withdrawPopup.value?.open();
+	showWithdrawPopup.value = true;
 };
 
 // 关闭提现弹窗
 const closeWithdrawDialog = () => {
-	withdrawPopup.value?.close();
+	showWithdrawPopup.value = false;
 	withdrawAmount.value = null;
 };
 

@@ -8,11 +8,11 @@
 			<text class="article-title">{{ article.title }}</text>
 			<view class="article-meta">
 				<view class="meta-item">
-					<uni-icons type="eye" size="14" color="#999999" />
+					<u-icon name="eye" size="14" color="#999999" />
 					<text class="meta-text">{{ article.views }}次浏览</text>
 				</view>
 				<view class="meta-item">
-					<uni-icons type="hand-thumbsup" size="14" color="#999999" />
+					<u-icon name="thumb-up" size="14" color="#999999" />
 					<text class="meta-text">{{ article.helpful }}人觉得有用</text>
 				</view>
 			</view>
@@ -34,7 +34,7 @@
 					:class="isHelpful === true ? 'active' : ''"
 					@click="markHelpful(true)"
 				>
-					<uni-icons type="hand-thumbsup-filled" size="20" :color="isHelpful === true ? '#FFFFFF' : '#FF9F29'" />
+					<u-icon name="thumb-up" size="20" :color="isHelpful === true ? '#FFFFFF' : '#FF9F29'" />
 					<text>有帮助</text>
 				</button>
 				<button
@@ -42,7 +42,7 @@
 					:class="isHelpful === false ? 'active' : ''"
 					@click="markHelpful(false)"
 				>
-					<uni-icons type="hand-thumbsdown-filled" size="20" :color="isHelpful === false ? '#FFFFFF' : '#999999'" />
+					<u-icon name="thumb-down" size="20" :color="isHelpful === false ? '#FFFFFF' : '#999999'" />
 					<text>没帮助</text>
 				</button>
 			</view>
@@ -61,7 +61,7 @@
 					@click="viewArticle(item.id)"
 				>
 					<text class="related-title">{{ item.title }}</text>
-					<uni-icons type="right" size="16" color="#CCCCCC" />
+					<u-icon name="right" size="16" color="#CCCCCC" />
 				</view>
 			</view>
 		</view>

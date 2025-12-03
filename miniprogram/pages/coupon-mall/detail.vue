@@ -24,7 +24,7 @@
 		<!-- 优惠说明 -->
 		<view class="section">
 			<view class="section-title">
-				<uni-icons type="info" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="info" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">优惠说明</text>
 			</view>
 			<view class="section-content">
@@ -35,7 +35,7 @@
 		<!-- 使用规则 -->
 		<view class="section">
 			<view class="section-title">
-				<uni-icons type="list" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="list" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">使用规则</text>
 			</view>
 			<view class="section-content">
@@ -65,7 +65,7 @@
 		<!-- 获取信息 -->
 		<view class="section">
 			<view class="section-title">
-				<uni-icons type="gift" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="gift" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">获取信息</text>
 			</view>
 			<view class="section-content">
@@ -87,7 +87,7 @@
 		<!-- 使用说明 -->
 		<view class="section">
 			<view class="section-title">
-				<uni-icons type="help" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="help" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">使用说明</text>
 			</view>
 			<view class="section-content">
@@ -103,7 +103,7 @@
 		<!-- 常见问题 -->
 		<view class="section">
 			<view class="section-title">
-				<uni-icons type="chatbubble" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="chat" size="20" color="#FF9F29"></u-icon>
 				<text class="title-text">常见问题</text>
 			</view>
 			<view class="section-content">
@@ -126,7 +126,7 @@
 		<!-- 底部操作栏 -->
 		<view class="bottom-bar">
 			<button class="share-btn" @tap="handleShare">
-				<uni-icons type="redo" size="20" color="#666"></uni-icons>
+				<u-icon name="redo" size="20" color="#666"></u-icon>
 				<text class="share-text">分享</text>
 			</button>
 			<view class="bar-right">
@@ -139,25 +139,25 @@
 		</view>
 
 		<!-- 分享弹窗 -->
-		<uni-popup ref="sharePopup" type="bottom">
+		<uni-popup ref="sharePopup" name="bottom">
 			<view class="share-panel">
 				<view class="share-title">分享优惠券</view>
 				<view class="share-options">
 					<view class="share-option" @tap="shareToFriend">
 						<view class="option-icon wechat">
-							<uni-icons type="chatbubble" size="28" color="#FFFFFF"></uni-icons>
+							<u-icon name="chat" size="28" color="#FFFFFF"></u-icon>
 						</view>
 						<text class="option-text">微信好友</text>
 					</view>
 					<view class="share-option" @tap="shareToMoments">
 						<view class="option-icon moments">
-							<uni-icons type="loop" size="28" color="#FFFFFF"></uni-icons>
+							<u-icon name="loop" size="28" color="#FFFFFF"></u-icon>
 						</view>
 						<text class="option-text">朋友圈</text>
 					</view>
 					<view class="share-option" @tap="copyLink">
 						<view class="option-icon copy">
-							<uni-icons type="paperclip" size="28" color="#FFFFFF"></uni-icons>
+							<u-icon name="paperclip" size="28" color="#FFFFFF"></u-icon>
 						</view>
 						<text class="option-text">复制链接</text>
 					</view>

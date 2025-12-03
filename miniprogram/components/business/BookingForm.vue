@@ -5,18 +5,18 @@
 			<view class="form-item" @tap="openCityPicker('pickup')">
 				<view class="label">取车城市</view>
 				<view class="input-box">
-					<uni-icons type="location-filled" size="18" color="#999"></uni-icons>
+					<u-icon name="map-pin" size="18" color="#999"></u-icon>
 					<text class="input-text">{{ pickupCity || '选择城市' }}</text>
-					<uni-icons type="bottom" size="12" color="#999"></uni-icons>
+					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
 				</view>
 			</view>
-			
+
 			<view class="form-item" @tap="openStorePicker('pickup')">
 				<view class="label">取车门店</view>
 				<view class="input-box">
-					<uni-icons type="shop-filled" size="18" color="#999"></uni-icons>
+					<u-icon name="home" size="18" color="#999"></u-icon>
 					<text class="input-text">{{ pickupStore || '选择门店' }}</text>
-					<uni-icons type="bottom" size="12" color="#999"></uni-icons>
+					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
 				</view>
 			</view>
 		</view>
@@ -52,7 +52,7 @@
 		<view class="checkbox-row compact">
 			<view class="checkbox-container" @tap="toggleDifferentLocation">
 				<view class="checkbox" :class="{ checked: isDifferentLocation }">
-					<uni-icons v-if="isDifferentLocation" type="checkmarkempty" size="12" color="#FFFFFF"></uni-icons>
+					<u-icon v-if="isDifferentLocation" name="checkbox-mark" size="12" color="#FFFFFF"></u-icon>
 				</view>
 				<text class="checkbox-text">异地还车</text>
 			</view>
@@ -63,18 +63,18 @@
 			<view class="form-item" @tap="openCityPicker('return')">
 				<view class="label">还车城市</view>
 				<view class="input-box">
-					<uni-icons type="location-filled" size="18" color="#999"></uni-icons>
+					<u-icon name="map-pin" size="18" color="#999"></u-icon>
 					<text class="input-text">{{ returnCity || '选择城市' }}</text>
-					<uni-icons type="bottom" size="12" color="#999"></uni-icons>
+					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
 				</view>
 			</view>
-			
+
 			<view class="form-item" @tap="openStorePicker('return')">
 				<view class="label">还车门店</view>
 				<view class="input-box">
-					<uni-icons type="shop-filled" size="18" color="#999"></uni-icons>
+					<u-icon name="home" size="18" color="#999"></u-icon>
 					<text class="input-text">{{ returnStore || '选择门店' }}</text>
-					<uni-icons type="bottom" size="12" color="#999"></uni-icons>
+					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
 				</view>
 			</view>
 		</view>

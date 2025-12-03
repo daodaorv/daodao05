@@ -10,7 +10,7 @@
       </view>
       <view class="campsite-meta">
         <view class="meta-item">
-          <uni-icons type="location" size="14" color="#999"></uni-icons>
+          <u-icon name="location" size="14" color="#999"></u-icon>
           <text class="meta-text">{{ campsiteInfo.address }}</text>
         </view>
         <view class="meta-item">
@@ -38,7 +38,7 @@
           <text class="value-text" :class="{ placeholder: !bookingForm.checkInDate }">
             {{ bookingForm.checkInDate || '请选择入住日期' }}
           </text>
-          <uni-icons type="arrowright" size="16" color="#999"></uni-icons>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
         </view>
       </view>
 
@@ -52,7 +52,7 @@
           <text class="value-text" :class="{ placeholder: !bookingForm.checkOutDate }">
             {{ bookingForm.checkOutDate || '请选择退房日期' }}
           </text>
-          <uni-icons type="arrowright" size="16" color="#999"></uni-icons>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
         </view>
       </view>
 
@@ -75,11 +75,11 @@
         <view class="item-value">
           <view class="stepper">
             <button class="stepper-btn" @tap="decreaseGuests" :disabled="bookingForm.guests <= 1">
-              <uni-icons type="minus" size="16" color="#666"></uni-icons>
+              <u-icon name="minus" size="16" color="#666"></u-icon>
             </button>
             <text class="stepper-value">{{ bookingForm.guests }}人</text>
             <button class="stepper-btn" @tap="increaseGuests" :disabled="bookingForm.guests >= selectedSiteType.capacity">
-              <uni-icons type="plus" size="16" color="#666"></uni-icons>
+              <u-icon name="plus" size="16" color="#666"></u-icon>
             </button>
           </view>
         </view>
@@ -118,7 +118,7 @@
           <input
             class="input-field"
             v-model="bookingForm.contactPhone"
-            type="number"
+            name="number"
             maxlength="11"
             placeholder="请输入手机号"
             placeholder-class="input-placeholder"
@@ -207,7 +207,7 @@
     <uni-datetime-picker
       ref="checkInPicker"
       v-model="bookingForm.checkInDate"
-      type="date"
+      name="date"
       :start="minDate"
       :end="maxDate"
       @change="onCheckInChange"
@@ -215,7 +215,7 @@
     <uni-datetime-picker
       ref="checkOutPicker"
       v-model="bookingForm.checkOutDate"
-      type="date"
+      name="date"
       :start="checkOutMinDate"
       :end="maxDate"
       @change="onCheckOutChange"

@@ -2,7 +2,7 @@
 	<view class="select-coupon-page">
 		<!-- 顶部提示 -->
 		<view class="tip-section">
-			<uni-icons type="info-filled" size="16" color="#FF9F29"></uni-icons>
+			<u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
 			<text class="tip-text">选择适用于本订单的优惠券</text>
 		</view>
 
@@ -15,7 +15,7 @@
 		<!-- 智能推荐 -->
 		<view v-if="recommendedCoupon" class="recommend-section">
 			<view class="recommend-header">
-				<uni-icons type="star-filled" size="18" color="#FF9F29"></uni-icons>
+				<u-icon name="star-fill" size="18" color="#FF9F29"></u-icon>
 				<text class="recommend-title">智能推荐</text>
 				<text class="recommend-subtitle">为您推荐最优惠券</text>
 			</view>
@@ -36,16 +36,16 @@
 					<text class="coupon-name">{{ recommendedCoupon.name }}</text>
 					<text class="coupon-desc">{{ recommendedCoupon.description }}</text>
 					<view class="recommend-reason">
-						<uni-icons type="info" size="14" color="#52C41A"></uni-icons>
+						<u-icon name="info" size="14" color="#52C41A"></u-icon>
 						<text class="reason-text">{{ recommendedCoupon.recommendReason }}</text>
 					</view>
 				</view>
 				<view class="coupon-check">
-					<uni-icons
-						:type="selectedCouponId === recommendedCoupon.id ? 'checkmarkempty' : 'circle'"
+					<u-icon
+						:name="selectedCouponId === recommendedCoupon.id ? 'checkmarkempty' : 'circle'"
 						size="24"
 						:color="selectedCouponId === recommendedCoupon.id ? '#FF9F29' : '#DDD'">
-					</uni-icons>
+					</u-icon>
 				</view>
 			</view>
 		</view>
@@ -54,7 +54,7 @@
 		<view class="coupon-section">
 			<view class="section-title">可用优惠券 ({{ availableCoupons.length }})</view>
 			<view v-if="availableCoupons.length === 0" class="empty-state">
-				<uni-icons type="gift" size="60" color="#DDD"></uni-icons>
+				<u-icon name="gift" size="60" color="#DDD"></u-icon>
 				<text class="empty-text">暂无可用优惠券</text>
 				<button class="go-mall-btn" @tap="goToCouponMall">去领券</button>
 			</view>
@@ -79,11 +79,11 @@
 						<text class="coupon-time">有效期至 {{ formatDate(coupon.validTo) }}</text>
 					</view>
 					<view class="coupon-check">
-						<uni-icons
-							:type="selectedCouponId === coupon.id ? 'checkmarkempty' : 'circle'"
+						<u-icon
+							:name="selectedCouponId === coupon.id ? 'checkmarkempty' : 'circle'"
 							size="24"
 							:color="selectedCouponId === coupon.id ? '#FF9F29' : '#DDD'">
-						</uni-icons>
+						</u-icon>
 					</view>
 				</view>
 			</view>

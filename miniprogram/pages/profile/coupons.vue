@@ -17,7 +17,7 @@
 		<!-- 使用统计卡片 -->
 		<view class="stats-card">
 			<view class="stats-header">
-				<uni-icons type="chart-filled" size="20" color="#FF9F29"></uni-icons>
+				<u-icon name="chart-fill" size="20" color="#FF9F29"></u-icon>
 				<text class="stats-title">优惠券统计</text>
 			</view>
 			<view class="stats-content">
@@ -42,7 +42,7 @@
 		<scroll-view class="coupons-list" scroll-y="true">
 			<!-- 空状态 -->
 			<view v-if="filteredCoupons.length === 0" class="empty-state">
-				<uni-icons type="gift" size="80" color="#DDD"></uni-icons>
+				<u-icon name="gift" size="80" color="#DDD"></u-icon>
 				<text class="empty-text">暂无{{ tabs[currentTab].name }}优惠券</text>
 			</view>
 
@@ -56,7 +56,7 @@
 				>
 					<!-- 即将过期标签 -->
 					<view v-if="isExpiringSoon(coupon)" class="expiring-badge">
-						<uni-icons type="info-filled" size="14" color="#FF4D4F"></uni-icons>
+						<u-icon name="info-circle-fill" size="14" color="#FF4D4F"></u-icon>
 						<text class="badge-text">即将过期</text>
 					</view>
 
@@ -96,7 +96,7 @@
 		</view>
 
 		<!-- 兑换弹窗 -->
-		<uni-popup ref="exchangePopup" type="center">
+		<uni-popup ref="exchangePopup" name="center">
 			<view class="exchange-dialog">
 				<text class="dialog-title">兑换优惠券</text>
 				<input 

@@ -8,23 +8,23 @@
 				@tap="toggleFilter('type')"
 			>
 				<text>车型</text>
-				<uni-icons :type="activeFilter === 'type' ? 'up' : 'down'" size="12" :color="activeFilter === 'type' ? '#FF9F29' : '#333'"></uni-icons>
+				<u-icon :name="activeFilter === 'type' ? 'arrow-up' : 'arrow-down'" size="12" :color="activeFilter === 'type' ? '#FF9F29' : '#333'"></u-icon>
 			</view>
-			<view 
-				class="filter-item" 
+			<view
+				class="filter-item"
 				:class="{ active: activeFilter === 'price' }"
 				@tap="toggleFilter('price')"
 			>
 				<text>价格</text>
-				<uni-icons :type="activeFilter === 'price' ? 'up' : 'down'" size="12" :color="activeFilter === 'price' ? '#FF9F29' : '#333'"></uni-icons>
+				<u-icon :name="activeFilter === 'price' ? 'arrow-up' : 'arrow-down'" size="12" :color="activeFilter === 'price' ? '#FF9F29' : '#333'"></u-icon>
 			</view>
-			<view 
-				class="filter-item" 
+			<view
+				class="filter-item"
 				:class="{ active: activeFilter === 'brand' }"
 				@tap="toggleFilter('brand')"
 			>
 				<text>品牌</text>
-				<uni-icons :type="activeFilter === 'brand' ? 'up' : 'down'" size="12" :color="activeFilter === 'brand' ? '#FF9F29' : '#333'"></uni-icons>
+				<u-icon :name="activeFilter === 'brand' ? 'arrow-up' : 'arrow-down'" size="12" :color="activeFilter === 'brand' ? '#FF9F29' : '#333'"></u-icon>
 			</view>
 			<view 
 				class="filter-item" 
@@ -33,14 +33,14 @@
 			>
 				<text>排序</text>
 				<view class="sort-icons">
-					<uni-icons type="arrow-up" size="10" :color="sortOrder === 'asc' ? '#FF9F29' : '#CCC'"></uni-icons>
-					<uni-icons type="arrow-down" size="10" :color="sortOrder === 'desc' ? '#FF9F29' : '#CCC'"></uni-icons>
+					<u-icon name="arrow-up" size="10" :color="sortOrder === 'asc' ? '#FF9F29' : '#CCC'"></u-icon>
+					<u-icon name="arrow-down" size="10" :color="sortOrder === 'desc' ? '#FF9F29' : '#CCC'"></u-icon>
 				</view>
 			</view>
 		</view>
 
 		<!-- 筛选弹窗 -->
-		<uni-popup ref="popup" type="top" @change="onPopupChange">
+		<u-popup v-model="showPopup" mode="top" @close="onPopupClose">
 			<view class="filter-popup-content">
 				<!-- 车型筛选 -->
 				<view v-if="activeFilter === 'type'" class="filter-options">
@@ -52,7 +52,7 @@
 						@tap="selectType(type.value)"
 					>
 						{{ type.label }}
-						<uni-icons v-if="selectedType === type.value" type="checkmarkempty" size="16" color="#FF9F29"></uni-icons>
+						<u-icon v-if="selectedType === type.value" name="checkbox-mark" size="16" color="#FF9F29"></u-icon>
 					</view>
 				</view>
 
@@ -66,7 +66,7 @@
 						@tap="selectPrice(price.value)"
 					>
 						{{ price.label }}
-						<uni-icons v-if="selectedPrice === price.value" type="checkmarkempty" size="16" color="#FF9F29"></uni-icons>
+						<u-icon v-if="selectedPrice === price.value" name="checkbox-mark" size="16" color="#FF9F29"></u-icon>
 					</view>
 				</view>
 
@@ -80,12 +80,12 @@
 						@tap="selectBrand(brand.value)"
 					>
 						{{ brand.label }}
-						<uni-icons v-if="selectedBrand === brand.value" type="checkmarkempty" size="16" color="#FF9F29"></uni-icons>
+						<u-icon v-if="selectedBrand === brand.value" name="checkbox-mark" size="16" color="#FF9F29"></u-icon>
 					</view>
 				</view>
 			</view>
-			<!-- 遮罩层点击关闭由 uni-popup 处理 -->
-		</uni-popup>
+			<!-- 遮罩层点击关闭由 u-popup 处理 -->
+		</u-popup>
 	</view>
 </template>
 
@@ -96,7 +96,7 @@ const emit = defineEmits(['filter', 'sort']);
 
 // 状态
 const activeFilter = ref('');
-const popup = ref();
+const showPopup = ref(false);
 const sortOrder = ref<'default' | 'asc' | 'desc'>('default');
 
 // 筛选选项
@@ -132,19 +132,17 @@ const toggleFilter = (filter: string) => {
 		closePopup();
 	} else {
 		activeFilter.value = filter;
-		popup.value?.open();
+		showPopup.value = true;
 	}
 };
 
 const closePopup = () => {
 	activeFilter.value = '';
-	popup.value?.close();
+	showPopup.value = false;
 };
 
-const onPopupChange = (e: any) => {
-	if (!e.show) {
-		activeFilter.value = '';
-	}
+const onPopupClose = () => {
+	activeFilter.value = '';
 };
 
 const selectType = (value: string) => {

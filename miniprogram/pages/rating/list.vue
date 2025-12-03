@@ -34,10 +34,10 @@
 				<!-- 评分和标签 -->
 				<view class="rating-score">
 					<view class="stars">
-						<uni-icons
+						<u-icon
 							v-for="star in 5"
 							:key="star"
-							:type="star <= rating.rating ? 'star-filled' : 'star'"
+							:name="star <= rating.rating ? 'star-filled' : 'star'"
 							:color="star <= rating.rating ? '#FF9F29' : '#E0E0E0'"
 							size="20"
 						/>
@@ -115,7 +115,7 @@
 
 			<!-- 加载状态 -->
 			<view v-if="loading" class="loading-state">
-				<uni-icons type="spinner-cycle" size="32" color="#999999" />
+				<u-icon name="spinner-cycle" size="32" color="#999999" />
 				<text class="loading-text">加载中...</text>
 			</view>
 

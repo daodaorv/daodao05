@@ -17,22 +17,22 @@
 			</view>
 			<view class="points-action">
 				<text class="action-text">查看明细</text>
-				<uni-icons type="right" size="16" color="#999"></uni-icons>
+				<u-icon name="right" size="16" color="#999"></u-icon>
 			</view>
 		</view>
 
 		<!-- 快捷入口 -->
 		<view class="quick-entry">
 			<view class="entry-item" @tap="goToNewUserZone">
-				<uni-icons type="gift" size="24" color="#FF6B6B"></uni-icons>
+				<u-icon name="gift" size="24" color="#FF6B6B"></u-icon>
 				<text class="entry-text">新人专区</text>
 			</view>
 			<view class="entry-item" @tap="goToMemberZone">
-				<uni-icons type="vip" size="24" color="#FFD700"></uni-icons>
+				<u-icon name="vip" size="24" color="#FFD700"></u-icon>
 				<text class="entry-text">会员专属</text>
 			</view>
 			<view class="entry-item" @tap="goToExpiringSoon">
-				<uni-icons type="clock" size="24" color="#FF9F29"></uni-icons>
+				<u-icon name="clock" size="24" color="#FF9F29"></u-icon>
 				<text class="entry-text">即将过期</text>
 			</view>
 		</view>
@@ -54,7 +54,7 @@
 		<view class="hot-section" v-if="hotCoupons.length > 0">
 			<view class="section-header">
 				<view class="header-left">
-					<uni-icons type="fire" size="20" color="#FF6B6B"></uni-icons>
+					<u-icon name="fire" size="20" color="#FF6B6B"></u-icon>
 					<text class="section-title">热门推荐</text>
 				</view>
 			</view>
@@ -120,7 +120,7 @@
 					</view>
 					<view class="coupon-footer">
 						<view class="coupon-validity">
-							<uni-icons type="calendar" size="14" color="#999"></uni-icons>
+							<u-icon name="calendar" size="14" color="#999"></u-icon>
 							<text class="validity-text">{{ coupon.validity }}</text>
 						</view>
 						<view class="coupon-stock" v-if="coupon.stock">

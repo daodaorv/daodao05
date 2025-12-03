@@ -11,10 +11,10 @@
 			<!-- 手机号 -->
 			<view class="form-item">
 				<view class="input-wrapper">
-					<uni-icons type="phone" size="20" color="#999999" />
+					<u-icon name="phone" size="20" color="#999999" />
 					<input
 						v-model="formData.phone"
-						type="number"
+						name="number"
 						maxlength="11"
 						placeholder="请输入手机号"
 						class="input"
@@ -25,10 +25,10 @@
 			<!-- 验证码 -->
 			<view class="form-item">
 				<view class="input-wrapper">
-					<uni-icons type="chatboxes" size="20" color="#999999" />
+					<u-icon name="chatboxes" size="20" color="#999999" />
 					<input
 						v-model="formData.code"
-						type="number"
+						name="number"
 						maxlength="6"
 						placeholder="请输入验证码"
 						class="input"
@@ -46,15 +46,15 @@
 			<!-- 新密码 -->
 			<view class="form-item">
 				<view class="input-wrapper">
-					<uni-icons type="locked" size="20" color="#999999" />
+					<u-icon name="locked" size="20" color="#999999" />
 					<input
 						v-model="formData.newPassword"
 						:password="!showPassword"
 						placeholder="请输入新密码（6-20位）"
 						class="input"
 					/>
-					<uni-icons
-						:type="showPassword ? 'eye-filled' : 'eye-slash-filled'"
+					<u-icon
+						:name="showPassword ? 'eye-filled' : 'eye-slash-filled'"
 						size="20"
 						color="#999999"
 						@click="showPassword = !showPassword"
@@ -65,15 +65,15 @@
 			<!-- 确认密码 -->
 			<view class="form-item">
 				<view class="input-wrapper">
-					<uni-icons type="locked" size="20" color="#999999" />
+					<u-icon name="locked" size="20" color="#999999" />
 					<input
 						v-model="formData.confirmPassword"
 						:password="!showConfirmPassword"
 						placeholder="请再次输入新密码"
 						class="input"
 					/>
-					<uni-icons
-						:type="showConfirmPassword ? 'eye-filled' : 'eye-slash-filled'"
+					<u-icon
+						:name="showConfirmPassword ? 'eye-filled' : 'eye-slash-filled'"
 						size="20"
 						color="#999999"
 						@click="showConfirmPassword = !showConfirmPassword"

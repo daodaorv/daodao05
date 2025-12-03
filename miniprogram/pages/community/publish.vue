@@ -3,7 +3,7 @@
 		<!-- 顶部导航栏 -->
 		<view class="navbar">
 			<view class="navbar-left" @click="handleCancel">
-				<uni-icons type="close" size="24" color="#333333" />
+				<u-icon name="close" size="24" color="#333333" />
 			</view>
 			<view class="navbar-title">发布内容</view>
 			<view class="navbar-right" @click="handlePublish">
@@ -22,7 +22,7 @@
 					:class="{ active: formData.type === type.value }"
 					@click="selectType(type.value)"
 				>
-					<uni-icons :type="type.icon" size="24" :color="formData.type === type.value ? '#FF9F29' : '#999999'" />
+					<u-icon :name="type.icon" size="24" :color="formData.type === type.value ? '#FF9F29' : '#999999'" />
 					<text class="type-name">{{ type.label }}</text>
 				</view>
 			</view>
@@ -63,7 +63,7 @@
 				>
 					<image :src="image" class="image" mode="aspectFill" />
 					<view class="image-delete" @click="deleteImage(index)">
-						<uni-icons type="close" size="16" color="#FFFFFF" />
+						<u-icon name="close" size="16" color="#FFFFFF" />
 					</view>
 				</view>
 				<view
@@ -71,7 +71,7 @@
 					class="image-upload"
 					@click="chooseImage"
 				>
-					<uni-icons type="camera" size="32" color="#CCCCCC" />
+					<u-icon name="camera" size="32" color="#CCCCCC" />
 					<text class="upload-text">添加图片</text>
 				</view>
 			</view>
@@ -96,7 +96,7 @@
 				>
 					<text class="tag-text">{{ tag }}</text>
 					<view class="tag-delete" @click="deleteTag(index)">
-						<uni-icons type="close" size="12" color="#FF9F29" />
+						<u-icon name="close" size="12" color="#FF9F29" />
 					</view>
 				</view>
 			</view>
@@ -117,16 +117,16 @@
 		<view class="location-section" @click="chooseLocation">
 			<view class="section-title">添加位置（可选）</view>
 			<view class="location-display">
-				<uni-icons type="location" size="20" color="#999999" />
+				<u-icon name="location" size="20" color="#999999" />
 				<text class="location-text">{{ formData.location || '点击添加位置' }}</text>
-				<uni-icons type="right" size="16" color="#CCCCCC" />
+				<u-icon name="right" size="16" color="#CCCCCC" />
 			</view>
 		</view>
 
 		<!-- 发布须知 -->
 		<view class="notice-section">
 			<view class="notice-title">
-				<uni-icons type="info" size="16" color="#FF9F29" />
+				<u-icon name="info" size="16" color="#FF9F29" />
 				<text>发布须知</text>
 			</view>
 			<view class="notice-content">

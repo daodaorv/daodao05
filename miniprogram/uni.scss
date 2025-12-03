@@ -54,3 +54,26 @@ $uni-font-size-xl: 40rpx;
 $uni-shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
 $uni-shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
 $uni-shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+
+/* ============================================ */
+/* uView UI 主题变量配置 */
+/* ============================================ */
+
+/* uView 主题色配置 - 映射到叨叨房车主题色 */
+$u-primary: #FF9F29;
+$u-success: #4CAF50;
+$u-warning: #FF9800;
+$u-error: #F44336;
+$u-info: #2196F3;
+
+/* uView 文字颜色 */
+$u-main-color: #1A1A1A;
+$u-content-color: #666666;
+$u-tips-color: #999999;
+$u-light-color: #FFFFFF;
+
+/* uView 背景色 */
+$u-bg-color: #F5F7FA;
+
+/* uView 边框颜色 */
+$u-border-color: #E9ECEF;

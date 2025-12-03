@@ -5,7 +5,7 @@
 			<view class="navbar-content">
 				<text class="navbar-title">叨叨房车</text>
 				<view class="navbar-actions">
-					<uni-icons type="notification" size="24" color="#333"></uni-icons>
+					<u-icon name="notification" size="24" color="#333"></u-icon>
 				</view>
 			</view>
 		</view>
@@ -45,14 +45,14 @@
 					<text class="promo-title">特惠商城</text>
 					<text class="promo-desc">特惠套餐</text>
 				</view>
-				<uni-icons type="gift-filled" size="40" color="#FF9F29"></uni-icons>
+				<u-icon name="gift-fill" size="40" color="#FF9F29"></u-icon>
 			</view>
 			<view class="promo-card" @tap="navigateTo('/pages/membership/index')">
 				<view class="promo-content">
 					<text class="promo-title">PLUS会员</text>
 					<text class="promo-desc">专属权益</text>
 				</view>
-				<uni-icons type="vip-filled" size="40" color="#FF9F29"></uni-icons>
+				<u-icon name="vip-fill" size="40" color="#FF9F29"></u-icon>
 			</view>
 		</view>
 
@@ -62,7 +62,7 @@
 				<text class="title-text">社区精选</text>
 				<view class="more-link" @tap="uni.switchTab({ url: '/pages/community/index' })">
 					<text class="more-text">更多</text>
-					<uni-icons type="right" size="14" color="#999"></uni-icons>
+					<u-icon name="right" size="14" color="#999"></u-icon>
 				</view>
 			</view>
 			<view class="content-list">
@@ -79,7 +79,7 @@
 						<view class="content-meta">
 							<text class="meta-text">by @{{ item.author }}</text>
 							<view class="meta-likes">
-								<uni-icons type="heart" size="14" color="#999"></uni-icons>
+								<u-icon name="heart" size="14" color="#999"></u-icon>
 								<text class="meta-text">{{ item.likes }}</text>
 							</view>
 						</view>

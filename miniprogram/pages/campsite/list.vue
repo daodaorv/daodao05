@@ -8,7 +8,7 @@
         @click="showDistanceFilter"
       >
         <text>{{ currentDistance || '距离' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view
         class="filter-item"
@@ -16,7 +16,7 @@
         @click="showPriceFilter"
       >
         <text>{{ currentPrice || '价格' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
       <view
         class="filter-item"
@@ -24,7 +24,7 @@
         @click="showTypeFilter"
       >
         <text>{{ currentType || '类型' }}</text>
-        <uni-icons type="arrowdown" size="12" color="#666"></uni-icons>
+        <u-icon name="arrow-down" size="12" color="#666"></u-icon>
       </view>
     </view>
 
@@ -39,7 +39,7 @@
     >
       <!-- 空状态 -->
       <view v-if="campsites.length === 0 && !loading" class="empty-state">
-        <uni-icons type="location" size="80" color="#DDD"></uni-icons>
+        <u-icon name="location" size="80" color="#DDD"></u-icon>
         <text class="empty-text">暂无营地信息</text>
         <text class="empty-tip">敬请期待更多营地</text>
       </view>
@@ -68,14 +68,14 @@
 
             <view class="campsite-meta">
               <view class="rating">
-                <uni-icons type="star-filled" size="14" color="#FF9F29"></uni-icons>
+                <u-icon name="star-fill" size="14" color="#FF9F29"></u-icon>
                 <text class="rating-text">{{ item.rating }}</text>
                 <text class="review-count">({{ item.reviewCount }}条评价)</text>
               </view>
             </view>
 
             <view class="location-info">
-              <uni-icons type="location" size="14" color="#999"></uni-icons>
+              <u-icon name="location" size="14" color="#999"></u-icon>
               <text class="distance">距离{{ item.distance }}km</text>
             </view>
 
@@ -108,7 +108,7 @@
       <view class="filter-popup">
         <view class="popup-header">
           <text class="popup-title">{{ filterTitle }}</text>
-          <uni-icons type="closeempty" size="20" color="#666" @tap="closeFilter"></uni-icons>
+          <u-icon name="close" size="20" color="#666" @tap="closeFilter"></u-icon>
         </view>
         <view class="popup-content">
           <view
@@ -119,12 +119,12 @@
             @tap="selectFilter(item)"
           >
             <text class="option-text">{{ item.label }}</text>
-            <uni-icons
+            <u-icon
               v-if="item.value === currentFilterValue"
-              type="checkmarkempty"
+              name="checkbox-mark"
               size="18"
               color="#FF9F29"
-            ></uni-icons>
+            ></u-icon>
           </view>
         </view>
       </view>

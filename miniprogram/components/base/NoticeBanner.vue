@@ -1,6 +1,6 @@
 <template>
 	<view v-if="notices.length > 0" class="notice-banner">
-		<uni-icons type="sound" size="18" color="#FF9F29"></uni-icons>
+		<u-icon name="volume" size="18" color="#FF9F29"></u-icon>
 		<view class="notice-content">
 			<swiper 
 				class="notice-swiper" 

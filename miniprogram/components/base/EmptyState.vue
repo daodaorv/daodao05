@@ -1,7 +1,7 @@
 <template>
 	<view class="empty-state">
 		<view class="empty-icon">
-			<uni-icons :type="iconType" size="80" :color="iconColor"></uni-icons>
+			<u-icon :name="iconType" size="80" :color="iconColor"></u-icon>
 		</view>
 		<text class="empty-title">{{ title }}</text>
 		<text v-if="description" class="empty-description">{{ description }}</text>
@@ -32,12 +32,12 @@ const emit = defineEmits(['buttonClick']);
 
 const iconType = computed(() => {
 	const iconMap = {
-		default: 'info',
+		default: 'info-circle',
 		search: 'search',
 		network: 'wifi-off',
-		error: 'closeempty'
+		error: 'close'
 	};
-	return iconMap[props.type] || 'info';
+	return iconMap[props.type] || 'info-circle';
 });
 
 const iconColor = computed(() => {

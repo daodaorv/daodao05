@@ -1,26 +1,26 @@
 <template>
-	<uni-popup ref="popup" type="bottom" :safe-area="false">
+	<u-popup v-model="show" mode="bottom" :closeable="false">
 		<view class="picker-popup">
 			<!-- 顶部标题栏 -->
 			<view class="popup-header">
 				<text class="popup-title">{{ title }}</text>
 				<view class="close-btn" @tap="close">
-					<uni-icons type="closeempty" size="24" color="#999"></uni-icons>
+					<u-icon name="close" size="24" color="#999"></u-icon>
 				</view>
 			</view>
 
 			<!-- 搜索栏 (仅城市模式) -->
 			<view v-if="type === 'city'" class="search-bar">
 				<view class="search-input-box">
-					<uni-icons type="search" size="18" color="#999"></uni-icons>
-					<input 
-						class="search-input" 
-						type="text" 
-						v-model="searchText" 
-						placeholder="搜索城市" 
+					<u-icon name="search" size="18" color="#999"></u-icon>
+					<input
+						class="search-input"
+						type="text"
+						v-model="searchText"
+						placeholder="搜索城市"
 						placeholder-class="placeholder"
 					/>
-					<uni-icons v-if="searchText" type="clear" size="18" color="#CCC" @tap="searchText = ''"></uni-icons>
+					<u-icon v-if="searchText" name="close" size="18" color="#CCC" @tap="searchText = ''"></u-icon>
 				</view>
 			</view>
 
@@ -54,7 +54,7 @@
 								@tap="selectItem(city)"
 							>
 								<text class="item-name">{{ city.name }}</text>
-								<uni-icons v-if="selectedId === city.id" type="checkmarkempty" size="20" color="#FF9F29"></uni-icons>
+								<u-icon v-if="selectedId === city.id" name="checkbox-mark" size="20" color="#FF9F29"></u-icon>
 							</view>
 							<view v-if="filteredCities.length === 0" class="empty-tip">
 								未找到相关城市
@@ -73,7 +73,7 @@
 							@tap="selectItem(store)"
 						>
 							<text class="item-name">{{ store.name }}</text>
-							<uni-icons v-if="selectedId === store.id" type="checkmarkempty" size="20" color="#FF9F29"></uni-icons>
+							<u-icon v-if="selectedId === store.id" name="checkbox-mark" size="20" color="#FF9F29"></u-icon>
 						</view>
 						<view v-if="data.length === 0" class="empty-tip">
 							该城市暂无门店
@@ -82,7 +82,7 @@
 				</block>
 			</scroll-view>
 		</view>
-	</uni-popup>
+	</u-popup>
 </template>
 
 <script setup lang="ts">
@@ -102,7 +102,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['confirm']);
-const popup = ref();
+const show = ref(false);
 const searchText = ref('');
 
 // 模拟热门城市 (实际应从props或配置获取)
@@ -122,11 +122,11 @@ const selectItem = (item: Item) => {
 
 const open = () => {
 	searchText.value = '';
-	popup.value?.open();
+	show.value = true;
 };
 
 const close = () => {
-	popup.value?.close();
+	show.value = false;
 };
 
 defineExpose({ open, close });

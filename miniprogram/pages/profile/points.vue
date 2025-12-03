@@ -11,11 +11,11 @@
 					<text class="balance">{{ balance.balance }}</text>
 					<view class="balance-actions">
 						<button class="action-btn" @click="goToMall">
-							<uni-icons type="gift" size="16" color="#FFFFFF" />
+							<u-icon name="gift" size="16" color="#FFFFFF" />
 							<text>积分商城</text>
 						</button>
 						<button class="action-btn" @click="goToRules">
-							<uni-icons type="help" size="16" color="#FFFFFF" />
+							<u-icon name="help" size="16" color="#FFFFFF" />
 							<text>积分规则</text>
 						</button>
 					</view>
@@ -43,7 +43,7 @@
 		<view class="sign-in-section">
 			<view class="section-header">
 				<view class="header-left">
-					<uni-icons type="calendar" size="20" color="#FF9F29" />
+					<u-icon name="calendar" size="20" color="#FF9F29" />
 					<text class="header-title">每日签到</text>
 				</view>
 				<text class="header-tip">连续签到7天额外奖励</text>
@@ -86,7 +86,7 @@
 				<picker mode="selector" :range="recordTypes" range-key="label" @change="handleTypeChange">
 					<view class="filter-btn">
 						<text class="filter-text">{{ selectedType.label }}</text>
-						<uni-icons type="down" size="14" color="#999999" />
+						<u-icon name="down" size="14" color="#999999" />
 					</view>
 				</picker>
 			</view>
@@ -94,14 +94,14 @@
 			<!-- 记录列表 -->
 			<view class="records-list">
 				<view v-if="records.length === 0" class="empty-state">
-					<uni-icons type="info" size="60" color="#CCCCCC" />
+					<u-icon name="info" size="60" color="#CCCCCC" />
 					<text class="empty-text">暂无积分记录</text>
 				</view>
 				<view v-else>
 					<view v-for="record in records" :key="record.id" class="record-item">
 						<view class="record-left">
 							<view class="record-icon" :class="getRecordIconClass(record.type)">
-								<uni-icons :type="getRecordIcon(record.type)" size="20" color="#FFFFFF" />
+								<u-icon :name="getRecordIcon(record.type)" size="20" color="#FFFFFF" />
 							</view>
 							<view class="record-info">
 								<text class="record-desc">{{ record.description }}</text>
@@ -132,7 +132,7 @@
 				<view v-for="rule in rules" :key="rule.id" class="rule-item">
 					<view class="rule-header">
 						<view class="rule-title-wrapper">
-							<uni-icons :type="getRuleIcon(rule.type)" size="20" color="#FF9F29" />
+							<u-icon :name="getRuleIcon(rule.type)" size="20" color="#FF9F29" />
 							<text class="rule-title">{{ rule.name }}</text>
 						</view>
 						<view class="rule-points">
@@ -142,7 +142,7 @@
 					</view>
 					<text class="rule-desc">{{ rule.description }}</text>
 					<view v-if="rule.userTypeLimit && rule.userTypeLimit.length > 0" class="rule-limit">
-						<uni-icons type="info" size="14" color="#999999" />
+						<u-icon name="info" size="14" color="#999999" />
 						<text class="limit-text">
 							仅限{{ rule.userTypeLimit.map(t => getUserTypeName(t)).join('、') }}
 						</text>
@@ -153,7 +153,7 @@
 			<!-- 积分使用说明 -->
 			<view class="usage-info">
 				<view class="info-title">
-					<uni-icons type="info-filled" size="18" color="#FF9F29" />
+					<u-icon name="info-circle-fill" size="18" color="#FF9F29" />
 					<text class="title-text">积分使用说明</text>
 				</view>
 				<view class="info-list">

@@ -36,7 +36,7 @@
 
       <!-- 名额提示 -->
       <view class="quota-tip" :class="{ warning: offerDetail.remainingQuota <= 5 }">
-        <uni-icons type="info" size="16" :color="offerDetail.remainingQuota <= 5 ? '#F44336' : '#FF9F29'"></uni-icons>
+        <u-icon name="info" size="16" :color="offerDetail.remainingQuota <= 5 ? '#F44336' : '#FF9F29'"></u-icon>
         <text class="tip-text">
           {{ offerDetail.remainingQuota <= 5 ? '名额紧张！' : '' }}
           仅剩{{ offerDetail.remainingQuota }}个名额，先订先得
@@ -75,7 +75,7 @@
         <!-- 取车信息 -->
         <view class="route-item">
           <view class="route-icon pickup">
-            <uni-icons type="location-filled" size="20" color="#FFFFFF"></uni-icons>
+            <u-icon name="location-fill" size="20" color="#FFFFFF"></u-icon>
           </view>
           <view class="route-content">
             <text class="route-label">取车门店</text>
@@ -90,7 +90,7 @@
         <!-- 还车信息 -->
         <view class="route-item">
           <view class="route-icon return">
-            <uni-icons type="flag-filled" size="20" color="#FFFFFF"></uni-icons>
+            <u-icon name="flag-fill" size="20" color="#FFFFFF"></u-icon>
           </view>
           <view class="route-content">
             <text class="route-label">还车门店</text>
@@ -108,7 +108,7 @@
       </view>
       <view class="time-range">
         <view class="time-item">
-          <uni-icons type="calendar" size="18" color="#FF9F29"></uni-icons>
+          <u-icon name="calendar" size="18" color="#FF9F29"></u-icon>
           <text class="time-text">{{ formatDate(offerDetail.availableTimeRange.start) }} 至 {{ formatDate(offerDetail.availableTimeRange.end) }}</text>
         </view>
         <text class="time-tip">预订时可在此时间段内选择取车日期</text>
@@ -122,7 +122,7 @@
       </view>
       <view class="package-includes">
         <view class="include-item" v-for="item in offerDetail.packageIncludes" :key="item.name">
-          <uni-icons type="checkmarkempty" size="18" color="#67C23A"></uni-icons>
+          <u-icon name="checkbox-mark" size="18" color="#67C23A"></u-icon>
           <text class="include-text">{{ item.name }}</text>
           <text class="include-desc" v-if="item.description">{{ item.description }}</text>
         </view>
@@ -150,7 +150,7 @@
       <view class="policy-list">
         <view class="policy-item" v-for="policy in offerDetail.cancellationPolicy" :key="policy.condition">
           <view class="policy-condition">
-            <uni-icons type="info-filled" size="16" color="#FF9F29"></uni-icons>
+            <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
             <text class="condition-text">{{ policy.condition }}</text>
           </view>
           <text class="policy-result">{{ policy.result }}</text>
@@ -169,7 +169,7 @@
       </view>
       <view class="bar-actions">
         <button class="contact-btn" @tap="contactService">
-          <uni-icons type="chatbubble" size="18" color="#FF9F29"></uni-icons>
+          <u-icon name="chat" size="18" color="#FF9F29"></u-icon>
           <text>咨询</text>
         </button>
         <button class="book-btn" @tap="bookOffer">

@@ -57,7 +57,7 @@
 
       <view class="form-item">
         <text class="form-label">联系电话 <text class="required">*</text></text>
-        <input class="form-input" v-model="formData.phone" type="number" placeholder="请输入联系电话" />
+        <input class="form-input" v-model="formData.phone" name="number" placeholder="请输入联系电话" />
       </view>
 
       <!-- 选择门店 -->

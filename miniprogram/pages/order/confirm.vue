@@ -20,7 +20,7 @@
 					<!-- 租期概览 -->
 					<view class="rental-duration">
 						<view class="duration-icon">
-							<uni-icons type="calendar-filled" size="20" color="#FF9F29"></uni-icons>
+							<u-icon name="calendar-fill" size="20" color="#FF9F29"></u-icon>
 						</view>
 						<view class="duration-info">
 							<text class="duration-label">租期</text>
@@ -32,11 +32,11 @@
 					<!-- 特惠套餐：取车时间选择 -->
 					<view v-if="isSpecialOffer" class="pickup-time-selector">
 						<view class="selector-title">
-							<uni-icons type="calendar" size="18" color="#FF9F29"></uni-icons>
+							<u-icon name="calendar" size="18" color="#FF9F29"></u-icon>
 							<text class="title-text">选择取车时间</text>
 						</view>
 						<view class="selector-tip">
-							<uni-icons type="info" size="14" color="#999"></uni-icons>
+							<u-icon name="info" size="14" color="#999"></u-icon>
 							<text class="tip-text">可选时间段：{{ formatDateRange(specialOfferData.availableTimeRange) }}</text>
 						</view>
 
@@ -50,12 +50,12 @@
 						>
 							<view class="time-picker-row">
 								<view class="picker-label">
-									<uni-icons type="calendar" size="16" color="#666"></uni-icons>
+									<u-icon name="calendar" size="16" color="#666"></u-icon>
 									<text class="label-text">取车日期</text>
 								</view>
 								<view class="picker-value">
 									<text class="value-text">{{ orderData.pickupDate }}</text>
-									<uni-icons type="right" size="16" color="#999"></uni-icons>
+									<u-icon name="right" size="16" color="#999"></u-icon>
 								</view>
 							</view>
 						</picker>
@@ -68,19 +68,19 @@
 						>
 							<view class="time-picker-row">
 								<view class="picker-label">
-									<uni-icons type="clock" size="16" color="#666"></uni-icons>
+									<u-icon name="clock" size="16" color="#666"></u-icon>
 									<text class="label-text">取车时间</text>
 								</view>
 								<view class="picker-value">
 									<text class="value-text">{{ orderData.pickupTime }}</text>
-									<uni-icons type="right" size="16" color="#999"></uni-icons>
+									<u-icon name="right" size="16" color="#999"></u-icon>
 								</view>
 							</view>
 						</picker>
 
 						<!-- 自动计算提示 -->
 						<view class="auto-calc-tip">
-							<uni-icons type="info-filled" size="16" color="#4CAF50"></uni-icons>
+							<u-icon name="info-circle-fill" size="16" color="#4CAF50"></u-icon>
 							<text class="calc-tip-text">还车时间：{{ orderData.returnDate }} {{ orderData.returnTime }}</text>
 						</view>
 					</view>
@@ -94,17 +94,17 @@
 							</view>
 							<view class="timeline-content">
 								<view class="timeline-header">
-									<uni-icons type="flag-filled" size="18" color="#4CAF50"></uni-icons>
+									<u-icon name="flag-fill" size="18" color="#4CAF50"></u-icon>
 									<text class="timeline-title">取车</text>
 									<text v-if="isSpecialOffer" class="timeline-badge">固定门店</text>
 								</view>
 								<view class="timeline-detail">
 									<view class="detail-item">
-										<uni-icons type="location" size="14" color="#999"></uni-icons>
+										<u-icon name="location" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.pickupLocation }}</text>
 									</view>
 									<view class="detail-item">
-										<uni-icons type="calendar" size="14" color="#999"></uni-icons>
+										<u-icon name="calendar" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.pickupDate }} {{ orderData.pickupTime }}</text>
 									</view>
 								</view>
@@ -118,17 +118,17 @@
 							</view>
 							<view class="timeline-content">
 								<view class="timeline-header">
-									<uni-icons type="checkmarkempty" size="18" color="#FF9F29"></uni-icons>
+									<u-icon name="checkbox-mark" size="18" color="#FF9F29"></u-icon>
 									<text class="timeline-title">还车</text>
 									<text v-if="isSpecialOffer" class="timeline-badge">固定门店</text>
 								</view>
 								<view class="timeline-detail">
 									<view class="detail-item">
-										<uni-icons type="location" size="14" color="#999"></uni-icons>
+										<u-icon name="location" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.returnLocation }}</text>
 									</view>
 									<view class="detail-item">
-										<uni-icons type="calendar" size="14" color="#999"></uni-icons>
+										<u-icon name="calendar" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.returnDate }} {{ orderData.returnTime }}</text>
 									</view>
 								</view>
@@ -138,7 +138,7 @@
 
 					<!-- 特惠套餐重要提示 -->
 					<view v-if="isSpecialOffer" class="special-notice">
-						<uni-icons type="info-filled" size="16" color="#FF9F29"></uni-icons>
+						<u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
 						<text class="notice-text">取车门店、还车门店、租期均为固定，不可更改。如需改变行程，订单将转为常规订单按原价计费。</text>
 					</view>
 				</view>
@@ -160,11 +160,11 @@
 								<text class="insurance-name">{{ plan.name }}</text>
 								<text class="insurance-price">+¥{{ plan.price }}/天</text>
 							</view>
-							<uni-icons 
-								:type="selectedInsurance === index ? 'checkmarkempty' : 'circle'" 
+							<u-icon 
+								:name="selectedInsurance === index ? 'checkmarkempty' : 'circle'" 
 								size="20" 
 								:color="selectedInsurance === index ? '#FF9F29' : '#DDD'">
-							</uni-icons>
+							</u-icon>
 						</view>
 						<text class="insurance-desc">{{ plan.description }}</text>
 					</view>
@@ -185,11 +185,11 @@
 							<text class="service-name">{{ service.name }}</text>
 							<text class="service-price">+¥{{ service.price }}/{{ service.unit }}</text>
 						</view>
-						<uni-icons 
-							:type="service.selected ? 'checkbox-filled' : 'checkbox'" 
+						<u-icon 
+							:name="service.selected ? 'checkbox-filled' : 'checkbox'" 
 							size="20" 
 							:color="service.selected ? '#FF9F29' : '#DDD'">
-						</uni-icons>
+						</u-icon>
 					</view>
 				</view>
 			</view>
@@ -200,12 +200,12 @@
 					<text class="section-title">优惠券</text>
 					<view class="coupon-value">
 						<text class="coupon-text">{{ selectedCoupon ? selectedCoupon.name : '请选择' }}</text>
-						<uni-icons type="right" size="16" color="#999"></uni-icons>
+						<u-icon name="right" size="16" color="#999"></u-icon>
 					</view>
 				</view>
 				<!-- 节省金额提示 -->
 				<view v-if="selectedCoupon" class="savings-tip">
-					<uni-icons type="checkmarkempty" size="16" color="#52C41A"></uni-icons>
+					<u-icon name="checkbox-mark" size="16" color="#52C41A"></u-icon>
 					<text class="savings-text">已为您节省 ¥{{ couponDiscount }}</text>
 				</view>
 			</view>

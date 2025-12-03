@@ -3,7 +3,7 @@
 		<view class="image-wrapper">
 			<image class="vehicle-image" :src="data.image" mode="aspectFill"></image>
 			<view class="favorite-btn" @tap.stop="handleFavorite">
-				<uni-icons :type="favorited ? 'heart-filled' : 'heart'" size="20" :color="favorited ? '#FF4D4F' : '#FFFFFF'"></uni-icons>
+				<u-icon :name="favorited ? 'heart-fill' : 'heart'" size="20" :color="favorited ? '#FF4D4F' : '#FFFFFF'"></u-icon>
 			</view>
 		</view>
 		<view class="vehicle-info">
