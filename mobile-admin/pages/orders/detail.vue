@@ -8,7 +8,12 @@
       <!-- 订单状态卡片 -->
       <view class="status-card">
         <view class="status-header">
-          <StatusBadge :text="order.statusText" :type="getStatusType(order.status)" size="large" />
+          <u-tag
+            :text="order.statusText"
+            :type="getStatusType(order.status)"
+            size="large"
+            plain
+          />
           <text class="order-no">订单号: {{ order.orderNo }}</text>
         </view>
         <view class="status-time">
@@ -19,96 +24,71 @@
       <!-- 客户信息 -->
       <view class="info-section">
         <view class="section-title">客户信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">客户姓名</text>
-            <text class="value">{{ order.customerName }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">联系电话</text>
-            <view class="value-with-action">
-              <text class="value">{{ order.customerPhone }}</text>
-              <button class="action-icon" size="mini" @click="callCustomer">📞</button>
-            </view>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="客户姓名" :value="order.customerName" />
+          <u-cell title="联系电话" :value="order.customerPhone">
+            <template #right-icon>
+              <u-button
+                icon="phone"
+                type="primary"
+                size="mini"
+                @click="callCustomer"
+              ></u-button>
+            </template>
+          </u-cell>
+        </u-cell-group>
       </view>
 
       <!-- 车辆信息 -->
       <view class="info-section">
         <view class="section-title">车辆信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">车辆名称</text>
-            <text class="value">{{ order.vehicleName }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">车牌号</text>
-            <text class="value">{{ order.vehiclePlate }}</text>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="车辆名称" :value="order.vehicleName" />
+          <u-cell title="车牌号" :value="order.vehiclePlate" />
+        </u-cell-group>
       </view>
 
       <!-- 租期信息 -->
       <view class="info-section">
         <view class="section-title">租期信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">开始日期</text>
-            <text class="value">{{ order.startDate }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">结束日期</text>
-            <text class="value">{{ order.endDate }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">租期天数</text>
-            <text class="value">{{ order.days }} 天</text>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="开始日期" :value="order.startDate" />
+          <u-cell title="结束日期" :value="order.endDate" />
+          <u-cell title="租期天数" :value="`${order.days} 天`" />
+        </u-cell-group>
       </view>
 
       <!-- 取还车地址 -->
       <view class="info-section">
         <view class="section-title">取还车地址</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">取车地址</text>
-            <text class="value">{{ order.pickupAddress }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">还车地址</text>
-            <text class="value">{{ order.returnAddress }}</text>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="取车地址" :value="order.pickupAddress" />
+          <u-cell title="还车地址" :value="order.returnAddress" />
+        </u-cell-group>
       </view>
 
       <!-- 费用明细 -->
       <view class="info-section">
         <view class="section-title">费用明细</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">租金</text>
-            <text class="value price">¥{{ order.totalAmount }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">押金</text>
-            <text class="value">¥{{ order.deposit }}</text>
-          </view>
-          <view v-if="order.extras && order.extras.length > 0" class="info-item column">
-            <text class="label">附加服务</text>
-            <view class="extras-list">
-              <view v-for="extra in order.extras" :key="extra.name" class="extra-item">
-                <text class="extra-name">{{ extra.name }} x{{ extra.quantity }}</text>
-                <text class="extra-price">¥{{ extra.price * extra.quantity }}</text>
+        <u-cell-group>
+          <u-cell title="租金">
+            <template #value>
+              <text class="price-text">¥{{ order.totalAmount }}</text>
+            </template>
+          </u-cell>
+          <u-cell title="押金" :value="`¥${order.deposit}`" />
+          <u-cell v-if="order.extras && order.extras.length > 0" title="附加服务">
+            <template #value>
+              <view class="extras-list">
+                <view v-for="extra in order.extras" :key="extra.name" class="extra-item">
+                  <text class="extra-name">{{ extra.name }} x{{ extra.quantity }}</text>
+                  <text class="extra-price">¥{{ extra.price * extra.quantity }}</text>
+                </view>
               </view>
-            </view>
-          </view>
-          <view v-if="order.insurance" class="info-item">
-            <text class="label">保险</text>
-            <text class="value">{{ order.insurance.name }} ¥{{ order.insurance.price }}</text>
-          </view>
-        </view>
+            </template>
+          </u-cell>
+          <u-cell v-if="order.insurance" title="保险" :value="`${order.insurance.name} ¥${order.insurance.price}`" />
+        </u-cell-group>
       </view>
 
       <!-- 备注信息 -->
@@ -137,43 +117,37 @@
 
     <!-- 底部操作按钮 -->
     <view v-if="order" class="bottom-actions">
-      <button
+      <u-button
         v-if="order.status === 'pending'"
-        class="action-btn primary"
+        text="确认订单"
         type="primary"
         @click="confirmOrder"
-      >
-        确认订单
-      </button>
-      <button
+      ></u-button>
+      <u-button
         v-if="order.status === 'pending'"
-        class="action-btn"
+        text="取消订单"
+        type="info"
+        plain
         @click="cancelOrder"
-      >
-        取消订单
-      </button>
-      <button
+      ></u-button>
+      <u-button
         v-if="order.status === 'confirmed'"
-        class="action-btn primary"
+        text="开始用车"
         type="primary"
         @click="startOrder"
-      >
-        开始用车
-      </button>
-      <button
+      ></u-button>
+      <u-button
         v-if="order.status === 'in_use'"
-        class="action-btn primary"
+        text="完成订单"
         type="primary"
         @click="completeOrder"
-      >
-        完成订单
-      </button>
+      ></u-button>
     </view>
 
     <!-- 空状态 -->
     <EmptyState
       v-else
-      icon="📋"
+      mode="data"
       title="订单不存在"
       description="该订单可能已被删除或不存在"
       buttonText="返回列表"
@@ -181,13 +155,14 @@
     />
 
     <!-- 确认对话框 -->
-    <ConfirmDialog
-      v-model:visible="dialogVisible"
+    <u-modal
+      :show="dialogVisible"
       :title="dialogTitle"
-      :message="dialogMessage"
-      :type="dialogType"
+      :content="dialogMessage"
+      :showCancelButton="true"
       @confirm="handleDialogConfirm"
-    />
+      @cancel="dialogVisible = false"
+    ></u-modal>
   </view>
 </template>
 
@@ -195,15 +170,11 @@
 import { getOrderDetail, confirmOrder as confirmOrderApi, cancelOrder as cancelOrderApi, updateOrderStatus } from '@/api/order'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
-import StatusBadge from '@/components/common/StatusBadge.vue'
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
 export default {
   components: {
     LoadingSpinner,
-    EmptyState,
-    StatusBadge,
-    ConfirmDialog
+    EmptyState
   },
 
   data() {
@@ -214,7 +185,6 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       dialogMessage: '',
-      dialogType: 'default',
       dialogAction: null
     }
   },
@@ -380,7 +350,7 @@ export default {
   background: #fff;
   margin: 20rpx;
   border-radius: 12rpx;
-  padding: 30rpx;
+  padding: 30rpx 0;
 }
 
 .section-title {
@@ -388,77 +358,27 @@ export default {
   font-weight: bold;
   color: #333;
   margin-bottom: 24rpx;
-  padding-bottom: 16rpx;
+  padding: 0 30rpx 16rpx;
   border-bottom: 1px solid #eee;
 }
 
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 28rpx;
-}
-
-.info-item.column {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16rpx;
-}
-
-.label {
-  color: #999;
-  min-width: 160rpx;
-}
-
-.value {
-  color: #333;
-  flex: 1;
-  text-align: right;
-}
-
-.value.price {
+.price-text {
   color: #f56c6c;
   font-weight: bold;
   font-size: 32rpx;
 }
 
-.value-with-action {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.action-icon {
-  font-size: 32rpx;
-  padding: 0 20rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-}
-
 /* 附加服务 */
 .extras-list {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .extra-item {
   display: flex;
   justify-content: space-between;
-  padding: 12rpx 20rpx;
-  background: #f8f8f8;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-}
-
-.extra-name {
+  font-size: 24rpx;
   color: #666;
 }
 
@@ -549,12 +469,5 @@ export default {
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
 }
 </style>

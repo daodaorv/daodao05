@@ -2,27 +2,28 @@
   <view class="vehicles-container">
     <!-- 搜索栏 -->
     <view class="search-bar">
-      <uni-search-bar
+      <u-search
         v-model="searchKeyword"
         placeholder="搜索车辆名称/车牌号"
-        @confirm="handleSearch"
+        :show-action="false"
+        @search="handleSearch"
         @clear="handleClear"
-      />
+      ></u-search>
     </view>
 
     <!-- 状态筛选 -->
-    <view class="filter-tabs">
-      <view
-        v-for="tab in statusTabs"
-        :key="tab.value"
-        class="tab-item"
-        :class="{ active: currentStatus === tab.value }"
-        @click="changeStatus(tab.value)"
-      >
-        <text class="tab-text">{{ tab.label }}</text>
-        <text v-if="tab.count > 0" class="tab-badge">{{ tab.count }}</text>
-      </view>
-    </view>
+    <u-tabs
+      :list="statusTabs"
+      :current="currentStatusIndex"
+      @change="changeStatus"
+      :scrollable="false"
+      lineWidth="40"
+      lineHeight="4"
+      :activeStyle="{
+        color: '#3cc51f',
+        fontWeight: 'bold'
+      }"
+    ></u-tabs>
 
     <!-- 车辆列表 -->
     <view class="vehicle-list">
@@ -35,9 +36,12 @@
         <!-- 车辆图片 -->
         <view class="vehicle-image">
           <image :src="vehicle.image" mode="aspectFill" />
-          <view class="status-badge" :class="'status-' + vehicle.status">
-            {{ vehicle.statusText }}
-          </view>
+          <u-tag
+            :text="vehicle.statusText"
+            :type="getStatusType(vehicle.status)"
+            size="mini"
+            class="status-badge"
+          />
         </view>
 
         <!-- 车辆信息 -->
@@ -72,50 +76,51 @@
 
           <!-- 操作按钮 -->
           <view class="vehicle-actions">
-            <button
+            <u-button
               v-if="vehicle.status === 'available'"
-              class="action-btn primary"
-              size="mini"
+              text="租用"
               type="primary"
+              size="small"
               @click.stop="rentVehicle(vehicle)"
-            >
-              租用
-            </button>
-            <button
+            ></u-button>
+            <u-button
               v-if="vehicle.status === 'maintenance'"
-              class="action-btn"
-              size="mini"
+              text="查看维保"
+              type="warning"
+              size="small"
+              plain
               @click.stop="viewMaintenance(vehicle)"
-            >
-              查看维保
-            </button>
-            <button
-              class="action-btn"
-              size="mini"
+            ></u-button>
+            <u-button
+              text="更新状态"
+              type="info"
+              size="small"
+              plain
               @click.stop="updateStatus(vehicle)"
-            >
-              更新状态
-            </button>
-            <button
-              class="action-btn"
-              size="mini"
+            ></u-button>
+            <u-button
+              text="详情"
+              type="info"
+              size="small"
+              plain
               @click.stop="viewDetail(vehicle.id)"
-            >
-              详情
-            </button>
+            ></u-button>
           </view>
         </view>
       </view>
 
       <!-- 空状态 -->
-      <view v-if="vehicleList.length === 0 && !loading" class="empty-state">
-        <text class="empty-icon">🚗</text>
-        <text class="empty-text">暂无车辆</text>
-      </view>
+      <u-empty
+        v-if="vehicleList.length === 0 && !loading"
+        mode="car"
+        text="暂无车辆"
+        :icon-size="120"
+      ></u-empty>
 
       <!-- 加载状态 -->
       <view v-if="loading" class="loading-state">
-        <uni-load-more status="loading" />
+        <u-loading-icon mode="circle" size="60"></u-loading-icon>
+        <text class="loading-text">加载中...</text>
       </view>
     </view>
   </view>
@@ -129,12 +134,13 @@ export default {
     return {
       searchKeyword: '',
       currentStatus: 'all',
+      currentStatusIndex: 0,
       statusTabs: [
-        { label: '全部', value: 'all', count: 0 },
-        { label: '可用', value: 'available', count: 0 },
-        { label: '租用中', value: 'rented', count: 0 },
-        { label: '维护中', value: 'maintenance', count: 0 },
-        { label: '禁用', value: 'disabled', count: 0 }
+        { name: '全部', value: 'all', count: 0 },
+        { name: '可用', value: 'available', count: 0 },
+        { name: '租用中', value: 'rented', count: 0 },
+        { name: '维护中', value: 'maintenance', count: 0 },
+        { name: '禁用', value: 'disabled', count: 0 }
       ],
       vehicleList: [],
       loading: false
@@ -185,9 +191,21 @@ export default {
       this.statusTabs[3].count = this.vehicleList.filter(v => v.status === 'maintenance').length
     },
 
-    changeStatus(status) {
-      this.currentStatus = status
+    changeStatus(e) {
+      const index = e.index !== undefined ? e.index : e
+      this.currentStatusIndex = index
+      this.currentStatus = this.statusTabs[index].value
       this.loadVehicles()
+    },
+
+    getStatusType(status) {
+      const map = {
+        available: 'success',
+        rented: 'primary',
+        maintenance: 'warning',
+        disabled: 'info'
+      }
+      return map[status] || 'info'
     },
 
     handleSearch() {
@@ -262,45 +280,6 @@ export default {
   padding: 20rpx;
 }
 
-.filter-tabs {
-  display: flex;
-  background: #fff;
-  padding: 20rpx;
-  border-bottom: 1px solid #eee;
-  overflow-x: auto;
-}
-
-.tab-item {
-  flex-shrink: 0;
-  padding: 12rpx 24rpx;
-  margin-right: 20rpx;
-  border-radius: 40rpx;
-  background: #f5f5f5;
-  position: relative;
-}
-
-.tab-item.active {
-  background: #3cc51f;
-  color: #fff;
-}
-
-.tab-text {
-  font-size: 28rpx;
-}
-
-.tab-badge {
-  position: absolute;
-  top: -10rpx;
-  right: -10rpx;
-  background: #f56c6c;
-  color: #fff;
-  font-size: 20rpx;
-  padding: 4rpx 8rpx;
-  border-radius: 20rpx;
-  min-width: 32rpx;
-  text-align: center;
-}
-
 .vehicle-list {
   padding: 20rpx;
 }
@@ -327,27 +306,6 @@ export default {
   position: absolute;
   top: 20rpx;
   right: 20rpx;
-  padding: 8rpx 20rpx;
-  border-radius: 40rpx;
-  font-size: 24rpx;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.status-badge.status-available {
-  background: #67c23a;
-}
-
-.status-badge.status-rented {
-  background: #409eff;
-}
-
-.status-badge.status-maintenance {
-  background: #e6a23c;
-}
-
-.status-badge.status-disabled {
-  background: #909399;
 }
 
 .vehicle-info {
@@ -400,27 +358,16 @@ export default {
   border-top: 1px solid #eee;
 }
 
-.action-btn {
-  flex: 1;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 120rpx 0;
-}
-
-.empty-icon {
-  font-size: 120rpx;
-  display: block;
-  margin-bottom: 20rpx;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
 .loading-state {
-  padding: 40rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  padding: 60rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #666;
 }
 </style>

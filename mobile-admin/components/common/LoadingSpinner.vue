@@ -1,9 +1,11 @@
 <template>
   <view class="loading-spinner" :class="{ fullscreen: fullscreen }">
     <view class="spinner-container">
-      <view class="spinner" :style="{ width: size + 'rpx', height: size + 'rpx' }">
-        <view class="spinner-circle"></view>
-      </view>
+      <u-loading-icon
+        :size="size"
+        :color="color"
+        mode="circle"
+      ></u-loading-icon>
       <text v-if="text" class="loading-text">{{ text }}</text>
     </view>
   </view>
@@ -27,6 +29,11 @@ export default {
     size: {
       type: Number,
       default: 60
+    },
+    // 颜色
+    color: {
+      type: String,
+      default: '#3cc51f'
     }
   }
 }
@@ -55,28 +62,6 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 20rpx;
-}
-
-.spinner {
-  position: relative;
-  animation: rotate 1.5s linear infinite;
-}
-
-.spinner-circle {
-  width: 100%;
-  height: 100%;
-  border: 4rpx solid #f0f0f0;
-  border-top-color: #3cc51f;
-  border-radius: 50%;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .loading-text {

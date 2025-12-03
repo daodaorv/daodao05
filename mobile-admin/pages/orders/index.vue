@@ -2,27 +2,28 @@
   <view class="orders-container">
     <!-- 搜索栏 -->
     <view class="search-bar">
-      <uni-search-bar
+      <u-search
         v-model="searchKeyword"
         placeholder="搜索订单号/客户/车牌"
-        @confirm="handleSearch"
+        :show-action="false"
+        @search="handleSearch"
         @clear="handleClear"
-      />
+      ></u-search>
     </view>
 
     <!-- 状态筛选 -->
-    <view class="filter-tabs">
-      <view
-        v-for="tab in statusTabs"
-        :key="tab.value"
-        class="tab-item"
-        :class="{ active: currentStatus === tab.value }"
-        @click="changeStatus(tab.value)"
-      >
-        <text class="tab-text">{{ tab.label }}</text>
-        <text v-if="tab.count > 0" class="tab-badge">{{ tab.count }}</text>
-      </view>
-    </view>
+    <u-tabs
+      :list="statusTabs"
+      :current="currentStatusIndex"
+      @change="changeStatus"
+      :scrollable="false"
+      lineWidth="40"
+      lineHeight="4"
+      :activeStyle="{
+        color: '#3cc51f',
+        fontWeight: 'bold'
+      }"
+    ></u-tabs>
 
     <!-- 订单列表 -->
     <view class="order-list">
@@ -35,9 +36,10 @@
         <!-- 订单头部 -->
         <view class="order-header">
           <view class="order-no">订单号: {{ order.orderNo }}</view>
-          <uni-tag
+          <u-tag
             :text="order.statusText"
             :type="getStatusType(order.status)"
+            size="mini"
           />
         </view>
 
@@ -64,60 +66,57 @@
 
         <!-- 订单操作 -->
         <view class="order-actions">
-          <button
+          <u-button
             v-if="order.status === 'pending'"
-            class="action-btn primary"
-            size="mini"
+            text="确认订单"
             type="primary"
+            size="small"
             @click.stop="confirmOrder(order)"
-          >
-            确认订单
-          </button>
-          <button
+          ></u-button>
+          <u-button
             v-if="order.status === 'pending'"
-            class="action-btn"
-            size="mini"
+            text="取消订单"
+            type="info"
+            size="small"
+            plain
             @click.stop="cancelOrder(order)"
-          >
-            取消订单
-          </button>
-          <button
+          ></u-button>
+          <u-button
             v-if="order.status === 'confirmed'"
-            class="action-btn primary"
-            size="mini"
+            text="开始用车"
             type="primary"
+            size="small"
             @click.stop="startOrder(order)"
-          >
-            开始用车
-          </button>
-          <button
+          ></u-button>
+          <u-button
             v-if="order.status === 'in_use'"
-            class="action-btn primary"
-            size="mini"
+            text="完成订单"
             type="primary"
+            size="small"
             @click.stop="completeOrder(order)"
-          >
-            完成订单
-          </button>
-          <button
-            class="action-btn"
-            size="mini"
+          ></u-button>
+          <u-button
+            text="查看详情"
+            type="info"
+            size="small"
+            plain
             @click.stop="viewDetail(order.id)"
-          >
-            查看详情
-          </button>
+          ></u-button>
         </view>
       </view>
 
       <!-- 空状态 -->
-      <view v-if="orderList.length === 0 && !loading" class="empty-state">
-        <text class="empty-icon">📋</text>
-        <text class="empty-text">暂无订单</text>
-      </view>
+      <u-empty
+        v-if="orderList.length === 0 && !loading"
+        mode="data"
+        text="暂无订单"
+        :icon-size="120"
+      ></u-empty>
 
       <!-- 加载状态 -->
       <view v-if="loading" class="loading-state">
-        <uni-load-more status="loading" />
+        <u-loading-icon mode="circle" size="60"></u-loading-icon>
+        <text class="loading-text">加载中...</text>
       </view>
     </view>
   </view>
@@ -131,12 +130,13 @@ export default {
     return {
       searchKeyword: '',
       currentStatus: 'all',
+      currentStatusIndex: 0,
       statusTabs: [
-        { label: '全部', value: 'all', count: 0 },
-        { label: '待确认', value: 'pending', count: 0 },
-        { label: '已确认', value: 'confirmed', count: 0 },
-        { label: '使用中', value: 'in_use', count: 0 },
-        { label: '已完成', value: 'completed', count: 0 }
+        { name: '全部', value: 'all', count: 0 },
+        { name: '待确认', value: 'pending', count: 0 },
+        { name: '已确认', value: 'confirmed', count: 0 },
+        { name: '使用中', value: 'in_use', count: 0 },
+        { name: '已完成', value: 'completed', count: 0 }
       ],
       orderList: [],
       loading: false
@@ -188,8 +188,10 @@ export default {
       this.statusTabs[3].count = this.orderList.filter(o => o.status === 'in_use').length
     },
 
-    changeStatus(status) {
-      this.currentStatus = status
+    changeStatus(e) {
+      const index = e.index !== undefined ? e.index : e
+      this.currentStatusIndex = index
+      this.currentStatus = this.statusTabs[index].value
       this.loadOrders()
     },
 
@@ -299,45 +301,6 @@ export default {
   padding: 20rpx;
 }
 
-.filter-tabs {
-  display: flex;
-  background: #fff;
-  padding: 20rpx;
-  border-bottom: 1px solid #eee;
-  overflow-x: auto;
-}
-
-.tab-item {
-  flex-shrink: 0;
-  padding: 12rpx 24rpx;
-  margin-right: 20rpx;
-  border-radius: 40rpx;
-  background: #f5f5f5;
-  position: relative;
-}
-
-.tab-item.active {
-  background: #3cc51f;
-  color: #fff;
-}
-
-.tab-text {
-  font-size: 28rpx;
-}
-
-.tab-badge {
-  position: absolute;
-  top: -10rpx;
-  right: -10rpx;
-  background: #f56c6c;
-  color: #fff;
-  font-size: 20rpx;
-  padding: 4rpx 8rpx;
-  border-radius: 20rpx;
-  min-width: 32rpx;
-  text-align: center;
-}
-
 .order-list {
   padding: 20rpx;
 }
@@ -403,27 +366,16 @@ export default {
   border-top: 1px solid #eee;
 }
 
-.action-btn {
-  flex: 1;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 120rpx 0;
-}
-
-.empty-icon {
-  font-size: 120rpx;
-  display: block;
-  margin-bottom: 20rpx;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
 .loading-state {
-  padding: 40rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  padding: 60rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #666;
 }
 </style>

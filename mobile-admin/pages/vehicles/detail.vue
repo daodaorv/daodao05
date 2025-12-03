@@ -12,9 +12,12 @@
             <image :src="image" mode="aspectFill" class="gallery-image" />
           </swiper-item>
         </swiper>
-        <view class="status-badge" :class="'status-' + vehicle.status">
-          {{ vehicle.statusText }}
-        </view>
+        <u-tag
+          :text="vehicle.statusText"
+          :type="getStatusType(vehicle.status)"
+          size="large"
+          class="status-badge"
+        />
       </view>
 
       <!-- 车辆基本信息 -->
@@ -24,50 +27,36 @@
           <text class="vehicle-price">¥{{ vehicle.dailyPrice }}/天</text>
         </view>
         <view class="vehicle-meta">
-          <text class="meta-item">{{ vehicle.brand }} {{ vehicle.model }}</text>
-          <text class="meta-item">{{ vehicle.type }}</text>
+          <u-tag :text="`${vehicle.brand} ${vehicle.model}`" type="info" plain size="mini" />
+          <u-tag :text="vehicle.type" type="info" plain size="mini" />
         </view>
       </view>
 
       <!-- 车辆详细信息 -->
       <view class="info-section">
         <view class="section-title">车辆信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">车牌号</text>
-            <text class="value">{{ vehicle.plate }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">座位数</text>
-            <text class="value">{{ vehicle.seats }}座</text>
-          </view>
-          <view class="info-item">
-            <text class="label">床位数</text>
-            <text class="value">{{ vehicle.beds }}床</text>
-          </view>
-          <view class="info-item">
-            <text class="label">里程数</text>
-            <text class="value">{{ vehicle.mileage }}km</text>
-          </view>
-          <view class="info-item">
-            <text class="label">所在位置</text>
-            <text class="value">{{ vehicle.location }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">保险类型</text>
-            <text class="value">{{ vehicle.insurance }}</text>
-          </view>
-        </view>
+        <u-cell-group>
+          <u-cell title="车牌号" :value="vehicle.plate" />
+          <u-cell title="座位数" :value="`${vehicle.seats}座`" />
+          <u-cell title="床位数" :value="`${vehicle.beds}床`" />
+          <u-cell title="里程数" :value="`${vehicle.mileage}km`" />
+          <u-cell title="所在位置" :value="vehicle.location" />
+          <u-cell title="保险类型" :value="vehicle.insurance" />
+        </u-cell-group>
       </view>
 
       <!-- 车辆配置 -->
       <view v-if="vehicle.features && vehicle.features.length > 0" class="info-section">
         <view class="section-title">车辆配置</view>
         <view class="features-grid">
-          <view v-for="feature in vehicle.features" :key="feature" class="feature-item">
-            <text class="feature-icon">✓</text>
-            <text class="feature-text">{{ feature }}</text>
-          </view>
+          <u-tag
+            v-for="feature in vehicle.features"
+            :key="feature"
+            :text="feature"
+            type="success"
+            plain
+            size="mini"
+          />
         </view>
       </view>
 
@@ -83,9 +72,12 @@
       <view class="info-section">
         <view class="section-header">
           <text class="section-title">维保记录</text>
-          <button class="add-button" size="mini" type="primary" @click="addMaintenance">
-            添加记录
-          </button>
+          <u-button
+            text="添加记录"
+            type="primary"
+            size="mini"
+            @click="addMaintenance"
+          ></u-button>
         </view>
         <view v-if="maintenanceRecords.length > 0" class="maintenance-list">
           <view v-for="record in maintenanceRecords" :key="record.id" class="maintenance-item">
@@ -98,7 +90,14 @@
               <text class="info-text">里程: {{ record.mileage }}km</text>
             </view>
             <view class="maintenance-items">
-              <text v-for="item in record.items" :key="item" class="item-tag">{{ item }}</text>
+              <u-tag
+                v-for="item in record.items"
+                :key="item"
+                :text="item"
+                type="info"
+                plain
+                size="mini"
+              />
             </view>
             <view class="maintenance-footer">
               <text class="operator">操作人: {{ record.operator }}</text>
@@ -108,7 +107,7 @@
         </view>
         <EmptyState
           v-else
-          icon="🔧"
+          mode="data"
           title="暂无维保记录"
           description="该车辆还没有维保记录"
         />
@@ -119,28 +118,33 @@
         <view class="section-title">相关文档</view>
         <view class="documents-list">
           <view v-for="doc in vehicle.documents" :key="doc.name" class="document-item" @click="viewDocument(doc)">
-            <text class="doc-icon">📄</text>
+            <u-icon name="file-text" size="40" color="#999"></u-icon>
             <text class="doc-name">{{ doc.name }}</text>
-            <text class="doc-arrow">›</text>
+            <u-icon name="arrow-right" size="24" color="#ccc"></u-icon>
           </view>
         </view>
       </view>
 
       <!-- 底部操作按钮 -->
       <view class="bottom-actions">
-        <button class="action-btn" @click="updateStatus">
-          更新状态
-        </button>
-        <button class="action-btn primary" type="primary" @click="rentVehicle">
-          创建订单
-        </button>
+        <u-button
+          text="更新状态"
+          type="info"
+          plain
+          @click="updateStatus"
+        ></u-button>
+        <u-button
+          text="创建订单"
+          type="primary"
+          @click="rentVehicle"
+        ></u-button>
       </view>
     </view>
 
     <!-- 空状态 -->
     <EmptyState
       v-else
-      icon="🚗"
+      mode="car"
       title="车辆不存在"
       description="该车辆可能已被删除或不存在"
       buttonText="返回列表"
@@ -148,23 +152,13 @@
     />
 
     <!-- 状态更新对话框 -->
-    <uni-popup ref="statusPopup" type="bottom">
-      <view class="status-popup">
-        <view class="popup-title">更新车辆状态</view>
-        <view class="status-options">
-          <view
-            v-for="option in statusOptions"
-            :key="option.value"
-            class="status-option"
-            @click="handleStatusChange(option.value)"
-          >
-            <text class="option-text">{{ option.label }}</text>
-            <text v-if="vehicle.status === option.value" class="option-check">✓</text>
-          </view>
-        </view>
-        <button class="cancel-button" @click="closeStatusPopup">取消</button>
-      </view>
-    </uni-popup>
+    <u-action-sheet
+      :show="statusSheetVisible"
+      :actions="statusActions"
+      title="更新车辆状态"
+      @select="handleStatusChange"
+      @close="statusSheetVisible = false"
+    ></u-action-sheet>
   </view>
 </template>
 
@@ -185,11 +179,12 @@ export default {
       vehicle: null,
       maintenanceRecords: [],
       loading: false,
-      statusOptions: [
-        { label: '可用', value: 'available' },
-        { label: '租用中', value: 'rented' },
-        { label: '维护中', value: 'maintenance' },
-        { label: '禁用', value: 'disabled' }
+      statusSheetVisible: false,
+      statusActions: [
+        { name: '可用', value: 'available' },
+        { name: '租用中', value: 'rented' },
+        { name: '维护中', value: 'maintenance' },
+        { name: '禁用', value: 'disabled' }
       ]
     }
   },
@@ -229,16 +224,13 @@ export default {
     },
 
     updateStatus() {
-      this.$refs.statusPopup.open()
+      this.statusSheetVisible = true
     },
 
-    closeStatusPopup() {
-      this.$refs.statusPopup.close()
-    },
-
-    async handleStatusChange(newStatus) {
+    async handleStatusChange(item) {
+      const newStatus = item.value
       if (newStatus === this.vehicle.status) {
-        this.closeStatusPopup()
+        this.statusSheetVisible = false
         return
       }
 
@@ -248,7 +240,7 @@ export default {
           title: '状态更新成功',
           icon: 'success'
         })
-        this.closeStatusPopup()
+        this.statusSheetVisible = false
 
         // 重新加载车辆详情
         setTimeout(() => {
@@ -260,6 +252,16 @@ export default {
           icon: 'none'
         })
       }
+    },
+
+    getStatusType(status) {
+      const map = {
+        available: 'success',
+        rented: 'primary',
+        maintenance: 'warning',
+        disabled: 'info'
+      }
+      return map[status] || 'info'
     },
 
     addMaintenance() {
@@ -317,28 +319,6 @@ export default {
   position: absolute;
   top: 30rpx;
   right: 30rpx;
-  padding: 12rpx 28rpx;
-  border-radius: 40rpx;
-  font-size: 26rpx;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10rpx);
-}
-
-.status-badge.status-available {
-  background: rgba(103, 194, 58, 0.9);
-}
-
-.status-badge.status-rented {
-  background: rgba(64, 158, 255, 0.9);
-}
-
-.status-badge.status-maintenance {
-  background: rgba(230, 162, 60, 0.9);
-}
-
-.status-badge.status-disabled {
-  background: rgba(144, 147, 153, 0.9);
 }
 
 /* 信息区块 */
@@ -371,14 +351,6 @@ export default {
 .vehicle-meta {
   display: flex;
   gap: 20rpx;
-  font-size: 26rpx;
-  color: #999;
-}
-
-.meta-item {
-  padding: 8rpx 16rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
 }
 
 .section-title {
@@ -395,60 +367,11 @@ export default {
   margin-bottom: 24rpx;
 }
 
-.add-button {
-  padding: 0 24rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-}
-
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 28rpx;
-}
-
-.label {
-  color: #999;
-  min-width: 160rpx;
-}
-
-.value {
-  color: #333;
-  flex: 1;
-  text-align: right;
-}
-
 /* 车辆配置 */
 .features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
-}
-
-.feature-item {
   display: flex;
-  align-items: center;
-  gap: 8rpx;
-  padding: 16rpx;
-  background: #f8f8f8;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-}
-
-.feature-icon {
-  color: #3cc51f;
-  font-weight: bold;
-}
-
-.feature-text {
-  color: #666;
+  flex-wrap: wrap;
+  gap: 12rpx;
 }
 
 /* 车辆描述 */

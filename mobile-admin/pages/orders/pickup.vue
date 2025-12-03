@@ -2,85 +2,79 @@
   <view class="pickup-container">
     <!-- 顶部进度条 -->
     <view class="progress-bar">
-      <view class="progress-step" :class="{ active: currentStep >= 1, completed: currentStep > 1 }">
-        <view class="step-number">1</view>
-        <view class="step-label">订单确认</view>
-      </view>
-      <view class="progress-line" :class="{ active: currentStep > 1 }"></view>
-      <view class="progress-step" :class="{ active: currentStep >= 2, completed: currentStep > 2 }">
-        <view class="step-number">2</view>
-        <view class="step-label">车辆检查</view>
-      </view>
-      <view class="progress-line" :class="{ active: currentStep > 2 }"></view>
-      <view class="progress-step" :class="{ active: currentStep >= 3, completed: currentStep > 3 }">
-        <view class="step-number">3</view>
-        <view class="step-label">拍照存证</view>
-      </view>
-      <view class="progress-line" :class="{ active: currentStep > 3 }"></view>
-      <view class="progress-step" :class="{ active: currentStep >= 4 }">
-        <view class="step-number">4</view>
-        <view class="step-label">完成取车</view>
-      </view>
+      <u-steps
+        :current="currentStep - 1"
+        :list="stepList"
+        activeColor="#1890ff"
+        inactiveColor="#e0e0e0"
+      ></u-steps>
     </view>
 
     <!-- 步骤1: 订单确认 -->
     <view v-if="currentStep === 1" class="step-content">
       <view class="section-title">订单信息确认</view>
-      <view class="order-info-card">
-        <view class="info-row">
-          <text class="label">订单号：</text>
-          <text class="value">{{ orderInfo.orderNo }}</text>
-        </view>
-        <view class="info-row">
-          <text class="label">客户姓名：</text>
-          <text class="value">{{ orderInfo.customerName }}</text>
-        </view>
-        <view class="info-row">
-          <text class="label">联系电话：</text>
-          <text class="value">{{ orderInfo.customerPhone }}</text>
-        </view>
-        <view class="info-row">
-          <text class="label">车辆信息：</text>
-          <text class="value">{{ orderInfo.vehicleName }} ({{ orderInfo.vehiclePlate }})</text>
-        </view>
-        <view class="info-row">
-          <text class="label">租期：</text>
-          <text class="value">{{ orderInfo.startDate }} 至 {{ orderInfo.endDate }}</text>
-        </view>
-        <view class="info-row">
-          <text class="label">押金状态：</text>
-          <text class="value" :class="depositPaid ? 'success' : 'warning'">
-            {{ depositPaid ? '已支付' : '未支付' }}
-          </text>
-        </view>
-      </view>
+      <u-cell-group>
+        <u-cell title="订单号" :value="orderInfo.orderNo" />
+        <u-cell title="客户姓名" :value="orderInfo.customerName" />
+        <u-cell title="联系电话" :value="orderInfo.customerPhone" />
+        <u-cell title="车辆信息" :value="`${orderInfo.vehicleName} (${orderInfo.vehiclePlate})`" />
+        <u-cell title="租期" :value="`${orderInfo.startDate} 至 ${orderInfo.endDate}`" />
+        <u-cell title="押金状态">
+          <template #value>
+            <u-tag
+              :text="depositPaid ? '已支付' : '未支付'"
+              :type="depositPaid ? 'success' : 'warning'"
+              size="mini"
+            />
+          </template>
+        </u-cell>
+      </u-cell-group>
 
       <view class="section-title">证件验证</view>
       <view class="document-upload">
         <view class="upload-item">
           <view class="upload-label">身份证</view>
-          <view class="upload-box" @click="uploadDocument('idCard')">
-            <image v-if="documents.idCard" :src="documents.idCard" mode="aspectFill" class="uploaded-image"></image>
-            <view v-else class="upload-placeholder">
-              <text class="icon">📷</text>
-              <text class="text">拍照上传</text>
+          <u-upload
+            :fileList="idCardList"
+            @afterRead="(e) => afterReadDocument(e, 'idCard')"
+            @delete="() => deleteDocument('idCard')"
+            :maxCount="1"
+            :previewFullImage="true"
+            width="320"
+            height="200"
+          >
+            <view class="upload-slot">
+              <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+              <text class="upload-text">拍照上传</text>
             </view>
-          </view>
+          </u-upload>
         </view>
         <view class="upload-item">
           <view class="upload-label">驾驶证</view>
-          <view class="upload-box" @click="uploadDocument('driverLicense')">
-            <image v-if="documents.driverLicense" :src="documents.driverLicense" mode="aspectFill" class="uploaded-image"></image>
-            <view v-else class="upload-placeholder">
-              <text class="icon">📷</text>
-              <text class="text">拍照上传</text>
+          <u-upload
+            :fileList="driverLicenseList"
+            @afterRead="(e) => afterReadDocument(e, 'driverLicense')"
+            @delete="() => deleteDocument('driverLicense')"
+            :maxCount="1"
+            :previewFullImage="true"
+            width="320"
+            height="200"
+          >
+            <view class="upload-slot">
+              <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+              <text class="upload-text">拍照上传</text>
             </view>
-          </view>
+          </u-upload>
         </view>
       </view>
 
       <view class="action-buttons">
-        <button class="btn btn-primary" @click="nextStep" :disabled="!canProceedStep1">下一步</button>
+        <u-button
+          text="下一步"
+          type="primary"
+          @click="nextStep"
+          :disabled="!canProceedStep1"
+        ></u-button>
       </view>
     </view>
 
@@ -90,54 +84,83 @@
 
       <view class="checklist-section">
         <view class="checklist-header">外观检查</view>
-        <view class="checklist-items">
-          <view v-for="item in checklist.exterior" :key="item.id" class="checklist-item" @click="toggleCheckItem(item)">
-            <view class="checkbox" :class="{ checked: item.checked }">
-              <text v-if="item.checked" class="checkmark">✓</text>
-            </view>
-            <text class="item-name">{{ item.name }}</text>
-          </view>
-        </view>
+        <u-checkbox-group v-model="exteriorCheckList" @change="handleExteriorChange">
+          <u-checkbox
+            v-for="item in checklist.exterior"
+            :key="item.id"
+            :name="item.id"
+            :label="item.name"
+            shape="square"
+            activeColor="#1890ff"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <view class="checklist-section">
         <view class="checklist-header">内饰检查</view>
-        <view class="checklist-items">
-          <view v-for="item in checklist.interior" :key="item.id" class="checklist-item" @click="toggleCheckItem(item)">
-            <view class="checkbox" :class="{ checked: item.checked }">
-              <text v-if="item.checked" class="checkmark">✓</text>
-            </view>
-            <text class="item-name">{{ item.name }}</text>
-          </view>
-        </view>
+        <u-checkbox-group v-model="interiorCheckList" @change="handleInteriorChange">
+          <u-checkbox
+            v-for="item in checklist.interior"
+            :key="item.id"
+            :name="item.id"
+            :label="item.name"
+            shape="square"
+            activeColor="#1890ff"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <view class="checklist-section">
         <view class="checklist-header">功能检查</view>
-        <view class="checklist-items">
-          <view v-for="item in checklist.functions" :key="item.id" class="checklist-item" @click="toggleCheckItem(item)">
-            <view class="checkbox" :class="{ checked: item.checked }">
-              <text v-if="item.checked" class="checkmark">✓</text>
-            </view>
-            <text class="item-name">{{ item.name }}</text>
-          </view>
-        </view>
+        <u-checkbox-group v-model="functionsCheckList" @change="handleFunctionsChange">
+          <u-checkbox
+            v-for="item in checklist.functions"
+            :key="item.id"
+            :name="item.id"
+            :label="item.name"
+            shape="square"
+            activeColor="#1890ff"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <view class="meter-input-section">
         <view class="input-row">
-          <text class="input-label">当前里程（公里）：</text>
-          <input class="input-field" type="number" v-model="vehicleData.mileage" placeholder="请输入当前里程" />
+          <text class="input-label">当前里程（公里）</text>
+          <u-input
+            v-model="vehicleData.mileage"
+            type="number"
+            placeholder="请输入当前里程"
+            border="surround"
+          />
         </view>
         <view class="input-row">
-          <text class="input-label">当前油量（格）：</text>
-          <input class="input-field" type="number" v-model="vehicleData.fuelLevel" placeholder="请输入当前油量" />
+          <text class="input-label">当前油量（格）</text>
+          <u-input
+            v-model="vehicleData.fuelLevel"
+            type="number"
+            placeholder="请输入当前油量"
+            border="surround"
+          />
         </view>
       </view>
 
       <view class="action-buttons">
-        <button class="btn btn-secondary" @click="prevStep">上一步</button>
-        <button class="btn btn-primary" @click="nextStep" :disabled="!canProceedStep2">下一步</button>
+        <u-button
+          text="上一步"
+          type="info"
+          plain
+          @click="prevStep"
+        ></u-button>
+        <u-button
+          text="下一步"
+          type="primary"
+          @click="nextStep"
+          :disabled="!canProceedStep2"
+        ></u-button>
       </view>
     </view>
 
@@ -150,13 +173,20 @@
         <view class="photo-grid">
           <view v-for="position in photoPositions.exterior" :key="position.key" class="photo-item">
             <view class="photo-label">{{ position.label }}</view>
-            <view class="photo-box" @click="takePhoto('exterior', position.key)">
-              <image v-if="photos.exterior[position.key]" :src="photos.exterior[position.key]" mode="aspectFill" class="photo-image"></image>
-              <view v-else class="photo-placeholder">
-                <text class="icon">📷</text>
-                <text class="text">拍照</text>
+            <u-upload
+              :fileList="getPhotoList('exterior', position.key)"
+              @afterRead="(e) => afterReadPhoto(e, 'exterior', position.key)"
+              @delete="() => deletePhoto('exterior', position.key)"
+              :maxCount="1"
+              :previewFullImage="true"
+              width="280"
+              height="280"
+            >
+              <view class="upload-slot">
+                <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+                <text class="upload-text">拍照</text>
               </view>
-            </view>
+            </u-upload>
           </view>
         </view>
       </view>
@@ -166,20 +196,37 @@
         <view class="photo-grid">
           <view v-for="position in photoPositions.interior" :key="position.key" class="photo-item">
             <view class="photo-label">{{ position.label }}</view>
-            <view class="photo-box" @click="takePhoto('interior', position.key)">
-              <image v-if="photos.interior[position.key]" :src="photos.interior[position.key]" mode="aspectFill" class="photo-image"></image>
-              <view v-else class="photo-placeholder">
-                <text class="icon">📷</text>
-                <text class="text">拍照</text>
+            <u-upload
+              :fileList="getPhotoList('interior', position.key)"
+              @afterRead="(e) => afterReadPhoto(e, 'interior', position.key)"
+              @delete="() => deletePhoto('interior', position.key)"
+              :maxCount="1"
+              :previewFullImage="true"
+              width="280"
+              height="280"
+            >
+              <view class="upload-slot">
+                <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+                <text class="upload-text">拍照</text>
               </view>
-            </view>
+            </u-upload>
           </view>
         </view>
       </view>
 
       <view class="action-buttons">
-        <button class="btn btn-secondary" @click="prevStep">上一步</button>
-        <button class="btn btn-primary" @click="nextStep" :disabled="!canProceedStep3">下一步</button>
+        <u-button
+          text="上一步"
+          type="info"
+          plain
+          @click="prevStep"
+        ></u-button>
+        <u-button
+          text="下一步"
+          type="primary"
+          @click="nextStep"
+          :disabled="!canProceedStep3"
+        ></u-button>
       </view>
     </view>
 
@@ -187,43 +234,49 @@
     <view v-if="currentStep === 4" class="step-content">
       <view class="section-title">确认信息</view>
 
-      <view class="summary-card">
-        <view class="summary-item">
-          <text class="summary-label">检查项完成：</text>
-          <text class="summary-value">{{ completedCheckItems }}/{{ totalCheckItems }}</text>
-        </view>
-        <view class="summary-item">
-          <text class="summary-label">照片已拍摄：</text>
-          <text class="summary-value">{{ completedPhotos }}/{{ totalPhotos }}</text>
-        </view>
-        <view class="summary-item">
-          <text class="summary-label">当前里程：</text>
-          <text class="summary-value">{{ vehicleData.mileage }} 公里</text>
-        </view>
-        <view class="summary-item">
-          <text class="summary-label">当前油量：</text>
-          <text class="summary-value">{{ vehicleData.fuelLevel }} 格</text>
-        </view>
-      </view>
+      <u-cell-group>
+        <u-cell title="检查项完成" :value="`${completedCheckItems}/${totalCheckItems}`" />
+        <u-cell title="照片已拍摄" :value="`${completedPhotos}/${totalPhotos}`" />
+        <u-cell title="当前里程" :value="`${vehicleData.mileage} 公里`" />
+        <u-cell title="当前油量" :value="`${vehicleData.fuelLevel} 格`" />
+      </u-cell-group>
 
       <view class="section-title">客户签名确认</view>
       <view class="signature-section">
         <canvas canvas-id="signatureCanvas" class="signature-canvas" @touchstart="signatureStart" @touchmove="signatureMove" @touchend="signatureEnd"></canvas>
-        <button class="btn-clear-signature" @click="clearSignature">清除签名</button>
+        <u-button
+          text="清除签名"
+          type="info"
+          plain
+          @click="clearSignature"
+          class="btn-clear-signature"
+        ></u-button>
       </view>
 
       <view class="agreement-section">
-        <checkbox-group @change="agreementChange">
-          <label class="agreement-label">
-            <checkbox value="agree" :checked="agreed" />
-            <text>我已确认车辆状况，同意租赁协议条款</text>
-          </label>
-        </checkbox-group>
+        <u-checkbox
+          v-model="agreed"
+          shape="square"
+          activeColor="#1890ff"
+        >
+          我已确认车辆状况，同意租赁协议条款
+        </u-checkbox>
       </view>
 
       <view class="action-buttons">
-        <button class="btn btn-secondary" @click="prevStep">上一步</button>
-        <button class="btn btn-primary" @click="completePickup" :disabled="!canComplete" :loading="submitting">完成取车</button>
+        <u-button
+          text="上一步"
+          type="info"
+          plain
+          @click="prevStep"
+        ></u-button>
+        <u-button
+          text="完成取车"
+          type="primary"
+          @click="completePickup"
+          :disabled="!canComplete"
+          :loading="submitting"
+        ></u-button>
       </view>
     </view>
   </view>
@@ -237,17 +290,28 @@ export default {
     return {
       orderId: '',
       currentStep: 1,
+      stepList: [
+        { name: '订单确认' },
+        { name: '车辆检查' },
+        { name: '拍照存证' },
+        { name: '完成取车' }
+      ],
       orderInfo: {},
       depositPaid: true,
       documents: {
         idCard: '',
         driverLicense: ''
       },
+      idCardList: [],
+      driverLicenseList: [],
       checklist: {
         exterior: [],
         interior: [],
         functions: []
       },
+      exteriorCheckList: [],
+      interiorCheckList: [],
+      functionsCheckList: [],
       vehicleData: {
         mileage: '',
         fuelLevel: ''
@@ -335,28 +399,51 @@ export default {
         uni.showToast({ title: '加载失败', icon: 'none' })
       }
     },
-    uploadDocument(type) {
-      uni.chooseImage({
-        count: 1,
-        sizeType: ['compressed'],
-        sourceType: ['camera', 'album'],
-        success: (res) => {
-          this.documents[type] = res.tempFilePaths[0]
-        }
+    // 证件上传处理
+    afterReadDocument(event, type) {
+      const { file } = event
+      this.documents[type] = file.url
+      if (type === 'idCard') {
+        this.idCardList = [{ url: file.url, status: 'success', message: '' }]
+      } else if (type === 'driverLicense') {
+        this.driverLicenseList = [{ url: file.url, status: 'success', message: '' }]
+      }
+    },
+    deleteDocument(type) {
+      this.documents[type] = ''
+      if (type === 'idCard') {
+        this.idCardList = []
+      } else if (type === 'driverLicense') {
+        this.driverLicenseList = []
+      }
+    },
+    // 检查清单处理
+    handleExteriorChange(values) {
+      this.checklist.exterior.forEach(item => {
+        item.checked = values.includes(item.id)
       })
     },
-    toggleCheckItem(item) {
-      item.checked = !item.checked
-    },
-    takePhoto(category, position) {
-      uni.chooseImage({
-        count: 1,
-        sizeType: ['compressed'],
-        sourceType: ['camera'],
-        success: (res) => {
-          this.$set(this.photos[category], position, res.tempFilePaths[0])
-        }
+    handleInteriorChange(values) {
+      this.checklist.interior.forEach(item => {
+        item.checked = values.includes(item.id)
       })
+    },
+    handleFunctionsChange(values) {
+      this.checklist.functions.forEach(item => {
+        item.checked = values.includes(item.id)
+      })
+    },
+    // 照片上传处理
+    getPhotoList(category, position) {
+      const photo = this.photos[category][position]
+      return photo ? [{ url: photo, status: 'success', message: '' }] : []
+    },
+    afterReadPhoto(event, category, position) {
+      const { file } = event
+      this.$set(this.photos[category], position, file.url)
+    },
+    deletePhoto(category, position) {
+      this.$delete(this.photos[category], position)
     },
     initSignatureCanvas() {
       this.signatureContext = uni.createCanvasContext('signatureCanvas', this)
@@ -385,12 +472,9 @@ export default {
       }, this)
     },
     clearSignature() {
-      this.signatureContext.clearRect(0, 0, 300, 150)
+      this.signatureContext.clearRect(0, 0, 750, 300)
       this.signatureContext.draw()
       this.signatureData = ''
-    },
-    agreementChange(e) {
-      this.agreed = e.detail.value.includes('agree')
     },
     nextStep() {
       if (this.currentStep < 4) {
@@ -454,64 +538,9 @@ export default {
 }
 
 .progress-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 40rpx 30rpx;
+  padding: 30rpx;
   background-color: #fff;
   margin-bottom: 20rpx;
-}
-
-.progress-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-
-  .step-number {
-    width: 60rpx;
-    height: 60rpx;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    color: #999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28rpx;
-    font-weight: bold;
-    margin-bottom: 10rpx;
-  }
-
-  .step-label {
-    font-size: 24rpx;
-    color: #999;
-  }
-
-  &.active .step-number {
-    background-color: #1890ff;
-    color: #fff;
-  }
-
-  &.active .step-label {
-    color: #1890ff;
-  }
-
-  &.completed .step-number {
-    background-color: #52c41a;
-    color: #fff;
-  }
-}
-
-.progress-line {
-  flex: 1;
-  height: 4rpx;
-  background-color: #e0e0e0;
-  margin: 0 10rpx;
-  margin-bottom: 40rpx;
-
-  &.active {
-    background-color: #52c41a;
-  }
 }
 
 .step-content {
@@ -522,45 +551,7 @@ export default {
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
-  margin-bottom: 20rpx;
-}
-
-.order-info-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .label {
-    font-size: 28rpx;
-    color: #666;
-    width: 180rpx;
-  }
-
-  .value {
-    font-size: 28rpx;
-    color: #333;
-    flex: 1;
-
-    &.success {
-      color: #52c41a;
-    }
-
-    &.warning {
-      color: #ff4d4f;
-    }
-  }
+  margin: 30rpx 0 20rpx;
 }
 
 .document-upload {
@@ -579,37 +570,22 @@ export default {
   margin-bottom: 15rpx;
 }
 
-.upload-box {
-  width: 100%;
-  height: 300rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  background-color: #fff;
-  border: 2rpx dashed #d9d9d9;
-}
-
-.uploaded-image {
-  width: 100%;
-  height: 100%;
-}
-
-.upload-placeholder {
-  width: 100%;
-  height: 100%;
+.upload-slot {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 320rpx;
+  height: 200rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  border: 2rpx dashed #ddd;
+}
 
-  .icon {
-    font-size: 60rpx;
-    margin-bottom: 10rpx;
-  }
-
-  .text {
-    font-size: 24rpx;
-    color: #999;
-  }
+.upload-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
 }
 
 .checklist-section {
@@ -626,45 +602,8 @@ export default {
   margin-bottom: 20rpx;
 }
 
-.checklist-items {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.checklist-item {
-  display: flex;
-  align-items: center;
-  padding: 20rpx;
-  background-color: #f9f9f9;
-  border-radius: 12rpx;
-}
-
-.checkbox {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid #d9d9d9;
-  border-radius: 8rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
-
-  &.checked {
-    background-color: #1890ff;
-    border-color: #1890ff;
-  }
-
-  .checkmark {
-    color: #fff;
-    font-size: 28rpx;
-    font-weight: bold;
-  }
-}
-
-.item-name {
-  font-size: 28rpx;
-  color: #333;
+.checkbox-item {
+  margin-bottom: 20rpx;
 }
 
 .meter-input-section {
@@ -675,23 +614,13 @@ export default {
 }
 
 .input-row {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 0;
+  margin-bottom: 20rpx;
 
   .input-label {
     font-size: 28rpx;
     color: #333;
-    width: 240rpx;
-  }
-
-  .input-field {
-    flex: 1;
-    height: 70rpx;
-    padding: 0 20rpx;
-    background-color: #f5f5f5;
-    border-radius: 8rpx;
-    font-size: 28rpx;
+    margin-bottom: 10rpx;
+    display: block;
   }
 }
 
@@ -724,68 +653,6 @@ export default {
   margin-bottom: 15rpx;
 }
 
-.photo-box {
-  width: 100%;
-  height: 280rpx;
-  border-radius: 12rpx;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  border: 2rpx dashed #d9d9d9;
-}
-
-.photo-image {
-  width: 100%;
-  height: 100%;
-}
-
-.photo-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  .icon {
-    font-size: 50rpx;
-    margin-bottom: 10rpx;
-  }
-
-  .text {
-    font-size: 24rpx;
-    color: #999;
-  }
-}
-
-.summary-card {
-  background-color: #fff;
-  border-radius: 16rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .summary-label {
-    font-size: 28rpx;
-    color: #666;
-  }
-
-  .summary-value {
-    font-size: 28rpx;
-    color: #333;
-    font-weight: bold;
-  }
-}
-
 .signature-section {
   background-color: #fff;
   border-radius: 16rpx;
@@ -803,14 +670,6 @@ export default {
 
 .btn-clear-signature {
   margin-top: 20rpx;
-  width: 100%;
-  height: 70rpx;
-  line-height: 70rpx;
-  background-color: #f5f5f5;
-  color: #666;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  border: none;
 }
 
 .agreement-section {
@@ -818,17 +677,6 @@ export default {
   border-radius: 16rpx;
   padding: 30rpx;
   margin-bottom: 30rpx;
-}
-
-.agreement-label {
-  display: flex;
-  align-items: center;
-  font-size: 28rpx;
-  color: #333;
-
-  checkbox {
-    margin-right: 15rpx;
-  }
 }
 
 .action-buttons {
@@ -841,30 +689,5 @@ export default {
   right: 0;
   background-color: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.btn {
-  flex: 1;
-  height: 88rpx;
-  line-height: 88rpx;
-  border-radius: 12rpx;
-  font-size: 32rpx;
-  border: none;
-
-  &.btn-primary {
-    background-color: #1890ff;
-    color: #fff;
-
-    &:disabled {
-      background-color: #d9d9d9;
-      color: #999;
-    }
-  }
-
-  &.btn-secondary {
-    background-color: #fff;
-    color: #666;
-    border: 2rpx solid #d9d9d9;
-  }
 }
 </style>

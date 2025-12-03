@@ -6,106 +6,84 @@
     <!-- 核验表单 -->
     <view v-else class="verification-form">
       <!-- 订单信息 -->
-      <view class="info-section">
-        <view class="section-title">订单信息</view>
-        <view class="info-list">
-          <view class="info-item">
-            <text class="label">订单号</text>
-            <text class="value">{{ order.orderNo }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">客户姓名</text>
-            <text class="value">{{ order.customerName }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">车辆信息</text>
-            <text class="value">{{ order.vehicleName }} {{ order.vehiclePlate }}</text>
-          </view>
-          <view class="info-item">
-            <text class="label">核验类型</text>
-            <text class="value">{{ verificationType === 'pickup' ? '取车核验' : '还车核验' }}</text>
-          </view>
-        </view>
-      </view>
+      <u-cell-group>
+        <u-cell title="订单号" :value="order.orderNo" />
+        <u-cell title="客户姓名" :value="order.customerName" />
+        <u-cell title="车辆信息" :value="`${order.vehicleName} ${order.vehiclePlate}`" />
+        <u-cell title="核验类型" :value="verificationType === 'pickup' ? '取车核验' : '还车核验'" />
+      </u-cell-group>
 
       <!-- 车辆外观检查 -->
       <view class="form-section">
         <view class="section-title">车辆外观检查</view>
-        <view class="check-list">
-          <view
+        <u-checkbox-group v-model="appearanceCheckList" @change="handleAppearanceChange">
+          <u-checkbox
             v-for="item in appearanceChecks"
             :key="item.key"
-            class="check-item"
-            @click="toggleCheck('appearance', item.key)"
-          >
-            <view class="check-box" :class="{ checked: formData.appearance[item.key] }">
-              <text v-if="formData.appearance[item.key]" class="check-icon">✓</text>
-            </view>
-            <text class="check-label">{{ item.label }}</text>
-          </view>
-        </view>
+            :name="item.key"
+            :label="item.label"
+            shape="square"
+            activeColor="#3cc51f"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <!-- 车辆内饰检查 -->
       <view class="form-section">
         <view class="section-title">车辆内饰检查</view>
-        <view class="check-list">
-          <view
+        <u-checkbox-group v-model="interiorCheckList" @change="handleInteriorChange">
+          <u-checkbox
             v-for="item in interiorChecks"
             :key="item.key"
-            class="check-item"
-            @click="toggleCheck('interior', item.key)"
-          >
-            <view class="check-box" :class="{ checked: formData.interior[item.key] }">
-              <text v-if="formData.interior[item.key]" class="check-icon">✓</text>
-            </view>
-            <text class="check-label">{{ item.label }}</text>
-          </view>
-        </view>
+            :name="item.key"
+            :label="item.label"
+            shape="square"
+            activeColor="#3cc51f"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <!-- 车辆功能检查 -->
       <view class="form-section">
         <view class="section-title">车辆功能检查</view>
-        <view class="check-list">
-          <view
+        <u-checkbox-group v-model="functionCheckList" @change="handleFunctionChange">
+          <u-checkbox
             v-for="item in functionChecks"
             :key="item.key"
-            class="check-item"
-            @click="toggleCheck('function', item.key)"
-          >
-            <view class="check-box" :class="{ checked: formData.function[item.key] }">
-              <text v-if="formData.function[item.key]" class="check-icon">✓</text>
-            </view>
-            <text class="check-label">{{ item.label }}</text>
-          </view>
-        </view>
+            :name="item.key"
+            :label="item.label"
+            shape="square"
+            activeColor="#3cc51f"
+            class="checkbox-item"
+          />
+        </u-checkbox-group>
       </view>
 
       <!-- 油量/电量 -->
       <view class="form-section">
         <view class="section-title">油量/电量</view>
-        <view class="fuel-selector">
-          <view
+        <u-radio-group v-model="formData.fuelLevel" placement="row">
+          <u-radio
             v-for="level in fuelLevels"
             :key="level.value"
-            class="fuel-item"
-            :class="{ active: formData.fuelLevel === level.value }"
-            @click="formData.fuelLevel = level.value"
-          >
-            <text class="fuel-text">{{ level.label }}</text>
-          </view>
-        </view>
+            :name="level.value"
+            :label="level.label"
+            activeColor="#1890ff"
+            class="fuel-radio"
+          />
+        </u-radio-group>
       </view>
 
       <!-- 里程数 -->
       <view class="form-section">
         <view class="section-title">当前里程数（km）</view>
-        <input
-          v-model.number="formData.mileage"
+        <u-input
+          v-model="formData.mileage"
           type="number"
-          class="input-field"
           placeholder="请输入当前里程数"
+          border="surround"
         />
       </view>
 
@@ -113,25 +91,32 @@
       <view class="form-section">
         <view class="section-title">车辆照片</view>
         <view class="photo-tip">请拍摄车辆前、后、左、右四个角度的照片</view>
-        <ImageUploader
-          v-model="formData.photos"
-          :max-count="8"
-          add-text="拍摄照片"
-          tip="建议拍摄：车头、车尾、左侧、右侧、仪表盘、内饰"
-          @change="handlePhotosChange"
-        />
+        <u-upload
+          :fileList="formData.photos"
+          @afterRead="afterRead"
+          @delete="deletePhoto"
+          :maxCount="8"
+          :previewFullImage="true"
+          width="160"
+          height="160"
+        >
+          <view class="upload-slot">
+            <u-icon name="camera-fill" size="40" color="#999"></u-icon>
+            <text class="upload-text">拍摄照片</text>
+          </view>
+        </u-upload>
+        <view class="upload-tip">建议拍摄：车头、车尾、左侧、右侧、仪表盘、内饰</view>
       </view>
 
       <!-- 问题描述 -->
       <view class="form-section">
         <view class="section-title">问题描述（选填）</view>
-        <textarea
+        <u--textarea
           v-model="formData.issues"
-          class="textarea-field"
           placeholder="如有车辆损伤、故障或其他问题，请详细描述"
-          maxlength="500"
+          :maxlength="500"
+          count
         />
-        <view class="char-count">{{ formData.issues.length }}/500</view>
       </view>
 
       <!-- 客户签名 -->
@@ -140,7 +125,7 @@
         <view class="signature-box" @click="showSignature">
           <image v-if="formData.signature" :src="formData.signature" class="signature-image" mode="aspectFit" />
           <view v-else class="signature-placeholder">
-            <text class="placeholder-icon">✍️</text>
+            <u-icon name="edit-pen-fill" size="60" color="#999"></u-icon>
             <text class="placeholder-text">点击签名</text>
           </view>
         </view>
@@ -149,30 +134,46 @@
       <!-- 核验人员 -->
       <view class="form-section">
         <view class="section-title">核验人员</view>
-        <input
+        <u-input
           v-model="formData.verifier"
-          class="input-field"
           placeholder="请输入核验人员姓名"
+          border="surround"
         />
       </view>
 
       <!-- 底部操作按钮 -->
       <view class="bottom-actions">
-        <button class="action-btn" @click="handleCancel">
-          取消
-        </button>
-        <button class="action-btn primary" type="primary" @click="handleSubmit">
-          提交核验
-        </button>
+        <u-button
+          text="取消"
+          type="info"
+          plain
+          @click="handleCancel"
+        />
+        <u-button
+          text="提交核验"
+          type="primary"
+          @click="handleSubmit"
+        />
       </view>
     </view>
 
     <!-- 签名弹窗 -->
-    <uni-popup ref="signaturePopup" type="bottom">
+    <u-popup
+      :show="signatureVisible"
+      mode="bottom"
+      :round="20"
+      @close="closeSignature"
+    >
       <view class="signature-popup">
         <view class="popup-header">
           <text class="popup-title">客户签名</text>
-          <button class="clear-btn" size="mini" @click="clearSignature">清除</button>
+          <u-button
+            text="清除"
+            type="error"
+            size="mini"
+            plain
+            @click="clearSignature"
+          />
         </view>
         <canvas
           canvas-id="signatureCanvas"
@@ -182,19 +183,29 @@
           @touchend="handleTouchEnd"
         ></canvas>
         <view class="popup-actions">
-          <button class="popup-btn" @click="closeSignature">取消</button>
-          <button class="popup-btn primary" type="primary" @click="confirmSignature">确认</button>
+          <u-button
+            text="取消"
+            type="info"
+            plain
+            @click="closeSignature"
+          />
+          <u-button
+            text="确认"
+            type="primary"
+            @click="confirmSignature"
+          />
         </view>
       </view>
-    </uni-popup>
+    </u-popup>
 
     <!-- 确认对话框 -->
-    <ConfirmDialog
-      v-model:visible="dialogVisible"
+    <u-modal
+      :show="dialogVisible"
       :title="dialogTitle"
-      :message="dialogMessage"
-      :type="dialogType"
+      :content="dialogMessage"
+      :showCancelButton="true"
       @confirm="handleDialogConfirm"
+      @cancel="dialogVisible = false"
     />
   </view>
 </template>
@@ -202,14 +213,10 @@
 <script>
 import { getOrderDetail } from '@/api/order'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ImageUploader from '@/components/common/ImageUploader.vue'
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
 export default {
   components: {
-    LoadingSpinner,
-    ImageUploader,
-    ConfirmDialog
+    LoadingSpinner
   },
 
   data() {
@@ -221,7 +228,7 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       dialogMessage: '',
-      dialogType: 'default',
+      signatureVisible: false,
 
       // 表单数据
       formData: {
@@ -248,12 +255,17 @@ export default {
           navigation: false
         },
         fuelLevel: 100,
-        mileage: 0,
+        mileage: '',
         photos: [],
         issues: '',
         signature: '',
         verifier: ''
       },
+
+      // checkbox 选中列表
+      appearanceCheckList: [],
+      interiorCheckList: [],
+      functionCheckList: [],
 
       // 检查项配置
       appearanceChecks: [
@@ -315,7 +327,7 @@ export default {
 
         // 如果是还车核验，预填取车时的里程数
         if (this.verificationType === 'return' && data.pickupMileage) {
-          this.formData.mileage = data.pickupMileage
+          this.formData.mileage = String(data.pickupMileage)
         }
       } catch (error) {
         console.error('加载订单详情失败:', error)
@@ -328,12 +340,52 @@ export default {
       }
     },
 
-    toggleCheck(category, key) {
-      this.formData[category][key] = !this.formData[category][key]
+    // 处理外观检查变化
+    handleAppearanceChange(values) {
+      this.appearanceChecks.forEach(item => {
+        this.formData.appearance[item.key] = values.includes(item.key)
+      })
     },
 
-    handlePhotosChange(urls) {
-      console.log('照片列表变化:', urls)
+    // 处理内饰检查变化
+    handleInteriorChange(values) {
+      this.interiorChecks.forEach(item => {
+        this.formData.interior[item.key] = values.includes(item.key)
+      })
+    },
+
+    // 处理功能检查变化
+    handleFunctionChange(values) {
+      this.functionChecks.forEach(item => {
+        this.formData.function[item.key] = values.includes(item.key)
+      })
+    },
+
+    // 图片上传后
+    afterRead(event) {
+      const { file } = event
+      // 单个文件
+      if (!Array.isArray(file)) {
+        this.formData.photos.push({
+          url: file.url,
+          status: 'success',
+          message: ''
+        })
+      } else {
+        // 多个文件
+        file.forEach(item => {
+          this.formData.photos.push({
+            url: item.url,
+            status: 'success',
+            message: ''
+          })
+        })
+      }
+    },
+
+    // 删除图片
+    deletePhoto(event) {
+      this.formData.photos.splice(event.index, 1)
     },
 
     // 初始化签名画布
@@ -346,11 +398,11 @@ export default {
     },
 
     showSignature() {
-      this.$refs.signaturePopup.open()
+      this.signatureVisible = true
     },
 
     closeSignature() {
-      this.$refs.signaturePopup.close()
+      this.signatureVisible = false
     },
 
     clearSignature() {
@@ -410,7 +462,6 @@ export default {
     handleCancel() {
       this.dialogTitle = '取消核验'
       this.dialogMessage = '确定要取消核验吗？已填写的内容将不会保存。'
-      this.dialogType = 'default'
       this.dialogVisible = true
     },
 
@@ -422,7 +473,6 @@ export default {
 
       this.dialogTitle = '提交核验'
       this.dialogMessage = '确认提交核验记录吗？提交后将无法修改。'
-      this.dialogType = 'default'
       this.dialogVisible = true
     },
 
@@ -437,7 +487,7 @@ export default {
       }
 
       // 检查里程数
-      if (!this.formData.mileage || this.formData.mileage <= 0) {
+      if (!this.formData.mileage || Number(this.formData.mileage) <= 0) {
         uni.showToast({
           title: '请输入当前里程数',
           icon: 'none'
@@ -472,6 +522,7 @@ export default {
       } else if (this.dialogTitle === '提交核验') {
         await this.submitVerification()
       }
+      this.dialogVisible = false
     },
 
     async submitVerification() {
@@ -520,8 +571,7 @@ export default {
   padding: 20rpx;
 }
 
-/* 信息区块 */
-.info-section,
+/* 表单区块 */
 .form-section {
   background: #fff;
   border-radius: 12rpx;
@@ -536,132 +586,47 @@ export default {
   margin-bottom: 24rpx;
 }
 
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 28rpx;
-}
-
-.label {
-  color: #999;
-}
-
-.value {
-  color: #333;
-  font-weight: 500;
-}
-
-/* 检查列表 */
-.check-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.check-box {
-  width: 40rpx;
-  height: 40rpx;
-  border: 2rpx solid #ddd;
-  border-radius: 8rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-}
-
-.check-box.checked {
-  background: #3cc51f;
-  border-color: #3cc51f;
-}
-
-.check-icon {
-  color: #fff;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-.check-label {
-  flex: 1;
-  font-size: 28rpx;
-  color: #333;
+/* checkbox 样式 */
+.checkbox-item {
+  margin-bottom: 20rpx;
 }
 
 /* 油量选择器 */
-.fuel-selector {
-  display: flex;
-  gap: 20rpx;
+.fuel-radio {
+  margin-right: 20rpx;
+  margin-bottom: 20rpx;
 }
 
-.fuel-item {
-  flex: 1;
-  padding: 20rpx;
-  text-align: center;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  border: 2rpx solid transparent;
-  transition: all 0.3s;
-}
-
-.fuel-item.active {
-  background: #e6f7ff;
-  border-color: #1890ff;
-}
-
-.fuel-text {
-  font-size: 28rpx;
-  color: #333;
-}
-
-.fuel-item.active .fuel-text {
-  color: #1890ff;
-  font-weight: bold;
-}
-
-/* 输入框 */
-.input-field {
-  width: 100%;
-  height: 80rpx;
-  padding: 0 24rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-}
-
-.textarea-field {
-  width: 100%;
-  min-height: 200rpx;
-  padding: 20rpx;
-  background: #f5f5f5;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-}
-
-.char-count {
-  text-align: right;
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 12rpx;
-}
-
-/* 照片提示 */
+/* 照片上传 */
 .photo-tip {
   font-size: 24rpx;
   color: #999;
   margin-bottom: 20rpx;
+  line-height: 1.6;
+}
+
+.upload-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  border: 2rpx dashed #ddd;
+}
+
+.upload-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.upload-tip {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 12rpx;
   line-height: 1.6;
 }
 
@@ -672,6 +637,7 @@ export default {
   border: 2rpx dashed #ddd;
   border-radius: 8rpx;
   overflow: hidden;
+  background: #fafafa;
 }
 
 .signature-image {
@@ -687,11 +653,6 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 16rpx;
-  background: #fafafa;
-}
-
-.placeholder-icon {
-  font-size: 60rpx;
 }
 
 .placeholder-text {
@@ -702,7 +663,6 @@ export default {
 /* 签名弹窗 */
 .signature-popup {
   background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
   padding: 40rpx;
 }
 
@@ -719,12 +679,6 @@ export default {
   color: #333;
 }
 
-.clear-btn {
-  padding: 0 24rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-}
-
 .signature-canvas {
   width: 670rpx;
   height: 400rpx;
@@ -739,13 +693,6 @@ export default {
   margin-top: 30rpx;
 }
 
-.popup-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
-}
-
 /* 底部操作 */
 .bottom-actions {
   position: fixed;
@@ -758,12 +705,5 @@ export default {
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
-}
-
-.action-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 30rpx;
 }
 </style>

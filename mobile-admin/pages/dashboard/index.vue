@@ -3,103 +3,123 @@
     <!-- 数据概览卡片 -->
     <view class="overview-section">
       <view class="section-title">数据概览</view>
-      <view class="overview-grid">
-        <view class="overview-card" @click="navigateTo('/pages/orders/index')">
-          <view class="card-value">{{ overview.todayOrders.total }}</view>
-          <view class="card-label">今日订单</view>
-          <view class="card-detail">
-            <text class="detail-item">待确认: {{ overview.todayOrders.pending }}</text>
+      <u-grid :col="2" :border="false">
+        <u-grid-item @click="navigateTo('/pages/orders/index')">
+          <view class="overview-card card-1">
+            <view class="card-value">{{ overview.todayOrders.total }}</view>
+            <view class="card-label">今日订单</view>
+            <view class="card-detail">
+              <text class="detail-item">待确认: {{ overview.todayOrders.pending }}</text>
+            </view>
           </view>
-        </view>
+        </u-grid-item>
 
-        <view class="overview-card">
-          <view class="card-value">{{ overview.activeUsers.total }}</view>
-          <view class="card-label">活跃用户</view>
-          <view class="card-detail">
-            <text class="detail-item">新增: {{ overview.activeUsers.new }}</text>
+        <u-grid-item>
+          <view class="overview-card card-2">
+            <view class="card-value">{{ overview.activeUsers.total }}</view>
+            <view class="card-label">活跃用户</view>
+            <view class="card-detail">
+              <text class="detail-item">新增: {{ overview.activeUsers.new }}</text>
+            </view>
           </view>
-        </view>
+        </u-grid-item>
 
-        <view class="overview-card">
-          <view class="card-value">¥{{ formatMoney(overview.revenue.today) }}</view>
-          <view class="card-label">今日收入</view>
-          <view class="card-detail">
-            <text class="detail-item success">+{{ overview.revenue.growth }}%</text>
+        <u-grid-item>
+          <view class="overview-card card-3">
+            <view class="card-value">¥{{ formatMoney(overview.revenue.today) }}</view>
+            <view class="card-label">今日收入</view>
+            <view class="card-detail">
+              <text class="detail-item success">+{{ overview.revenue.growth }}%</text>
+            </view>
           </view>
-        </view>
+        </u-grid-item>
 
-        <view class="overview-card" @click="navigateTo('/pages/vehicles/index')">
-          <view class="card-value">{{ overview.vehicles.available }}</view>
-          <view class="card-label">可用车辆</view>
-          <view class="card-detail">
-            <text class="detail-item">总数: {{ overview.vehicles.total }}</text>
+        <u-grid-item @click="navigateTo('/pages/vehicles/index')">
+          <view class="overview-card card-4">
+            <view class="card-value">{{ overview.vehicles.available }}</view>
+            <view class="card-label">可用车辆</view>
+            <view class="card-detail">
+              <text class="detail-item">总数: {{ overview.vehicles.total }}</text>
+            </view>
           </view>
-        </view>
-      </view>
+        </u-grid-item>
+      </u-grid>
     </view>
 
     <!-- 待办任务 -->
     <view class="todo-section">
       <view class="section-header">
         <view class="section-title">待办任务</view>
-        <view class="section-more" @click="showAllTodos">
-          查看全部 <text class="arrow">›</text>
-        </view>
+        <u-button
+          text="查看全部"
+          type="text"
+          size="small"
+          @click="showAllTodos"
+        >
+          <template #suffix>
+            <u-icon name="arrow-right" size="16"></u-icon>
+          </template>
+        </u-button>
       </view>
 
       <view class="todo-list">
-        <view
+        <u-card
           v-for="todo in todoList"
           :key="todo.id"
-          class="todo-item"
+          :padding="24"
+          :margin="0"
+          :border-radius="12"
+          class="todo-card"
           :class="'priority-' + todo.priority"
         >
           <view class="todo-header">
             <view class="todo-title">{{ todo.title }}</view>
-            <uni-tag
+            <u-tag
               :text="getPriorityText(todo.priority)"
-              :type="getPriorityType(todo.priority)"
-              size="small"
+              :type="getPriorityTagType(todo.priority)"
+              size="mini"
+              plain
             />
           </view>
           <view class="todo-desc">{{ todo.description }}</view>
           <view class="todo-footer">
             <text class="todo-time">截止: {{ formatDateTime(todo.deadline) }}</text>
-            <view class="todo-actions">
-              <button
-                class="action-btn"
-                size="mini"
-                type="primary"
-                @click="handleTodo(todo)"
-              >
-                处理
-              </button>
-            </view>
+            <u-button
+              text="处理"
+              type="primary"
+              size="mini"
+              @click="handleTodo(todo)"
+            />
           </view>
-        </view>
+        </u-card>
 
-        <view v-if="todoList.length === 0" class="empty-state">
-          <text class="empty-text">暂无待办任务</text>
-        </view>
+        <u-empty
+          v-if="todoList.length === 0"
+          mode="data"
+          text="暂无待办任务"
+          :icon-size="120"
+        />
       </view>
     </view>
 
     <!-- 快捷操作 -->
     <view class="quick-actions">
       <view class="section-title">快捷操作</view>
-      <view class="action-grid">
-        <view
+      <u-grid :col="4" :border="false">
+        <u-grid-item
           v-for="action in quickActions"
           :key="action.id"
-          class="action-item"
           @click="handleQuickAction(action)"
         >
-          <view class="action-icon" :style="{ backgroundColor: action.color }">
-            <text class="icon">{{ action.icon }}</text>
+          <view class="action-item">
+            <view class="action-icon" :style="{ backgroundColor: action.color }">
+              <u-icon :name="action.iconName" size="48" color="#fff" v-if="action.iconName"></u-icon>
+              <text class="icon" v-else>{{ action.icon }}</text>
+            </view>
+            <text class="action-label">{{ action.label }}</text>
           </view>
-          <text class="action-label">{{ action.label }}</text>
-        </view>
-      </view>
+        </u-grid-item>
+      </u-grid>
     </view>
   </view>
 </template>
@@ -119,10 +139,10 @@ export default {
       },
       todoList: [],
       quickActions: [
-        { id: 1, label: '订单管理', icon: '📋', color: '#3cc51f', path: '/pages/orders/index' },
-        { id: 2, label: '车辆管理', icon: '🚗', color: '#ff9500', path: '/pages/vehicles/index' },
-        { id: 3, label: '消息通知', icon: '💬', color: '#007aff', path: '/pages/messages/index' },
-        { id: 4, label: '数据统计', icon: '📊', color: '#5856d6', path: '/pages/statistics/index' }
+        { id: 1, label: '订单管理', icon: '📋', iconName: 'list', color: '#3cc51f', path: '/pages/orders/index' },
+        { id: 2, label: '车辆管理', icon: '🚗', iconName: 'car', color: '#ff9500', path: '/pages/vehicles/index' },
+        { id: 3, label: '消息通知', icon: '💬', iconName: 'chat', color: '#007aff', path: '/pages/messages/index' },
+        { id: 4, label: '数据统计', icon: '📊', iconName: 'chart', color: '#5856d6', path: '/pages/statistics/index' }
       ],
       loading: false
     }
@@ -214,13 +234,13 @@ export default {
       return map[priority] || '普通'
     },
 
-    getPriorityType(priority) {
+    getPriorityTagType(priority) {
       const map = {
         high: 'error',
         medium: 'warning',
-        low: 'default'
+        low: 'info'
       }
-      return map[priority] || 'default'
+      return map[priority] || 'info'
     }
   }
 }
@@ -247,28 +267,26 @@ export default {
   margin-bottom: 20rpx;
 }
 
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
-}
-
 .overview-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 16rpx;
   padding: 30rpx;
   color: #fff;
+  min-height: 180rpx;
 }
 
-.overview-card:nth-child(2) {
+.overview-card.card-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.overview-card.card-2 {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-.overview-card:nth-child(3) {
+.overview-card.card-3 {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
-.overview-card:nth-child(4) {
+.overview-card.card-4 {
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
@@ -311,37 +329,27 @@ export default {
   margin-bottom: 20rpx;
 }
 
-.section-more {
-  font-size: 28rpx;
-  color: #999;
-}
-
-.arrow {
-  font-size: 32rpx;
-}
-
 .todo-list {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
 }
 
-.todo-item {
+.todo-card {
   background: #f8f8f8;
-  border-radius: 12rpx;
-  padding: 24rpx;
   border-left: 6rpx solid #3cc51f;
+  margin-bottom: 20rpx;
 }
 
-.todo-item.priority-high {
+.todo-card.priority-high {
   border-left-color: #f56c6c;
 }
 
-.todo-item.priority-medium {
+.todo-card.priority-medium {
   border-left-color: #e6a23c;
 }
 
-.todo-item.priority-low {
+.todo-card.priority-low {
   border-left-color: #909399;
 }
 
@@ -357,12 +365,14 @@ export default {
   font-weight: bold;
   color: #333;
   flex: 1;
+  margin-right: 20rpx;
 }
 
 .todo-desc {
   font-size: 26rpx;
   color: #666;
   margin-bottom: 12rpx;
+  line-height: 1.6;
 }
 
 .todo-footer {
@@ -376,32 +386,10 @@ export default {
   color: #999;
 }
 
-.action-btn {
-  padding: 0 24rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80rpx 0;
-}
-
-.empty-text {
-  font-size: 28rpx;
-  color: #999;
-}
-
 /* 快捷操作 */
 .quick-actions {
   background: #fff;
   padding: 30rpx;
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30rpx;
 }
 
 .action-item {
@@ -421,8 +409,13 @@ export default {
   font-size: 48rpx;
 }
 
+.action-icon .icon {
+  font-size: 48rpx;
+}
+
 .action-label {
   font-size: 24rpx;
   color: #666;
+  text-align: center;
 }
 </style>
