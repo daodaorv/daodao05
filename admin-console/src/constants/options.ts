@@ -31,7 +31,8 @@ import {
   PERMISSION_TYPE_MAP,
   LOG_TYPE_MAP,
   NOTIFICATION_TYPE_MAP,
-  NOTIFICATION_STATUS_MAP
+  NOTIFICATION_STATUS_MAP,
+  BLACKLIST_REASON_MAP
 } from './enums'
 
 /**
@@ -188,6 +189,11 @@ export const NOTIFICATION_TYPE_OPTIONS = mapToOptions(NOTIFICATION_TYPE_MAP)
  * 通知状态选项
  */
 export const NOTIFICATION_STATUS_OPTIONS = mapToOptions(NOTIFICATION_STATUS_MAP)
+
+/**
+ * 黑名单原因选项
+ */
+export const BLACKLIST_REASON_OPTIONS = mapToOptions(BLACKLIST_REASON_MAP)
 
 /**
  * 是/否选项

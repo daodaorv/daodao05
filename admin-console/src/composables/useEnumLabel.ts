@@ -9,7 +9,8 @@ import {
   ORDER_STATUS_MAP,
   PAYMENT_STATUS_MAP,
   PAYMENT_METHOD_MAP,
-  GENDER_MAP
+  GENDER_MAP,
+  BLACKLIST_REASON_MAP
 } from '@/constants/enums'
 
 /**
@@ -104,6 +105,13 @@ export function useEnumLabel() {
   }
 
   /**
+   * 获取黑名单原因标签
+   */
+  const getBlacklistReasonLabel = (reason: string): string => {
+    return BLACKLIST_REASON_MAP[reason] || reason
+  }
+
+  /**
    * 通用枚举标签获取
    * @param value 枚举值
    * @param map 枚举映射对象
@@ -124,6 +132,7 @@ export function useEnumLabel() {
     getPaymentStatusLabel,
     getPaymentMethodLabel,
     getGenderLabel,
+    getBlacklistReasonLabel,
     getEnumLabel
   }
 }

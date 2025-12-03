@@ -286,3 +286,13 @@ export const NOTIFICATION_STATUS_MAP: Record<string, string> = {
   unread: '未读',
   read: '已读'
 } as const
+
+/**
+ * 黑名单原因映射
+ */
+export const BLACKLIST_REASON_MAP: Record<string, string> = {
+  fraud: '欺诈行为',
+  complaint: '用户投诉',
+  violation: '违规操作',
+  other: '其他原因'
+} as const
