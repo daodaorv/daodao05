@@ -1,12 +1,9 @@
 <template>
   <div class="vehicle-maintenance-container">
-    <!-- 页面标题 -->
     <PageHeader title="维保管理" description="管理车辆维修保养计划、记录和成本" />
 
-    <!-- 统计卡片 -->
     <StatsCard :stats="statsConfig" />
 
-    <!-- 搜索表单 -->
     <SearchForm
       v-model="searchForm"
       :fields="searchFields"
@@ -14,7 +11,6 @@
       @reset="handleReset"
     />
 
-    <!-- 数据表格 -->
     <DataTable
       :data="maintenanceList"
       :columns="tableColumns"
@@ -27,13 +23,13 @@
       @current-change="handleCurrentChange"
     >
       <template #type="{ row }">
-        <el-tag :type="getTypeTag(row.type)" size="small">
-          {{ getTypeLabel(row.type) }}
+        <el-tag :type="getMaintenanceTypeTag(row.type)" size="small">
+          {{ getMaintenanceTypeLabel(row.type) }}
         </el-tag>
       </template>
       <template #status="{ row }">
-        <el-tag :type="getStatusTag(row.status)" size="small">
-          {{ getStatusLabel(row.status) }}
+        <el-tag :type="getMaintenanceStatusTag(row.status)" size="small">
+          {{ getMaintenanceStatusLabel(row.status) }}
         </el-tag>
       </template>
       <template #cost="{ row }">
@@ -58,19 +54,24 @@
           <el-col :span="12">
             <el-form-item label="车辆" prop="vehicleId">
               <el-select v-model="form.vehicleId" placeholder="请选择车辆" style="width: 100%">
-                <el-option label="京A12345 - 大通RV80" :value="1" />
-                <el-option label="沪B67890 - 福特全顺" :value="2" />
-                <el-option label="粤C11111 - 依维柯拖挂" :value="3" />
+                <el-option
+                  v-for="option in VEHICLE_OPTIONS"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="维保类型" prop="type">
               <el-select v-model="form.type" placeholder="请选择类型" style="width: 100%">
-                <el-option label="常规保养" value="regular" />
-                <el-option label="维修" value="repair" />
-                <el-option label="年检" value="inspection" />
-                <el-option label="紧急维修" value="emergency" />
+                <el-option
+                  v-for="option in MAINTENANCE_TYPE_OPTIONS"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
               </el-select>
             </el-form-item>
           </el-col>
@@ -170,13 +171,13 @@
           {{ currentRecord.modelName }}
         </el-descriptions-item>
         <el-descriptions-item label="维保类型">
-          <el-tag :type="getTypeTag(currentRecord.type)" size="small">
-            {{ getTypeLabel(currentRecord.type) }}
+          <el-tag :type="getMaintenanceTypeTag(currentRecord.type)" size="small">
+            {{ getMaintenanceTypeLabel(currentRecord.type) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="维保状态">
-          <el-tag :type="getStatusTag(currentRecord.status)" size="small">
-            {{ getStatusLabel(currentRecord.status) }}
+          <el-tag :type="getMaintenanceStatusTag(currentRecord.status)" size="small">
+            {{ getMaintenanceStatusLabel(currentRecord.status) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="维保内容" :span="2">
@@ -244,6 +245,27 @@ import {
   getVehicles,
   type MaintenanceRecord,
 } from '@/api/vehicle'
+import { useErrorHandler, useEnumLabel } from '@/composables'
+import { MAINTENANCE_STATUS_OPTIONS } from '@/constants'
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getMaintenanceTypeLabel, getMaintenanceStatusLabel } = useEnumLabel()
+
+// 维保类型选项
+const MAINTENANCE_TYPE_OPTIONS = [
+  { label: '常规保养', value: 'regular' },
+  { label: '维修', value: 'repair' },
+  { label: '年检', value: 'inspection' },
+  { label: '紧急维修', value: 'emergency' },
+]
+
+// 车辆选项 (Mock数据)
+const VEHICLE_OPTIONS = [
+  { label: '京A12345 - 大通RV80', value: 1 },
+  { label: '沪B67890 - 福特全顺', value: 2 },
+  { label: '粤C11111 - 依维柯拖挂', value: 3 },
+]
 
 // 搜索表单
 const searchForm = reactive({
@@ -305,12 +327,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择类型',
     width: '150px',
-    options: [
-      { label: '常规保养', value: 'regular' },
-      { label: '维修', value: 'repair' },
-      { label: '年检', value: 'inspection' },
-      { label: '紧急维修', value: 'emergency' },
-    ],
+    options: MAINTENANCE_TYPE_OPTIONS,
   },
   {
     prop: 'status',
@@ -318,12 +335,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择状态',
     width: '150px',
-    options: [
-      { label: '计划中', value: 'planned' },
-      { label: '进行中', value: 'in_progress' },
-      { label: '已完成', value: 'completed' },
-      { label: '已取消', value: 'cancelled' },
-    ],
+    options: MAINTENANCE_STATUS_OPTIONS,
   },
   {
     prop: 'dateRange',
@@ -477,7 +489,7 @@ const loadMaintenanceRecords = async () => {
     maintenanceList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载维保记录失败')
+    handleApiError(error, '加载维保记录失败')
   } finally {
     loading.value = false
   }
@@ -492,7 +504,7 @@ const loadStats = async () => {
     stats.completed = res.data.completedRecords
     stats.totalCost = res.data.totalCost
   } catch (error) {
-    ElMessage.error('加载统计数据失败')
+    handleApiError(error, '加载统计数据失败')
   }
 }
 
@@ -502,7 +514,7 @@ const loadVehicles = async () => {
     const res = await getVehicles({ page: 1, pageSize: 100 })
     vehicleList.value = res.data.list
   } catch (error) {
-    ElMessage.error('加载车辆列表失败')
+    handleApiError(error, '加载车辆列表失败')
   }
 }
 
@@ -536,7 +548,7 @@ const handleView = async (row: MaintenanceRecord) => {
     currentRecord.value = res.data
     detailDialogVisible.value = true
   } catch (error) {
-    ElMessage.error('加载维保记录详情失败')
+    handleApiError(error, '加载维保记录详情失败')
   }
 }
 
@@ -581,7 +593,7 @@ const handleComplete = async (row: MaintenanceRecord) => {
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      handleApiError(error, '操作失败')
     }
   }
 }
@@ -605,7 +617,7 @@ const handleDelete = async (row: MaintenanceRecord) => {
     loadStats()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      handleApiError(error, '删除失败')
     }
   }
 }
@@ -652,7 +664,7 @@ const handleSubmit = async () => {
       loadMaintenanceRecords()
       loadStats()
     } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+      handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitLoading.value = false
     }
@@ -686,9 +698,9 @@ const handleCurrentChange = (page: number) => {
   loadMaintenanceRecords()
 }
 
-// 获取类型标签
-const getTypeTag = (type: string) => {
-  const tagMap: Record<string, any> = {
+// 获取维保类型标签类型
+const getMaintenanceTypeTag = (type: string) => {
+  const tagMap: Record<string, string> = {
     regular: 'primary',
     repair: 'warning',
     inspection: 'success',
@@ -697,37 +709,15 @@ const getTypeTag = (type: string) => {
   return tagMap[type] || 'info'
 }
 
-// 获取类型标签文本
-const getTypeLabel = (type: string) => {
-  const labelMap: Record<string, string> = {
-    regular: '常规保养',
-    repair: '维修',
-    inspection: '年检',
-    emergency: '紧急维修',
-  }
-  return labelMap[type] || type
-}
-
-// 获取状态标签
-const getStatusTag = (status: string) => {
-  const tagMap: Record<string, any> = {
+// 获取维保状态标签类型
+const getMaintenanceStatusTag = (status: string) => {
+  const tagMap: Record<string, string> = {
     planned: 'info',
     in_progress: 'warning',
     completed: 'success',
     cancelled: 'danger',
   }
   return tagMap[status] || 'info'
-}
-
-// 获取状态标签文本
-const getStatusLabel = (status: string) => {
-  const labelMap: Record<string, string> = {
-    planned: '计划中',
-    in_progress: '进行中',
-    completed: '已完成',
-    cancelled: '已取消',
-  }
-  return labelMap[status] || status
 }
 
 // 页面加载

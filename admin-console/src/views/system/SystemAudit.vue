@@ -27,7 +27,7 @@
       <template #operator="{ row }">
         <div class="operator-info">
           <el-avatar :size="32" :src="row.operatorAvatar">
-            {{ row.operator.charAt(0) }}
+            {{ row.operator?.charAt(0) || 'O' }}
           </el-avatar>
           <span class="operator-name">{{ row.operator }}</span>
         </div>

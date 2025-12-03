@@ -102,7 +102,7 @@
               <template #default="{ row }">
                 <div class="user-info">
                   <el-avatar :src="row.avatarUrl" :size="40">
-                    {{ row.username.charAt(0) }}
+                    {{ row.username?.charAt(0) || 'U' }}
                   </el-avatar>
                   <div class="user-detail">
                     <div>{{ row.username }}</div>
