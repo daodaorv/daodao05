@@ -13,11 +13,11 @@ app.$mount()
 
 // #ifdef VUE3
 import { createSSRApp } from 'vue'
-import uView from 'uview-ui'
+import uviewPlus from 'uview-plus'
 export function createApp() {
   const app = createSSRApp(App)
   app.use(pinia)
-  app.use(uView)
+  app.use(uviewPlus)
   return {
     app
   }

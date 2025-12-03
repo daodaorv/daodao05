@@ -15,6 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "dayjs": "^1.11.10",
-    "uview-ui": "^2.0.38"
+    "uview-plus": "^3.6.18"
   }
 }
