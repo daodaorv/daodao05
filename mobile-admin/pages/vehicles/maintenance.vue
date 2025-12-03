@@ -145,11 +145,12 @@
         <view class="section-title">下次维保提醒</view>
         <view class="reminder-row">
           <text class="reminder-label">里程提醒</text>
-          <input
-            v-model.number="formData.nextMileage"
+          <u-input
+            v-model="formData.nextMileage"
             type="number"
-            class="reminder-input"
             placeholder="下次维保里程"
+            border="surround"
+            class="reminder-input"
           />
           <text class="reminder-unit">km</text>
         </view>
@@ -164,7 +165,7 @@
               <text :class="{ placeholder: !formData.nextDate }">
                 {{ formData.nextDate || '选择日期' }}
               </text>
-              <text class="picker-arrow">›</text>
+              <u-icon name="arrow-right" size="24" color="#ccc"></u-icon>
             </view>
           </picker>
         </view>
@@ -172,37 +173,39 @@
 
       <!-- 底部操作按钮 -->
       <view class="bottom-actions">
-        <button class="action-btn" @click="handleCancel">
-          取消
-        </button>
-        <button class="action-btn primary" type="primary" @click="handleSubmit">
-          保存记录
-        </button>
+        <u-button
+          text="取消"
+          type="info"
+          plain
+          @click="handleCancel"
+        ></u-button>
+        <u-button
+          text="保存记录"
+          type="primary"
+          @click="handleSubmit"
+        ></u-button>
       </view>
     </view>
 
     <!-- 确认对话框 -->
-    <ConfirmDialog
-      v-model:visible="dialogVisible"
+    <u-modal
+      :show="dialogVisible"
       :title="dialogTitle"
-      :message="dialogMessage"
-      :type="dialogType"
+      :content="dialogMessage"
+      :showCancelButton="true"
       @confirm="handleDialogConfirm"
-    />
+      @cancel="dialogVisible = false"
+    ></u-modal>
   </view>
 </template>
 
 <script>
 import { getVehicleDetail } from '@/api/vehicle'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ImageUploader from '@/components/common/ImageUploader.vue'
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
 export default {
   components: {
-    LoadingSpinner,
-    ImageUploader,
-    ConfirmDialog
+    LoadingSpinner
   },
 
   data() {
@@ -213,7 +216,7 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       dialogMessage: '',
-      dialogType: 'default',
+      photoList: [],
 
       // 表单数据
       formData: {
