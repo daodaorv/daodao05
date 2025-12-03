@@ -1,12 +1,114 @@
-# uView UI 组件迁移映射文档
+# uView UI 迁移文档
 
 ## 迁移概述
 
-本文档记录了从 uni-ui 到 uView UI 2.0 的组件迁移映射关系。
+本文档记录了小程序 UI 组件库的迁移历程：
+1. **第一阶段**: uni-ui → uView UI 2.0.38
+2. **第二阶段**: uView UI 2.0.38 → uView Plus 3.6.18（Vue 3 兼容）
 
+**最新版本**: uView Plus 3.6.18
 **迁移日期**: 2025-12-03
-**uView 版本**: 2.0.38
 **项目**: 叨叨房车小程序
+
+---
+
+## 🚨 重要：Vue 3 兼容性问题
+
+### 问题描述
+uView UI v2.0.38 不兼容 Vue 3，会导致以下错误：
+```
+Vue.filter is not a function
+```
+
+**原因**: Vue 3 移除了 `Vue.filter` API，而 uView UI v2 仍在使用这个已废弃的 API。
+
+### 解决方案
+升级到 **uView Plus**，这是 uView UI 的 Vue 3 兼容版本。
+
+---
+
+## 📦 uView Plus 迁移步骤
+
+### 1. 卸载 uView UI 并安装 uView Plus
+
+```bash
+cd miniprogram
+npm uninstall uview-ui
+npm install uview-plus
+```
+
+### 2. 更新 main.js
+
+```javascript
+// 之前
+import uView from 'uview-ui'
+app.use(uView)
+
+// 之后
+import uviewPlus from 'uview-plus'
+app.use(uviewPlus)
+```
+
+### 3. 更新 App.vue
+
+```scss
+// 之前
+@import 'uview-ui/index.scss';
+
+// 之后
+@import '@/uni.scss';  // 必须先导入变量
+@import 'uview-plus/index.scss';
+```
+
+### 4. 更新 uni.scss
+
+确保包含所有 uView Plus 需要的 SCSS 变量：
+
+```scss
+/* uView Plus 主题色配置 */
+$u-primary: #FF9F29;
+$u-success: #4CAF50;
+$u-warning: #FF9800;
+$u-error: #F44336;
+$u-info: #2196F3;
+
+/* uView Plus 主题色变体 - light（浅色） */
+$u-primary-light: #FFE5C2;
+$u-success-light: #C8E6C9;
+$u-warning-light: #FFE0B2;
+$u-error-light: #FFCDD2;
+$u-info-light: #BBDEFB;
+
+/* uView Plus 主题色变体 - dark（深色） */
+$u-primary-dark: #E68A1A;
+$u-success-dark: #388E3C;
+$u-warning-dark: #F57C00;
+$u-error-dark: #D32F2F;
+$u-info-dark: #1976D2;
+
+/* uView Plus 主题色变体 - disabled（禁用） */
+$u-primary-disabled: #FFD9A3;
+$u-success-disabled: #A5D6A7;
+$u-warning-disabled: #FFCC80;
+$u-error-disabled: #EF9A9A;
+$u-info-disabled: #90CAF9;
+
+/* uView Plus 文字颜色 */
+$u-main-color: #1A1A1A;
+$u-content-color: #666666;
+$u-tips-color: #999999;
+$u-light-color: #FFFFFF;
+
+/* uView Plus 背景色 */
+$u-bg-color: #F5F7FA;
+
+/* uView Plus 边框颜色 */
+$u-border-color: #E9ECEF;
+```
+
+### 5. 验证编译
+
+在 HBuilderX 中重新编译项目，确保没有错误。
 
 ---
 
