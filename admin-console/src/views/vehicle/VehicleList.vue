@@ -58,7 +58,7 @@
       <!-- 车辆状态列 -->
       <template #status="{ row }">
         <el-tag :type="getStatusTag(row.status)" size="small">
-          {{ getStatusLabel(row.status) }}
+          {{ getVehicleStatusLabel(row.status) }}
         </el-tag>
       </template>
 
@@ -145,19 +145,24 @@
               <el-col :span="12">
                 <el-form-item label="所有权类型" prop="ownershipType">
                   <el-select v-model="form.ownershipType" placeholder="请选择所有权类型" style="width: 100%">
-                    <el-option label="平台自有" value="platform" />
-                    <el-option label="托管车辆" value="hosting" />
-                    <el-option label="合作车辆" value="cooperative" />
+                    <el-option
+                      v-for="option in OWNERSHIP_TYPE_OPTIONS"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="所属门店" prop="storeId">
                   <el-select v-model="form.storeId" placeholder="请选择门店" style="width: 100%">
-                    <el-option label="北京朝阳店" :value="1" />
-                    <el-option label="上海浦东店" :value="2" />
-                    <el-option label="深圳南山店" :value="3" />
-                    <el-option label="成都武侯店" :value="4" />
+                    <el-option
+                      v-for="option in STORE_OPTIONS"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -314,6 +319,12 @@ import {
   type Vehicle,
   type VehicleModel,
 } from '@/api/vehicle'
+import { useErrorHandler, useEnumLabel } from '@/composables'
+import { VEHICLE_STATUS_OPTIONS, STORE_OPTIONS, OWNERSHIP_TYPE_OPTIONS } from '@/constants'
+
+// Composables
+const { handleApiError } = useErrorHandler()
+const { getVehicleStatusLabel, getOwnershipTypeLabel } = useEnumLabel()
 
 // 搜索表单
 const searchForm = reactive({
@@ -347,13 +358,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择状态',
     width: '150px',
-    options: [
-      { label: '可用', value: 'available' },
-      { label: '租用中', value: 'rented' },
-      { label: '保养中', value: 'maintenance' },
-      { label: '维修中', value: 'repair' },
-      { label: '已退役', value: 'retired' },
-    ],
+    options: VEHICLE_STATUS_OPTIONS,
   },
   {
     prop: 'storeId',
@@ -361,12 +366,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择门店',
     width: '150px',
-    options: [
-      { label: '北京朝阳店', value: 1 },
-      { label: '上海浦东店', value: 2 },
-      { label: '深圳南山店', value: 3 },
-      { label: '成都武侯店', value: 4 },
-    ],
+    options: STORE_OPTIONS,
   },
   {
     prop: 'ownershipType',
@@ -374,11 +374,7 @@ const searchFields: SearchField[] = [
     type: 'select',
     placeholder: '请选择类型',
     width: '150px',
-    options: [
-      { label: '平台自有', value: 'platform' },
-      { label: '托管车辆', value: 'hosting' },
-      { label: '合作车辆', value: 'cooperative' },
-    ],
+    options: OWNERSHIP_TYPE_OPTIONS,
   },
 ]
 
@@ -494,7 +490,7 @@ const loadVehicles = async () => {
     vehicleList.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {
-    ElMessage.error('加载车辆列表失败')
+    handleApiError(error, '加载车辆列表失败')
   } finally {
     loading.value = false
   }
@@ -518,7 +514,7 @@ const loadVehicleModels = async () => {
       }))
     }
   } catch (error) {
-    ElMessage.error('加载车型列表失败')
+    handleApiError(error, '加载车型列表失败')
   }
 }
 
@@ -578,16 +574,9 @@ const handleEdit = (row: Vehicle) => {
 
 // 状态变更
 const handleStatusChange = async (row: Vehicle, status: string) => {
-  const statusMap: Record<string, string> = {
-    available: '可用',
-    maintenance: '保养中',
-    repair: '维修中',
-    retired: '已退役',
-  }
-
   try {
     await ElMessageBox.confirm(
-      `确定要将车辆 "${row.vehicleNumber}" 状态设置为"${statusMap[status]}"吗？`,
+      `确定要将车辆 "${row.vehicleNumber}" 状态设置为"${getVehicleStatusLabel(status)}"吗？`,
       '状态变更确认',
       {
         confirmButtonText: '确定',
@@ -601,7 +590,7 @@ const handleStatusChange = async (row: Vehicle, status: string) => {
     loadVehicles()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('状态更新失败')
+      handleApiError(error, '状态更新失败')
     }
   }
 }
@@ -622,9 +611,9 @@ const handleDelete = async (row: Vehicle) => {
     await deleteVehicle(row.id)
     ElMessage.success('删除成功')
     loadVehicles()
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.message || '删除失败')
+      handleApiError(error, '删除失败')
     }
   }
 }
@@ -667,7 +656,7 @@ const handleSubmit = async () => {
       dialogVisible.value = false
       loadVehicles()
     } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+      handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitLoading.value = false
     }
@@ -706,7 +695,7 @@ const handleCurrentChange = (page: number) => {
   loadVehicles()
 }
 
-// 获取状态标签
+// 获取状态标签类型
 const getStatusTag = (status: string) => {
   const tagMap: Record<string, any> = {
     available: 'success',
@@ -718,19 +707,7 @@ const getStatusTag = (status: string) => {
   return tagMap[status] || 'info'
 }
 
-// 获取状态标签文本
-const getStatusLabel = (status: string) => {
-  const labelMap: Record<string, string> = {
-    available: '可用',
-    rented: '租用中',
-    maintenance: '保养中',
-    repair: '维修中',
-    retired: '已退役',
-  }
-  return labelMap[status] || status
-}
-
-// 获取所有权类型标签
+// 获取所有权类型标签类型
 const getOwnershipTypeTag = (type: string) => {
   const tagMap: Record<string, any> = {
     platform: 'primary',
@@ -738,16 +715,6 @@ const getOwnershipTypeTag = (type: string) => {
     cooperative: 'warning',
   }
   return tagMap[type] || 'info'
-}
-
-// 获取所有权类型标签文本
-const getOwnershipTypeLabel = (type: string) => {
-  const labelMap: Record<string, string> = {
-    platform: '平台自有',
-    hosting: '托管车辆',
-    cooperative: '合作车辆',
-  }
-  return labelMap[type] || type
 }
 
 // 页面加载
