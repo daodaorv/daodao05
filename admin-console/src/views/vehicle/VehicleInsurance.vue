@@ -133,6 +133,7 @@ import {
 } from '@/api/vehicle'
 import { useListPage, useDateFormat, useErrorHandler } from '@/composables'
 import { INSURANCE_STATUS_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { formatDate } = useDateFormat()
@@ -269,7 +270,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出记录',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
 ]
 
@@ -624,6 +625,20 @@ function getInsuranceStatusLabel(status: string) {
 onMounted(() => {
   loadStats()
 })
+
+// 导出数据
+function handleExport() {
+  if (list.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(list.value, columns, '保险记录')
+}
 </script>
 
 <style scoped lang="scss">

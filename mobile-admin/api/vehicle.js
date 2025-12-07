@@ -57,10 +57,36 @@ export function getMaintenanceRecords(id) {
   return get(`/api/v1/vehicles/${id}/maintenance`)
 }
 
+/**
+ * 上传车辆照片
+ */
+export function uploadVehiclePhotos(data) {
+  if (USE_MOCK) {
+    return mockVehicle.uploadVehiclePhotos(data)
+  }
+  const vehicleId = data?.vehicleId
+  const url = vehicleId ? `/api/v1/vehicles/${vehicleId}/photos` : '/api/v1/vehicles/photos'
+  return post(url, data)
+}
+
+/**
+ * 获取车辆照片上传历史
+ */
+export function getUploadHistory(params = {}) {
+  if (USE_MOCK) {
+    return mockVehicle.getUploadHistory(params)
+  }
+  const vehicleId = params?.vehicleId
+  const url = vehicleId ? `/api/v1/vehicles/${vehicleId}/photos/history` : '/api/v1/vehicles/photos/history'
+  return get(url, params)
+}
+
 export default {
   getVehicleList,
   getVehicleDetail,
   updateVehicleStatus,
   addMaintenanceRecord,
-  getMaintenanceRecords
+  getMaintenanceRecords,
+  uploadVehiclePhotos,
+  getUploadHistory
 }

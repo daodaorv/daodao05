@@ -20,7 +20,11 @@ export function isLoggedIn(): boolean {
 export function getCurrentUser(): UserInfo | null {
 	try {
 		const userInfo = uni.getStorageSync('userInfo')
-		return userInfo || null
+		if (!userInfo) return null
+		if (typeof userInfo === 'string') {
+			return JSON.parse(userInfo)
+		}
+		return userInfo
 	} catch (error) {
 		console.error('[Auth] 获取用户信息失败:', error)
 		return null
@@ -47,7 +51,7 @@ export function saveLoginInfo(token: string, refreshToken: string, userInfo: Use
 	try {
 		uni.setStorageSync('token', token)
 		uni.setStorageSync('refreshToken', refreshToken)
-		uni.setStorageSync('userInfo', userInfo)
+		uni.setStorageSync('userInfo', JSON.stringify(userInfo))
 		console.log('[Auth] 登录信息已保存')
 	} catch (error) {
 		console.error('[Auth] 保存登录信息失败:', error)
@@ -101,6 +105,17 @@ export function requireLogin(redirectUrl?: string): boolean {
 	return false
 }
 
+export function buildRedirectUrl(path: string, params?: Record<string, any>): string {
+	const entries = Object.entries(params || {}).filter(([, value]) => value !== undefined && value !== null && value !== '')
+	if (entries.length === 0) {
+		return path
+	}
+	const query = entries
+		.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+		.join('&')
+	return `${path}?${query}`
+}
+
 /**
  * 显示登录提示并跳转
  * @param message 提示信息
@@ -139,7 +154,7 @@ export async function checkAndUpdateLoginStatus(): Promise<boolean> {
 
 		// 更新用户信息
 		if (result.user) {
-			uni.setStorageSync('userInfo', result.user)
+			uni.setStorageSync('userInfo', JSON.stringify(result.user))
 		}
 
 		return true
@@ -257,6 +272,7 @@ export default {
 	saveLoginInfo,
 	clearLoginInfo,
 	requireLogin,
+	buildRedirectUrl,
 	showLoginTip,
 	checkAndUpdateLoginStatus,
 	logout,

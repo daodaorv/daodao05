@@ -339,7 +339,7 @@ const getDaysUntilExpiry = (coupon: any) => {
 <style lang="scss" scoped>
 .coupons-page {
 	min-height: 100vh;
-	background-color: #F5F5F5;
+	background-color: $uni-bg-color;
 	display: flex;
 	flex-direction: column;
 }
@@ -348,34 +348,34 @@ const getDaysUntilExpiry = (coupon: any) => {
 .tabs-header {
 	background-color: #FFFFFF;
 	display: flex;
-	padding: 0 32rpx;
-	border-bottom: 2rpx solid #F0F0F0;
+	padding: 0 $uni-spacing-lg;
+	border-bottom: 2rpx solid $uni-border-color-light;
 
 	.tab-item {
 		flex: 1;
 		text-align: center;
-		padding: 32rpx 0;
+		padding: $uni-spacing-lg 0;
 		position: relative;
 
 		.tab-text {
 			font-size: 30rpx;
-			color: rgba(0, 0, 0, 0.6);
+			color: $uni-text-color-secondary;
 		}
 
 		.tab-count {
 			font-size: 24rpx;
-			color: rgba(0, 0, 0, 0.4);
-			margin-left: 8rpx;
+			color: $uni-text-color-placeholder;
+			margin-left: $uni-spacing-xs;
 		}
 
 		&.active {
 			.tab-text {
-				color: #FF9F29;
+				color: $uni-color-primary;
 				font-weight: 600;
 			}
 
 			.tab-count {
-				color: #FF9F29;
+				color: $uni-color-primary;
 			}
 
 			&::after {
@@ -386,7 +386,7 @@ const getDaysUntilExpiry = (coupon: any) => {
 				transform: translateX(-50%);
 				width: 60rpx;
 				height: 4rpx;
-				background-color: #FF9F29;
+				background-color: $uni-color-primary;
 				border-radius: 2rpx;
 			}
 		}
@@ -395,24 +395,24 @@ const getDaysUntilExpiry = (coupon: any) => {
 
 // 统计卡片
 .stats-card {
-	margin: 24rpx;
-	padding: 32rpx;
+	margin: $uni-spacing-md;
+	padding: $uni-spacing-lg;
 	background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);
-	border-radius: 24rpx;
+	border-radius: $uni-radius-lg;
 	border: 2rpx solid #FFE8CC;
 }
 
 .stats-header {
 	display: flex;
 	align-items: center;
-	gap: 8rpx;
-	margin-bottom: 24rpx;
+	gap: $uni-spacing-xs;
+	margin-bottom: $uni-spacing-md;
 }
 
 .stats-title {
 	font-size: 30rpx;
 	font-weight: bold;
-	color: #FF9F29;
+	color: $uni-color-primary;
 }
 
 .stats-content {
@@ -425,18 +425,18 @@ const getDaysUntilExpiry = (coupon: any) => {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 12rpx;
+	gap: $uni-spacing-sm;
 }
 
 .stat-value {
 	font-size: 48rpx;
 	font-weight: bold;
-	color: #FF9F29;
+	color: $uni-color-primary;
 }
 
 .stat-label {
 	font-size: 24rpx;
-	color: #999;
+	color: $uni-text-color-placeholder;
 }
 
 .stat-divider {
@@ -448,7 +448,7 @@ const getDaysUntilExpiry = (coupon: any) => {
 // 优惠券列表
 .coupons-list {
 	flex: 1;
-	padding: 24rpx;
+	padding: $uni-spacing-md;
 }
 
 // 空状态
@@ -461,8 +461,8 @@ const getDaysUntilExpiry = (coupon: any) => {
 
 	.empty-text {
 		font-size: 28rpx;
-		color: rgba(0, 0, 0, 0.4);
-		margin-top: 24rpx;
+		color: $uni-text-color-placeholder;
+		margin-top: $uni-spacing-md;
 	}
 }
 
@@ -471,11 +471,11 @@ const getDaysUntilExpiry = (coupon: any) => {
 	.coupon-card {
 		position: relative;
 		background-color: #FFFFFF;
-		border-radius: 16rpx;
-		margin-bottom: 24rpx;
+		border-radius: $uni-radius-md;
+		margin-bottom: $uni-spacing-md;
 		display: flex;
 		overflow: hidden;
-		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+		box-shadow: $uni-shadow-card;
 
 		&.disabled {
 			opacity: 0.6;
@@ -487,12 +487,12 @@ const getDaysUntilExpiry = (coupon: any) => {
 
 		.coupon-left {
 			width: 220rpx;
-			background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+			background: $uni-color-primary-gradient;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			padding: 32rpx 24rpx;
+			padding: $uni-spacing-lg $uni-spacing-md;
 			position: relative;
 
 			&::after {
@@ -503,7 +503,7 @@ const getDaysUntilExpiry = (coupon: any) => {
 				transform: translateY(-50%);
 				width: 24rpx;
 				height: 24rpx;
-				background-color: #F5F5F5;
+				background-color: $uni-bg-color;
 				border-radius: 50%;
 			}
 
@@ -511,7 +511,7 @@ const getDaysUntilExpiry = (coupon: any) => {
 				color: #FFFFFF;
 				display: flex;
 				align-items: baseline;
-				margin-bottom: 8rpx;
+				margin-bottom: $uni-spacing-xs;
 
 				.amount-symbol {
 					font-size: 32rpx;
@@ -533,14 +533,14 @@ const getDaysUntilExpiry = (coupon: any) => {
 		// 即将过期标签
 		.expiring-badge {
 			position: absolute;
-			top: 16rpx;
-			right: 16rpx;
+			top: $uni-spacing-md;
+			right: $uni-spacing-md;
 			display: flex;
 			align-items: center;
 			gap: 4rpx;
-			padding: 6rpx 12rpx;
+			padding: 6rpx $uni-spacing-sm;
 			background-color: rgba(255, 77, 79, 0.1);
-			border-radius: 8rpx;
+			border-radius: $uni-radius-xs;
 			z-index: 1;
 
 			.badge-text {
@@ -552,33 +552,33 @@ const getDaysUntilExpiry = (coupon: any) => {
 
 		.coupon-right {
 			flex: 1;
-			padding: 24rpx;
+			padding: $uni-spacing-md;
 			display: flex;
 			flex-direction: column;
 
 			.coupon-name {
 				font-size: 32rpx;
 				font-weight: 600;
-				color: rgba(0, 0, 0, 0.9);
-				margin-bottom: 8rpx;
+				color: $uni-text-color;
+				margin-bottom: $uni-spacing-xs;
 			}
 
 			.coupon-desc {
 				font-size: 24rpx;
-				color: rgba(0, 0, 0, 0.6);
-				margin-bottom: 16rpx;
+				color: $uni-text-color-secondary;
+				margin-bottom: $uni-spacing-md;
 			}
 
 			.coupon-time-row {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				margin-bottom: 16rpx;
+				margin-bottom: $uni-spacing-md;
 			}
 
 			.coupon-time {
 				font-size: 22rpx;
-				color: rgba(0, 0, 0, 0.4);
+				color: $uni-text-color-placeholder;
 			}
 
 			.expiring-days {
@@ -591,23 +591,29 @@ const getDaysUntilExpiry = (coupon: any) => {
 				margin-top: auto;
 
 				.use-btn {
-					padding: 12rpx 32rpx;
-					background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+					padding: $uni-spacing-sm $uni-spacing-lg;
+					background: $uni-color-primary-gradient;
 					color: #FFFFFF;
-					border-radius: 24rpx;
+					border-radius: $uni-radius-lg;
 					font-size: 26rpx;
 					border: none;
+					transition: all 0.3s ease;
+
+					&:active {
+						opacity: 0.8;
+						transform: scale(0.98);
+					}
 				}
 
 				.status-tag {
 					display: inline-block;
-					padding: 8rpx 20rpx;
+					padding: $uni-spacing-xs 20rpx;
 					border-radius: 20rpx;
 					font-size: 24rpx;
 
 					&.used {
-						background-color: rgba(0, 0, 0, 0.05);
-						color: rgba(0, 0, 0, 0.4);
+						background-color: $uni-bg-color;
+						color: $uni-text-color-placeholder;
 					}
 
 					&.expired {
@@ -623,18 +629,24 @@ const getDaysUntilExpiry = (coupon: any) => {
 // 底部兑换入口
 .exchange-footer {
 	background-color: #FFFFFF;
-	padding: 24rpx 32rpx;
+	padding: $uni-spacing-md $uni-spacing-lg;
 	box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.05);
 
 	.exchange-btn {
 		width: 100%;
-		padding: 24rpx;
-		background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+		padding: $uni-spacing-md;
+		background: $uni-color-primary-gradient;
 		color: #FFFFFF;
-		border-radius: 48rpx;
+		border-radius: $uni-radius-btn;
 		font-size: 32rpx;
 		font-weight: 600;
 		border: none;
+		transition: all 0.3s ease;
+
+		&:active {
+			opacity: 0.8;
+			transform: scale(0.98);
+		}
 	}
 }
 
@@ -642,46 +654,52 @@ const getDaysUntilExpiry = (coupon: any) => {
 .exchange-dialog {
 	width: 560rpx;
 	background-color: #FFFFFF;
-	border-radius: 16rpx;
-	padding: 48rpx 32rpx 32rpx;
+	border-radius: $uni-radius-md;
+	padding: 48rpx $uni-spacing-lg $uni-spacing-lg;
 
 	.dialog-title {
 		display: block;
 		text-align: center;
 		font-size: 36rpx;
 		font-weight: 600;
-		color: rgba(0, 0, 0, 0.9);
+		color: $uni-text-color;
 		margin-bottom: 40rpx;
 	}
 
 	.exchange-input {
 		width: 100%;
-		padding: 24rpx;
-		border: 2rpx solid #E0E0E0;
-		border-radius: 12rpx;
+		padding: $uni-spacing-md;
+		border: 2rpx solid $uni-border-color-light;
+		border-radius: $uni-radius-sm;
 		font-size: 28rpx;
 		margin-bottom: 40rpx;
 	}
 
 	.dialog-actions {
 		display: flex;
-		gap: 24rpx;
+		gap: $uni-spacing-md;
 
 		button {
 			flex: 1;
 			padding: 20rpx;
-			border-radius: 48rpx;
+			border-radius: $uni-radius-btn;
 			font-size: 30rpx;
 			border: none;
+			transition: all 0.3s ease;
+
+			&:active {
+				opacity: 0.8;
+				transform: scale(0.98);
+			}
 		}
 
 		.cancel-btn {
-			background-color: #F5F5F5;
-			color: rgba(0, 0, 0, 0.6);
+			background-color: $uni-bg-color;
+			color: $uni-text-color-secondary;
 		}
 
 		.confirm-btn {
-			background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+			background: $uni-color-primary-gradient;
 			color: #FFFFFF;
 		}
 	}

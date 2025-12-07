@@ -221,6 +221,7 @@ import {
 } from '@/api/vehicle'
 import { useDateFormat, useErrorHandler, useEnumLabel } from '@/composables'
 import { VEHICLE_STATUS_OPTIONS, STORE_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { formatDateTime } = useDateFormat()
@@ -337,7 +338,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出状态报表',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '批量设为可用',
@@ -565,6 +566,20 @@ onMounted(() => {
   loadStats()
   loadVehicles()
 })
+
+// 导出数据
+function handleExport() {
+  if (vehicleStatusList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(vehicleStatusList.value, columns, '车辆状态')
+}
 </script>
 
 <style scoped lang="scss">

@@ -19,6 +19,7 @@ let mockEmployees: Employee[] = [
     status: 'active',
     avatar: '',
     joinDate: '2024-01-15',
+    loginPlatforms: ['pc', 'mobile'],
     createdAt: '2024-01-15T08:00:00.000Z',
   },
   {
@@ -35,6 +36,7 @@ let mockEmployees: Employee[] = [
     status: 'active',
     avatar: '',
     joinDate: '2024-02-01',
+    loginPlatforms: ['pc', 'mobile'],
     createdAt: '2024-02-01T08:00:00.000Z',
   },
   {
@@ -51,7 +53,127 @@ let mockEmployees: Employee[] = [
     status: 'active',
     avatar: '',
     joinDate: '2024-03-01',
+    loginPlatforms: ['mobile'],
     createdAt: '2024-03-01T08:00:00.000Z',
+  },
+  {
+    id: 4,
+    realName: '赵六',
+    jobNumber: 'EMP004',
+    phone: '13800138003',
+    email: 'zhaoliu@daodao.com',
+    roleId: 4,
+    role: '门店员工',
+    storeId: 1,
+    storeName: '北京朝阳店',
+    department: '客服部',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-04-01',
+    loginPlatforms: ['mobile'],
+    createdAt: '2024-04-01T08:00:00.000Z',
+  },
+  {
+    id: 5,
+    realName: '孙七',
+    jobNumber: 'EMP005',
+    phone: '13800138004',
+    email: 'sunqi@daodao.com',
+    roleId: 3,
+    role: '门店经理',
+    storeId: 2,
+    storeName: '上海浦东店',
+    department: '门店管理',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-05-01',
+    loginPlatforms: ['pc', 'mobile'],
+    createdAt: '2024-05-01T08:00:00.000Z',
+  },
+  {
+    id: 6,
+    realName: '周八',
+    jobNumber: 'EMP006',
+    phone: '13800138005',
+    email: 'zhouba@daodao.com',
+    roleId: 4,
+    role: '门店员工',
+    storeId: 2,
+    storeName: '上海浦东店',
+    department: '维修部',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-06-01',
+    loginPlatforms: ['mobile'],
+    createdAt: '2024-06-01T08:00:00.000Z',
+  },
+  {
+    id: 7,
+    realName: '吴九',
+    jobNumber: 'EMP007',
+    phone: '13800138006',
+    email: 'wujiu@daodao.com',
+    roleId: 3,
+    role: '门店经理',
+    storeId: 3,
+    storeName: '深圳南山店',
+    department: '门店管理',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-07-01',
+    loginPlatforms: ['mobile'],
+    createdAt: '2024-07-01T08:00:00.000Z',
+  },
+  {
+    id: 8,
+    realName: '郑十',
+    jobNumber: 'EMP008',
+    phone: '13800138007',
+    email: 'zhengshi@daodao.com',
+    roleId: 4,
+    role: '门店员工',
+    storeId: 3,
+    storeName: '深圳南山店',
+    department: '客服部',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-08-01',
+    loginPlatforms: ['mobile'],
+    createdAt: '2024-08-01T08:00:00.000Z',
+  },
+  {
+    id: 9,
+    realName: '冯十一',
+    jobNumber: 'EMP009',
+    phone: '13800138008',
+    email: 'fengshiyi@daodao.com',
+    roleId: 2,
+    role: '区域经理',
+    storeId: null,
+    storeName: null,
+    department: '运营部',
+    status: 'active',
+    avatar: '',
+    joinDate: '2024-09-01',
+    loginPlatforms: ['pc', 'mobile'],
+    createdAt: '2024-09-01T08:00:00.000Z',
+  },
+  {
+    id: 10,
+    realName: '陈十二',
+    jobNumber: 'EMP010',
+    phone: '13800138009',
+    email: 'chenshier@daodao.com',
+    roleId: 4,
+    role: '门店员工',
+    storeId: 1,
+    storeName: '北京朝阳店',
+    department: '维修部',
+    status: 'inactive',
+    avatar: '',
+    joinDate: '2024-10-01',
+    loginPlatforms: ['mobile'],
+    createdAt: '2024-10-01T08:00:00.000Z',
   },
 ]
 
@@ -146,6 +268,7 @@ export const mockCreateEmployee = (data: CreateEmployeeParams) => {
         status: data.status || 'active',
         avatar: '',
         joinDate: data.joinDate,
+        loginPlatforms: data.loginPlatforms,
         createdAt: new Date().toISOString(),
       }
       mockEmployees.push(newEmployee)
@@ -213,7 +336,7 @@ export const mockAssignEmployeeRoles = (id: number, roleIds: number[]) => {
     setTimeout(() => {
       const index = mockEmployees.findIndex((e) => e.id === id)
       if (index > -1) {
-        // 这里只是模拟，实际应该保存角色分配
+        // 这里只是模拟,实际应该保存角色分配
         mockEmployees[index].roleId = roleIds[0] || 0
         mockEmployees[index].updatedAt = new Date().toISOString()
         resolve({
@@ -258,5 +381,107 @@ export const mockImportEmployees = (file: File) => {
         },
       })
     }, 2000)
+  })
+}
+
+// ==================== 员工绩效管理 Mock 数据 ====================
+import type { EmployeePerformance, EmployeePerformanceStats } from '@/api/employee'
+
+const mockEmployeePerformances: EmployeePerformance[] = [
+  {
+    id: 1,
+    employeeId: 1,
+    employeeName: '张三',
+    department: '技术部',
+    month: '2024-11',
+    orderCount: 25,
+    totalRevenue: 125000,
+    customerSatisfaction: 4.8,
+    attendanceRate: 98,
+    score: 95,
+    rank: 1,
+    bonus: 5000,
+    createdAt: '2024-11-30T10:00:00.000Z',
+  },
+  {
+    id: 2,
+    employeeId: 4,
+    employeeName: '赵六',
+    department: '客服部',
+    month: '2024-11',
+    orderCount: 30,
+    totalRevenue: 150000,
+    customerSatisfaction: 4.9,
+    attendanceRate: 100,
+    score: 98,
+    rank: 1,
+    bonus: 6000,
+    createdAt: '2024-11-30T10:00:00.000Z',
+  },
+  {
+    id: 3,
+    employeeId: 6,
+    employeeName: '周八',
+    department: '维修部',
+    month: '2024-11',
+    orderCount: 20,
+    totalRevenue: 100000,
+    customerSatisfaction: 4.5,
+    attendanceRate: 95,
+    score: 88,
+    rank: 3,
+    bonus: 3500,
+    createdAt: '2024-11-30T10:00:00.000Z',
+  },
+]
+
+// Mock 获取员工绩效列表
+export const mockGetEmployeePerformanceList = (params: { page?: number; pageSize?: number; month?: string; employeeId?: number }) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filteredData = [...mockEmployeePerformances]
+
+      if (params.month) {
+        filteredData = filteredData.filter((item) => item.month === params.month)
+      }
+
+      if (params.employeeId) {
+        filteredData = filteredData.filter((item) => item.employeeId === params.employeeId)
+      }
+
+      const page = params.page || 1
+      const pageSize = params.pageSize || 10
+      const start = (page - 1) * pageSize
+      const end = start + pageSize
+
+      resolve({
+        code: 200,
+        message: '获取成功',
+        data: {
+          list: filteredData.slice(start, end),
+          total: filteredData.length,
+        },
+      })
+    }, 300)
+  })
+}
+
+// Mock 获取员工绩效统计
+export const mockGetEmployeePerformanceStats = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const stats: EmployeePerformanceStats = {
+        totalEmployees: mockEmployeePerformances.length,
+        avgScore: 93.7,
+        avgBonus: 4833,
+        topPerformer: '赵六',
+      }
+
+      resolve({
+        code: 200,
+        message: '获取成功',
+        data: stats,
+      })
+    }, 200)
   })
 }

@@ -1,35 +1,33 @@
 /**
  * 叨叨房车 - 全局样式变量
- * 基于原型设计提取的主题色
+ * 基于 "Modern Journey" 设计规范 (2025)
  */
 
 /* 主题色 */
 $uni-color-primary: #FF9F29;
+$uni-color-primary-gradient: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
 $uni-color-secondary: #1A1A1A;
-$uni-color-success: #4CAF50;
-$uni-color-warning: #FF9800;
-$uni-color-error: #F44336;
+$uni-color-success: #00B578;
+$uni-color-warning: #FF7D00;
+$uni-color-error: #FF4D4F;
 $uni-color-info: #2196F3;
 
 /* 背景色 */
-$uni-bg-color: #F5F7FA;
-$uni-bg-color-light: #FFF8F0;
+$uni-bg-color: #F8F9FC; // 全局页面背景（冷灰白）
 $uni-bg-color-card: #FFFFFF;
+$uni-bg-color-grey: #F2F3F5; // 输入框/次级按钮背景
 
 /* 文字颜色 */
-$uni-text-color: #1A1A1A;
-$uni-text-color-secondary: #666666;
-$uni-text-color-placeholder: #999999;
+$uni-text-color: #1D2129; // 主要信息
+$uni-text-color-secondary: #4E5969; // 次要信息
+$uni-text-color-placeholder: #86909C; // 占位符
 $uni-text-color-inverse: #FFFFFF;
 
-/* 兼容性别名（用于第三方组件） */
-$uni-text-color-grey: $uni-text-color-secondary;
-
 /* 边框颜色 */
-$uni-border-color: #E9ECEF;
-$uni-border-color-light: #F0F0F0;
+$uni-border-color: #E5E6EB;
+$uni-border-color-light: #F2F3F5;
 
-/* 间距 */
+/* 间距 (8px grid) */
 $uni-spacing-xs: 8rpx;
 $uni-spacing-sm: 16rpx;
 $uni-spacing-md: 24rpx;
@@ -37,10 +35,12 @@ $uni-spacing-lg: 32rpx;
 $uni-spacing-xl: 48rpx;
 
 /* 圆角 */
-$uni-border-radius-sm: 8rpx;
-$uni-border-radius-md: 16rpx;
-$uni-border-radius-lg: 24rpx;
-$uni-border-radius-circle: 50%;
+$uni-radius-xs: 8rpx; // 小卡片、标签等专用微圆角
+$uni-radius-sm: 12rpx;
+$uni-radius-md: 16rpx;
+$uni-radius-lg: 24rpx; // 卡片标准圆角
+$uni-radius-circle: 50%;
+$uni-radius-btn: 50rpx; // 按钮胶囊圆角
 
 /* 字体大小 */
 $uni-font-size-xs: 20rpx;
@@ -49,55 +49,21 @@ $uni-font-size-base: 28rpx;
 $uni-font-size-md: 32rpx;
 $uni-font-size-lg: 36rpx;
 $uni-font-size-xl: 40rpx;
+$uni-font-size-xxl: 48rpx;
 
-/* 阴影 */
+/* 阴影 (Diffuse Shadows) */
 $uni-shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-$uni-shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-$uni-shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+$uni-shadow-card: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+$uni-shadow-float: 0 8rpx 24rpx rgba(0, 0, 0, 0.08); // 悬浮卡片
+$uni-shadow-glow: 0 12rpx 32rpx rgba(255, 159, 41, 0.15); // 主色光影
 
 /* ============================================ */
 /* uView Plus 主题变量配置 */
 /* ============================================ */
 
-/* 导入 uView Plus 主题文件（包含所有变量和 mixin） */
+/* 导入 uView Plus 主题文件 */
 @import 'uview-plus/theme.scss';
 
-/* uView Plus 主题色配置 - 映射到叨叨房车主题色 */
-$u-primary: #FF9F29;
-$u-success: #4CAF50;
-$u-warning: #FF9800;
-$u-error: #F44336;
-$u-info: #2196F3;
-
-/* uView Plus 主题色变体 - light（浅色） */
-$u-primary-light: #FFE5C2;
-$u-success-light: #C8E6C9;
-$u-warning-light: #FFE0B2;
-$u-error-light: #FFCDD2;
-$u-info-light: #BBDEFB;
-
-/* uView Plus 主题色变体 - dark（深色） */
-$u-primary-dark: #E68A1A;
-$u-success-dark: #388E3C;
-$u-warning-dark: #F57C00;
-$u-error-dark: #D32F2F;
-$u-info-dark: #1976D2;
-
-/* uView Plus 主题色变体 - disabled（禁用） */
-$u-primary-disabled: #FFD9A3;
-$u-success-disabled: #A5D6A7;
-$u-warning-disabled: #FFCC80;
-$u-error-disabled: #EF9A9A;
-$u-info-disabled: #90CAF9;
-
-/* uView Plus 文字颜色 */
-$u-main-color: #1A1A1A;
-$u-content-color: #666666;
-$u-tips-color: #999999;
-$u-light-color: #FFFFFF;
-
-/* uView Plus 背景色 */
-$u-bg-color: #F5F7FA;
-
-/* uView Plus 边框颜色 */
-$u-border-color: #E9ECEF;
+/* uView Plus 覆盖配置 */
+$u-primary: $uni-color-primary;
+$u-bg-color: $uni-bg-color;

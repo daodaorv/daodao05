@@ -17,6 +17,30 @@
 			</view>
 		</view>
 
+		<!-- 快捷入口 -->
+		<view class="quick-links">
+			<view class="link-item" @tap="goToPoints">
+				<view class="link-icon points">
+					<u-icon name="integral" size="24" color="#FF9F29"></u-icon>
+				</view>
+				<view class="link-info">
+					<text class="link-title">积分中心</text>
+					<text class="link-desc">当前积分: 1580</text>
+				</view>
+				<u-icon name="arrow-right" size="16" color="#999"></u-icon>
+			</view>
+			<view class="link-item" @tap="goToCoupons">
+				<view class="link-icon coupons">
+					<u-icon name="gift-fill" size="24" color="#F44336"></u-icon>
+				</view>
+				<view class="link-info">
+					<text class="link-title">我的优惠券</text>
+					<text class="link-desc">3张可用</text>
+				</view>
+				<u-icon name="arrow-right" size="16" color="#999"></u-icon>
+			</view>
+		</view>
+
 		<!-- 交易记录 -->
 		<view class="transactions-section">
 			<view class="section-header">
@@ -291,20 +315,34 @@ const confirmWithdraw = () => {
 
 	closeWithdrawDialog();
 };
+
+// 跳转到积分中心
+const goToPoints = () => {
+	uni.navigateTo({
+		url: '/pages/profile/points'
+	});
+};
+
+// 跳转到优惠券页面
+const goToCoupons = () => {
+	uni.navigateTo({
+		url: '/pages/profile/coupons'
+	});
+};
 </script>
 
 <style lang="scss" scoped>
 .wallet-page {
 	min-height: 100vh;
-	background-color: #F5F5F5;
+	background-color: $uni-bg-color;
 }
 
 // 余额卡片
 .balance-card {
-	background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
-	margin: 24rpx;
-	border-radius: 24rpx;
-	padding: 48rpx 32rpx;
+	background: $uni-color-primary-gradient;
+	margin: $uni-spacing-md $uni-spacing-md 0;
+	border-radius: $uni-radius-lg;
+	padding: 48rpx $uni-spacing-lg;
 	color: #FFFFFF;
 	box-shadow: 0 8rpx 24rpx rgba(255, 159, 41, 0.3);
 
@@ -312,13 +350,13 @@ const confirmWithdraw = () => {
 		font-size: 28rpx;
 		opacity: 0.9;
 		display: block;
-		margin-bottom: 16rpx;
+		margin-bottom: $uni-spacing-md;
 	}
 
 	.balance-amount {
 		display: flex;
 		align-items: baseline;
-		margin-bottom: 32rpx;
+		margin-bottom: $uni-spacing-lg;
 
 		.amount-symbol {
 			font-size: 40rpx;
@@ -328,57 +366,122 @@ const confirmWithdraw = () => {
 		.amount-value {
 			font-size: 72rpx;
 			font-weight: bold;
-			margin-left: 8rpx;
+			margin-left: $uni-spacing-xs;
 		}
 	}
 
 	.balance-actions {
 		display: flex;
-		gap: 24rpx;
+		gap: $uni-spacing-md;
 
 		.action-btn {
 			flex: 1;
 			padding: 20rpx;
-			border-radius: 48rpx;
+			border-radius: $uni-radius-btn;
 			font-size: 30rpx;
 			border: none;
+			transition: all 0.3s ease;
 
 			&.primary {
 				background-color: #FFFFFF;
-				color: #FF9F29;
+				color: $uni-color-primary;
 			}
 
 			&:not(.primary) {
 				background-color: rgba(255, 255, 255, 0.2);
 				color: #FFFFFF;
 			}
+
+			&:active {
+				opacity: 0.8;
+				transform: scale(0.98);
+			}
 		}
 	}
 
 	.frozen-tip {
-		margin-top: 24rpx;
+		margin-top: $uni-spacing-md;
 		display: flex;
 		align-items: center;
-		gap: 8rpx;
+		gap: $uni-spacing-xs;
 		font-size: 24rpx;
 		opacity: 0.9;
+	}
+}
+
+// 快捷入口
+.quick-links {
+	background-color: #FFFFFF;
+	margin: $uni-spacing-md;
+	border-radius: $uni-radius-md;
+	padding: 0 $uni-spacing-md;
+
+	.link-item {
+		display: flex;
+		align-items: center;
+		padding: $uni-spacing-lg 0;
+		border-bottom: 2rpx solid $uni-border-color-light;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&:active {
+			opacity: 0.7;
+		}
+
+		.link-icon {
+			width: 72rpx;
+			height: 72rpx;
+			border-radius: $uni-radius-md;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-right: $uni-spacing-md;
+
+			&.points {
+				background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+			}
+
+			&.coupons {
+				background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+			}
+		}
+
+		.link-info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: $uni-spacing-xs;
+
+			.link-title {
+				font-size: 30rpx;
+				font-weight: 500;
+				color: $uni-text-color;
+			}
+
+			.link-desc {
+				font-size: 24rpx;
+				color: $uni-text-color-secondary;
+			}
+		}
 	}
 }
 
 // 交易记录区
 .transactions-section {
 	background-color: #FFFFFF;
-	margin: 24rpx;
-	border-radius: 16rpx;
-	padding: 24rpx;
+	margin: $uni-spacing-md;
+	border-radius: $uni-radius-md;
+	padding: $uni-spacing-md;
 
 	.section-header {
-		margin-bottom: 24rpx;
+		margin-bottom: $uni-spacing-md;
 
 		.title {
 			font-size: 32rpx;
 			font-weight: 600;
-			color: rgba(0, 0, 0, 0.9);
+			color: $uni-text-color;
 		}
 	}
 }
@@ -393,8 +496,8 @@ const confirmWithdraw = () => {
 
 	.empty-text {
 		font-size: 28rpx;
-		color: rgba(0, 0, 0, 0.4);
-		margin-top: 24rpx;
+		color: $uni-text-color-placeholder;
+		margin-top: $uni-spacing-md;
 	}
 }
 
@@ -404,8 +507,8 @@ const confirmWithdraw = () => {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 24rpx 0;
-		border-bottom: 2rpx solid #F5F5F5;
+		padding: $uni-spacing-md 0;
+		border-bottom: 2rpx solid $uni-border-color-light;
 
 		&:last-child {
 			border-bottom: none;
@@ -417,18 +520,18 @@ const confirmWithdraw = () => {
 			.transaction-type {
 				display: flex;
 				align-items: center;
-				gap: 12rpx;
-				margin-bottom: 8rpx;
+				gap: $uni-spacing-sm;
+				margin-bottom: $uni-spacing-xs;
 
 				.type-text {
 					font-size: 30rpx;
-					color: rgba(0, 0, 0, 0.9);
+					color: $uni-text-color;
 				}
 			}
 
 			.transaction-time {
 				font-size: 24rpx;
-				color: rgba(0, 0, 0, 0.4);
+				color: $uni-text-color-placeholder;
 			}
 		}
 
@@ -448,89 +551,100 @@ const confirmWithdraw = () => {
 .dialog {
 	width: 600rpx;
 	background-color: #FFFFFF;
-	border-radius: 24rpx;
-	padding: 48rpx 32rpx 32rpx;
+	border-radius: $uni-radius-lg;
+	padding: 48rpx $uni-spacing-lg $uni-spacing-lg;
 
 	.dialog-title {
 		display: block;
 		text-align: center;
 		font-size: 36rpx;
 		font-weight: 600;
-		color: rgba(0, 0, 0, 0.9);
+		color: $uni-text-color;
 		margin-bottom: 40rpx;
 	}
 
 	.amount-options {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 16rpx;
-		margin-bottom: 24rpx;
+		gap: $uni-spacing-md;
+		margin-bottom: $uni-spacing-md;
 
 		.amount-option {
-			padding: 24rpx;
+			padding: $uni-spacing-md;
 			text-align: center;
-			border: 2rpx solid #E0E0E0;
-			border-radius: 12rpx;
+			border: 2rpx solid $uni-border-color-light;
+			border-radius: $uni-radius-sm;
 			font-size: 30rpx;
-			color: rgba(0, 0, 0, 0.6);
+			color: $uni-text-color-secondary;
+			transition: all 0.3s ease;
 
 			&.selected {
-				border-color: #FF9F29;
+				border-color: $uni-color-primary;
 				background-color: rgba(255, 159, 41, 0.1);
-				color: #FF9F29;
+				color: $uni-color-primary;
 				font-weight: 600;
+			}
+
+			&:active {
+				opacity: 0.7;
 			}
 		}
 	}
 
 	.custom-input {
 		width: 100%;
-		padding: 24rpx;
-		border: 2rpx solid #E0E0E0;
-		border-radius: 12rpx;
+		padding: $uni-spacing-md;
+		border: 2rpx solid $uni-border-color-light;
+		border-radius: $uni-radius-sm;
 		font-size: 28rpx;
 		margin-bottom: 40rpx;
 	}
 
 	.withdraw-info {
-		background-color: #F5F5F5;
-		padding: 24rpx;
-		border-radius: 12rpx;
-		margin-bottom: 24rpx;
+		background-color: $uni-bg-color;
+		padding: $uni-spacing-md;
+		border-radius: $uni-radius-sm;
+		margin-bottom: $uni-spacing-md;
 
 		.info-text {
 			display: block;
 			font-size: 28rpx;
-			color: rgba(0, 0, 0, 0.9);
-			margin-bottom: 8rpx;
+			color: $uni-text-color;
+			margin-bottom: $uni-spacing-xs;
 		}
 
 		.info-tip {
 			display: block;
 			font-size: 24rpx;
-			color: rgba(0, 0, 0, 0.5);
+			color: $uni-text-color-secondary;
 		}
 	}
 
 	.dialog-actions {
 		display: flex;
-		gap: 24rpx;
+		gap: $uni-spacing-md;
 
 		button {
 			flex: 1;
 			padding: 20rpx;
-			border-radius: 48rpx;
+			border-radius: $uni-radius-btn;
 			font-size: 30rpx;
 			border: none;
+			transition: all 0.3s ease;
+
+			&:active {
+				opacity: 0.8;
+				transform: scale(0.98);
+			}
 		}
 
 		.cancel-btn {
-			background-color: #F5F5F5;
-			color: rgba(0, 0, 0, 0.6);
+			background-color: $uni-bg-color;
+			color: $uni-text-color-secondary;
 		}
 
 		.confirm-btn {
-			background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+			background: $uni-color-primary-gradient;
 			color: #FFFFFF;
 		}
 	}

@@ -141,6 +141,7 @@ import type { TableColumn, TableAction, ToolbarButton } from '@/components/commo
 import type { FormField } from '@/components/common/FormDialog.vue'
 import { useDateFormat, useErrorHandler, useEnumLabel } from '@/composables'
 import { BLACKLIST_REASON_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { formatDateTime } = useDateFormat()
@@ -264,7 +265,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
 ]
 
@@ -448,6 +449,20 @@ function handleSizeChange(size: number) {
 
 function handleCurrentChange(page: number) {
   pagination.page = page
+}
+
+// 导出数据
+function handleExport() {
+  if (list.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(list.value, columns, '黑名单')
 }
 </script>
 

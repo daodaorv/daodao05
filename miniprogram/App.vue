@@ -1,6 +1,13 @@
 <script>
+import { useUserStore } from '@/stores/user';
+import { checkAndUpdateLoginStatus } from '@/utils/auth';
+
 	export default {
-		onLaunch: function() {
+		async onLaunch() {
+			const userStore = useUserStore();
+			userStore.init();
+			checkAndUpdateLoginStatus();
+
 			console.warn('当前组件仅支持 uni_modules 目录结构 ，请升级 HBuilderX 到 3.1.0 版本以上！')
 			console.log('App Launch')
 

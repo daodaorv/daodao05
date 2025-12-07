@@ -371,11 +371,19 @@ export function checkLoginStatus(): Promise<{ isLoggedIn: boolean; user?: UserIn
 	return new Promise((resolve) => {
 		setTimeout(() => {
 			const token = uni.getStorageSync('token')
-			const userInfo = uni.getStorageSync('userInfo')
-			console.log('[Mock] 检查登录状态:', { hasToken: !!token, hasUserInfo: !!userInfo })
+			const storedUser = uni.getStorageSync('userInfo')
+			let parsedUser = storedUser
+			if (typeof storedUser === 'string') {
+				try {
+					parsedUser = JSON.parse(storedUser)
+				} catch (error) {
+					parsedUser = undefined
+				}
+			}
+			console.log('[Mock] 检查登录状态:', { hasToken: !!token, hasUserInfo: !!parsedUser })
 			resolve({
 				isLoggedIn: !!token,
-				user: userInfo || undefined
+				user: parsedUser || undefined
 			})
 		}, 300)
 	})

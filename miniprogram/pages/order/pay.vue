@@ -119,11 +119,18 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShow } from '@dcloudio/uni-app';
+import { updateOrderStatus, getOrderDetail } from '@/api/order';
+import { lockVehicle } from '@/api/vehicle';
+import { sendNotification, notifyStore } from '@/api/notification';
+import { requireLogin, isLoggedIn, buildRedirectUrl } from '@/utils/auth';
 
 // 模拟数据
-const orderNo = ref('DD202411270001');
+const orderNo = ref('DD202512010001');
 const orderAmount = ref(1280.00);
+const pageReady = ref(false);
+const redirectUrl = ref('/pages/order/pay');
+let cachedRouteParams: Record<string, any> | null = null;
 const userBalance = ref(500.00);
 
 // 状态控制
@@ -156,7 +163,7 @@ const cashAmount = computed(() => {
 // 切换余额支付
 const toggleBalance = (e: any) => {
 	useBalance.value = e.detail.value;
-	
+
 	// 如果余额全额覆盖，清除第三方支付选择
 	if (isBalanceCovered.value) {
 		selectedPayment.value = '';
@@ -189,36 +196,147 @@ const onTimeUp = () => {
 	});
 };
 
+// Mock支付实现
+const mockPayment = (paymentData: any) => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve({
+				success: true,
+				paymentNo: 'PAY' + Date.now(),
+				orderNo: paymentData.orderNo,
+				amount: paymentData.amount,
+				paymentMethod: paymentData.paymentMethod,
+				paidAt: new Date().toISOString()
+			});
+		}, 1500);
+	});
+};
+
+// 支付成功处理
+const handlePaymentSuccess = async (result: any) => {
+	try {
+		// 1. 显示支付成功提示
+		uni.showToast({
+			title: '支付成功',
+			icon: 'success',
+			duration: 2000
+		});
+
+		// 2. 更新订单状态（待支付 → 待确认）
+		await updateOrderStatus(result.orderNo, 'pending_confirmation');
+
+		// 3. 获取订单详情用于后续操作
+		const orderResponse: any = await getOrderDetail(result.orderNo);
+		const orderDetail = orderResponse.data;
+
+		// 4. 锁定车辆库存
+		if (orderDetail.vehicle?.id) {
+			await lockVehicle({
+				vehicleId: orderDetail.vehicle.id,
+				orderNo: result.orderNo,
+				startDate: orderDetail.pickupTime,
+				endDate: orderDetail.returnTime
+			});
+		}
+
+		// 5. 发送用户通知
+		await sendNotification({
+			type: 'payment_success',
+			orderNo: result.orderNo,
+			userId: 'current_user_id', // 实际应从用户store获取
+			title: '支付成功',
+			content: `订单${result.orderNo}支付成功，等待门店确认`
+		});
+
+		// 6. 通知门店
+		if (orderDetail.pickupStore?.id) {
+			await notifyStore({
+				storeId: orderDetail.pickupStore.id,
+				orderNo: result.orderNo,
+				type: 'payment_success'
+			});
+		}
+
+		// 7. 延迟跳转到订单详情页
+		setTimeout(() => {
+			uni.redirectTo({
+				url: `/pages/order/detail?orderId=${result.orderNo}`
+			});
+		}, 2000);
+
+	} catch (error) {
+		console.error('支付成功后处理失败:', error);
+		// 即使后续处理失败，也跳转到订单详情页
+		setTimeout(() => {
+			uni.redirectTo({
+				url: `/pages/order/detail?orderId=${result.orderNo}`
+			});
+		}, 2000);
+	}
+};
+
 // 支付处理
 const handlePay = async () => {
+	if (!isLoggedIn()) {
+		requireLogin(redirectUrl.value);
+		return;
+	}
 	if (submitting.value) return;
-	
-	submitting.value = true;
-	
-	try {
-		// 模拟支付过程
-		uni.showLoading({ title: '支付中...' });
-		
-		await new Promise(resolve => setTimeout(resolve, 1500));
-		
-		uni.hideLoading();
-		
-		// 支付功能开发中
+
+	// 验证支付方式
+	if (!isBalanceCovered.value && !selectedPayment.value) {
 		uni.showToast({
-			title: '支付功能开发中',
+			title: '请选择支付方式',
 			icon: 'none'
 		});
-		
-		// 模拟跳转(可选，如果只是提示开发中，可能不需要跳转)
-		// setTimeout(() => {
-		// 	uni.navigateBack({
-		// 		delta: 2
-		// 	});
-		// }, 1500);
-		
-	} catch (e) {
+		return;
+	}
+
+	submitting.value = true;
+
+	try {
+		// 构建支付数据
+		const paymentData: any = {
+			orderNo: orderNo.value,
+			paymentMethod: selectedPayment.value || 'balance',
+			amount: parseFloat(cashAmount.value),
+			splitPayment: []
+		};
+
+		// 如果使用余额抵扣
+		if (useBalance.value && deductionAmount.value > 0) {
+			paymentData.splitPayment.push({
+				method: 'balance',
+				amount: deductionAmount.value
+			});
+		}
+
+		// 如果需要第三方支付
+		if (parseFloat(cashAmount.value) > 0) {
+			paymentData.splitPayment.push({
+				method: selectedPayment.value,
+				amount: parseFloat(cashAmount.value)
+			});
+		}
+
+		// 调用支付API（Mock实现）
+		uni.showLoading({ title: '支付处理中...' });
+
+		const result: any = await mockPayment(paymentData);
+
+		uni.hideLoading();
+
+		// 支付成功处理
+		if (result.success) {
+			await handlePaymentSuccess(result);
+		} else {
+			throw new Error(result.message || '支付失败');
+		}
+
+	} catch (error: any) {
+		uni.hideLoading();
 		uni.showToast({
-			title: '支付失败',
+			title: error.message || '支付失败，请重试',
 			icon: 'none'
 		});
 	} finally {
@@ -226,12 +344,36 @@ const handlePay = async () => {
 	}
 };
 
-onLoad((options: any) => {
+const setupPayPage = (options: any) => {
 	if (options.orderNo) {
 		orderNo.value = options.orderNo;
 	}
 	if (options.amount) {
 		orderAmount.value = Number(options.amount);
+	}
+	pageReady.value = true;
+};
+
+const ensureAuth = (options: any) => {
+	redirectUrl.value = buildRedirectUrl('/pages/order/pay', options || {});
+	if (isLoggedIn()) {
+		return true;
+	}
+	return requireLogin(redirectUrl.value);
+};
+
+onLoad((options: any) => {
+	cachedRouteParams = options || {};
+	pageReady.value = false;
+	if (!ensureAuth(cachedRouteParams)) {
+		return;
+	}
+	setupPayPage(cachedRouteParams);
+});
+
+onShow(() => {
+	if (!pageReady.value && cachedRouteParams && isLoggedIn()) {
+		setupPayPage(cachedRouteParams);
 	}
 });
 </script>
@@ -239,7 +381,7 @@ onLoad((options: any) => {
 <style scoped lang="scss">
 .pay-page {
 	min-height: 100vh;
-	background-color: #F8F8F8;
+	background-color: $uni-bg-color;
 	padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
@@ -249,26 +391,29 @@ onLoad((options: any) => {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 16rpx;
+	gap: $uni-spacing-md;
 	margin-bottom: 20rpx;
+	border-radius: $uni-radius-lg;
+	margin: 0 $uni-spacing-lg $uni-spacing-md;
+	box-shadow: $uni-shadow-card;
 }
 
 .timer-label {
 	font-size: 24rpx;
-	color: #666;
+	color: $uni-text-color-secondary;
 }
 
 .amount-box {
 	margin: 20rpx 0;
 	display: flex;
 	align-items: baseline;
-	color: #333;
-	
+	color: $uni-text-color;
+
 	.currency {
 		font-size: 32rpx;
 		font-weight: bold;
 	}
-	
+
 	.amount {
 		font-size: 60rpx;
 		font-weight: bold;
@@ -278,31 +423,34 @@ onLoad((options: any) => {
 
 .order-no {
 	font-size: 24rpx;
-	color: #999;
+	color: $uni-text-color-placeholder;
 }
 
 .payment-list {
 	background-color: #FFFFFF;
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
+	border-radius: $uni-radius-lg;
+	margin: 0 $uni-spacing-lg $uni-spacing-md;
+	box-shadow: $uni-shadow-card;
 }
 
 .section-title {
 	font-size: 28rpx;
-	color: #999;
-	padding: 24rpx 0;
+	color: $uni-text-color-placeholder;
+	padding: $uni-spacing-md 0;
 }
 
 .payment-item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 32rpx 0;
-	border-bottom: 1rpx solid #F5F5F5;
-	
+	padding: $uni-spacing-lg 0;
+	border-bottom: 1rpx solid $uni-border-color-light;
+
 	&:last-child {
 		border-bottom: none;
 	}
-	
+
 	&.disabled {
 		opacity: 0.5;
 		pointer-events: none;
@@ -312,25 +460,25 @@ onLoad((options: any) => {
 .payment-info {
 	display: flex;
 	align-items: center;
-	gap: 24rpx;
+	gap: $uni-spacing-md;
 }
 
 .icon-box {
 	width: 64rpx;
 	height: 64rpx;
-	border-radius: 12rpx;
+	border-radius: $uni-radius-sm;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	
+
 	&.balance {
-		background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+		background: $uni-color-primary-gradient;
 	}
-	
+
 	&.wechat {
 		background-color: #07C160;
 	}
-	
+
 	&.alipay {
 		background-color: #1677FF;
 	}
@@ -346,28 +494,28 @@ onLoad((options: any) => {
 	display: flex;
 	flex-direction: column;
 	gap: 4rpx;
-	
+
 	.name {
 		font-size: 30rpx;
-		color: #333;
+		color: $uni-text-color;
 		font-weight: 500;
 	}
-	
+
 	.desc {
 		font-size: 24rpx;
-		color: #999;
+		color: $uni-text-color-placeholder;
 	}
 }
 
 .action-box {
 	display: flex;
 	align-items: center;
-	gap: 16rpx;
+	gap: $uni-spacing-md;
 }
 
 .deduction-text {
 	font-size: 28rpx;
-	color: #FF9F29;
+	color: $uni-color-primary;
 	font-weight: 500;
 }
 
@@ -377,7 +525,7 @@ onLoad((options: any) => {
 	left: 0;
 	right: 0;
 	background-color: #FFFFFF;
-	padding: 20rpx 32rpx;
+	padding: 20rpx $uni-spacing-lg;
 	padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
 	display: flex;
 	align-items: center;
@@ -389,22 +537,22 @@ onLoad((options: any) => {
 .total-info {
 	display: flex;
 	flex-direction: column;
-	
+
 	.label {
 		font-size: 24rpx;
-		color: #666;
+		color: $uni-text-color-secondary;
 	}
-	
+
 	.price {
 		display: flex;
 		align-items: baseline;
-		color: #FF9F29;
-		
+		color: $uni-color-primary;
+
 		.currency {
 			font-size: 24rpx;
 			font-weight: bold;
 		}
-		
+
 		.value {
 			font-size: 40rpx;
 			font-weight: bold;
@@ -418,14 +566,21 @@ onLoad((options: any) => {
 	padding: 0 64rpx;
 	height: 80rpx;
 	line-height: 80rpx;
-	background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+	background: $uni-color-primary-gradient;
 	color: #FFFFFF;
 	font-size: 30rpx;
 	font-weight: bold;
-	border-radius: 40rpx;
-	
+	border-radius: $uni-radius-btn;
+	box-shadow: 0 8rpx 24rpx rgba(255, 159, 41, 0.35);
+	transition: all 0.3s ease;
+
 	&::after {
 		border: none;
+	}
+
+	&:active {
+		transform: scale(0.98);
+		box-shadow: 0 4rpx 16rpx rgba(255, 159, 41, 0.3);
 	}
 }
 </style>

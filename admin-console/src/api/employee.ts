@@ -9,6 +9,8 @@ import {
   mockAssignEmployeeRoles,
   mockExportEmployees,
   mockImportEmployees,
+  mockGetEmployeePerformanceList,
+  mockGetEmployeePerformanceStats,
 } from '@/mock/employees'
 
 // 是否使用 Mock 数据（开发环境默认使用）
@@ -22,6 +24,7 @@ export interface EmployeeListParams {
   storeId?: number
   roleId?: number
   status?: 'active' | 'inactive'
+  department?: string
 }
 
 export interface Employee {
@@ -38,6 +41,7 @@ export interface Employee {
   status: 'active' | 'inactive'
   avatar: string
   joinDate: string
+  loginPlatforms: ('pc' | 'mobile')[]  // 可登录的平台
   createdAt: string
   updatedAt?: string
 }
@@ -57,6 +61,7 @@ export interface CreateEmployeeParams {
   storeId?: number
   department?: string
   joinDate: string
+  loginPlatforms: ('pc' | 'mobile')[]
   status?: 'active' | 'inactive'
 }
 
@@ -67,6 +72,7 @@ export interface UpdateEmployeeParams {
   email?: string
   storeId?: number
   department?: string
+  loginPlatforms?: ('pc' | 'mobile')[]
   status?: 'active' | 'inactive'
 }
 
@@ -136,4 +142,65 @@ export const employeeApi = {
     formData.append('file', file)
     return request.post<ApiResponse<{ successCount: number; failCount: number }>>('/employees/import', formData)
   },
+
+  // 获取门店员工列表
+  getStoreStaffList: (params: EmployeeListParams) => {
+    if (USE_MOCK) {
+      return mockGetEmployeeList({ ...params, department: 'store' }) as Promise<ApiResponse<EmployeeListResponse>>
+    }
+    return request.get<ApiResponse<EmployeeListResponse>>('/employees/store-staff', params)
+  },
+
+  // 获取客服人员列表
+  getCustomerServiceList: (params: EmployeeListParams) => {
+    if (USE_MOCK) {
+      return mockGetEmployeeList({ ...params, department: 'customer_service' }) as Promise<ApiResponse<EmployeeListResponse>>
+    }
+    return request.get<ApiResponse<EmployeeListResponse>>('/employees/customer-service', params)
+  },
+
+  // 获取员工绩效列表
+  getEmployeePerformanceList: (params: { page?: number; pageSize?: number; month?: string; employeeId?: number }) => {
+    if (USE_MOCK) {
+      return mockGetEmployeePerformanceList(params) as Promise<ApiResponse<EmployeePerformanceListResponse>>
+    }
+    return request.get<ApiResponse<EmployeePerformanceListResponse>>('/employees/performance', params)
+  },
+
+  // 获取员工绩效统计
+  getEmployeePerformanceStats: () => {
+    if (USE_MOCK) {
+      return mockGetEmployeePerformanceStats() as Promise<ApiResponse<EmployeePerformanceStats>>
+    }
+    return request.get<ApiResponse<EmployeePerformanceStats>>('/employees/performance/stats')
+  },
+}
+
+// 员工绩效相关类型定义
+export interface EmployeePerformance {
+  id: number
+  employeeId: number
+  employeeName: string
+  department: string
+  month: string
+  orderCount: number
+  totalRevenue: number
+  customerSatisfaction: number
+  attendanceRate: number
+  score: number
+  rank: number
+  bonus: number
+  createdAt: string
+}
+
+export interface EmployeePerformanceListResponse {
+  list: EmployeePerformance[]
+  total: number
+}
+
+export interface EmployeePerformanceStats {
+  totalEmployees: number
+  avgScore: number
+  avgBonus: number
+  topPerformer: string
 }

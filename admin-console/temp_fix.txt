@@ -1,0 +1,11 @@
+import { exportToCSV } from '@/utils/export'
+
+// 导出数据
+function handleExport() {
+  if (list.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+  const columns = tableColumns.filter(col => col.prop && col.prop !== 'actions').map(col => ({ key: col.prop, label: col.label }))
+  exportToCSV(list.value, columns, '数据列表')
+}

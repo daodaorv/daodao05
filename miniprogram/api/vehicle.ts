@@ -40,3 +40,59 @@ export function favoriteVehicle(id: string) {
 export function getFavoriteVehicles(params?: { page?: number; limit?: number }) {
     return get('/vehicles/favorites', params);
 }
+
+/**
+ * 锁定车辆库存
+ */
+export function lockVehicle(data: {
+    vehicleId: string;
+    orderNo: string;
+    startDate: string;
+    endDate: string;
+}) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('锁定车辆库存:', data);
+            resolve({
+                code: 0,
+                message: 'success',
+                data: {
+                    success: true,
+                    lockId: 'LOCK' + Date.now(),
+                    lockedAt: new Date().toISOString()
+                }
+            });
+        }, 300);
+    });
+}
+
+/**
+ * 释放车辆库存
+ */
+export function unlockVehicle(lockId: string) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('释放车辆库存:', lockId);
+            resolve({
+                code: 0,
+                message: 'success',
+                data: {
+                    success: true,
+                    unlockedAt: new Date().toISOString()
+                }
+            });
+        }, 300);
+    });
+}
+
+// 默认导出对象，方便使用 vehicleApi.xxx() 的方式调用
+export const vehicleApi = {
+    getVehicles,
+    getVehicleDetail,
+    favoriteVehicle,
+    getFavoriteVehicles,
+    lockVehicle,
+    unlockVehicle
+};
+
+export default vehicleApi;

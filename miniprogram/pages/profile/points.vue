@@ -408,15 +408,15 @@ const getUserTypeName = (type: string): string => {
 <style lang="scss" scoped>
 .points-page {
 	min-height: 100vh;
-	background: #F5F5F5;
-	padding-bottom: 32rpx;
+	background: $uni-bg-color;
+	padding-bottom: $uni-spacing-lg;
 }
 
 // 积分卡片
 .points-card {
 	position: relative;
-	margin: 32rpx;
-	border-radius: 24rpx;
+	margin: $uni-spacing-lg;
+	border-radius: $uni-radius-lg;
 	overflow: hidden;
 	box-shadow: 0 8rpx 24rpx rgba(255, 159, 41, 0.2);
 
@@ -426,7 +426,7 @@ const getUserTypeName = (type: string): string => {
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+		background: $uni-color-primary-gradient;
 
 		/* 使用CSS创建装饰性图案 */
 		&::before {
@@ -443,18 +443,18 @@ const getUserTypeName = (type: string): string => {
 
 	.card-content {
 		position: relative;
-		padding: 48rpx 32rpx;
+		padding: 48rpx $uni-spacing-lg;
 	}
 
 	.balance-section {
 		text-align: center;
-		margin-bottom: 32rpx;
+		margin-bottom: $uni-spacing-lg;
 
 		.label {
 			display: block;
 			font-size: 24rpx;
 			color: rgba(255, 255, 255, 0.8);
-			margin-bottom: 16rpx;
+			margin-bottom: $uni-spacing-md;
 		}
 
 		.balance {
@@ -463,24 +463,30 @@ const getUserTypeName = (type: string): string => {
 			font-weight: bold;
 			color: #FFFFFF;
 			line-height: 1;
-			margin-bottom: 32rpx;
+			margin-bottom: $uni-spacing-lg;
 		}
 
 		.balance-actions {
 			display: flex;
 			justify-content: center;
-			gap: 24rpx;
+			gap: $uni-spacing-md;
 
 			.action-btn {
 				display: flex;
 				align-items: center;
-				gap: 8rpx;
-				padding: 16rpx 32rpx;
+				gap: $uni-spacing-xs;
+				padding: $uni-spacing-md $uni-spacing-lg;
 				background: rgba(255, 255, 255, 0.2);
 				color: #FFFFFF;
 				font-size: 24rpx;
-				border-radius: 48rpx;
+				border-radius: $uni-radius-btn;
 				border: 1rpx solid rgba(255, 255, 255, 0.3);
+				transition: all 0.3s ease;
+
+				&:active {
+					opacity: 0.8;
+					transform: scale(0.98);
+				}
 			}
 		}
 	}
@@ -489,14 +495,14 @@ const getUserTypeName = (type: string): string => {
 		display: flex;
 		align-items: center;
 		justify-content: space-around;
-		padding-top: 32rpx;
+		padding-top: $uni-spacing-lg;
 		border-top: 1rpx solid rgba(255, 255, 255, 0.2);
 
 		.stat-item {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			gap: 8rpx;
+			gap: $uni-spacing-xs;
 
 			.stat-value {
 				font-size: 32rpx;
@@ -520,32 +526,32 @@ const getUserTypeName = (type: string): string => {
 
 // 签到区域
 .sign-in-section {
-	margin: 0 32rpx 32rpx;
-	padding: 32rpx;
+	margin: 0 $uni-spacing-lg $uni-spacing-lg;
+	padding: $uni-spacing-lg;
 	background: #FFFFFF;
-	border-radius: 16rpx;
+	border-radius: $uni-radius-md;
 
 	.section-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 24rpx;
+		margin-bottom: $uni-spacing-md;
 
 		.header-left {
 			display: flex;
 			align-items: center;
-			gap: 8rpx;
+			gap: $uni-spacing-xs;
 
 			.header-title {
 				font-size: 28rpx;
 				font-weight: 500;
-				color: #333333;
+				color: $uni-text-color;
 			}
 		}
 
 		.header-tip {
 			font-size: 22rpx;
-			color: #999999;
+			color: $uni-text-color-placeholder;
 		}
 	}
 
@@ -553,13 +559,19 @@ const getUserTypeName = (type: string): string => {
 		.sign-in-btn {
 			width: 100%;
 			height: 88rpx;
-			background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+			background: $uni-color-primary-gradient;
 			color: #FFFFFF;
 			font-size: 28rpx;
 			font-weight: 500;
-			border-radius: 44rpx;
+			border-radius: $uni-radius-btn;
 			border: none;
-			margin-bottom: 24rpx;
+			margin-bottom: $uni-spacing-md;
+			transition: all 0.3s ease;
+
+			&:not([disabled]):active {
+				opacity: 0.8;
+				transform: scale(0.98);
+			}
 
 			&[disabled] {
 				background: #CCCCCC;
@@ -569,28 +581,28 @@ const getUserTypeName = (type: string): string => {
 		.sign-in-days {
 			display: flex;
 			justify-content: space-between;
-			gap: 16rpx;
+			gap: $uni-spacing-md;
 
 			.day-item {
 				flex: 1;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				gap: 8rpx;
-				padding: 16rpx 0;
-				background: #F5F5F5;
-				border-radius: 12rpx;
+				gap: $uni-spacing-xs;
+				padding: $uni-spacing-md 0;
+				background: $uni-bg-color;
+				border-radius: $uni-radius-sm;
 
 				&.active {
 					background: #FFF5E6;
 
 					.day-number {
-						color: #FF9F29;
+						color: $uni-color-primary;
 					}
 				}
 
 				&.today {
-					background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+					background: $uni-color-primary-gradient;
 
 					.day-number,
 					.day-label {
@@ -601,12 +613,12 @@ const getUserTypeName = (type: string): string => {
 				.day-number {
 					font-size: 32rpx;
 					font-weight: bold;
-					color: #999999;
+					color: $uni-text-color-placeholder;
 				}
 
 				.day-label {
 					font-size: 20rpx;
-					color: #999999;
+					color: $uni-text-color-placeholder;
 				}
 			}
 		}
@@ -617,19 +629,19 @@ const getUserTypeName = (type: string): string => {
 .tabs {
 	display: flex;
 	background: #FFFFFF;
-	margin: 0 32rpx 32rpx;
-	border-radius: 16rpx;
-	padding: 8rpx;
+	margin: 0 $uni-spacing-lg $uni-spacing-lg;
+	border-radius: $uni-radius-md;
+	padding: $uni-spacing-xs;
 
 	.tab-item {
 		flex: 1;
 		text-align: center;
-		padding: 16rpx 0;
-		border-radius: 12rpx;
-		transition: all 0.3s;
+		padding: $uni-spacing-md 0;
+		border-radius: $uni-radius-sm;
+		transition: all 0.3s ease;
 
 		&.active {
-			background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+			background: $uni-color-primary-gradient;
 
 			.tab-text {
 				color: #FFFFFF;
@@ -639,7 +651,7 @@ const getUserTypeName = (type: string): string => {
 
 		.tab-text {
 			font-size: 28rpx;
-			color: #666666;
+			color: $uni-text-color-secondary;
 		}
 	}
 }
@@ -647,20 +659,25 @@ const getUserTypeName = (type: string): string => {
 // 积分记录
 .records-section {
 	.filter-bar {
-		padding: 0 32rpx 24rpx;
+		padding: 0 $uni-spacing-lg $uni-spacing-md;
 
 		.filter-btn {
 			display: inline-flex;
 			align-items: center;
-			gap: 8rpx;
-			padding: 12rpx 24rpx;
+			gap: $uni-spacing-xs;
+			padding: $uni-spacing-sm $uni-spacing-md;
 			background: #FFFFFF;
-			border-radius: 48rpx;
-			border: 1rpx solid #E5E5E5;
+			border-radius: $uni-radius-btn;
+			border: 1rpx solid $uni-border-color-light;
+			transition: all 0.2s ease;
+
+			&:active {
+				opacity: 0.7;
+			}
 
 			.filter-text {
 				font-size: 24rpx;
-				color: #333333;
+				color: $uni-text-color;
 			}
 		}
 	}
@@ -674,9 +691,9 @@ const getUserTypeName = (type: string): string => {
 			padding: 120rpx 0;
 
 			.empty-text {
-				margin-top: 24rpx;
+				margin-top: $uni-spacing-md;
 				font-size: 24rpx;
-				color: #999999;
+				color: $uni-text-color-placeholder;
 			}
 		}
 
@@ -684,15 +701,15 @@ const getUserTypeName = (type: string): string => {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 32rpx;
-			margin: 0 32rpx 16rpx;
+			padding: $uni-spacing-lg;
+			margin: 0 $uni-spacing-lg $uni-spacing-md;
 			background: #FFFFFF;
-			border-radius: 16rpx;
+			border-radius: $uni-radius-md;
 
 			.record-left {
 				display: flex;
 				align-items: center;
-				gap: 24rpx;
+				gap: $uni-spacing-md;
 				flex: 1;
 
 				.record-icon {
@@ -704,7 +721,7 @@ const getUserTypeName = (type: string): string => {
 					border-radius: 50%;
 
 					&.positive {
-						background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+						background: $uni-color-primary-gradient;
 					}
 
 					&.negative {
@@ -716,16 +733,16 @@ const getUserTypeName = (type: string): string => {
 					flex: 1;
 					display: flex;
 					flex-direction: column;
-					gap: 8rpx;
+					gap: $uni-spacing-xs;
 
 					.record-desc {
 						font-size: 28rpx;
-						color: #333333;
+						color: $uni-text-color;
 					}
 
 					.record-time {
 						font-size: 22rpx;
-						color: #999999;
+						color: $uni-text-color-placeholder;
 					}
 				}
 			}
@@ -734,10 +751,10 @@ const getUserTypeName = (type: string): string => {
 				.record-amount {
 					font-size: 32rpx;
 					font-weight: bold;
-					color: #999999;
+					color: $uni-text-color-placeholder;
 
 					&.positive {
-						color: #FF9F29;
+						color: $uni-color-primary;
 					}
 				}
 			}
@@ -747,42 +764,42 @@ const getUserTypeName = (type: string): string => {
 	.load-more,
 	.no-more {
 		text-align: center;
-		padding: 32rpx 0;
+		padding: $uni-spacing-lg 0;
 
 		.load-more-text,
 		.no-more-text {
 			font-size: 24rpx;
-			color: #999999;
+			color: $uni-text-color-placeholder;
 		}
 	}
 }
 
 // 积分规则
 .rules-section {
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
 
 	.rules-list {
 		.rule-item {
-			padding: 32rpx;
-			margin-bottom: 16rpx;
+			padding: $uni-spacing-lg;
+			margin-bottom: $uni-spacing-md;
 			background: #FFFFFF;
-			border-radius: 16rpx;
+			border-radius: $uni-radius-md;
 
 			.rule-header {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				margin-bottom: 16rpx;
+				margin-bottom: $uni-spacing-md;
 
 				.rule-title-wrapper {
 					display: flex;
 					align-items: center;
-					gap: 12rpx;
+					gap: $uni-spacing-sm;
 
 					.rule-title {
 						font-size: 28rpx;
 						font-weight: 500;
-						color: #333333;
+						color: $uni-text-color;
 					}
 				}
 
@@ -794,55 +811,55 @@ const getUserTypeName = (type: string): string => {
 					.points-text {
 						font-size: 32rpx;
 						font-weight: bold;
-						color: #FF9F29;
+						color: $uni-color-primary;
 					}
 
 					.points-unit {
 						font-size: 22rpx;
-						color: #FF9F29;
+						color: $uni-color-primary;
 					}
 				}
 			}
 
 			.rule-desc {
 				font-size: 24rpx;
-				color: #666666;
+				color: $uni-text-color-secondary;
 				line-height: 1.6;
-				margin-bottom: 12rpx;
+				margin-bottom: $uni-spacing-sm;
 			}
 
 			.rule-limit {
 				display: flex;
 				align-items: center;
-				gap: 8rpx;
-				padding: 8rpx 16rpx;
+				gap: $uni-spacing-xs;
+				padding: $uni-spacing-xs $uni-spacing-md;
 				background: #FFF5E6;
-				border-radius: 8rpx;
+				border-radius: $uni-radius-xs;
 
 				.limit-text {
 					font-size: 22rpx;
-					color: #FF9F29;
+					color: $uni-color-primary;
 				}
 			}
 		}
 	}
 
 	.usage-info {
-		margin-top: 32rpx;
-		padding: 32rpx;
+		margin-top: $uni-spacing-lg;
+		padding: $uni-spacing-lg;
 		background: #FFFFFF;
-		border-radius: 16rpx;
+		border-radius: $uni-radius-md;
 
 		.info-title {
 			display: flex;
 			align-items: center;
-			gap: 8rpx;
-			margin-bottom: 24rpx;
+			gap: $uni-spacing-xs;
+			margin-bottom: $uni-spacing-md;
 
 			.title-text {
 				font-size: 28rpx;
 				font-weight: 500;
-				color: #333333;
+				color: $uni-text-color;
 			}
 		}
 
@@ -850,15 +867,15 @@ const getUserTypeName = (type: string): string => {
 			.info-item {
 				display: flex;
 				align-items: flex-start;
-				gap: 8rpx;
-				margin-bottom: 16rpx;
+				gap: $uni-spacing-xs;
+				margin-bottom: $uni-spacing-md;
 
 				&:last-child {
 					margin-bottom: 0;
 				}
 
 				.dot {
-					color: #FF9F29;
+					color: $uni-color-primary;
 					font-size: 24rpx;
 					line-height: 1.6;
 				}
@@ -866,7 +883,7 @@ const getUserTypeName = (type: string): string => {
 				.info-text {
 					flex: 1;
 					font-size: 24rpx;
-					color: #666666;
+					color: $uni-text-color-secondary;
 					line-height: 1.6;
 				}
 			}

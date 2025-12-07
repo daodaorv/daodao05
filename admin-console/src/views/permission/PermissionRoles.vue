@@ -223,6 +223,7 @@ import type { TableColumn, TableAction, ToolbarButton } from '@/components/commo
 import { roleApi, type Role } from '@/api/role'
 import { useErrorHandler, useEnumLabel, useDateFormat } from '@/composables'
 import { ROLE_STATUS_OPTIONS, ROLE_TYPE_OPTIONS, DATA_SCOPE_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 const router = useRouter()
 
@@ -280,7 +281,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
 ]
 
@@ -607,6 +608,20 @@ const getRoleTypeTag = (type: string) => {
 onMounted(() => {
   loadRoleList()
 })
+
+// 导出数据
+function handleExport() {
+  if (roleList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(roleList.value, columns, '角色列表')
+}
 </script>
 
 <style scoped lang="scss">

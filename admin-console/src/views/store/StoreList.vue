@@ -233,6 +233,7 @@ import {
   type Region
 } from '@/api/store'
 import { useErrorHandler } from '@/composables'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -381,7 +382,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出数据',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中')
+    onClick: handleExport
   }
 ]
 
@@ -732,6 +733,20 @@ onMounted(() => {
   loadStoreList()
   loadStats()
 })
+
+// 导出数据
+function handleExport() {
+  if (storeList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(storeList.value, columns, '门店列表')
+}
 </script>
 
 <style scoped lang="scss">

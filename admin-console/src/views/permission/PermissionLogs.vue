@@ -144,6 +144,7 @@ import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import { useEnumLabel, useDateFormat } from '@/composables'
 import { LOG_MODULE_OPTIONS, LOG_ACTION_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { getLogModuleLabel, getLogActionLabel } = useEnumLabel()
@@ -225,7 +226,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出日志',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '清理日志',
@@ -345,6 +346,20 @@ const getActionType = (action?: string) => {
 onMounted(() => {
   // TODO: 加载操作日志列表
 })
+
+// 导出数据
+function handleExport() {
+  if (logList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(logList.value, columns, '操作日志')
+}
 </script>
 
 <style scoped lang="scss">

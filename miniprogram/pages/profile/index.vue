@@ -1,110 +1,126 @@
 <template>
 	<view class="profile-page">
-		<!-- 头部用户信息 -->
-		<view class="header-section" :style="{ paddingTop: headerPaddingTop + 'px' }" @tap="handleLogin">
-			<view class="user-card">
-				<view class="user-info-row">
-					<view class="avatar-wrapper">
-						<image
-							class="avatar"
-							:src="isLogin ? userInfo.avatar : '/static/default-avatar.png'"
-							mode="aspectFill"
-						></image>
-						<view v-if="isLogin" class="vip-badge">
-							<u-icon name="level" :size="12" :color="'#8F5E1E'"></u-icon>
-						</view>
-					</view>
-					<view class="info-col">
-						<view v-if="isLogin" class="login-state">
-							<text class="nickname">{{ userInfo.nickname }}</text>
-							<text class="user-id">ID: 888888</text>
-						</view>
-						<view v-else class="logout-state">
-							<text class="login-tip">点击登录/注册</text>
-							<text class="sub-tip">登录后享受更多权益</text>
-						</view>
-					</view>
-					<u-icon name="arrow-right" :size="16" :color="'#999'"></u-icon>
-				</view>
+		<!-- 沉浸式头部背景 -->
+		<view class="header-bg"></view>
 
-				<!-- 会员卡片 -->
-				<view class="vip-card-entry" v-if="isLogin">
+		<!-- 用户信息区 -->
+		<view class="user-section" :style="{ paddingTop: (statusBarHeight + 44) + 'px' }" @tap="handleLogin">
+			<view class="user-row">
+				<view class="avatar-box">
+					<image
+						class="avatar"
+						:src="isLogin ? userInfo.avatar : '/static/default-avatar.png'"
+						mode="aspectFill"
+					></image>
+					<view v-if="isLogin" class="vip-tag">
+						<u-icon name="level-fill" size="10" color="#FFFFFF"></u-icon>
+						<text class="vip-text">{{ userInfo.levelName }}</text>
+					</view>
+				</view>
+				
+				<view class="info-box">
+					<view class="name-row">
+						<text class="nickname">{{ isLogin ? userInfo.nickname : '点击登录/注册' }}</text>
+						<u-icon v-if="!isLogin" name="arrow-right" size="14" color="#1D2129"></u-icon>
+					</view>
+					<text class="subtitle">{{ isLogin ? 'ID: 888888' : '登录后享受更多权益' }}</text>
+				</view>
+			</view>
+			
+			<!-- 会员黑卡入口 -->
+			<view class="vip-banner" v-if="isLogin" @tap.stop="navigateTo('/pages/membership/index')">
+				<view class="vip-content">
 					<view class="vip-left">
-						<u-icon name="level" :size="20" :color="'#FFD700'"></u-icon>
-						<text class="vip-title">{{ userInfo.levelName }}</text>
+						<u-icon name="crown-fill" size="18" color="#FFD700"></u-icon>
+						<text class="vip-label">PLUS会员</text>
 					</view>
 					<view class="vip-right">
-						<text class="vip-desc">查看权益</text>
-						<u-icon name="arrow-right" :size="12" :color="'#FFD700'"></u-icon>
+						<text class="vip-tip">查看专属权益</text>
+						<u-icon name="arrow-right" size="10" color="#FFD700"></u-icon>
 					</view>
 				</view>
 			</view>
 		</view>
 
+		<!-- 资产宫格 (Assets Grid) -->
+		<view class="card-container assets-card">
+			<view 
+				class="asset-item" 
+				v-for="(item, index) in gridMenu" 
+				:key="index"
+				@tap="handleMenuClick(item)"
+			>
+				<view class="asset-value" :class="{ 'is-amount': item.amount }">
+					<template v-if="item.amount">{{ item.amount }}</template>
+					<template v-else>
+						<u-icon :name="item.icon" size="28" :color="item.iconColor"></u-icon>
+					</template>
+				</view>
+				<text class="asset-label">{{ item.name }}</text>
+				<view v-if="item.badge" class="asset-badge">{{ item.badge }}</view>
+			</view>
+		</view>
+
 		<!-- 订单状态栏 -->
-		<view class="order-section">
-			<view class="section-header" @tap="navigateToOrders(0)">
-				<text class="title">我的订单</text>
-				<view class="more">
+		<view class="card-container order-card">
+			<view class="card-header" @tap="navigateToOrders(0)">
+				<text class="card-title">我的订单</text>
+				<view class="card-more">
 					<text>全部订单</text>
 					<u-icon name="arrow-right" size="12" color="#999"></u-icon>
 				</view>
 			</view>
 			<view class="status-grid">
 				<view class="status-item" @tap="navigateToOrders(1)">
-					<view class="icon-wrapper">
-						<u-icon name="rmb" :size="28" :color="'#666'"></u-icon>
-						<view v-if="orderCounts.pendingPayment > 0" class="badge">{{ orderCounts.pendingPayment }}</view>
+					<view class="icon-box">
+						<u-icon name="rmb" size="28" color="#1D2129"></u-icon>
+						<view v-if="orderCounts.pendingPayment > 0" class="dot-badge"></view>
 					</view>
 					<text class="status-text">待付款</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(2)">
-					<view class="icon-wrapper">
-						<u-icon name="bag" :size="28" :color="'#666'"></u-icon>
-						<view v-if="orderCounts.pendingConfirm > 0" class="badge">{{ orderCounts.pendingConfirm }}</view>
+					<view class="icon-box">
+						<u-icon name="bag" size="28" color="#1D2129"></u-icon>
+						<view v-if="orderCounts.pendingConfirm > 0" class="dot-badge"></view>
 					</view>
-					<text class="status-text">待门店确认</text>
+					<text class="status-text">待确认</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(3)">
-					<view class="icon-wrapper">
-						<u-icon name="calendar" :size="28" :color="'#666'"></u-icon>
-						<view v-if="orderCounts.pendingPickup > 0" class="badge">{{ orderCounts.pendingPickup }}</view>
+					<view class="icon-box">
+						<u-icon name="calendar" size="28" color="#1D2129"></u-icon>
+						<view v-if="orderCounts.pendingPickup > 0" class="dot-badge"></view>
 					</view>
 					<text class="status-text">待取车</text>
 				</view>
 				<view class="status-item" @tap="navigateToOrders(4)">
-					<view class="icon-wrapper">
-						<u-icon name="car" :size="28" :color="'#666'"></u-icon>
-						<view v-if="orderCounts.renting > 0" class="badge">{{ orderCounts.renting }}</view>
+					<view class="icon-box">
+						<u-icon name="car" size="28" color="#1D2129"></u-icon>
+						<view v-if="orderCounts.renting > 0" class="dot-badge"></view>
 					</view>
 					<text class="status-text">租赁中</text>
 				</view>
 			</view>
 		</view>
 
-		<!-- 功能菜单 -->
-		<view class="menu-section">
+		<!-- 功能列表 -->
+		<view class="card-container menu-card">
 			<view
-				v-for="(item, index) in menuList"
+				v-for="(item, index) in listMenu"
 				:key="index"
 				class="menu-item"
 				@tap="handleMenuClick(item)"
 			>
 				<view class="menu-left">
-					<u-icon :name="item.icon" :size="24" :color="item.iconColor"></u-icon>
+					<u-icon :name="item.icon" size="20" color="#1D2129"></u-icon>
 					<text class="menu-name">{{ item.name }}</text>
 				</view>
-				<view class="menu-right">
-					<text v-if="item.badge" class="menu-badge">{{ item.badge }}</text>
-					<text v-if="item.amount" class="menu-amount">¥{{ item.amount }}</text>
-					<u-icon name="arrow-right" :size="16" :color="'#999'"></u-icon>
-				</view>
+				<u-icon name="arrow-right" size="14" color="#CCCCCC"></u-icon>
 			</view>
 		</view>
 
-		<!-- 退出登录按钮 -->
-		<view v-if="isLogin" class="logout-btn-box">
-			<button class="logout-btn" @tap="handleLogout">退出登录</button>
+		<!-- 退出登录 -->
+		<view v-if="isLogin" class="logout-section">
+			<text class="logout-text" @tap="handleLogout">退出登录</text>
 		</view>
 	</view>
 </template>
@@ -116,15 +132,10 @@ import { isLoggedIn, getCurrentUser, logout as logoutUtil } from '@/utils/auth';
 
 // 获取系统状态栏高度
 const statusBarHeight = ref(0);
-const getStatusBarHeight = () => {
-	const systemInfo = uni.getSystemInfoSync();
-	statusBarHeight.value = systemInfo.statusBarHeight || 0;
-};
-getStatusBarHeight();
-
-// 计算顶部安全区域高度(状态栏高度)
-const headerPaddingTop = computed(() => {
-	return statusBarHeight.value;
+uni.getSystemInfo({
+	success: (res) => {
+		statusBarHeight.value = res.statusBarHeight || 0;
+	}
 });
 
 // 登录状态
@@ -145,75 +156,54 @@ const orderCounts = ref({
 	renting: 0
 });
 
+// 菜单配置
+const gridMenu = ref([
+	{ name: '优惠券', icon: 'coupon', iconColor: '#FF4D4F', path: '/pages/profile/coupons', badge: '3' },
+	{ name: '积分', icon: 'integral', iconColor: '#FF9F29', path: '/pages/profile/points', amount: '2,080' },
+	{ name: '钱包', icon: 'wallet', iconColor: '#2196F3', path: '/pages/profile/wallet', amount: '¥1280' },
+	{ name: '收藏', icon: 'star', iconColor: '#FFC107', path: '/pages/profile/favorites' }
+]);
+
+const listMenu = ref([
+	{ name: '常用联系人', icon: 'account', path: '/pages/profile/contacts' },
+	{ name: '地址管理', icon: 'map', path: '/pages/profile/address' },
+	{ name: '联系客服', icon: 'server-fill', path: '/pages/help/index' },
+	{ name: '设置', icon: 'setting', path: '/pages/profile/settings' }
+]);
+
 // 页面显示时检查登录状态
 onShow(() => {
 	checkLoginStatus();
 });
 
-// 检查登录状态
 const checkLoginStatus = () => {
 	isLogin.value = isLoggedIn();
-
 	if (isLogin.value) {
 		const user = getCurrentUser();
 		if (user) {
 			userInfo.value = {
 				avatar: user.avatar || '/static/default-avatar.png',
 				nickname: user.nickname || '房车用户',
-				levelName: user.userType === 'PLUS' ? 'PLUS会员' : user.userType === 'HOST' ? '车主' : '普通会员'
+				levelName: user.userType === 'PLUS' ? 'PLUS会员' : '普通会员'
 			};
 		}
 	} else {
-		// 未登录，重置为默认值
 		userInfo.value = {
 			avatar: '/static/default-avatar.png',
 			nickname: '游客',
 			levelName: '普通会员'
 		};
-		orderCounts.value = {
-			pendingPayment: 0,
-			pendingConfirm: 0,
-			pendingPickup: 0,
-			renting: 0
-		};
 	}
 };
 
-// 菜单列表
-const menuList = [
-	{ name: '我的优惠券', icon: 'gift-fill', iconColor: '#F44336', path: '/pages/profile/coupons', badge: 3 },
-	{ name: '积分中心', icon: 'integral', iconColor: '#FF9F29', path: '/pages/profile/points' },
-	{ name: 'PLUS会员', icon: 'level', iconColor: '#FFD700', path: '/pages/membership/index' },
-	{ name: '钱包余额', icon: 'rmb-circle-fill', iconColor: '#FF9F29', path: '/pages/profile/wallet', amount: '1280.50' },
-	{ name: '我的收藏', icon: 'star', iconColor: '#FF9F29', path: '/pages/profile/favorites' },
-	{ name: '常用联系人', icon: 'server-man', iconColor: '#4CAF50', path: '/pages/profile/contacts' },
-	{ name: '地址管理', icon: 'map', iconColor: '#2196F3', path: '/pages/profile/address' },
-	{ name: '联系客服', icon: 'server-fill', iconColor: '#9C27B0', action: 'call' },
-	{ name: '设置', icon: 'setting', iconColor: '#607D8B', path: '/pages/profile/settings' }
-];
-
-// 登录/注册/编辑资料
 const handleLogin = () => {
 	if (!isLogin.value) {
-		// 未登录，跳转到登录页
-		uni.navigateTo({
-			url: '/pages/auth/login'
-		});
+		uni.navigateTo({ url: '/pages/auth/login' });
 	} else {
-		// 已登录，跳转到编辑资料页
-		uni.navigateTo({
-			url: '/pages/profile/edit',
-			fail: () => {
-				uni.showToast({
-					title: '该功能正在开发中',
-					icon: 'none'
-				});
-			}
-		});
+		uni.navigateTo({ url: '/pages/profile/edit' });
 	}
 };
 
-// 退出登录
 const handleLogout = () => {
 	uni.showModal({
 		title: '提示',
@@ -221,281 +211,278 @@ const handleLogout = () => {
 		success: async (res) => {
 			if (res.confirm) {
 				await logoutUtil();
-				// 刷新页面状态
 				checkLoginStatus();
 			}
 		}
 	});
 };
 
-// 跳转订单列表
 const navigateToOrders = (status: number) => {
-	uni.navigateTo({
-		url: `/pages/order/list?status=${status}`
-	});
+	uni.navigateTo({ url: `/pages/order/list?status=${status}` });
 };
 
-// 菜单点击处理
 const handleMenuClick = (item: any) => {
-	if (item.action === 'call') {
-		// 拨打客服电话，捕获用户取消操作
-		uni.makePhoneCall({
-			phoneNumber: '400-123-4567',
-			success: () => {
-				console.log('拨打电话成功');
-			},
-			fail: (err) => {
-				// 用户取消拨打电话，不显示错误提示
-				if (err.errMsg.includes('cancel')) {
-					console.log('用户取消拨打电话');
-				} else {
-					uni.showToast({
-						title: '拨打电话失败',
-						icon: 'none'
-					});
-				}
-			}
-		});
-	} else if (item.path) {
-		// 检查页面是否存在
-		const notImplementedPages = ['/pages/profile/address'];
-		if (notImplementedPages.includes(item.path)) {
-			uni.showToast({
-				title: '该功能正在开发中',
-				icon: 'none',
-				duration: 2000
-			});
-		} else {
-			uni.navigateTo({
-				url: item.path,
-				fail: () => {
-					uni.showToast({
-						title: '页面跳转失败',
-						icon: 'none'
-					});
-				}
-			});
+	if (item.path) {
+		if (item.path === '/pages/profile/address') {
+			uni.showToast({ title: '该功能开发中', icon: 'none' });
+			return;
 		}
-	} else {
-		uni.showToast({
-			title: `访问: ${item.name}`,
-			icon: 'none'
-		});
+		uni.navigateTo({ url: item.path });
 	}
+};
+
+const navigateTo = (url: string) => {
+	uni.navigateTo({ url });
 };
 </script>
 
 <style scoped lang="scss">
 .profile-page {
 	min-height: 100vh;
-	background-color: #F5F7FA;
+	background-color: $uni-bg-color;
 	padding-bottom: 40rpx;
-}
-
-.header-section {
-	background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
-	padding: 0 32rpx 120rpx;
 	position: relative;
 }
 
-.user-card {
-	padding-top: 40rpx;
+.header-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 500rpx;
+	background: linear-gradient(180deg, #FFF8E1 0%, #F8F9FC 100%);
+	z-index: 0;
 }
 
-.user-info-row {
+.user-section {
+	position: relative;
+	z-index: 1;
+	padding: 0 $uni-spacing-lg 40rpx;
+}
+
+.user-row {
 	display: flex;
 	align-items: center;
-	margin-bottom: 32rpx;
+	margin-bottom: 40rpx;
 }
 
-.avatar-wrapper {
+.avatar-box {
 	position: relative;
-	margin-right: 24rpx;
-
+	margin-right: $uni-spacing-md;
+	
 	.avatar {
 		width: 120rpx;
 		height: 120rpx;
 		border-radius: 50%;
-		border: 4rpx solid rgba(255,255,255,0.8);
-		background-color: #FFF;
+		border: 4rpx solid #FFFFFF;
+		box-shadow: $uni-shadow-sm;
 	}
-
-	.vip-badge {
+	
+	.vip-tag {
 		position: absolute;
-		bottom: 0;
-		right: 0;
-		background-color: #FFF;
-		border-radius: 50%;
-		width: 36rpx;
-		height: 36rpx;
+		bottom: -6rpx;
+		left: 50%;
+		transform: translateX(-50%);
+		background-color: #333;
+		color: #FFD700;
+		font-size: 20rpx;
+		padding: 2rpx 12rpx;
+		border-radius: 16rpx;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+		gap: 4rpx;
+		white-space: nowrap;
+		border: 2rpx solid #FFFFFF;
+	}
+	
+	.vip-text {
+		font-size: 18rpx;
+		font-weight: bold;
 	}
 }
 
-.info-col {
+.info-box {
 	flex: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	
+	.name-row {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		margin-bottom: 8rpx;
+		
+		.nickname {
+			font-size: 40rpx;
+			font-weight: 800;
+			color: $uni-text-color;
+		}
+	}
+	
+	.subtitle {
+		font-size: 24rpx;
+		color: $uni-text-color-secondary;
+	}
 }
 
-.nickname {
-	font-size: 40rpx;
-	font-weight: bold;
-	color: #FFF;
-	margin-bottom: 8rpx;
-	text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.1);
-}
-
-.user-id {
-	font-size: 24rpx;
-	color: rgba(255,255,255,0.9);
-}
-
-.login-tip {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: #FFF;
-	margin-bottom: 8rpx;
-}
-
-.sub-tip {
-	font-size: 24rpx;
-	color: rgba(255,255,255,0.9);
-}
-
-.vip-card-entry {
-	background: linear-gradient(90deg, #333333 0%, #1A1A1A 100%);
-	border-radius: 20rpx 20rpx 0 0;
-	padding: 20rpx 32rpx;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-top: 20rpx;
-
+.vip-banner {
+	background: linear-gradient(90deg, #1A1A1A 0%, #333333 100%);
+	border-radius: 20rpx;
+	padding: $uni-spacing-md $uni-spacing-lg;
+	box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.15);
+	
+	.vip-content {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	
 	.vip-left {
 		display: flex;
 		align-items: center;
 		gap: 12rpx;
-
-		.vip-title {
+		
+		.vip-label {
 			color: #FFD700;
 			font-size: 28rpx;
 			font-weight: 600;
 		}
 	}
-
+	
 	.vip-right {
 		display: flex;
 		align-items: center;
 		gap: 4rpx;
-
-		.vip-desc {
-			color: #FFD700;
-			font-size: 24rpx;
-			opacity: 0.9;
+		
+		.vip-tip {
+			color: rgba(255, 215, 0, 0.8);
+			font-size: 22rpx;
 		}
 	}
 }
 
-.order-section {
-	margin: -80rpx 32rpx 32rpx;
+.card-container {
 	background-color: #FFFFFF;
-	border-radius: 24rpx;
-	padding: 32rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+	border-radius: $uni-radius-lg;
+	margin: 0 $uni-spacing-lg $uni-spacing-md;
+	padding: $uni-spacing-lg;
+	box-shadow: $uni-shadow-card;
 	position: relative;
 	z-index: 1;
 }
 
-.section-header {
+/* Assets Grid */
+.assets-card {
+	display: flex;
+	justify-content: space-between;
+	padding: $uni-spacing-lg $uni-spacing-md;
+}
+
+.asset-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: $uni-spacing-sm;
+	position: relative;
+	min-width: 120rpx;
+}
+
+.asset-value {
+	height: 48rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+	&.is-amount {
+		font-family: 'DIN Alternate', sans-serif;
+		font-size: 32rpx;
+		font-weight: bold;
+		color: $uni-text-color;
+	}
+}
+
+.asset-label {
+	font-size: 24rpx;
+	color: $uni-text-color-secondary;
+}
+
+.asset-badge {
+	position: absolute;
+	top: -10rpx;
+	right: 10rpx;
+	background-color: #FF4D4F;
+	color: #FFFFFF;
+	font-size: 20rpx;
+	padding: 2rpx 10rpx;
+	border-radius: 20rpx;
+	border: 2rpx solid #FFFFFF;
+}
+
+/* Order Card */
+.card-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 32rpx;
+	margin-bottom: $uni-spacing-lg;
+}
 
-	.title {
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333;
-	}
+.card-title {
+	font-size: 30rpx;
+	font-weight: bold;
+	color: $uni-text-color;
+}
 
-	.more {
-		display: flex;
-		align-items: center;
-		gap: 4rpx;
-		font-size: 24rpx;
-		color: #999;
-	}
+.card-more {
+	display: flex;
+	align-items: center;
+	gap: 4rpx;
+	font-size: 24rpx;
+	color: $uni-text-color-secondary;
 }
 
 .status-grid {
 	display: flex;
 	justify-content: space-between;
-	padding: 0 16rpx;
+	padding: 0 $uni-spacing-md;
 }
 
 .status-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 16rpx;
-
-	&:active {
-		transform: scale(0.96);
-	}
+	gap: $uni-spacing-sm;
 }
 
-.icon-wrapper {
+.icon-box {
 	position: relative;
-	width: 80rpx;
-	height: 80rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.badge {
-	position: absolute;
-	top: -6rpx;
-	right: -6rpx;
-	background-color: #FF4D4F;
-	color: #FFFFFF;
-	font-size: 20rpx;
-	min-width: 32rpx;
-	height: 32rpx;
-	border-radius: 16rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 8rpx;
-	border: 2rpx solid #FFFFFF;
-	font-weight: bold;
+	
+	.dot-badge {
+		position: absolute;
+		top: -2rpx;
+		right: -2rpx;
+		width: 12rpx;
+		height: 12rpx;
+		background-color: #FF4D4F;
+		border-radius: 50%;
+		border: 2rpx solid #FFFFFF;
+	}
 }
 
 .status-text {
 	font-size: 24rpx;
-	color: #333;
-	font-weight: 500;
+	color: $uni-text-color-secondary;
 }
 
-.menu-section {
-	margin: 0 32rpx 32rpx;
-	background-color: #FFFFFF;
-	border-radius: 24rpx;
-	padding: 0 32rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+/* Menu List */
+.menu-card {
+	padding: 0 $uni-spacing-lg;
 }
 
 .menu-item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 36rpx 0;
-	border-bottom: 1rpx solid #F5F5F5;
+	padding: $uni-spacing-lg 0;
+	border-bottom: 1rpx solid $uni-border-color-light;
+	transition: opacity 0.2s ease;
 
 	&:last-child {
 		border-bottom: none;
@@ -509,61 +496,22 @@ const handleMenuClick = (item: any) => {
 .menu-left {
 	display: flex;
 	align-items: center;
-	gap: 24rpx;
+	gap: $uni-spacing-md;
 }
 
 .menu-name {
-	font-size: 30rpx;
-	color: #333;
-	font-weight: 500;
-}
-
-.menu-right {
-	display: flex;
-	align-items: center;
-	gap: 12rpx;
-}
-
-.menu-badge {
-	background-color: #FF4D4F;
-	color: #FFFFFF;
-	font-size: 20rpx;
-	min-width: 32rpx;
-	height: 32rpx;
-	border-radius: 16rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0 8rpx;
-	font-weight: bold;
-}
-
-.menu-amount {
 	font-size: 28rpx;
-	color: #FF9F29;
-	font-weight: 600;
+	color: $uni-text-color;
 }
 
-.logout-btn-box {
-	margin: 64rpx 32rpx;
-}
-
-.logout-btn {
-	background-color: #FFFFFF;
-	color: #FF4D4F;
-	font-size: 32rpx;
-	border-radius: 48rpx;
-	height: 96rpx;
-	line-height: 96rpx;
-	font-weight: bold;
-	box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
-
-	&::after {
-		border: none;
-	}
-
-	&:active {
-		background-color: #FAFAFA;
+.logout-section {
+	margin: 48rpx 0;
+	text-align: center;
+	
+	.logout-text {
+		font-size: 28rpx;
+		color: $uni-text-color-secondary;
+		text-decoration: underline;
 	}
 }
 </style>

@@ -142,26 +142,26 @@ onLoad(() => {
 <style scoped lang="scss">
 .edit-profile-page {
 	min-height: 100vh;
-	background-color: #F8F8F8;
+	background-color: $uni-bg-color;
 	padding-top: 20rpx;
 }
 
 .form-list {
 	background-color: #FFFFFF;
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
 }
 
 .form-item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 32rpx 0;
-	border-bottom: 1rpx solid #F5F5F5;
-	
+	padding: $uni-spacing-lg 0;
+	border-bottom: 1rpx solid $uni-border-color-light;
+
 	&:last-child {
 		border-bottom: none;
 	}
-	
+
 	&.avatar-item {
 		padding: 20rpx 0;
 	}
@@ -169,7 +169,7 @@ onLoad(() => {
 
 .label {
 	font-size: 30rpx;
-	color: #333;
+	color: $uni-text-color;
 	width: 160rpx;
 }
 
@@ -178,21 +178,21 @@ onLoad(() => {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 8rpx;
+	gap: $uni-spacing-xs;
 }
 
 .avatar {
 	width: 100rpx;
 	height: 100rpx;
 	border-radius: 50%;
-	background-color: #F5F5F5;
+	background-color: $uni-bg-color;
 }
 
 .input {
 	flex: 1;
 	text-align: right;
 	font-size: 30rpx;
-	color: #333;
+	color: $uni-text-color;
 }
 
 .picker-box {
@@ -203,31 +203,37 @@ onLoad(() => {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 8rpx;
+	gap: $uni-spacing-xs;
 	font-size: 30rpx;
-	color: #333;
+	color: $uni-text-color;
 }
 
 .placeholder {
-	color: #999;
+	color: $uni-text-color-placeholder;
 }
 
 .value {
 	font-size: 30rpx;
-	color: #999;
+	color: $uni-text-color-placeholder;
 }
 
 .btn-box {
-	margin: 60rpx 32rpx;
+	margin: 60rpx $uni-spacing-lg;
 }
 
 .save-btn {
-	background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+	background: $uni-color-primary-gradient;
 	color: #FFFFFF;
 	font-size: 32rpx;
 	font-weight: bold;
-	border-radius: 44rpx;
-	
+	border-radius: $uni-radius-btn;
+	transition: all 0.3s ease;
+
+	&:active {
+		opacity: 0.8;
+		transform: scale(0.98);
+	}
+
 	&::after {
 		border: none;
 	}

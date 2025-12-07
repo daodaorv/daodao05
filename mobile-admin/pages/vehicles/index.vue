@@ -176,7 +176,7 @@ export default {
 
         // 更新状态计数
         this.updateStatusCount()
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           logger.error('Vehicle', '加载车辆失败:', error.message)
         } else {
@@ -304,7 +304,7 @@ export default {
                 icon: 'success'
               })
               this.loadVehicles()
-            } catch (error: unknown) {
+            } catch (error) {
               if (error instanceof Error) {
                 logger.error('Vehicle', '更新车辆状态失败:', error.message)
               } else {

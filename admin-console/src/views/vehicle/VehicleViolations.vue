@@ -241,6 +241,7 @@ import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import { useErrorHandler, useEnumLabel } from '@/composables'
 import { VIOLATION_STATUS_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -360,7 +361,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出记录',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
 ]
 
@@ -674,6 +675,20 @@ onMounted(() => {
   loadViolationRecords()
   loadStats()
 })
+
+// 导出数据
+function handleExport() {
+  if (violationList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(violationList.value, columns, '违章记录')
+}
 </script>
 
 <style scoped lang="scss">

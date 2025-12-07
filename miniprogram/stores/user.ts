@@ -17,13 +17,24 @@ export const useUserStore = defineStore('user', () => {
     const isPlusMember = computed(() => userInfo.value?.memberLevel === 'PLUS');
 
     // 初始化:从本地存储恢复
+    const parseStoredUserInfo = (stored: any) => {
+        if (!stored) return null;
+        if (typeof stored === 'string') {
+            try {
+                return JSON.parse(stored);
+            } catch (error) {
+                console.warn('[userStore] 解析 userInfo 失败，已清理异常缓存');
+                uni.removeStorageSync('userInfo');
+                return null;
+            }
+        }
+        return stored;
+    };
+
     const init = () => {
         token.value = uni.getStorageSync('token') || '';
         refreshToken.value = uni.getStorageSync('refreshToken') || '';
-        const savedUserInfo = uni.getStorageSync('userInfo');
-        if (savedUserInfo) {
-            userInfo.value = JSON.parse(savedUserInfo);
-        }
+        userInfo.value = parseStoredUserInfo(uni.getStorageSync('userInfo'));
     };
 
     // 登录

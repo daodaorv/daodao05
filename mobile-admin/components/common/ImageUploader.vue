@@ -175,7 +175,7 @@ export default {
           this.imageList.push(image)
           this.uploadImage(image)
         })
-      } catch (err: unknown) {
+      } catch (err) {
         this.handleChooseError(err)
       }
     },
@@ -239,7 +239,7 @@ export default {
       try {
         const result = await this.performUpload(image)
         this.handleUploadSuccess(image, result)
-      } catch (err: unknown) {
+      } catch (err) {
         this.handleUploadError(image, err)
       }
     },

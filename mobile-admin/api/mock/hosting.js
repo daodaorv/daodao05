@@ -357,7 +357,7 @@ const mockHostingVehicles = [
     },
     hostingInfo: {
       startDate: '2025-11-15',
-      endDate: 2029-11-15',
+      endDate: '2029-11-15',
       period: 48,
       monthlyIncome: 8500,
       totalIncome: 408000

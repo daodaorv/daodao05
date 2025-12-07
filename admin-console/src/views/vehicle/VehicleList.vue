@@ -72,40 +72,6 @@
       <template #dailyPrice="{ row }">
         ¥{{ row.dailyPrice }}
       </template>
-
-      <!-- 自定义操作列 -->
-      <template #actions="{ row }">
-        <el-button link type="primary" size="small" @click="handleView(row)">
-          查看
-        </el-button>
-        <el-button link type="primary" size="small" @click="handleEdit(row)">
-          编辑
-        </el-button>
-        <el-dropdown @command="(cmd) => handleStatusChange(row, cmd)">
-          <el-button link type="warning" size="small">
-            状态 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="available" :disabled="row.status === 'available'">
-                设为可用
-              </el-dropdown-item>
-              <el-dropdown-item command="maintenance" :disabled="row.status === 'maintenance'">
-                进入保养
-              </el-dropdown-item>
-              <el-dropdown-item command="repair" :disabled="row.status === 'repair'">
-                进入维修
-              </el-dropdown-item>
-              <el-dropdown-item command="retired" :disabled="row.status === 'retired'">
-                设为退役
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <el-button link type="danger" size="small" @click="handleDelete(row)">
-          删除
-        </el-button>
-      </template>
     </DataTable>
 
     <!-- 新增/编辑车辆对话框 -->
@@ -323,6 +289,7 @@ import {
 } from '@/api/vehicle'
 import { useErrorHandler, useEnumLabel } from '@/composables'
 import { VEHICLE_STATUS_OPTIONS, STORE_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -406,7 +373,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出车辆',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '导入车辆',
@@ -415,8 +382,24 @@ const toolbarButtons: ToolbarButton[] = [
   },
 ]
 
-// 表格操作列配置 - 使用自定义插槽
-const tableActions: any[] = []
+// 表格操作列配置
+const tableActions: TableAction[] = [
+  {
+    label: '查看',
+    type: 'primary',
+    onClick: (row: Vehicle) => handleView(row)
+  },
+  {
+    label: '编辑',
+    type: 'primary',
+    onClick: (row: Vehicle) => handleEdit(row)
+  },
+  {
+    label: '删除',
+    type: 'danger',
+    onClick: (row: Vehicle) => handleDelete(row)
+  }
+]
 
 // 车辆列表
 const vehicleList = ref<Vehicle[]>([])
@@ -724,6 +707,20 @@ onMounted(() => {
   loadVehicleModels()
   loadVehicles()
 })
+
+// 导出数据
+function handleExport() {
+  if (vehicleList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(vehicleList.value, columns, '车辆列表')
+}
 </script>
 
 <style scoped lang="scss">

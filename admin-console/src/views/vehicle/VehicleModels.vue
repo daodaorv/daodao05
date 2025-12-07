@@ -281,6 +281,7 @@ import {
 } from '@/api/vehicle'
 import type { VehicleModel } from '@/mock/vehicles'
 import { useErrorHandler, useEnumLabel } from '@/composables'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -375,7 +376,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出车型',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '导入车型',
@@ -677,6 +678,20 @@ onMounted(() => {
   loadBrands()
   loadVehicleModels()
 })
+
+// 导出数据
+function handleExport() {
+  if (modelsList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(modelsList.value, columns, '车型列表')
+}
 </script>
 
 <style scoped lang="scss">

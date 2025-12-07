@@ -51,6 +51,11 @@
       </view>
 
       <view class="menu-group">
+        <view class="menu-item" @click="navigateTo('/pages/profile/sync')">
+          <view class="menu-icon">🔄</view>
+          <text class="menu-label">数据同步</text>
+          <text class="menu-arrow">›</text>
+        </view>
         <view class="menu-item" @click="navigateTo('/pages/profile/help')">
           <view class="menu-icon">❓</view>
           <text class="menu-label">帮助中心</text>
@@ -147,9 +152,8 @@ export default {
     },
 
     navigateTo(url) {
-      uni.showToast({
-        title: '功能开发中',
-        icon: 'none'
+      uni.navigateTo({
+        url: url
       })
     },
 

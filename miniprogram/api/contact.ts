@@ -4,6 +4,16 @@
 
 import { get, post, put, del } from '@/utils/request';
 
+export interface ContactPayload {
+    name: string;
+    phone: string;
+    idCard: string;
+    driverLicenseNo: string;
+    driverLicenseFront: string;
+    driverLicenseBack: string;
+    isDefault?: boolean;
+}
+
 /**
  * 获取联系人列表
  */
@@ -21,24 +31,14 @@ export function getContactDetail(id: string) {
 /**
  * 创建联系人
  */
-export function createContact(data: {
-    name: string;
-    phone: string;
-    idCard: string;
-    isDefault?: boolean;
-}) {
+export function createContact(data: ContactPayload) {
     return post('/contacts', data);
 }
 
 /**
  * 更新联系人
  */
-export function updateContact(id: string, data: {
-    name?: string;
-    phone?: string;
-    idCard?: string;
-    isDefault?: boolean;
-}) {
+export function updateContact(id: string, data: Partial<ContactPayload>) {
     return put(`/contacts/${id}`, data);
 }
 

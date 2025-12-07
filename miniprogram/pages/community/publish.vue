@@ -354,8 +354,8 @@ const handlePublish = async () => {
 <style lang="scss" scoped>
 .publish-page {
 	min-height: 100vh;
-	background: #F5F5F5;
-	padding-bottom: 32rpx;
+	background: $uni-bg-color;
+	padding-bottom: $uni-spacing-lg;
 }
 
 // 顶部导航栏
@@ -364,9 +364,9 @@ const handlePublish = async () => {
 	align-items: center;
 	justify-content: space-between;
 	height: 88rpx;
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
 	background: #FFFFFF;
-	border-bottom: 1rpx solid #F0F0F0;
+	border-bottom: 1rpx solid $uni-border-color-light;
 	position: sticky;
 	top: 0;
 	z-index: 100;
@@ -381,19 +381,25 @@ const handlePublish = async () => {
 		text-align: center;
 		font-size: 32rpx;
 		font-weight: 500;
-		color: #333333;
+		color: $uni-text-color;
 	}
 
 	.publish-btn {
 		display: inline-block;
-		padding: 8rpx 24rpx;
-		background: linear-gradient(135deg, #FF9F29 0%, #FF6B00 100%);
+		padding: $uni-spacing-xs $uni-spacing-md;
+		background: $uni-color-primary-gradient;
 		color: #FFFFFF;
 		font-size: 28rpx;
 		border-radius: 32rpx;
+		transition: opacity 0.2s ease;
 
 		&.disabled {
 			background: #CCCCCC;
+			opacity: 0.6;
+		}
+
+		&:not(.disabled):active {
+			opacity: 0.8;
 		}
 	}
 }
@@ -401,44 +407,44 @@ const handlePublish = async () => {
 // 内容类型选择
 .type-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 
 	.section-title {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #333333;
-		margin-bottom: 24rpx;
+		color: $uni-text-color;
+		margin-bottom: $uni-spacing-md;
 	}
 
 	.type-list {
 		display: flex;
-		gap: 24rpx;
+		gap: $uni-spacing-md;
 
 		.type-item {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			gap: 12rpx;
-			padding: 24rpx 0;
-			background: #F5F5F5;
-			border-radius: 16rpx;
+			gap: $uni-spacing-sm;
+			padding: $uni-spacing-md 0;
+			background: $uni-bg-color;
+			border-radius: $uni-radius-md;
 			border: 2rpx solid transparent;
-			transition: all 0.3s;
+			transition: all 0.3s ease;
 
 			&.active {
 				background: #FFF8F0;
-				border-color: #FF9F29;
+				border-color: $uni-color-primary;
 			}
 
 			.type-name {
 				font-size: 24rpx;
-				color: #666666;
+				color: $uni-text-color-secondary;
 			}
 
 			&.active .type-name {
-				color: #FF9F29;
+				color: $uni-color-primary;
 				font-weight: 500;
 			}
 		}
@@ -448,69 +454,69 @@ const handlePublish = async () => {
 // 标题输入
 .title-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 	position: relative;
 
 	.title-input {
 		width: 100%;
 		font-size: 32rpx;
 		font-weight: 500;
-		color: #333333;
+		color: $uni-text-color;
 		line-height: 1.5;
 		min-height: 80rpx;
 	}
 
 	.char-count {
 		position: absolute;
-		right: 32rpx;
-		bottom: 16rpx;
+		right: $uni-spacing-lg;
+		bottom: $uni-spacing-md;
 		font-size: 24rpx;
-		color: #CCCCCC;
+		color: $uni-text-color-placeholder;
 	}
 }
 
 // 内容输入
 .content-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 	position: relative;
 
 	.content-input {
 		width: 100%;
 		font-size: 28rpx;
-		color: #666666;
+		color: $uni-text-color-secondary;
 		line-height: 1.8;
 		min-height: 300rpx;
 	}
 
 	.char-count {
 		position: absolute;
-		right: 32rpx;
-		bottom: 16rpx;
+		right: $uni-spacing-lg;
+		bottom: $uni-spacing-md;
 		font-size: 24rpx;
-		color: #CCCCCC;
+		color: $uni-text-color-placeholder;
 	}
 }
 
 // 图片上传
 .image-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 
 	.section-title {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #333333;
-		margin-bottom: 24rpx;
+		color: $uni-text-color;
+		margin-bottom: $uni-spacing-md;
 	}
 
 	.image-list {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16rpx;
+		gap: $uni-spacing-md;
 
 		.image-item {
 			position: relative;
@@ -520,13 +526,13 @@ const handlePublish = async () => {
 			.image {
 				width: 100%;
 				height: 100%;
-				border-radius: 12rpx;
+				border-radius: $uni-radius-sm;
 			}
 
 			.image-delete {
 				position: absolute;
-				top: 8rpx;
-				right: 8rpx;
+				top: $uni-spacing-xs;
+				right: $uni-spacing-xs;
 				width: 40rpx;
 				height: 40rpx;
 				background: rgba(0, 0, 0, 0.5);
@@ -540,18 +546,23 @@ const handlePublish = async () => {
 		.image-upload {
 			width: 200rpx;
 			height: 200rpx;
-			background: #F5F5F5;
-			border: 2rpx dashed #CCCCCC;
-			border-radius: 12rpx;
+			background: $uni-bg-color;
+			border: 2rpx dashed $uni-border-color-light;
+			border-radius: $uni-radius-sm;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 12rpx;
+			gap: $uni-spacing-sm;
+			transition: all 0.2s ease;
+
+			&:active {
+				opacity: 0.8;
+			}
 
 			.upload-text {
 				font-size: 24rpx;
-				color: #999999;
+				color: $uni-text-color-placeholder;
 			}
 		}
 	}
@@ -560,48 +571,48 @@ const handlePublish = async () => {
 // 标签选择
 .tag-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 
 	.section-title {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #333333;
-		margin-bottom: 24rpx;
+		color: $uni-text-color;
+		margin-bottom: $uni-spacing-md;
 	}
 
 	.tag-input-wrapper {
-		margin-bottom: 24rpx;
+		margin-bottom: $uni-spacing-md;
 
 		.tag-input {
 			width: 100%;
 			height: 80rpx;
-			padding: 0 24rpx;
-			background: #F5F5F5;
-			border-radius: 12rpx;
+			padding: 0 $uni-spacing-md;
+			background: $uni-bg-color;
+			border-radius: $uni-radius-sm;
 			font-size: 28rpx;
-			color: #333333;
+			color: $uni-text-color;
 		}
 	}
 
 	.tag-list {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16rpx;
-		margin-bottom: 24rpx;
+		gap: $uni-spacing-md;
+		margin-bottom: $uni-spacing-md;
 
 		.tag-item {
 			display: flex;
 			align-items: center;
-			gap: 8rpx;
-			padding: 8rpx 16rpx;
+			gap: $uni-spacing-xs;
+			padding: $uni-spacing-xs $uni-spacing-md;
 			background: #FFF8F0;
-			border: 1rpx solid #FF9F29;
+			border: 1rpx solid $uni-color-primary;
 			border-radius: 32rpx;
 
 			.tag-text {
 				font-size: 24rpx;
-				color: #FF9F29;
+				color: $uni-color-primary;
 			}
 
 			.tag-delete {
@@ -616,19 +627,24 @@ const handlePublish = async () => {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 16rpx;
+		gap: $uni-spacing-md;
 
 		.suggestion-title {
 			font-size: 24rpx;
-			color: #999999;
+			color: $uni-text-color-placeholder;
 		}
 
 		.suggestion-tag {
-			padding: 8rpx 16rpx;
-			background: #F5F5F5;
+			padding: $uni-spacing-xs $uni-spacing-md;
+			background: $uni-bg-color;
 			border-radius: 32rpx;
 			font-size: 24rpx;
-			color: #666666;
+			color: $uni-text-color-secondary;
+			transition: all 0.2s ease;
+
+			&:active {
+				opacity: 0.7;
+			}
 		}
 	}
 }
@@ -636,28 +652,33 @@ const handlePublish = async () => {
 // 位置选择
 .location-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin-bottom: 16rpx;
+	padding: $uni-spacing-lg;
+	margin-bottom: $uni-spacing-md;
 
 	.section-title {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #333333;
-		margin-bottom: 24rpx;
+		color: $uni-text-color;
+		margin-bottom: $uni-spacing-md;
 	}
 
 	.location-display {
 		display: flex;
 		align-items: center;
-		gap: 12rpx;
-		padding: 24rpx;
-		background: #F5F5F5;
-		border-radius: 12rpx;
+		gap: $uni-spacing-sm;
+		padding: $uni-spacing-md;
+		background: $uni-bg-color;
+		border-radius: $uni-radius-sm;
+		transition: all 0.2s ease;
+
+		&:active {
+			opacity: 0.8;
+		}
 
 		.location-text {
 			flex: 1;
 			font-size: 28rpx;
-			color: #666666;
+			color: $uni-text-color-secondary;
 		}
 	}
 }
@@ -665,31 +686,31 @@ const handlePublish = async () => {
 // 发布须知
 .notice-section {
 	background: #FFFFFF;
-	padding: 32rpx;
-	margin: 0 32rpx;
-	border-radius: 16rpx;
+	padding: $uni-spacing-lg;
+	margin: 0 $uni-spacing-lg;
+	border-radius: $uni-radius-md;
 
 	.notice-title {
 		display: flex;
 		align-items: center;
-		gap: 8rpx;
-		margin-bottom: 16rpx;
+		gap: $uni-spacing-xs;
+		margin-bottom: $uni-spacing-md;
 
 		text {
 			font-size: 28rpx;
 			font-weight: 500;
-			color: #333333;
+			color: $uni-text-color;
 		}
 	}
 
 	.notice-content {
 		display: flex;
 		flex-direction: column;
-		gap: 12rpx;
+		gap: $uni-spacing-sm;
 
 		text {
 			font-size: 24rpx;
-			color: #999999;
+			color: $uni-text-color-placeholder;
 			line-height: 1.6;
 		}
 	}

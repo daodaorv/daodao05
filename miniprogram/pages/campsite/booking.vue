@@ -96,6 +96,21 @@
         <text class="title-text">联系人信息</text>
       </view>
 
+      <view class="contact-selector">
+        <view class="selector-left">
+          <u-icon name="server-man" size="20" color="#FF9F29"></u-icon>
+          <text class="selector-label">常用联系人</text>
+        </view>
+        <view class="selector-action" @tap="openContactSelector">
+          <text class="action-text">{{ contactDisplayText }}</text>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
+        </view>
+      </view>
+      <view class="contact-helper">
+        <text class="helper-link" @tap="goToContactManage">管理常用联系人</text>
+        <text class="helper-tip">首次手动填写将自动保存</text>
+      </view>
+
       <!-- 姓名 -->
       <view class="form-item">
         <view class="item-label">
@@ -108,6 +123,7 @@
             v-model="bookingForm.contactName"
             placeholder="请输入联系人姓名"
             placeholder-class="input-placeholder"
+            @input="onContactFieldInput"
           />
         </view>
       </view>
@@ -126,6 +142,7 @@
             maxlength="11"
             placeholder="请输入手机号"
             placeholder-class="input-placeholder"
+            @input="onContactFieldInput"
           />
         </view>
       </view>
@@ -144,6 +161,52 @@
             maxlength="200"
           />
           <text class="char-count">{{ bookingForm.remark.length }}/200</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 出行保险 -->
+    <view class="selection-section">
+      <view class="section-title selection-title">
+        <text class="title-text">出行保险</text>
+        <text class="title-tip">推荐选择</text>
+      </view>
+      <view class="option-list">
+        <view
+          class="option-card"
+          v-for="(plan, index) in insurancePlans"
+          :key="plan.id"
+          :class="{ active: selectedInsurance === index }"
+          @tap="selectInsurance(index)"
+        >
+          <view class="option-header">
+            <text class="option-name">{{ plan.name }}</text>
+            <text class="option-price">+¥{{ plan.price }}{{ plan.perPerson ? '/人' : '/单' }}</text>
+          </view>
+          <text class="option-desc">{{ plan.description }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 附加服务 -->
+    <view class="selection-section">
+      <view class="section-title selection-title">
+        <text class="title-text">附加服务</text>
+        <text class="title-tip">按需选择</text>
+      </view>
+      <view class="service-list">
+        <view
+          class="service-card"
+          v-for="(service, index) in additionalServices"
+          :key="service.id"
+          :class="{ active: service.selected }"
+          @tap="toggleService(index)"
+        >
+          <view class="service-header">
+            <text class="service-name">{{ service.name }}</text>
+            <text class="service-price">+¥{{ service.price }}{{ service.perPerson ? '/人' : '/单' }}</text>
+          </view>
+          <text class="service-desc">{{ service.description }}</text>
         </view>
       </view>
     </view>
@@ -201,6 +264,16 @@
           <text class="price-value">一次性</text>
           <text class="price-amount">¥{{ cleaningFee }}</text>
         </view>
+        <view class="price-item" v-if="selectedInsurancePlan">
+          <text class="price-label">保险 - {{ selectedInsurancePlan.name }}</text>
+          <text class="price-value">{{ insurancePriceLabel }}</text>
+          <text class="price-amount">¥{{ totalInsuranceFee }}</text>
+        </view>
+        <view class="price-item" v-if="servicesFee > 0">
+          <text class="price-label">附加服务</text>
+          <text class="price-value">{{ servicesPriceLabel }}</text>
+          <text class="price-amount">¥{{ servicesFee }}</text>
+        </view>
         <view v-if="couponDiscount > 0" class="price-item discount">
           <text class="price-label">优惠券抵扣</text>
           <text class="price-amount">-¥{{ couponDiscount }}</text>
@@ -212,6 +285,14 @@
       </view>
     </view>
 
+    <u-action-sheet
+      :show="contactSheetVisible"
+      :actions="contactActions"
+      title="选择常用联系人"
+      @select="handleContactSelect"
+      @close="contactSheetVisible = false"
+    ></u-action-sheet>
+
     <!-- 底部操作栏 -->
     <view class="bottom-bar">
       <view class="bar-left">
@@ -221,7 +302,12 @@
           <text class="bar-amount">{{ payablePrice }}</text>
         </view>
       </view>
-      <button class="submit-btn" @tap="submitBooking" :disabled="!canSubmit || submitting" :loading="submitting">
+      <button
+        class="submit-btn"
+        :class="{ disabled: !canSubmit || submitting }"
+        @tap="submitBooking"
+        :loading="submitting"
+      >
         提交预订
       </button>
     </view>
@@ -240,20 +326,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { ref, computed, onUnmounted, watch } from 'vue';
+import { onLoad, onShow } from '@dcloudio/uni-app';
+import { storeToRefs } from 'pinia';
 import RentDatePicker from '@/components/business/RentDatePicker.vue';
 import { createCampsiteBooking, type CampsiteBookingParams, type CampsiteBookingResponse } from '@/api/campsite';
+import { registerMockOrder } from '@/api/order';
+import { requireLogin, isLoggedIn, buildRedirectUrl } from '@/utils/auth';
+import { useContactStore } from '@/stores/contact';
 
 // 获取路由参数
 const campsiteId = ref('');
 const siteTypeId = ref('');
+const pageReady = ref(false);
+const redirectUrl = ref('/pages/campsite/booking');
+let cachedRouteParams: Record<string, any> | null = null;
+let couponListenerRegistered = false;
+
+const setupPage = (options: any) => {
+  campsiteId.value = options?.campsiteId || '';
+  siteTypeId.value = options?.siteTypeId || '';
+  selectedContactId.value = '';
+  loadBookingData();
+  if (contactList.value.length) {
+    tryPrefillFromContacts();
+  } else {
+    loadContacts();
+  }
+  if (!couponListenerRegistered) {
+    uni.$on('couponSelected', handleCouponSelected);
+    couponListenerRegistered = true;
+  }
+  pageReady.value = true;
+};
+
+const ensureAuth = (options: any) => {
+  redirectUrl.value = buildRedirectUrl('/pages/campsite/booking', options || {});
+  if (isLoggedIn()) {
+    return true;
+  }
+  return requireLogin(redirectUrl.value);
+};
 
 onLoad((options: any) => {
-  campsiteId.value = options.campsiteId || '';
-  siteTypeId.value = options.siteTypeId || '';
-  loadBookingData();
-  uni.$on('couponSelected', handleCouponSelected);
+  cachedRouteParams = options || {};
+  pageReady.value = false;
+  if (!ensureAuth(cachedRouteParams)) {
+    return;
+  }
+  setupPage(cachedRouteParams);
+});
+
+onShow(() => {
+  if (!pageReady.value && cachedRouteParams && isLoggedIn()) {
+    setupPage(cachedRouteParams);
+  } else if (pageReady.value && isLoggedIn()) {
+    loadContacts();
+  }
 });
 
 // 营地信息
@@ -284,6 +413,12 @@ const bookingForm = ref({
   remark: ''
 });
 
+const contactStore = useContactStore();
+const { contactList } = storeToRefs(contactStore);
+const selectedContactId = ref('');
+const contactSheetVisible = ref(false);
+const contactLoading = ref(false);
+
 const submitting = ref(false);
 
 // 是否同意协议
@@ -297,6 +432,59 @@ const bookingNotices = ref([
   '请携带有效身份证件办理入住手续',
   '营地内禁止明火，烧烤请在指定区域进行',
   '请爱护营地环境，垃圾分类投放'
+]);
+
+const insurancePlans = ref([
+  {
+    id: 'basic',
+    name: '基础意外险',
+    price: 20,
+    description: '旅途意外、行李延误、医疗补偿，适合短住露营',
+    perPerson: true
+  },
+  {
+    id: 'plus',
+    name: '家庭露营险',
+    price: 60,
+    description: '覆盖家庭成员，包含儿童受伤医疗和营地财物保障',
+    perPerson: false
+  },
+  {
+    id: 'extreme',
+    name: '极限活动险',
+    price: 120,
+    description: '增加户外运动、夜间活动的意外赔付，含紧急救援',
+    perPerson: true
+  }
+]);
+
+const selectedInsurance = ref(0);
+
+const additionalServices = ref([
+  {
+    id: 'bbq',
+    name: '营地BBQ套餐',
+    price: 188,
+    description: '含烤炉、炭火及精选食材，最多4人份',
+    perPerson: false,
+    selected: false
+  },
+  {
+    id: 'tent',
+    name: '高阶帐篷租赁',
+    price: 99,
+    description: '四季双层帐篷+防潮垫，适合2人使用',
+    perPerson: false,
+    selected: false
+  },
+  {
+    id: 'coach',
+    name: '营地活动教练',
+    price: 80,
+    description: '专业教练带领徒步或皮划艇体验，按人计费',
+    perPerson: true,
+    selected: false
+  }
 ]);
 
 // 已选择的优惠券
@@ -318,8 +506,39 @@ const siteFee = computed(() => {
 
 const cleaningFee = ref(50);
 
+const selectedInsurancePlan = computed(() => {
+  return insurancePlans.value[selectedInsurance.value] || null;
+});
+
+const totalInsuranceFee = computed(() => {
+  const plan = selectedInsurancePlan.value;
+  if (!plan) return 0;
+  return plan.perPerson ? plan.price * bookingForm.value.guests : plan.price;
+});
+
+const insurancePriceLabel = computed(() => {
+  const plan = selectedInsurancePlan.value;
+  if (!plan) return '';
+  return plan.perPerson ? `¥${plan.price}/人 x ${bookingForm.value.guests}人` : `¥${plan.price}/单`;
+});
+
+const servicesFee = computed(() => {
+  return additionalServices.value.reduce((total, service) => {
+    if (!service.selected) return total;
+    return total + (service.perPerson ? service.price * bookingForm.value.guests : service.price);
+  }, 0);
+});
+
+const servicesPriceLabel = computed(() => {
+  const list = additionalServices.value.filter(service => service.selected);
+  if (!list.length) return '未选择';
+  return list
+    .map(service => (service.perPerson ? `${service.name}(${bookingForm.value.guests}人)` : service.name))
+    .join('、');
+});
+
 const totalPrice = computed(() => {
-  return siteFee.value + cleaningFee.value;
+  return siteFee.value + cleaningFee.value + totalInsuranceFee.value + servicesFee.value;
 });
 
 const couponDiscount = computed(() => {
@@ -363,6 +582,128 @@ const canSubmit = computed(() => {
     agreed.value
   );
 });
+
+const contactActions = computed(() => {
+  return contactList.value.map((item: any) => ({
+    name: item.name || '未命名联系人',
+    subname: item.phone || '暂无手机号',
+    id: item.id
+  }));
+});
+
+const formatPhone = (phone?: string) => {
+  if (!phone) return '无手机号';
+  return phone.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+};
+
+const contactDisplayText = computed(() => {
+  if (contactLoading.value) {
+    return '联系人加载中...';
+  }
+  if (selectedContactId.value) {
+    const target = contactList.value.find((item: any) => item.id === selectedContactId.value);
+    if (target) {
+      return `${target.name || '联系人'} · ${formatPhone(target.phone)}`;
+    }
+  }
+  if (bookingForm.value.contactName || bookingForm.value.contactPhone) {
+    return '使用自定义信息';
+  }
+  return contactList.value.length > 0 ? '请选择联系人' : '暂无联系人';
+});
+
+const applyContactToForm = (contact: any) => {
+  if (!contact) return;
+  bookingForm.value.contactName = contact.name || '';
+  bookingForm.value.contactPhone = contact.phone || '';
+  selectedContactId.value = contact.id || '';
+};
+
+const tryPrefillFromContacts = () => {
+  if (
+    selectedContactId.value ||
+    bookingForm.value.contactName ||
+    bookingForm.value.contactPhone ||
+    !contactList.value.length
+  ) {
+    return;
+  }
+  const defaultContact = contactList.value.find((item: any) => item.isDefault) || contactList.value[0];
+  if (defaultContact) {
+    applyContactToForm(defaultContact);
+  }
+};
+
+const loadContacts = async () => {
+  contactLoading.value = true;
+  try {
+    await contactStore.fetchContacts();
+    tryPrefillFromContacts();
+  } catch (error) {
+    console.error('加载联系人失败:', error);
+  } finally {
+    contactLoading.value = false;
+  }
+};
+
+const openContactSelector = () => {
+  if (contactLoading.value) {
+    return;
+  }
+  if (!contactList.value.length) {
+    uni.showModal({
+      title: '提示',
+      content: '暂无常用联系人，是否前往管理页面添加？',
+      confirmText: '去添加',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          goToContactManage();
+        }
+      }
+    });
+    return;
+  }
+  contactSheetVisible.value = true;
+};
+
+const handleContactSelect = (action: any) => {
+  const selected = contactList.value.find((item: any) => item.id === action.id);
+  if (selected) {
+    applyContactToForm(selected);
+  }
+  contactSheetVisible.value = false;
+};
+
+const goToContactManage = () => {
+  uni.navigateTo({
+    url: '/pages/profile/contacts'
+  });
+};
+
+const onContactFieldInput = () => {
+  if (selectedContactId.value) {
+    selectedContactId.value = '';
+  }
+};
+
+watch(contactList, () => {
+  tryPrefillFromContacts();
+});
+
+const selectInsurance = (index: number) => {
+  if (index < 0 || index >= insurancePlans.value.length) {
+    return;
+  }
+  selectedInsurance.value = index;
+};
+
+const toggleService = (index: number) => {
+  if (index < 0 || index >= additionalServices.value.length) {
+    return;
+  }
+  additionalServices.value[index].selected = !additionalServices.value[index].selected;
+};
 
 // 加载预订数据
 const loadBookingData = async () => {
@@ -415,7 +756,10 @@ const loadBookingData = async () => {
 };
 
 onUnmounted(() => {
-  uni.$off('couponSelected', handleCouponSelected);
+  if (couponListenerRegistered) {
+    uni.$off('couponSelected', handleCouponSelected);
+    couponListenerRegistered = false;
+  }
 });
 
 const rentDatePickerRef = ref();
@@ -487,6 +831,56 @@ const handleCouponSelected = (coupon: any) => {
   selectedCoupon.value = coupon || null;
 };
 
+const buildCheckDateTime = (dateStr?: string, timeStr?: string) => {
+  if (!dateStr) {
+    return new Date().toISOString();
+  }
+  const [hour = '12', minute = '00'] = (timeStr || '12:00').split(':');
+  const date = new Date(`${dateStr}T00:00:00`);
+  date.setHours(Number(hour), Number(minute), 0, 0);
+  return date.toISOString();
+};
+
+const cacheCampsiteOrder = (bookingResult: CampsiteBookingResponse) => {
+  const checkInISO = buildCheckDateTime(bookingForm.value.checkInDate, bookingForm.value.checkInTime);
+  const checkOutISO = buildCheckDateTime(bookingForm.value.checkOutDate, bookingForm.value.checkOutTime);
+
+  registerMockOrder({
+    id: bookingResult.orderId,
+    orderNo: bookingResult.orderNo,
+    statusId: 1,
+    status: { code: 'pending_payment', name: '待支付' },
+    orderType: 'campsite',
+    pickupTime: checkInISO,
+    returnTime: checkOutISO,
+    pickupStore: {
+      name: campsiteInfo.value.name || '营地',
+      address: campsiteInfo.value.address || '营地地址待定'
+    },
+    returnStore: {
+      name: campsiteInfo.value.name || '营地',
+      address: campsiteInfo.value.address || '营地地址待定'
+    },
+    totalAmount: payablePrice.value,
+    actualAmount: payablePrice.value,
+    guests: bookingForm.value.guests,
+    pickupContactName: bookingForm.value.contactName,
+    pickupContactPhone: bookingForm.value.contactPhone,
+    vehicle: {
+      id: selectedSiteType.value.id || 'site',
+      name: selectedSiteType.value.name,
+      brand: '营地类型',
+      model: `${selectedSiteType.value.area}㎡ / 容纳${selectedSiteType.value.capacity}人`,
+      images: ['/static/logo.png'],
+      features: [
+        `营位面积 ${selectedSiteType.value.area}㎡`,
+        `最多 ${selectedSiteType.value.capacity} 人`,
+        `出行保险：${selectedInsurancePlan.value?.name || '未选择'}`
+      ].concat(servicesPriceLabel.value !== '未选择' ? [`附加服务：${servicesPriceLabel.value}`] : [])
+    }
+  });
+};
+
 // 协议变化
 const onAgreementChange = (e: any) => {
   agreed.value = e.detail.value.includes('agree');
@@ -503,6 +897,11 @@ const viewAgreement = () => {
 
 // 提交预订
 const submitBooking = async () => {
+  if (!isLoggedIn()) {
+    requireLogin(redirectUrl.value);
+    return;
+  }
+
   if (!canSubmit.value || submitting.value) {
     if (!canSubmit.value) {
       uni.showToast({
@@ -527,7 +926,19 @@ const submitBooking = async () => {
       contactName: bookingForm.value.contactName.trim(),
       contactPhone: bookingForm.value.contactPhone,
       remark: bookingForm.value.remark?.trim() || '',
-      couponId: selectedCoupon.value?.id
+      couponId: selectedCoupon.value?.id,
+      contactId: selectedContactId.value || undefined,
+      insurancePlanId: selectedInsurancePlan.value?.id,
+      insurancePlanName: selectedInsurancePlan.value?.name,
+      additionalServices: additionalServices.value
+        .filter(service => service.selected)
+        .map(service => ({
+          id: service.id,
+          name: service.name,
+          quantity: service.perPerson ? bookingForm.value.guests : 1,
+          perPerson: service.perPerson,
+          price: service.price
+        }))
     };
 
     let bookingResult: CampsiteBookingResponse | null = null;
@@ -536,6 +947,7 @@ const submitBooking = async () => {
       const response = await createCampsiteBooking(payload);
       if (response.code === 0 && response.data) {
         bookingResult = response.data;
+        cacheCampsiteOrder(bookingResult);
       } else {
         throw new Error(response.message || '预订失败');
       }
@@ -549,6 +961,7 @@ const submitBooking = async () => {
         totalPrice: payablePrice.value,
         paymentDeadline: new Date(now + 15 * 60 * 1000).toISOString()
       };
+      cacheCampsiteOrder(bookingResult);
     }
 
     if (!bookingResult) {
@@ -778,6 +1191,120 @@ const submitBooking = async () => {
     font-size: 24rpx;
     color: #999;
   }
+}
+
+.contact-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+
+  .selector-left {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+
+    .selector-label {
+      font-size: 28rpx;
+      color: #333;
+      font-weight: 500;
+    }
+  }
+
+  .selector-action {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    font-size: 26rpx;
+    color: #666;
+  }
+}
+
+.contact-helper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16rpx 0 8rpx;
+  font-size: 24rpx;
+  color: #999;
+
+  .helper-link {
+    color: #FF9F29;
+  }
+}
+
+.selection-section {
+  background-color: #FFFFFF;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+
+  .selection-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24rpx;
+
+    .title-text {
+      font-size: 32rpx;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .title-tip {
+      font-size: 24rpx;
+      color: #999;
+    }
+  }
+}
+
+.option-list,
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.option-card,
+.service-card {
+  border: 2rpx solid #F0F0F0;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  background-color: #FFF;
+  transition: all 0.2s;
+
+  &.active {
+    border-color: #FF9F29;
+    background-color: rgba(255, 159, 41, 0.08);
+  }
+}
+
+.option-header,
+.service-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+
+  .option-name,
+  .service-name {
+    font-size: 28rpx;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .option-price,
+  .service-price {
+    font-size: 26rpx;
+    color: #FF9F29;
+  }
+}
+
+.option-desc,
+.service-desc {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
 }
 
 // 预订须知
@@ -1025,7 +1552,7 @@ const submitBooking = async () => {
       border: none;
     }
 
-    &:disabled {
+    &.disabled {
       background: #E0E0E0;
       color: #999;
     }

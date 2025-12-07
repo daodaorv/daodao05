@@ -1,91 +1,80 @@
 <template>
-	<view class="booking-form">
-		<!-- 第一行：取车城市 | 取车门店 -->
-		<view class="form-row">
-			<view class="form-item" @tap="openCityPicker('pickup')">
-				<view class="label">取车城市</view>
-				<view class="input-box">
-					<u-icon name="map" size="18" color="#999"></u-icon>
-					<text class="input-text">{{ pickupCity || '选择城市' }}</text>
-					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
+	<view class="booking-form-card">
+		<!-- 顶部切换 (可选，未来扩展) -->
+		<view class="form-header">
+			<view class="tab-item active">国内租车</view>
+			<!-- <view class="tab-item">企业用车</view> -->
+		</view>
+
+		<!-- 城市选择行 -->
+		<view class="city-selection-row">
+			<view class="city-block pickup">
+				<view class="label">取车</view>
+				<view class="city-name" :class="{ placeholder: !pickupCity }" @tap.stop="openCityPicker('pickup')">
+					{{ pickupCity || '选择城市' }}
+				</view>
+				<view class="store-name" @tap.stop="openStorePicker('pickup')">
+					{{ pickupStore || '选择门店' }}
 				</view>
 			</view>
 
-			<view class="form-item" @tap="openStorePicker('pickup')">
-				<view class="label">取车门店</view>
-				<view class="input-box">
-					<u-icon name="home" size="18" color="#999"></u-icon>
-					<text class="input-text">{{ pickupStore || '选择门店' }}</text>
-					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
+			<view class="city-divider">
+				<u-icon name="arrow-right" color="#E5E6EB" size="20"></u-icon>
+			</view>
+
+			<view class="city-block return">
+				<view class="label">还车</view>
+				<view class="city-name" :class="{ placeholder: !isDifferentLocation && !pickupCity }"
+					  @tap.stop="isDifferentLocation ? openCityPicker('return') : handleDisabledClick()">
+					{{ isDifferentLocation ? (returnCity || '选择城市') : (pickupCity || '同取车') }}
 				</view>
+				<view class="store-name" @tap.stop="isDifferentLocation ? openStorePicker('return') : handleDisabledClick()">
+					{{ isDifferentLocation ? (returnStore || '选择门店') : (pickupStore || '同门店') }}
+				</view>
+			</view>
+			
+			<!-- 异地还车开关 (绝对定位或浮动) -->
+			<view class="diff-loc-switch" @tap.stop="toggleDifferentLocation">
+				<text class="switch-text" :class="{ active: isDifferentLocation }">异地还车</text>
+				<u-icon :name="isDifferentLocation ? 'checkmark-circle-fill' : 'checkmark-circle'" 
+						:color="isDifferentLocation ? '#FF9F29' : '#CCCCCC'" size="16"></u-icon>
 			</view>
 		</view>
 
-		<!-- 第二行：取还车时间综合选择 -->
-		<view class="form-row">
-			<view class="date-time-container" @tap="openDatePicker">
-				<view class="dt-section">
-					<text class="dt-label">取车时间</text>
-					<view class="dt-value-group">
-						<text class="dt-date">{{ formatDate(pickupDate) || '选择日期' }}</text>
-						<text class="dt-time">{{ pickupTime }}</text>
-					</view>
-				</view>
-				
-				<view class="duration-divider">
-					<view class="duration-tag">
-						<text class="duration-text">共{{ duration }}天</text>
-					</view>
-				</view>
-				
-				<view class="dt-section right">
-					<text class="dt-label">还车时间</text>
-					<view class="dt-value-group">
-						<text class="dt-date">{{ formatDate(returnDate) || '选择日期' }}</text>
-						<text class="dt-time">{{ returnTime }}</text>
-					</view>
-				</view>
-			</view>
-		</view>
+		<view class="divider-line"></view>
 
-		<!-- 第三行：异地还车 (紧凑布局) -->
-		<view class="checkbox-row compact">
-			<view class="checkbox-container" @tap="toggleDifferentLocation">
-				<view class="checkmark-circle" :class="{ checked: isDifferentLocation }">
-					<u-icon v-if="isDifferentLocation" name="checkbox-mark" size="12" color="#FFFFFF"></u-icon>
+		<!-- 日期选择行 -->
+		<view class="date-selection-row" @tap="openDatePicker">
+			<view class="date-block">
+				<view class="date-main">
+					<text class="month-day">{{ formatDate(pickupDate, 'MM月DD日') }}</text>
+					<text class="week">{{ formatDate(pickupDate, 'ddd') }}</text>
 				</view>
-				<text class="checkbox-text">异地还车</text>
-			</view>
-		</view>
-
-		<!-- 第四行：还车城市 | 还车门店 (动态显示) -->
-		<view v-if="isDifferentLocation" class="form-row different-location">
-			<view class="form-item" @tap="openCityPicker('return')">
-				<view class="label">还车城市</view>
-				<view class="input-box">
-					<u-icon name="map" size="18" color="#999"></u-icon>
-					<text class="input-text">{{ returnCity || '选择城市' }}</text>
-					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
-				</view>
+				<view class="time">{{ pickupTime }}</view>
 			</view>
 
-			<view class="form-item" @tap="openStorePicker('return')">
-				<view class="label">还车门店</view>
-				<view class="input-box">
-					<u-icon name="home" size="18" color="#999"></u-icon>
-					<text class="input-text">{{ returnStore || '选择门店' }}</text>
-					<u-icon name="arrow-down" size="12" color="#999"></u-icon>
+			<view class="duration-indicator">
+				<view class="line"></view>
+				<view class="day-badge">{{ duration }}天</view>
+				<view class="line"></view>
+			</view>
+
+			<view class="date-block right">
+				<view class="date-main">
+					<text class="month-day">{{ formatDate(returnDate, 'MM月DD日') }}</text>
+					<text class="week">{{ formatDate(returnDate, 'ddd') }}</text>
 				</view>
+				<view class="time">{{ returnTime }}</view>
 			</view>
 		</view>
 
 		<!-- 查询按钮 -->
 		<button 
-			class="search-button" 
-			hover-class="search-button-hover"
+			class="submit-btn" 
+			hover-class="submit-btn-hover"
 			@tap="handleSearch"
 		>
-			查询可用房车
+			立即去选车
 		</button>
 
 		<!-- 弹窗组件 -->
@@ -97,19 +86,19 @@
 			:selected-id="currentSelectedId"
 			@confirm="onPickerConfirm"
 		/>
-		
-
 	</view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import CityStorePicker from './CityStorePicker.vue';
+
+dayjs.locale('zh-cn');
 
 const emit = defineEmits(['search', 'open-date-picker']);
 
-// --- Mock Data ---
 // --- Mock Data ---
 const cities = [
 	{ id: '1', name: '北京' },
@@ -179,8 +168,6 @@ const pickerData = ref<any[]>([]);
 const currentPickerTarget = ref<'pickup' | 'return'>('pickup');
 const currentSelectedId = ref('');
 
-
-
 // --- Computed ---
 const duration = computed(() => {
 	if (!pickupDate.value || !returnDate.value) return 0;
@@ -208,24 +195,28 @@ onMounted(() => {
 
 // --- Methods ---
 
-const formatDate = (date: string) => {
+const formatDate = (date: string, template: string) => {
 	if (!date) return '';
-	return dayjs(date).format('MM月DD日');
+	return dayjs(date).format(template);
 };
 
 // Picker Handlers
+const handleDisabledClick = () => {
+	uni.showToast({
+		title: '请先开启异地还车',
+		icon: 'none',
+		duration: 2000
+	});
+};
+
 const openCityPicker = (target: 'pickup' | 'return') => {
 	console.log('🔍 openCityPicker 被调用', target);
-	console.log('🔍 cityStorePicker.value:', cityStorePicker.value);
-
 	currentPickerTarget.value = target;
 	pickerType.value = 'city';
 	pickerTitle.value = target === 'pickup' ? '选择取车城市' : '选择还车城市';
 	pickerData.value = cities;
 	currentSelectedId.value = target === 'pickup' ? pickupCityId.value : returnCityId.value;
 	cityStorePicker.value?.open();
-
-	console.log('🔍 cityStorePicker.open() 已调用');
 };
 
 const openStorePicker = (target: 'pickup' | 'return') => {
@@ -243,8 +234,6 @@ const openStorePicker = (target: 'pickup' | 'return') => {
 	pickerData.value = (stores as any)[cityId] || [];
 	currentSelectedId.value = target === 'pickup' ? pickupStoreId.value : returnStoreId.value;
 	cityStorePicker.value?.open();
-
-	console.log('🔍 openStorePicker 完成');
 };
 
 const onPickerConfirm = (item: any) => {
@@ -255,6 +244,11 @@ const onPickerConfirm = (item: any) => {
 			// 重置门店
 			pickupStore.value = '';
 			pickupStoreId.value = '';
+            // 如果未开启异地还车，还车城市跟随变化
+            if (!isDifferentLocation.value) {
+                returnCity.value = item.name;
+                returnCityId.value = item.id;
+            }
 		} else {
 			returnCity.value = item.name;
 			returnCityId.value = item.id;
@@ -265,6 +259,10 @@ const onPickerConfirm = (item: any) => {
 		if (currentPickerTarget.value === 'pickup') {
 			pickupStore.value = item.name;
 			pickupStoreId.value = item.id;
+            if (!isDifferentLocation.value) {
+                returnStore.value = item.name;
+                returnStoreId.value = item.id;
+            }
 		} else {
 			returnStore.value = item.name;
 			returnStoreId.value = item.id;
@@ -295,12 +293,18 @@ const onDateConfirm = (data: any) => {
 const toggleDifferentLocation = () => {
 	isDifferentLocation.value = !isDifferentLocation.value;
 	if (!isDifferentLocation.value) {
-		// 清空还车信息
+		// 清空还车信息，恢复为同取车
 		returnCity.value = '';
 		returnCityId.value = '';
 		returnStore.value = '';
 		returnStoreId.value = '';
-	}
+	} else {
+        // 开启时，默认还车地点等于取车地点
+        returnCity.value = pickupCity.value;
+        returnCityId.value = pickupCityId.value;
+        returnStore.value = pickupStore.value;
+        returnStoreId.value = pickupStoreId.value;
+    }
 	saveToStorage();
 };
 
@@ -359,7 +363,6 @@ const saveToStorage = () => {
 const loadFromStorage = () => {
 	const data = uni.getStorageSync('booking_form_data');
 	if (data) {
-		// 检查缓存是否过期 (7天) - 这里简化处理，假设未过期
 		pickupCity.value = data.pickupCity;
 		pickupCityId.value = data.pickupCityId;
 		pickupStore.value = data.pickupStore;
@@ -379,207 +382,215 @@ defineExpose({ onDateConfirm });
 </script>
 
 <style scoped lang="scss">
-.booking-form {
+.booking-form-card {
 	background-color: #FFFFFF;
-	border-radius: $uni-border-radius-lg;
-	padding: 40rpx 32rpx;
-	box-shadow: $uni-shadow-lg;
+	border-radius: $uni-radius-lg;
+	padding: 32rpx;
+	box-shadow: $uni-shadow-float;
 	position: relative;
-	z-index: 10;
+	overflow: hidden;
 }
 
-.form-row {
+.form-header {
 	display: flex;
-	gap: 24rpx;
 	margin-bottom: 32rpx;
 	
-	&.different-location {
-		animation: slideDown 0.3s ease-out;
+	.tab-item {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: $uni-text-color-secondary;
+		margin-right: 40rpx;
+		position: relative;
+		transition: all 0.3s;
+		
+		&.active {
+			color: $uni-text-color;
+			font-size: 36rpx;
+			
+			&::after {
+				content: '';
+				position: absolute;
+				bottom: -8rpx;
+				left: 0;
+				width: 40rpx;
+				height: 6rpx;
+				background-color: $uni-color-primary;
+				border-radius: 3rpx;
+			}
+		}
 	}
 }
 
-@keyframes slideDown {
-	from { opacity: 0; transform: translateY(-10rpx); }
-	to { opacity: 1; transform: translateY(0); }
-}
-
-.form-item {
-	flex: 1;
-	overflow: hidden;
-}
-
-.label {
-	font-size: 24rpx;
-	color: $uni-text-color-secondary;
-	margin-bottom: 16rpx;
-	font-weight: 500;
-}
-
-.input-box {
+.city-selection-row {
 	display: flex;
 	align-items: center;
-	gap: 12rpx;
-	height: 88rpx;
-	padding: 0 24rpx;
-	background-color: $uni-bg-color;
-	border-radius: 16rpx;
-	transition: background-color 0.2s;
-	
-	&:active {
-		background-color: darken($uni-bg-color, 2%);
-	}
-}
-
-.input-text {
-	flex: 1;
-	font-size: 30rpx;
-	color: $uni-text-color;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	font-weight: 600;
-}
-
-/* 综合时间选择框 */
-.date-time-container {
-	flex: 1;
-	display: flex;
-	align-items: center;
-	height: 140rpx;
-	background-color: $uni-bg-color;
-	border-radius: 16rpx;
-	padding: 0 32rpx;
 	position: relative;
+	padding: 8rpx 0 24rpx;
 }
 
-.dt-section {
+.city-block {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	z-index: 1;
+	
+	.label {
+		font-size: 20rpx;
+		color: $uni-text-color-secondary;
+		margin-bottom: 4rpx;
+	}
+	
+	.city-name {
+		font-size: 40rpx;
+		font-weight: 800; // Heavy weight
+		color: $uni-text-color;
+		line-height: 1.2;
+		margin-bottom: 4rpx;
+		cursor: pointer;
+		transition: opacity 0.2s;
+
+		&.placeholder {
+			color: $uni-text-color-placeholder;
+			font-size: 32rpx;
+		}
+
+		&:active {
+			opacity: 0.6;
+		}
+	}
+
+	.store-name {
+		font-size: 24rpx;
+		color: $uni-text-color-secondary;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		cursor: pointer;
+		transition: opacity 0.2s;
+
+		&:active {
+			opacity: 0.6;
+		}
+	}
+	
+	&.return {
+		padding-left: 32rpx;
+	}
+}
+
+.city-divider {
+	padding: 0 16rpx;
+	opacity: 0.3;
+}
+
+.diff-loc-switch {
+	position: absolute;
+	top: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+	padding: 4rpx 12rpx;
+	background-color: $uni-bg-color;
+	border-radius: 20rpx;
+	
+	.switch-text {
+		font-size: 20rpx;
+		color: $uni-text-color-secondary;
+		
+		&.active {
+			color: $uni-color-primary;
+			font-weight: 500;
+		}
+	}
+}
+
+.divider-line {
+	height: 1rpx;
+	background-color: $uni-border-color-light;
+	margin: 0 0 24rpx;
+}
+
+.date-selection-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 40rpx;
+}
+
+.date-block {
+	display: flex;
+	flex-direction: column;
+	
+	.date-main {
+		display: flex;
+		align-items: baseline;
+		gap: 8rpx;
+		margin-bottom: 4rpx;
+	}
+	
+	.month-day {
+		font-size: 36rpx;
+		font-weight: bold;
+		color: $uni-text-color;
+		font-family: 'DIN Alternate', sans-serif;
+	}
+	
+	.week {
+		font-size: 24rpx;
+		color: $uni-text-color-secondary;
+	}
+	
+	.time {
+		font-size: 24rpx;
+		color: $uni-text-color-placeholder;
+	}
 	
 	&.right {
 		align-items: flex-end;
 	}
 }
 
-.dt-label {
-	font-size: 22rpx;
-	color: $uni-text-color-secondary;
-	margin-bottom: 8rpx;
-}
-
-.dt-value-group {
+.duration-indicator {
+	flex: 1;
 	display: flex;
-	align-items: baseline;
+	align-items: center;
+	justify-content: center;
 	gap: 8rpx;
-}
-
-.dt-date {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: $uni-text-color;
-	font-family: 'DIN Alternate', sans-serif;
-}
-
-.dt-time {
-	font-size: 26rpx;
-	color: $uni-text-color-secondary;
-}
-
-.duration-divider {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 0;
-}
-
-.duration-tag {
-	height: 44rpx;
-	padding: 0 24rpx;
-	background-color: #FFFFFF;
-	border-radius: 22rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-shadow: $uni-shadow-sm;
-	border: 1rpx solid $uni-border-color-light;
-}
-
-.duration-text {
-	font-size: 24rpx;
-	color: $uni-color-primary;
-	font-weight: bold;
-}
-
-/* 异地还车 (紧凑) */
-.checkbox-row {
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: 32rpx;
+	padding: 0 20rpx;
 	
-	&.compact {
-		margin-top: -16rpx;
+	.line {
+		height: 1rpx;
+		flex: 1;
+		background-color: #E5E6EB;
+	}
+	
+	.day-badge {
+		font-size: 20rpx;
+		color: $uni-text-color-secondary;
+		background-color: $uni-bg-color;
+		padding: 4rpx 16rpx;
+		border-radius: 20rpx;
 	}
 }
 
-.checkbox-container {
-	display: flex;
-	align-items: center;
-	gap: 12rpx;
-	padding: 8rpx 0;
-}
-
-.checkbox {
-	width: 36rpx;
-	height: 36rpx;
-	border: 2rpx solid #DDD;
-	border-radius: 8rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s;
-	
-	&.checked {
-		background-color: $uni-color-primary;
-		border-color: $uni-color-primary;
-	}
-}
-
-.checkbox-text {
-	font-size: 26rpx;
-	color: $uni-text-color;
-}
-
-/* 查询按钮 */
-.search-button {
-	width: 100%;
-	height: 100rpx;
-	background: linear-gradient(135deg, $uni-color-primary 0%, #FFB84D 100%);
+.submit-btn {
+	background: $uni-color-primary-gradient;
 	color: #FFFFFF;
-	font-size: 36rpx;
+	font-size: 34rpx;
 	font-weight: bold;
-	border-radius: 50rpx;
+	height: 96rpx;
+	line-height: 96rpx;
+	border-radius: $uni-radius-btn;
+	box-shadow: $uni-shadow-glow;
 	border: none;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-shadow: 0 12rpx 32rpx rgba(255, 159, 41, 0.3);
-	transition: all 0.2s;
 	
 	&::after {
 		border: none;
 	}
 }
 
-.search-button-hover {
-	transform: scale(0.98);
-	opacity: 0.95;
-	box-shadow: 0 6rpx 16rpx rgba(255, 159, 41, 0.3);
+.submit-btn-hover {
+	opacity: 0.9;
+	transform: scale(0.99);
 }
 </style>

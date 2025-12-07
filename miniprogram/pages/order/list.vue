@@ -1,831 +1,515 @@
 <template>
-  <view class="order-list-page">
-    <!-- 头部导航 -->
-    <view class="header">
-      <view class="nav-bar">
-        <view class="nav-item back-btn" @tap="goBack">
-          <u-icon name="arrow-left" size="20" color="#333"></u-icon>
-        </view>
-        <text class="nav-title">我的订单</text>
-        <view class="nav-item"></view>
-      </view>
+	<view class="order-list-page">
+		<!-- 自定义导航栏 -->
+		<view class="custom-navbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="navbar-content">
+				<view class="nav-back" @tap="goBack">
+					<u-icon name="arrow-left" size="20" color="#333"></u-icon>
+				</view>
+				<text class="nav-title">我的订单</text>
+				<view class="nav-placeholder"></view>
+			</view>
+		</view>
 
-      <!-- 状态筛选 -->
-      <view class="status-tabs">
-        <view
-          class="tab-item"
-          :class="{ 'active': currentStatus === '' }"
-          @tap="switchStatus('')"
-        >
-          <text class="tab-text">全部</text>
-        </view>
-        <view
-          v-for="status in statusList"
-          :key="status.code"
-          class="tab-item"
-          :class="{ 'active': currentStatus === status.code }"
-          @tap="switchStatus(status.code)"
-        >
-          <text class="tab-text">{{ status.name }}</text>
-          <view class="tab-badge" v-if="status.count > 0">
-            {{ status.count }}
-          </view>
-        </view>
-      </view>
-    </view>
+		<!-- 头部导航 (Sticky) -->
+		<view class="header-sticky" :style="{ top: (statusBarHeight + 44) + 'px' }">
+			<!-- 状态标签栏 -->
+			<view class="status-tabs">
+				<scroll-view scroll-x class="tabs-scroll" :show-scrollbar="false">
+					<view class="tabs-wrapper">
+						<view 
+							v-for="(item, index) in statusList" 
+							:key="index"
+							class="tab-item"
+							:class="{ active: currentStatus === item.value }"
+							@tap="switchStatus(item.value)"
+						>
+							<text>{{ item.label }}</text>
+							<view v-if="currentStatus === item.value" class="active-line"></view>
+						</view>
+					</view>
+				</scroll-view>
+			</view>
+		</view>
 
-    <!-- 订单列表 -->
-    <scroll-view
-      class="order-list"
-      scroll-y="true"
-      @scrolltolower="loadMore"
-      refresher-enabled
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-    >
-      <!-- 空状态 -->
-      <view v-if="orders.length === 0 && !loading" class="empty-state">
-        <image class="empty-image" src="/static/empty-order.png" mode="aspectFit"></image>
-        <text class="empty-text">暂无{{ currentStatusText }}订单</text>
-        <button class="browse-btn" @tap="browseVehicles">去看看房车</button>
-      </view>
+		<!-- 订单列表 -->
+		<scroll-view 
+			scroll-y 
+			class="list-scroll"
+			:style="{ paddingTop: (statusBarHeight + 44 + 44) + 'px' }"
+			@scrolltolower="loadMore"
+			refresher-enabled
+			:refresher-triggered="refreshing"
+			@refresherrefresh="onRefresh"
+		>
+			<view class="list-container">
+				<view 
+					v-for="order in orders" 
+					:key="order.id"
+					class="order-card"
+					@tap="goToDetail(order)"
+				>
+					<!-- 左侧状态条 -->
+					<view class="status-bar" :style="{ background: getStatusColor(order.status) }"></view>
+					
+					<view class="card-content">
+						<!-- 头部：车辆信息 & 状态 -->
+						<view class="card-header">
+							<text class="vehicle-name">{{ order.vehicleName }}</text>
+							<text class="status-text" :style="{ color: getStatusColor(order.status) }">
+								{{ order.statusText }}
+							</text>
+						</view>
+						
+						<!-- 中部：图文详情 -->
+						<view class="card-body">
+							<image class="vehicle-img" :src="order.vehicleImage" mode="aspectFill"></image>
+							<view class="info-box">
+								<view class="info-row">
+									<u-icon name="clock" size="14" color="#86909C"></u-icon>
+									<text class="info-text">
+										{{ formatDate(order.pickupTime) }} - {{ formatDate(order.returnTime) }}
+									</text>
+								</view>
+								<view class="info-row">
+									<u-icon name="map" size="14" color="#86909C"></u-icon>
+									<text class="info-text">{{ order.pickupStoreName }}</text>
+								</view>
+								<view class="price-row">
+									<text class="label">总价</text>
+									<text class="amount">¥{{ order.totalAmount }}</text>
+								</view>
+							</view>
+						</view>
+						
+						<!-- 底部：操作按钮 -->
+						<view class="card-footer" v-if="getOrderActions(order).length > 0">
+							<view 
+								v-for="(action, idx) in getOrderActions(order)"
+								:key="idx"
+								class="action-btn"
+								:class="{ primary: action.primary }"
+								@tap.stop="handleAction(action, order)"
+							>
+								{{ action.text }}
+							</view>
+						</view>
+					</view>
+				</view>
 
-      <!-- 订单卡片 -->
-      <view v-else class="order-cards">
-        <view
-          v-for="order in orders"
-          :key="order.id"
-          class="order-card"
-          @tap="goToOrderDetail(order.id)"
-        >
-          <!-- 订单头部 -->
-          <view class="order-header">
-            <view class="order-info">
-              <text class="order-no">订单号：{{ order.orderNo }}</text>
-              <text class="order-time">{{ formatTime(order.createdAt) }}</text>
-            </view>
-            <view class="order-status" :class="getStatusClass(order.status.code)">
-              {{ order.status.name }}
-            </view>
-          </view>
-
-          <!-- 车辆信息 -->
-          <view class="order-vehicle">
-            <image
-              class="vehicle-image"
-              :src="order.vehicle.images?.[0] || '/static/placeholder-vehicle.png'"
-              mode="aspectFill"
-            ></image>
-            <view class="vehicle-info">
-              <text class="vehicle-name">{{ order.vehicle.name }}</text>
-              <view class="vehicle-specs">
-                <text class="spec-item" v-if="getVehicleSpec(order.vehicle, 'seats')">
-                  {{ getVehicleSpec(order.vehicle, 'seats') }}座
-                </text>
-                <text class="spec-item" v-if="getVehicleSpec(order.vehicle, 'fuelType')">
-                  {{ getVehicleSpec(order.vehicle, 'fuelType') }}
-                </text>
-              </view>
-            </view>
-          </view>
-
-          <!-- 租赁信息 -->
-          <view class="order-rental">
-            <view class="rental-item">
-              <u-icon name="map" size="14" color="#999"></u-icon>
-              <text class="rental-text">{{ order.pickupStore.name }}</text>
-            </view>
-            <view class="rental-item">
-              <u-icon name="calendar" size="14" color="#999"></u-icon>
-              <text class="rental-text">
-                {{ formatDate(order.pickupTime) }} - {{ formatDate(order.returnTime) }}
-              </text>
-            </view>
-            <view class="rental-item" v-if="order.returnStore.id !== order.pickupStore.id">
-              <u-icon name="pushpin" size="14" color="#4B91FF"></u-icon>
-              <text class="rental-text">异地还车</text>
-            </view>
-          </view>
-
-          <!-- 费用信息 -->
-          <view class="order-price">
-            <text class="price-label">订单金额：</text>
-            <text class="price-amount">¥{{ order.totalAmount }}</text>
-            <text class="deposit-info" v-if="order.depositAmount > 0">
-              (含押金¥{{ order.depositAmount }})
-            </text>
-          </view>
-
-          <!-- 操作按钮 -->
-          <view class="order-actions">
-            <button
-              v-if="order.status.code === 'pending_payment'"
-              class="action-btn primary"
-              @tap.stop="payOrder(order)"
-            >
-              立即支付
-            </button>
-            <button
-              v-if="order.status.code === 'pending_payment'"
-              class="action-btn"
-              @tap.stop="cancelOrder(order)"
-            >
-              取消订单
-            </button>
-            <button
-              v-if="order.status.code === 'pending_confirmation'"
-              class="action-btn"
-              @tap.stop="contactService(order)"
-            >
-              联系客服
-            </button>
-            <button
-              v-if="order.status.code === 'completed' && !order.isRated"
-              class="action-btn primary"
-              @tap.stop="rateOrder(order)"
-            >
-              评价订单
-            </button>
-            <button
-              v-if="order.status.code === 'in_progress'"
-              class="action-btn"
-              @tap.stop="extendOrder(order)"
-            >
-              申请延期
-            </button>
-            <button
-              v-if="order.status.code === 'cancelled' || order.status.code === 'completed'"
-              class="action-btn"
-              @tap.stop="reorder(order)"
-            >
-              再次下单
-            </button>
-            <button
-              v-if="order.status.code === 'cancelled'"
-              class="action-btn delete"
-              @tap.stop="deleteOrder(order)"
-            >
-              删除订单
-            </button>
-          </view>
-        </view>
-      </view>
-
-      <!-- 加载状态 -->
-      <view class="load-more" v-if="loading">
-        <text class="load-text">{{ loadingMore ? '加载更多...' : '正在加载...' }}</text>
-      </view>
-
-      <!-- 没有更多 -->
-      <view class="no-more" v-if="!loading && !hasMore && orders.length > 0">
-        <text class="no-more-text">没有更多订单了</text>
-      </view>
-    </scroll-view>
-  </view>
+				<!-- 空状态 -->
+				<view v-if="!loading && orders.length === 0" class="empty-state">
+					<u-icon name="order" size="64" color="#E5E6EB"></u-icon>
+					<text class="empty-text">暂无相关订单</text>
+				</view>
+				
+				<!-- 加载更多 -->
+				<view v-if="loading" class="loading-more">
+					<u-loading-icon mode="circle" color="#999"></u-loading-icon>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
-import { orderApi } from '@/api/order';
-import { requireLogin } from '@/utils/auth';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import dayjs from 'dayjs';
 
-// 状态管理
-const orders = ref([]);
-const statusList = ref([]);
-const currentStatus = ref('');
-const page = ref(1);
-const loading = ref(false);
-const loadingMore = ref(false);
+// Mock Data
+const statusList = [
+	{ label: '全部', value: 'all' },
+	{ label: '待付款', value: 'pending_payment' },
+	{ label: '待取车', value: 'pending_pickup' },
+	{ label: '租赁中', value: 'renting' },
+	{ label: '已完成', value: 'completed' },
+	{ label: '已取消', value: 'cancelled' }
+];
+
+const currentStatus = ref('all');
 const refreshing = ref(false);
-const hasMore = ref(true);
+const loading = ref(false);
+const orders = ref<any[]>([]);
+const statusBarHeight = ref(0);
 
-// 计算属性
-const currentStatusText = computed(() => {
-  if (!currentStatus.value) return '';
-  const status = statusList.value.find(s => s.code === currentStatus.value);
-  return status ? status.name : '';
-});
+// Mock Orders
+const mockOrders = [
+	{
+		id: '1',
+		orderNo: 'ORD20241206001',
+		vehicleName: '上汽大通RG10 生活家V90',
+		vehicleImage: '/static/场景推荐2.jpg',
+		status: 'pending_payment',
+		statusText: '待付款',
+		pickupTime: '2024-12-10 10:00',
+		returnTime: '2024-12-12 10:00',
+		pickupStoreName: '深圳宝安店',
+		totalAmount: '1360.00'
+	},
+	{
+		id: '2',
+		orderNo: 'ORD20241120002',
+		vehicleName: '宇通B530 舒适版',
+		vehicleImage: '/static/优惠政策.jpg',
+		status: 'renting',
+		statusText: '租赁中',
+		pickupTime: '2024-12-05 14:00',
+		returnTime: '2024-12-08 14:00',
+		pickupStoreName: '广州天河店',
+		totalAmount: '2580.00'
+	},
+	{
+		id: '3',
+		orderNo: 'ORD20241001003',
+		vehicleName: '览众C7 经典版',
+		vehicleImage: '/static/场景推荐2.jpg',
+		status: 'completed',
+		statusText: '已完成',
+		pickupTime: '2024-10-01 09:00',
+		returnTime: '2024-10-05 18:00',
+		pickupStoreName: '杭州西湖店',
+		totalAmount: '4200.00'
+	}
+];
 
-// 页面加载
 onMounted(() => {
-  // 检查登录状态，未登录则跳转登录页
-  if (!requireLogin()) {
-    return;
-  }
-
-  loadStatusList();
-  loadOrders();
+	const sys = uni.getSystemInfoSync();
+	statusBarHeight.value = sys.statusBarHeight || 0;
+	loadOrders();
 });
 
-// 监听页面显示
-onShow(() => {
-  // 从订单详情页返回时刷新列表
-  if (orders.value.length > 0) {
-    refreshOrders();
-  }
-});
-
-// 加载状态列表
-const loadStatusList = async () => {
-  try {
-    const result = await orderApi.getOrderStatusList();
-    // 解析标准响应格式
-    const statusData = result.data || result;
-    // 确保 statusData 是数组
-    if (Array.isArray(statusData)) {
-      statusList.value = statusData.map(status => ({
-        ...status,
-        count: 0 // 这里应该调用API获取各状态订单数量
-      }));
-    } else {
-      console.warn('状态列表数据格式错误:', statusData);
-      statusList.value = [];
-    }
-  } catch (error) {
-    console.error('加载状态列表失败:', error);
-    statusList.value = [];
-  }
-};
-
-// 加载订单列表
-const loadOrders = async (isRefresh = false) => {
-  if (loading.value && !isRefresh) return;
-
-  try {
-    loading.value = true;
-
-    const params = {
-      page: isRefresh ? 1 : page.value,
-      limit: 10
-    };
-
-    if (currentStatus.value) {
-      params.status = currentStatus.value;
-    }
-
-    const result = await orderApi.getUserOrders(params);
-    // 解析标准响应格式
-    const response = result.data || result;
-
-    if (isRefresh) {
-      orders.value = Array.isArray(response.orders) ? response.orders : [];
-      page.value = 1;
-      hasMore.value = response.pagination ? response.pagination.current < response.pagination.pages : false;
-    } else {
-      const newOrders = Array.isArray(response.orders) ? response.orders : [];
-      orders.value.push(...newOrders);
-      hasMore.value = response.pagination ? response.pagination.current < response.pagination.pages : false;
-    }
-
-  } catch (error) {
-    console.error('加载订单列表失败:', error);
-    uni.showToast({
-      title: '加载失败，请重试',
-      icon: 'none'
-    });
-  } finally {
-    loading.value = false;
-    refreshing.value = false;
-  }
-};
-
-// 刷新订单列表
-const refreshOrders = () => {
-  refreshing.value = true;
-  loadOrders(true);
-};
-
-// 下拉刷新
-const onRefresh = () => {
-  refreshOrders();
-};
-
-// 加载更多
-const loadMore = () => {
-  if (hasMore.value && !loading.value) {
-    page.value++;
-    loadOrders();
-  }
-};
-
-// 切换状态筛选
-const switchStatus = (status) => {
-  if (currentStatus.value === status) return;
-
-  currentStatus.value = status;
-  page.value = 1;
-  hasMore.value = true;
-  loadOrders(true);
-};
-
-// 获取状态样式类
-const getStatusClass = (statusCode) => {
-  const statusClasses = {
-    'pending_payment': 'pending',
-    'pending_confirmation': 'pending',
-    'pending_pickup': 'processing',
-    'in_progress': 'processing',
-    'pending_return': 'processing',
-    'completed': 'completed',
-    'cancelled': 'cancelled'
-  };
-  return statusClasses[statusCode] || 'default';
-};
-
-// 获取车辆规格信息
-const getVehicleSpec = (vehicle, spec) => {
-  if (!vehicle.specifications) return '';
-  return vehicle.specifications[spec] || '';
-};
-
-// 格式化时间
-const formatTime = (timeStr) => {
-  const date = new Date(timeStr);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  if (diff < 60 * 1000) {
-    return '刚刚';
-  } else if (diff < 60 * 60 * 1000) {
-    return Math.floor(diff / (60 * 1000)) + '分钟前';
-  } else if (diff < 24 * 60 * 60 * 1000) {
-    return Math.floor(diff / (60 * 60 * 1000)) + '小时前';
-  } else {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${month}-${day}`;
-  }
-};
-
-// 格式化日期
-const formatDate = (dateStr) => {
-  const date = new Date(dateStr);
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  return `${month}月${day}日`;
-};
-
-// 跳转到订单详情
-const goToOrderDetail = (orderId) => {
-  uni.navigateTo({
-    url: `/pages/order/detail?id=${orderId}`
-  });
-};
-
-// 支付订单
-const payOrder = (order) => {
-  uni.navigateTo({
-    url: `/pages/payment/index?orderId=${order.id}&orderNo=${order.orderNo}`
-  });
-};
-
-// 取消订单
-const cancelOrder = (order) => {
-  uni.showModal({
-    title: '确认取消',
-    content: '确定要取消这个订单吗？取消后可能需要重新下单。',
-    confirmText: '确定取消',
-    cancelText: '再想想',
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await orderApi.cancelOrder(order.id);
-          uni.showToast({
-            title: '订单已取消',
-            icon: 'success'
-          });
-          refreshOrders();
-        } catch (error) {
-          console.error('取消订单失败:', error);
-          uni.showToast({
-            title: error.message || '取消失败',
-            icon: 'none'
-          });
-        }
-      }
-    }
-  });
-};
-
-// 联系客服
-const contactService = (order) => {
-  uni.navigateTo({
-    url: `/pages/service/chat?orderId=${order.id}`
-  });
-};
-
-// 评价订单
-const rateOrder = (order) => {
-  uni.navigateTo({
-    url: `/pages/order/rate?orderId=${order.id}`
-  });
-};
-
-// 申请延期
-const extendOrder = (order) => {
-  uni.navigateTo({
-    url: `/pages/order/extend?orderId=${order.id}`
-  });
-};
-
-// 再次下单
-const reorder = (order) => {
-  uni.navigateTo({
-    url: `/pages/order/confirm?vehicleId=${order.vehicle.id}&pickupStoreId=${order.pickupStore.id}&returnStoreId=${order.returnStore.id}&pickupTime=${order.pickupTime}&returnTime=${order.returnTime}`
-  });
-};
-
-// 删除订单
-const deleteOrder = (order) => {
-  uni.showModal({
-    title: '确认删除',
-    content: '删除后将无法恢复，确定要删除这个订单吗？',
-    confirmText: '确定删除',
-    cancelText: '取消',
-    confirmColor: '#FF4D4F',
-    success: async (res) => {
-      if (res.confirm) {
-        try {
-          await orderApi.deleteOrder(order.id);
-          uni.showToast({
-            title: '订单已删除',
-            icon: 'success'
-          });
-          refreshOrders();
-        } catch (error) {
-          console.error('删除订单失败:', error);
-          uni.showToast({
-            title: error.message || '删除失败',
-            icon: 'none'
-          });
-        }
-      }
-    }
-  });
-};
-
-// 去看看房车
-const browseVehicles = () => {
-  uni.switchTab({
-    url: '/pages/home/index'
-  });
-};
-
-// 返回
 const goBack = () => {
-  uni.navigateBack();
+	uni.navigateBack();
+};
+
+const loadOrders = () => {
+	loading.value = true;
+	setTimeout(() => {
+		if (currentStatus.value === 'all') {
+			orders.value = [...mockOrders];
+		} else {
+			orders.value = mockOrders.filter(o => o.status === currentStatus.value);
+		}
+		loading.value = false;
+		refreshing.value = false;
+	}, 500);
+};
+
+const switchStatus = (status: string) => {
+	currentStatus.value = status;
+	loadOrders();
+};
+
+const onRefresh = () => {
+	refreshing.value = true;
+	loadOrders();
+};
+
+const loadMore = () => {
+	// Mock load more
+};
+
+const formatDate = (dateStr: string) => {
+	return dayjs(dateStr).format('MM月DD日 HH:mm');
+};
+
+const getStatusColor = (status: string) => {
+	const map: any = {
+		pending_payment: '#FF4D4F',
+		pending_pickup: '#FF9F29',
+		renting: '#00B578',
+		completed: '#2196F3',
+		cancelled: '#999999'
+	};
+	return map[status] || '#999999';
+};
+
+const getOrderActions = (order: any) => {
+	const status = order.status;
+	if (status === 'pending_payment') {
+		return [
+			{ text: '取消订单', primary: false, code: 'cancel' },
+			{ text: '去支付', primary: true, code: 'pay' }
+		];
+	}
+	if (status === 'renting') {
+		return [
+			{ text: '联系门店', primary: false, code: 'contact' },
+			{ text: '续租', primary: true, code: 'renew' }
+		];
+	}
+	if (status === 'completed') {
+		return [
+			{ text: '删除订单', primary: false, code: 'delete' },
+			{ text: '再次预订', primary: true, code: 'rebook' }
+		];
+	}
+	return [];
+};
+
+const handleAction = (action: any, order: any) => {
+	console.log('Action:', action.code, order.id);
+	uni.showToast({ title: `点击了${action.text}`, icon: 'none' });
+};
+
+const goToDetail = (order: any) => {
+	uni.navigateTo({
+		url: `/pages/order/detail?id=${order.id}`
+	});
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .order-list-page {
-  min-height: 100vh;
-  background-color: $uni-bg-color;
-  display: flex;
-  flex-direction: column;
+	min-height: 100vh;
+	background-color: $uni-bg-color;
+	display: flex;
+	flex-direction: column;
 }
 
-// 头部
-.header {
-  background-color: #ffffff;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-
-  .nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24rpx 32rpx;
-    height: 88rpx;
-
-    .nav-item {
-      width: 60rpx;
-      height: 60rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .nav-title {
-      font-size: 36rpx;
-      font-weight: 800;
-      color: $uni-text-color;
-    }
-  }
-
-  // 状态筛选标签
-  .status-tabs {
-    display: flex;
-    padding: 20rpx 32rpx;
-    gap: 24rpx;
-    overflow-x: auto;
-    border-bottom: 1rpx solid $uni-border-color-light;
-
-    .tab-item {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 8rpx;
-      white-space: nowrap;
-      padding: 12rpx 24rpx;
-      background-color: $uni-bg-color;
-      border-radius: 32rpx;
-      transition: all 0.2s;
-
-      .tab-text {
-        font-size: 26rpx;
-        color: $uni-text-color-secondary;
-        transition: color 0.3s ease;
-      }
-
-      .tab-badge {
-        background-color: $uni-color-error;
-        color: #ffffff;
-        font-size: 20rpx;
-        padding: 2rpx 8rpx;
-        border-radius: 10rpx;
-        min-width: 20rpx;
-        text-align: center;
-      }
-
-      &.active {
-        background-color: $uni-color-primary;
-        box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.2);
-
-        .tab-text {
-          color: #FFFFFF;
-          font-weight: 500;
-        }
-        
-        &::after {
-          display: none;
-        }
-      }
-    }
-  }
+.custom-navbar {
+	background-color: #FFFFFF;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+	border-bottom: 1rpx solid $uni-border-color-light;
 }
 
-// 订单列表
-.order-list {
-  flex: 1;
-  height: 0;
-  padding: 24rpx;
+.navbar-content {
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 $uni-spacing-lg;
 }
 
-// 空状态
+.nav-back {
+	width: 40rpx;
+	height: 40rpx;
+	display: flex;
+	align-items: center;
+}
+
+.nav-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: $uni-text-color;
+}
+
+.nav-placeholder {
+	width: 40rpx;
+}
+
+.header-sticky {
+	position: fixed;
+	left: 0;
+	width: 100%;
+	z-index: 99;
+	background-color: #FFFFFF;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
+}
+
+.status-tabs {
+	height: 88rpx;
+}
+
+.tabs-scroll {
+	width: 100%;
+	height: 100%;
+}
+
+.tabs-wrapper {
+	display: flex;
+	height: 100%;
+	padding: 0 24rpx;
+}
+
+.tab-item {
+	position: relative;
+	padding: 0 32rpx;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28rpx;
+	color: $uni-text-color-secondary;
+	white-space: nowrap;
+	transition: color 0.3s;
+	
+	&.active {
+		color: $uni-color-primary;
+		font-weight: 600;
+		font-size: 30rpx;
+	}
+}
+
+.active-line {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 32rpx;
+	height: 6rpx;
+	background-color: $uni-color-primary;
+	border-radius: 3rpx;
+}
+
+.list-scroll {
+	flex: 1;
+	height: 0;
+}
+
+.list-container {
+	padding: 24rpx 32rpx;
+}
+
+.order-card {
+	background-color: #FFFFFF;
+	border-radius: 24rpx;
+	overflow: hidden;
+	box-shadow: $uni-shadow-card;
+	margin-bottom: 24rpx;
+	display: flex;
+	position: relative;
+	transition: transform 0.2s;
+	
+	&:active {
+		transform: scale(0.99);
+	}
+}
+
+.status-bar {
+	width: 8rpx;
+	background-color: $uni-color-primary;
+	flex-shrink: 0;
+}
+
+.card-content {
+	flex: 1;
+	padding: 24rpx;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20rpx;
+}
+
+.vehicle-name {
+	font-size: 30rpx;
+	font-weight: bold;
+	color: $uni-text-color;
+}
+
+.status-text {
+	font-size: 26rpx;
+	font-weight: 600;
+}
+
+.card-body {
+	display: flex;
+	gap: 24rpx;
+	margin-bottom: 20rpx;
+}
+
+.vehicle-img {
+	width: 160rpx;
+	height: 120rpx;
+	border-radius: 12rpx;
+	background-color: #F2F3F5;
+}
+
+.info-box {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.info-row {
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+}
+
+.info-text {
+	font-size: 24rpx;
+	color: $uni-text-color-secondary;
+}
+
+.price-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: flex-end;
+	margin-top: 8rpx;
+}
+
+.label {
+	font-size: 22rpx;
+	color: $uni-text-color-secondary;
+	margin-right: 8rpx;
+}
+
+.amount {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: $uni-text-color;
+	font-family: 'DIN Alternate', sans-serif;
+}
+
+.card-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 20rpx;
+	padding-top: 20rpx;
+	border-top: 1rpx solid $uni-border-color-light;
+}
+
+.action-btn {
+	padding: 0 28rpx;
+	height: 60rpx;
+	line-height: 60rpx;
+	border-radius: 30rpx;
+	font-size: 24rpx;
+	color: $uni-text-color-secondary;
+	border: 1rpx solid $uni-border-color-light;
+	transition: all 0.3s ease;
+
+	&.primary {
+		color: #FFFFFF;
+		background: $uni-color-primary-gradient;
+		border: none;
+		font-weight: 600;
+		box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.25);
+	}
+
+	&:active {
+		opacity: 0.8;
+		transform: scale(0.98);
+	}
+}
+
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 160rpx 0;
-
-  .empty-image {
-    width: 240rpx;
-    height: 240rpx;
-    margin-bottom: 32rpx;
-    opacity: 0.8;
-  }
-
-  .empty-text {
-    font-size: 28rpx;
-    color: $uni-text-color-secondary;
-    margin-bottom: 48rpx;
-  }
-
-  .browse-btn {
-    padding: 0 48rpx;
-    height: 80rpx;
-    line-height: 80rpx;
-    background: linear-gradient(135deg, $uni-color-primary 0%, #FFB84D 100%);
-    color: #ffffff;
-    border-radius: 40rpx;
-    font-size: 28rpx;
-    border: none;
-    box-shadow: 0 8rpx 20rpx rgba(255, 159, 41, 0.3);
-    
-    &::after {
-      border: none;
-    }
-  }
+	padding: 120rpx 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 32rpx;
 }
 
-// 订单卡片
-.order-cards {
-  .order-card {
-    background-color: #ffffff;
-    border-radius: $uni-border-radius-lg;
-    margin-bottom: 24rpx;
-    overflow: hidden;
-    box-shadow: $uni-shadow-sm;
-    transition: transform 0.2s;
-    
-    &:active {
-      transform: scale(0.99);
-    }
-
-    // 订单头部
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 24rpx 32rpx;
-      border-bottom: 1rpx solid $uni-border-color-light;
-
-      .order-info {
-        flex: 1;
-
-        .order-no {
-          display: block;
-          font-size: 26rpx;
-          color: $uni-text-color;
-          margin-bottom: 8rpx;
-          font-family: monospace;
-        }
-
-        .order-time {
-          font-size: 22rpx;
-          color: $uni-text-color-secondary;
-        }
-      }
-
-      .order-status {
-        padding: 6rpx 16rpx;
-        border-radius: 8rpx;
-        font-size: 24rpx;
-        font-weight: 500;
-
-        &.pending {
-          background-color: rgba(255, 159, 41, 0.1);
-          color: $uni-color-primary;
-        }
-
-        &.processing {
-          background-color: rgba(33, 150, 243, 0.1);
-          color: $uni-color-info;
-        }
-
-        &.completed {
-          background-color: rgba(76, 175, 80, 0.1);
-          color: $uni-color-success;
-        }
-
-        &.cancelled {
-          background-color: rgba(0, 0, 0, 0.05);
-          color: $uni-text-color-secondary;
-        }
-      }
-    }
-
-    // 车辆信息
-    .order-vehicle {
-      display: flex;
-      padding: 32rpx;
-      gap: 24rpx;
-
-      .vehicle-image {
-        width: 160rpx;
-        height: 120rpx;
-        border-radius: 12rpx;
-        background-color: #f0f0f0;
-      }
-
-      .vehicle-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        .vehicle-name {
-          display: block;
-          font-size: 30rpx;
-          font-weight: bold;
-          color: $uni-text-color;
-          margin-bottom: 12rpx;
-          line-height: 1.4;
-        }
-
-        .vehicle-specs {
-          display: flex;
-          gap: 12rpx;
-
-          .spec-item {
-            font-size: 22rpx;
-            color: $uni-text-color-secondary;
-            background-color: $uni-bg-color;
-            padding: 4rpx 12rpx;
-            border-radius: 6rpx;
-          }
-        }
-      }
-    }
-
-    // 租赁信息
-    .order-rental {
-      padding: 0 32rpx 24rpx;
-
-      .rental-item {
-        display: flex;
-        align-items: center;
-        gap: 12rpx;
-        margin-bottom: 12rpx;
-
-        .rental-text {
-          font-size: 26rpx;
-          color: $uni-text-color;
-          line-height: 1.4;
-        }
-      }
-    }
-
-    // 费用信息
-    .order-price {
-      display: flex;
-      align-items: baseline;
-      justify-content: flex-end;
-      padding: 0 32rpx 24rpx;
-      border-bottom: 1rpx solid $uni-border-color-light;
-
-      .price-label {
-        font-size: 24rpx;
-        color: $uni-text-color-secondary;
-      }
-
-      .price-amount {
-        font-size: 36rpx;
-        font-weight: bold;
-        color: $uni-color-primary;
-        margin-left: 8rpx;
-        font-family: 'DIN Alternate', sans-serif;
-      }
-
-      .deposit-info {
-        font-size: 22rpx;
-        color: $uni-text-color-secondary;
-        margin-left: 12rpx;
-      }
-    }
-
-    // 操作按钮
-    .order-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 20rpx;
-      padding: 24rpx 32rpx;
-
-      .action-btn {
-        margin: 0;
-        padding: 0 32rpx;
-        height: 64rpx;
-        line-height: 64rpx;
-        border-radius: 32rpx;
-        font-size: 26rpx;
-        border: 1rpx solid $uni-border-color;
-        background-color: #ffffff;
-        color: $uni-text-color;
-        
-        &::after {
-          border: none;
-        }
-
-        &.primary {
-          background: linear-gradient(135deg, $uni-color-primary 0%, #FFB84D 100%);
-          color: #ffffff;
-          border-color: transparent;
-          box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.2);
-        }
-
-        &.delete {
-          border-color: $uni-color-error;
-          color: $uni-color-error;
-        }
-      }
-    }
-  }
+.empty-text {
+	font-size: 28rpx;
+	color: $uni-text-color-secondary;
 }
 
-// 加载状态
-.load-more {
-  text-align: center;
-  padding: 32rpx 0;
-
-  .load-text {
-    font-size: 24rpx;
-    color: $uni-text-color-secondary;
-  }
-}
-
-// 没有更多
-.no-more {
-  text-align: center;
-  padding: 32rpx 0;
-
-  .no-more-text {
-    font-size: 24rpx;
-    color: $uni-text-color-placeholder;
-  }
+.loading-more {
+	padding: 32rpx 0;
+	display: flex;
+	justify-content: center;
 }
 </style>

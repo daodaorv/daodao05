@@ -10,7 +10,8 @@
 		{
 			"path": "pages/community/index",
 			"style": {
-				"navigationBarTitleText": "社区"
+				"navigationBarTitleText": "社区",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -135,7 +136,8 @@
 		{
 			"path": "pages/vehicle/detail",
 			"style": {
-				"navigationBarTitleText": "房车详情"
+				"navigationBarTitleText": "房车详情",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -161,7 +163,14 @@
 		{
 			"path": "pages/order/detail",
 			"style": {
-				"navigationBarTitleText": "订单详情"
+				"navigationBarTitleText": "订单详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/order/renewal",
+			"style": {
+				"navigationBarTitleText": "续租申请"
 			}
 		},
 		{
@@ -179,7 +188,8 @@
 		{
 			"path": "pages/profile/index",
 			"style": {
-				"navigationBarTitleText": "我的"
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -205,6 +215,30 @@
 			"path": "pages/profile/contact-edit",
 			"style": {
 				"navigationBarTitleText": "添加联系人"
+			}
+		},
+		{
+			"path": "pages/profile/address",
+			"style": {
+				"navigationBarTitleText": "地址管理"
+			}
+		},
+		{
+			"path": "pages/profile/address-edit",
+			"style": {
+				"navigationBarTitleText": "编辑地址"
+			}
+		},
+		{
+			"path": "pages/profile/password-login",
+			"style": {
+				"navigationBarTitleText": "修改登录密码"
+			}
+		},
+		{
+			"path": "pages/profile/password-pay",
+			"style": {
+				"navigationBarTitleText": "设置支付密码"
 			}
 		},
 		{
@@ -288,6 +322,12 @@
 			}
 		},
 		{
+			"path": "pages/help/category",
+			"style": {
+				"navigationBarTitleText": "帮助分类"
+			}
+		},
+		{
 			"path": "pages/auth/login",
 			"style": {
 				"navigationBarTitleText": "登录"
@@ -365,9 +405,9 @@
 		"easycom": {
 			"autoscan": true,
 			"custom": {
-				"^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
-				"^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
-				"^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue"
+				"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+				"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
+				"^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
 			}
 		}
 	}

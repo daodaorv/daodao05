@@ -17,8 +17,33 @@
 			</view>
 		</view>
 
+		<!-- 客服服务 -->
+		<view class="service-section">
+			<view class="section-header service-header">
+				<text class="section-title">客服服务</text>
+				<text class="service-hours">每日 09:00 - 21:00</text>
+			</view>
+			<view class="service-grid">
+				<view
+					v-for="item in serviceEntries"
+					:key="item.id"
+					class="service-item"
+					@tap="handleServiceAction(item.action)"
+				>
+					<view class="service-icon">
+						<u-icon :name="item.icon" size="28" color="#FF9F29" />
+					</view>
+					<view class="service-info">
+						<text class="service-title">{{ item.title }}</text>
+						<text class="service-desc">{{ item.desc }}</text>
+					</view>
+					<u-icon name="arrow-right" size="16" color="#CCCCCC" />
+				</view>
+			</view>
+		</view>
+
 		<!-- 热门问题 -->
-		<view class="hot-section">
+		<view class="hot-section" id="faq-hot">
 			<view class="section-header">
 				<text class="section-title">热门问题</text>
 				<u-icon name="star-fill" size="20" color="#FF9F29" />
@@ -54,7 +79,7 @@
 					v-for="category in categories"
 					:key="category.id"
 					class="category-item"
-					@click="viewCategory(category.id)"
+					@click="viewCategory(category.id, category.name)"
 				>
 					<view class="category-icon">
 						<u-icon :name="getCategoryIcon(category.icon)" size="32" color="#FF9F29" />
@@ -98,10 +123,10 @@
 				</view>
 				<view class="contact-content">
 					<text class="contact-title">没有找到答案？</text>
-					<text class="contact-desc">联系我们的客服团队获取帮助</text>
+					<text class="contact-desc">客服电话：{{ servicePhone }} ｜ 人工 09:00-21:00</text>
 				</view>
 				<button class="contact-btn" @click="contactService">
-					联系客服
+					立即致电
 				</button>
 			</view>
 		</view>
@@ -112,8 +137,44 @@
 import { ref, onMounted } from 'vue'
 import { mockGetHelpCategories, mockGetHelpArticles, mockGetHotArticles, type HelpCategory, type HelpArticle } from '@/api/help'
 
+type ServiceAction = 'chat' | 'phone' | 'faq'
+
+interface ServiceEntry {
+	id: string
+	title: string
+	desc: string
+	icon: string
+	action: ServiceAction
+}
+
 // 搜索关键词
 const searchKeyword = ref('')
+
+// 客服服务入口
+const servicePhone = '400-123-4567'
+const serviceEntries = ref<ServiceEntry[]>([
+	{
+		id: 'chat',
+		title: '在线客服',
+		desc: '智能助手 7×24 小时响应',
+		icon: 'chat',
+		action: 'chat'
+	},
+	{
+		id: 'phone',
+		title: '电话客服',
+		desc: `${servicePhone} ｜ 人工 09:00-21:00`,
+		icon: 'phone',
+		action: 'phone'
+	},
+	{
+		id: 'faq',
+		title: '常见问题',
+		desc: '查看政策与使用指南',
+		icon: 'question-circle',
+		action: 'faq'
+	}
+])
 
 // 热门问题
 const hotArticles = ref<HelpArticle[]>([])
@@ -167,21 +228,39 @@ const viewArticle = (id: string) => {
 }
 
 // 查看分类
-const viewCategory = (categoryId: string) => {
-	// 这里可以跳转到分类文章列表页，简化处理直接显示提示
-	uni.showToast({
-		title: '查看分类文章',
-		icon: 'none'
+const viewCategory = (categoryId: string, categoryName: string) => {
+	uni.navigateTo({
+		url: `/pages/help/category?id=${categoryId}&name=${encodeURIComponent(categoryName)}`
+	})
+}
+
+const handleServiceAction = (action: ServiceAction) => {
+	if (action === 'phone') {
+		uni.makePhoneCall({ phoneNumber: servicePhone })
+		return
+	}
+	if (action === 'chat') {
+		uni.showToast({
+			title: '正在接入在线客服，请稍候',
+			icon: 'none'
+		})
+		return
+	}
+	uni.pageScrollTo({
+		selector: '#faq-hot',
+		duration: 250,
+		fail: () => {
+			uni.showToast({
+				title: '请下拉查看常见问题',
+				icon: 'none'
+			})
+		}
 	})
 }
 
 // 联系客服
 const contactService = () => {
-	uni.showModal({
-		title: '联系客服',
-		content: '客服电话：400-123-4567\n工作时间：9:00-18:00',
-		showCancel: false
-	})
+	handleServiceAction('phone')
 }
 
 // 加载热门问题
@@ -261,6 +340,7 @@ onMounted(() => {
 .hot-section,
 .category-section,
 .article-section,
+.service-section,
 .contact-section {
 	margin: 32rpx;
 	background: #FFFFFF;
@@ -278,6 +358,61 @@ onMounted(() => {
 		font-size: 32rpx;
 		font-weight: bold;
 		color: #333333;
+	}
+}
+
+.service-header {
+	align-items: center;
+
+	.service-hours {
+		font-size: 24rpx;
+		color: #999999;
+	}
+}
+
+.service-grid {
+	display: flex;
+	flex-direction: column;
+
+	.service-item {
+		display: flex;
+		align-items: center;
+		padding: 24rpx 0;
+		border-bottom: 1rpx solid #F5F5F5;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		.service-icon {
+			width: 72rpx;
+			height: 72rpx;
+			border-radius: 16rpx;
+			background: #FFF8F0;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-right: 24rpx;
+		}
+
+		.service-info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 8rpx;
+
+			.service-title {
+				font-size: 30rpx;
+				color: #333333;
+				font-weight: 500;
+			}
+
+			.service-desc {
+				font-size: 24rpx;
+				color: #999999;
+			}
+		}
 	}
 }
 

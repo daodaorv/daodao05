@@ -6,6 +6,9 @@
 import { vehicleData } from '../data/vehicle';
 import { authData } from '../data/auth';
 import { orderData } from '../data/order';
+import { contactData } from '../data/contact';
+import { addressData } from '../data/address';
+import { ruleData } from '../data/rules';
 
 interface RequestOptions {
     url: string;
@@ -69,6 +72,63 @@ function routeMatch(url: string, method: string, data: any) {
     }
     if (url.includes('/vehicles') && url.includes('/favorite') && method === 'POST') {
         return vehicleData.toggleFavorite(data);
+    }
+
+    // 联系人相关
+    if (url.includes('/contacts')) {
+        if (method === 'GET') {
+            const idMatch = url.match(/\/contacts\/([^\/]+)$/);
+            if (idMatch) {
+                return contactData.getDetail(idMatch[1]);
+            }
+            return contactData.getList();
+        }
+        if (method === 'POST') {
+            return contactData.create(data);
+        }
+        if (method === 'PUT') {
+            const idMatch = url.match(/\/contacts\/([^\/]+)$/);
+            if (idMatch) {
+                return contactData.update(idMatch[1], data);
+            }
+        }
+        if (method === 'DELETE') {
+            const idMatch = url.match(/\/contacts\/([^\/]+)$/);
+            if (idMatch) {
+                return contactData.remove(idMatch[1]);
+            }
+        }
+    }
+
+    // 地址相关
+    if (url.includes('/addresses')) {
+        if (method === 'GET') {
+            const idMatch = url.match(/\/addresses\/([^\/]+)$/);
+            if (idMatch) {
+                return addressData.getDetail(idMatch[1]);
+            }
+            return addressData.getList();
+        }
+        if (method === 'POST') {
+            return addressData.create(data);
+        }
+        if (method === 'PUT') {
+            const idMatch = url.match(/\/addresses\/([^\/]+)$/);
+            if (idMatch) {
+                return addressData.update(idMatch[1], data);
+            }
+        }
+        if (method === 'DELETE') {
+            const idMatch = url.match(/\/addresses\/([^\/]+)$/);
+            if (idMatch) {
+                return addressData.remove(idMatch[1]);
+            }
+        }
+    }
+
+    // 规则管理
+    if (url.includes('/rules/rental')) {
+        return ruleData.getRentalRules(data);
     }
 
     // 订单相关

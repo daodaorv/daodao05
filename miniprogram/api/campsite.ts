@@ -124,6 +124,16 @@ export interface CampsiteBookingParams {
   contactPhone: string;
   remark?: string;
   couponId?: string;
+  contactId?: string;
+  insurancePlanId?: string;
+  insurancePlanName?: string;
+  additionalServices?: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    perPerson?: boolean;
+    price?: number;
+  }>;
 }
 
 /**

@@ -16,7 +16,7 @@
 				<view class="price-section">
 					<view class="current-price">
 						<text class="currency">¥</text>
-						<text class="price">99</text>
+						<text class="price">{{ membershipPrice }}</text>
 						<text class="unit">/年</text>
 					</view>
 					<view class="original-price">
@@ -57,50 +57,81 @@
 			</view>
 		</view>
 
-		<!-- 自动续费选项 -->
-		<view class="auto-renew-section">
-			<view class="section-title">
-				<text>续费设置</text>
-			</view>
-
-			<view class="auto-renew-option" @click="toggleAutoRenew">
-				<view class="option-left">
-					<view class="option-icon">
-						<image src="/static/icons/auto-renew.png" mode="aspectFit"></image>
-					</view>
-					<view class="option-content">
-						<text class="option-name">自动续费</text>
-						<text class="option-desc">到期前自动续费，权益不中断</text>
-					</view>
-				</view>
-				<switch :checked="autoRenew" @change="handleAutoRenewChange" color="#FF9F29" />
-			</view>
-		</view>
-
 		<!-- 支付方式 -->
 		<view class="payment-section">
 			<view class="section-title">
 				<text>支付方式</text>
 			</view>
-
-			<view class="payment-methods">
-				<view
-					v-for="method in paymentMethods"
-					:key="method.id"
-					class="payment-item"
-					:class="selectedPayment === method.id ? 'selected' : ''"
-					@click="selectPayment(method.id)"
-				>
-					<view class="payment-left">
-						<image :src="method.icon" class="payment-icon" mode="aspectFit"></image>
-						<text class="payment-name">{{ method.name }}</text>
-					</view>
-					<view class="payment-radio">
-						<view class="radio-outer">
-							<view v-if="selectedPayment === method.id" class="radio-inner"></view>
+			<view class="payment-list">
+				<view class="payment-item">
+					<view class="payment-info">
+						<view class="icon-box balance">
+							<u-icon name="rmb-circle-fill" size="24" color="#FFFFFF"></u-icon>
+						</view>
+						<view class="payment-text">
+							<text class="name">余额支付</text>
+							<text class="desc">可用余额 ¥{{ userBalance }}</text>
 						</view>
 					</view>
+					<view class="action-box">
+						<text v-if="useBalance" class="deduction-text">-¥{{ deductionAmount }}</text>
+						<switch
+							:checked="useBalance"
+							color="#FF9F29"
+							style="transform:scale(0.8)"
+							@change="toggleBalance"
+							:disabled="userBalance <= 0"
+						/>
+					</view>
 				</view>
+
+				<!-- #ifdef MP-WEIXIN || APP-PLUS || H5 -->
+				<view
+					class="payment-item"
+					:class="{ disabled: isBalanceCovered }"
+					@tap="selectPaymentMethod('wxpay')"
+				>
+					<view class="payment-info">
+						<view class="icon-box wechat">
+							<u-icon name="weixin" size="24" color="#FFFFFF"></u-icon>
+						</view>
+						<view class="payment-text">
+							<text class="name">微信支付</text>
+							<text class="desc">推荐使用微信支付</text>
+						</view>
+					</view>
+					<u-icon
+						v-if="!isBalanceCovered"
+						:name="selectedPayment === 'wxpay' ? 'checkmark-circle-fill' : 'checkmark-circle'"
+						size="24"
+						:color="selectedPayment === 'wxpay' ? '#FF9F29' : '#DDD'"
+					></u-icon>
+				</view>
+				<!-- #endif -->
+
+				<!-- #ifdef MP-ALIPAY || APP-PLUS || H5 -->
+				<view
+					class="payment-item"
+					:class="{ disabled: isBalanceCovered }"
+					@tap="selectPaymentMethod('alipay')"
+				>
+					<view class="payment-info">
+						<view class="icon-box alipay">
+							<text class="alipay-text">支</text>
+						</view>
+						<view class="payment-text">
+							<text class="name">支付宝支付</text>
+							<text class="desc">数亿用户的选择</text>
+						</view>
+					</view>
+					<u-icon
+						v-if="!isBalanceCovered"
+						:name="selectedPayment === 'alipay' ? 'checkmark-circle-fill' : 'checkmark-circle'"
+						size="24"
+						:color="selectedPayment === 'alipay' ? '#FF9F29' : '#DDD'"
+					></u-icon>
+				</view>
+				<!-- #endif -->
 			</view>
 		</view>
 
@@ -121,7 +152,7 @@
 		<view class="bottom-bar">
 			<view class="total-price">
 				<text class="label">实付金额</text>
-				<text class="price">¥99</text>
+				<text class="price">¥{{ cashAmount }}</text>
 			</view>
 			<button class="purchase-btn" @click="handlePurchase" :disabled="!agreedToTerms">
 				{{ purchaseType === 'renew' ? '立即续费' : '立即开通' }}
@@ -131,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { mockGetMembershipPackages, mockPurchaseMembership, type MemberBenefit } from '@/api/membership'
 
 // 页面参数
@@ -140,29 +171,27 @@ const purchaseType = ref<'purchase' | 'renew'>('purchase')
 // 会员权益
 const benefits = ref<MemberBenefit[]>([])
 
-// 自动续费
-const autoRenew = ref(false)
+// 价格与支付信息
+const membershipPrice = ref(99)
+const userBalance = ref(300)
+const useBalance = ref(false)
+let defaultPayment: 'wxpay' | 'alipay' = 'wxpay'
+// #ifdef MP-ALIPAY
+defaultPayment = 'alipay'
+// #endif
+const selectedPayment = ref<'wxpay' | 'alipay' | ''>(defaultPayment)
 
-// 支付方式
-const paymentMethods = ref([
-	{
-		id: 'wechat',
-		name: '微信支付',
-		icon: '/static/icons/payment-wechat.png'
-	},
-	{
-		id: 'alipay',
-		name: '支付宝',
-		icon: '/static/icons/payment-alipay.png'
-	},
-	{
-		id: 'balance',
-		name: '余额支付',
-		icon: '/static/icons/payment-balance.png'
-	}
-])
+const deductionAmount = computed(() => {
+	if (!useBalance.value) return 0
+	return Math.min(membershipPrice.value, userBalance.value)
+})
 
-const selectedPayment = ref('wechat')
+const isBalanceCovered = computed(() => deductionAmount.value >= membershipPrice.value)
+
+const cashAmount = computed(() => {
+	const amount = membershipPrice.value - deductionAmount.value
+	return amount > 0 ? amount.toFixed(2) : '0.00'
+})
 
 // 协议同意
 const agreedToTerms = ref(false)
@@ -180,19 +209,18 @@ const getBenefitIcon = (icon: string) => {
 	return iconMap[icon] || '/static/icons/benefit-default.png'
 }
 
-// 切换自动续费
-const toggleAutoRenew = () => {
-	autoRenew.value = !autoRenew.value
+const toggleBalance = (e: any) => {
+	useBalance.value = e.detail.value
+	if (isBalanceCovered.value) {
+		selectedPayment.value = ''
+	} else if (!selectedPayment.value) {
+		selectedPayment.value = defaultPayment
+	}
 }
 
-// 处理自动续费开关
-const handleAutoRenewChange = (e: any) => {
-	autoRenew.value = e.detail.value
-}
-
-// 选择支付方式
-const selectPayment = (methodId: string) => {
-	selectedPayment.value = methodId
+const selectPaymentMethod = (method: 'wxpay' | 'alipay') => {
+	if (isBalanceCovered.value) return
+	selectedPayment.value = method
 }
 
 // 切换协议同意
@@ -219,14 +247,24 @@ const handlePurchase = async () => {
 		return
 	}
 
+	if (!isBalanceCovered.value && !selectedPayment.value) {
+		uni.showToast({
+			title: '请选择支付方式',
+			icon: 'none'
+		})
+		return
+	}
+
 	try {
 		uni.showLoading({ title: '处理中...' })
 
 		// 使用Mock数据
 		const result = await mockPurchaseMembership({
 			packageId: 'package_001',
-			autoRenew: autoRenew.value,
-			paymentMethod: selectedPayment.value as any
+			autoRenew: false,
+			paymentMethod: isBalanceCovered.value
+				? 'balance'
+				: (selectedPayment.value === 'alipay' ? 'alipay' : 'wechat')
 		})
 
 		uni.hideLoading()
@@ -387,7 +425,6 @@ onMounted(() => {
 
 // 通用区块样式
 .benefits-section,
-.auto-renew-section,
 .payment-section {
 	margin: 32rpx;
 	background: #FFFFFF;
@@ -464,112 +501,89 @@ onMounted(() => {
 	}
 }
 
-// 自动续费选项
-.auto-renew-option {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 24rpx;
-	background: #F8F8F8;
+// 支付方式
+.payment-list {
+	background-color: #FFFFFF;
 	border-radius: 16rpx;
+}
 
-	.option-left {
-		display: flex;
-		align-items: center;
-		flex: 1;
+.payment-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 24rpx 0;
+	border-bottom: 1rpx solid #F5F5F5;
 
-		.option-icon {
-			width: 56rpx;
-			height: 56rpx;
-			margin-right: 24rpx;
+	&:last-child {
+		border-bottom: none;
+	}
 
-			image {
-				width: 100%;
-				height: 100%;
-			}
-		}
-
-		.option-content {
-			flex: 1;
-
-			.option-name {
-				display: block;
-				font-size: 28rpx;
-				font-weight: 500;
-				color: #333333;
-				margin-bottom: 8rpx;
-			}
-
-			.option-desc {
-				display: block;
-				font-size: 24rpx;
-				color: #999999;
-			}
-		}
+	&.disabled {
+		opacity: 0.5;
+		pointer-events: none;
 	}
 }
 
-// 支付方式
-.payment-methods {
-	.payment-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 24rpx;
-		border: 2rpx solid #E0E0E0;
-		border-radius: 16rpx;
-		margin-bottom: 16rpx;
-		transition: all 0.3s;
+.payment-info {
+	display: flex;
+	align-items: center;
+	gap: 24rpx;
+}
 
-		&:last-child {
-			margin-bottom: 0;
-		}
+.icon-box {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 12rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
-		&.selected {
-			border-color: #FF9F29;
-			background: #FFF8F0;
-		}
-
-		.payment-left {
-			display: flex;
-			align-items: center;
-
-			.payment-icon {
-				width: 56rpx;
-				height: 56rpx;
-				margin-right: 24rpx;
-			}
-
-			.payment-name {
-				font-size: 28rpx;
-				color: #333333;
-			}
-		}
-
-		.payment-radio {
-			.radio-outer {
-				width: 40rpx;
-				height: 40rpx;
-				border: 2rpx solid #E0E0E0;
-				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transition: all 0.3s;
-			}
-
-			.radio-inner {
-				width: 24rpx;
-				height: 24rpx;
-				background: #FF9F29;
-				border-radius: 50%;
-			}
-		}
-
-		&.selected .payment-radio .radio-outer {
-			border-color: #FF9F29;
-		}
+	&.balance {
+		background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
 	}
+
+	&.wechat {
+		background-color: #07C160;
+	}
+
+	&.alipay {
+		background-color: #1677FF;
+	}
+}
+
+.alipay-text {
+	font-size: 28rpx;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+.payment-text {
+	display: flex;
+	flex-direction: column;
+	gap: 6rpx;
+
+	.name {
+		font-size: 30rpx;
+		font-weight: 500;
+		color: #333333;
+	}
+
+	.desc {
+		font-size: 24rpx;
+		color: #999999;
+	}
+}
+
+.action-box {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.deduction-text {
+	font-size: 28rpx;
+	color: #FF9F29;
+	font-weight: 500;
 }
 
 // 购买协议

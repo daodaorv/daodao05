@@ -1,239 +1,344 @@
 <template>
   <view class="renewal-page">
-    <view class="order-info">
-      <view class="info-item">
-        <text class="label">当前订单</text>
-        <text class="value">{{ order.orderNo }}</text>
+    <view class="card order-info">
+      <view class="info-row">
+        <text class="label">订单编号</text>
+        <text class="value">{{ orderInfo.orderNo || '--' }}</text>
       </view>
-      <view class="info-item">
+      <view class="info-row">
         <text class="label">当前还车时间</text>
-        <text class="value">{{ formatDateTime(order.returnTime) }}</text>
+        <text class="value">{{ formatDateTime(orderInfo.returnTime) }}</text>
       </view>
     </view>
 
-    <view class="form-section">
+    <view class="card form-section">
       <view class="section-title">续租设置</view>
-      <view class="form-item">
+      <view class="form-row">
         <text class="label">续租天数</text>
         <view class="number-input">
-          <button class="num-btn" @tap="decreaseDays">-</button>
-          <input name="number" v-model="days" class="num-value" disabled />
-          <button class="num-btn" @tap="increaseDays">+</button>
+          <button class="num-btn" @tap="changeDays(-1)" :disabled="days <= 1">-</button>
+          <text class="num-value">{{ days }}</text>
+          <button class="num-btn" @tap="changeDays(1)" :disabled="days >= 30">+</button>
         </view>
       </view>
-      <view class="form-item">
-        <text class="label">新还车时间</text>
-        <text class="value highlight">{{ newReturnTime }}</text>
+      <view class="form-row">
+        <text class="label">新的还车时间</text>
+        <text class="time-value">{{ newReturnTimeText }}</text>
       </view>
     </view>
 
-    <view class="price-section">
-      <view class="price-item">
-        <text class="label">续租单价</text>
-        <text class="value">¥{{ order.dailyPrice }}/天</text>
+    <view class="card price-section">
+      <view class="price-row">
+        <text class="label">续租日均价</text>
+        <text class="value">￥{{ orderInfo.dailyPrice }}</text>
       </view>
-      <view class="price-item total">
-        <text class="label">预计费用</text>
-        <text class="amount">¥{{ totalPrice }}</text>
+      <view class="price-row total">
+        <text class="label">预计续租费用</text>
+        <text class="amount">￥{{ totalPrice }}</text>
+      </view>
+      <view class="tip">
+        <u-icon name="info" color="#FF9F29" size="14"></u-icon>
+        <text>实际费用以门店确认结果为准，提交后客服会主动联系您</text>
       </view>
     </view>
 
-    <view class="bottom-btn">
-      <button class="submit-btn" @tap="submitRenewal">确认续租并支付</button>
+    <view class="bottom-actions">
+      <button class="ghost-btn" @tap="contactStore">联系门店</button>
+      <button class="primary-btn" @tap="submitRenewal" :loading="submitting">提交续租申请</button>
     </view>
   </view>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { orderApi } from '@/api/order'
 
-const orderId = ref(null);
-const order = ref({});
-const days = ref(1);
-const totalPrice = ref(0);
-
-onLoad((options) => {
-  if (options.orderId) {
-    orderId.value = parseInt(options.orderId);
-    loadOrderInfo();
-  }
-});
-
-const loadOrderInfo = () => {
-  // Mock data - replace with API call
-  order.value = {
-    orderNo: 'DD20231127001',
-    returnTime: new Date().getTime() + 86400000 * 2, // 2 days later
-    dailyPrice: 500
-  };
-  calculatePrice();
-};
-
-const newReturnTime = computed(() => {
-  if (!order.value.returnTime) return '';
-  const newTime = new Date(order.value.returnTime + days.value * 86400000);
-  return formatDateTime(newTime);
-});
-
-const increaseDays = () => {
-  if (days.value < 30) {
-    days.value++;
-    calculatePrice();
-  }
-};
-
-const decreaseDays = () => {
-  if (days.value > 1) {
-    days.value--;
-    calculatePrice();
-  }
-};
-
-const calculatePrice = () => {
-  totalPrice.value = days.value * (order.value.dailyPrice || 0);
-};
-
-const submitRenewal = () => {
-  uni.showLoading({ title: '提交中...' });
-  setTimeout(() => {
-    uni.hideLoading();
-    uni.showToast({
-      title: '续租申请已提交',
-      icon: 'success'
-    });
-    setTimeout(() => {
-      uni.navigateBack();
-    }, 1500);
-  }, 1000);
-};
-
-const formatDateTime = (timestamp) => {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
-</script>
-
-<style lang="scss" scoped>
-.renewal-page {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20rpx;
-  padding-bottom: 120rpx;
+interface RenewalInfo {
+  orderId?: string
+  orderNo?: string
+  returnTime?: string
+  pickupTime?: string
+  dailyPrice: number
+  storePhone?: string
 }
 
-.order-info, .form-section, .price-section {
-  background-color: #fff;
-  border-radius: 12rpx;
-  padding: 30rpx;
+const orderInfo = ref<RenewalInfo>({
+  orderId: '',
+  orderNo: '',
+  returnTime: '',
+  pickupTime: '',
+  dailyPrice: 0
+})
+const days = ref(1)
+const submitting = ref(false)
+
+const totalPrice = computed(() =>
+  Number((days.value * (orderInfo.value.dailyPrice || 0)).toFixed(2))
+)
+
+const newReturnTimeText = computed(() => {
+  if (!orderInfo.value.returnTime) return '--'
+  const base = new Date(orderInfo.value.returnTime).getTime()
+  if (Number.isNaN(base)) return '--'
+  const next = base + days.value * 24 * 60 * 60 * 1000
+  return formatDateTime(new Date(next).toISOString())
+})
+
+const changeDays = (step: number) => {
+  const target = days.value + step
+  if (target < 1 || target > 30) return
+  days.value = target
+}
+
+const contactStore = () => {
+  if (orderInfo.value.storePhone) {
+    uni.makePhoneCall({ phoneNumber: orderInfo.value.storePhone })
+    return
+  }
+  uni.showToast({
+    title: '暂无门店电话',
+    icon: 'none'
+  })
+}
+
+const submitRenewal = () => {
+  if (!orderInfo.value.orderId && !orderInfo.value.orderNo) {
+    uni.showToast({ title: '缺少订单信息', icon: 'none' })
+    return
+  }
+  submitting.value = true
+  uni.showLoading({ title: '提交中...' })
+  setTimeout(() => {
+    submitting.value = false
+    uni.hideLoading()
+    uni.showModal({
+      title: '续租申请已提交',
+      content: '我们会尽快确认续租可用性，并通过短信或电话通知您。',
+      showCancel: false,
+      success: () => uni.navigateBack()
+    })
+  }, 1200)
+}
+
+const loadOrderInfo = async (orderId?: string) => {
+  if (!orderId) return
+  try {
+    uni.showLoading({ title: '加载中...' })
+    const response: any = await orderApi.getOrderDetail(orderId)
+    const payload = response?.data || response
+    if (payload) {
+      orderInfo.value = {
+        orderId: payload.id || orderId,
+        orderNo: payload.orderNo,
+        returnTime: payload.returnTime,
+        pickupTime: payload.pickupTime,
+        dailyPrice: resolveDailyPrice(payload),
+        storePhone: payload.pickupStore?.phone || payload.returnStore?.phone
+      }
+    }
+  } catch (error) {
+    console.error('加载订单失败', error)
+    uni.showToast({ title: '加载订单失败', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
+}
+
+const resolveDailyPrice = (payload: any) => {
+  if (typeof payload?.vehicle?.dailyPrice === 'number') {
+    return payload.vehicle.dailyPrice
+  }
+  if (typeof payload?.dailyPrice === 'number') {
+    return payload.dailyPrice
+  }
+  if (typeof payload?.amount?.dailyPrice === 'number') {
+    return payload.amount.dailyPrice
+  }
+  const pickup = payload?.pickupTime ? new Date(payload.pickupTime).getTime() : 0
+  const dropoff = payload?.returnTime ? new Date(payload.returnTime).getTime() : 0
+  const days =
+    pickup && dropoff && dropoff > pickup
+      ? Math.max(1, Math.round((dropoff - pickup) / (24 * 60 * 60 * 1000)))
+      : 1
+  const base =
+    payload?.vehicleFee ||
+    payload?.amount?.totalAmount ||
+    payload?.actualAmount ||
+    payload?.totalAmount ||
+    0
+  if (!base) return 0
+  return Number((base / days).toFixed(2))
+}
+
+onLoad((options: Record<string, any>) => {
+  const decodeValue = (val?: string) => {
+    if (!val) return ''
+    try {
+      return decodeURIComponent(decodeURIComponent(val))
+    } catch (error) {
+      try {
+        return decodeURIComponent(val)
+      } catch (err) {
+        return val
+      }
+    }
+  }
+  orderInfo.value = {
+    orderId: options.orderId || '',
+    orderNo: options.orderNo || '',
+    returnTime: decodeValue(options.returnTime),
+    pickupTime: decodeValue(options.pickupTime),
+    dailyPrice: Number(options.dailyPrice) || 0
+  }
+  if (!orderInfo.value.returnTime || !orderInfo.value.dailyPrice) {
+    loadOrderInfo(orderInfo.value.orderId || orderInfo.value.orderNo)
+  }
+})
+
+const formatDateTime = (value?: string) => {
+  if (!value) return '--'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '--'
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${d} ${h}:${min}`
+}
+</script>
+
+<style scoped lang="scss">
+.renewal-page {
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  padding: 24rpx;
+  padding-bottom: 140rpx;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 28rpx;
   margin-bottom: 20rpx;
 }
 
-.info-item, .form-item, .price-item {
+.info-row,
+.form-row,
+.price-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20rpx;
   font-size: 28rpx;
-  color: #333;
+  color: #333333;
+  margin-bottom: 24rpx;
+}
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+.info-row:last-child,
+.form-row:last-child,
+.price-row:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  color: #999999;
+}
+
+.value {
+  font-weight: 600;
 }
 
 .section-title {
   font-size: 32rpx;
-  font-weight: bold;
-  margin-bottom: 30rpx;
-  padding-left: 16rpx;
-  border-left: 8rpx solid #FF9F29;
-}
-
-.label {
-  color: #666;
-}
-
-.value {
-  font-weight: 500;
-}
-
-.highlight {
-  color: #FF9F29;
-  font-weight: bold;
-}
-
-.total {
-  margin-top: 30rpx;
-  padding-top: 30rpx;
-  border-top: 1rpx solid #eee;
-  
-  .amount {
-    color: #f5222d;
-    font-size: 36rpx;
-    font-weight: bold;
-  }
-}
-
-.bottom-btn {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  padding: 20rpx 30rpx;
-  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
-  padding-bottom: calc(20rpx + constant(safe-area-inset-bottom));
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-
-  .submit-btn {
-    background-color: #FF9F29;
-    color: #fff;
-    border-radius: 44rpx;
-    font-size: 32rpx;
-    font-weight: bold;
-    
-    &:active {
-      opacity: 0.9;
-    }
-  }
+  font-weight: 600;
+  margin-bottom: 24rpx;
+  color: #333333;
 }
 
 .number-input {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 16rpx;
+}
 
-  .num-btn {
-    width: 60rpx;
-    height: 60rpx;
-    background-color: #f5f5f5;
-    border-radius: 8rpx;
-    font-size: 32rpx;
-    color: #333;
-    padding: 0;
-    margin: 0;
-    line-height: 60rpx;
+.num-btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  background-color: #f1f1f1;
+  font-size: 32rpx;
+  color: #333333;
+  padding: 0;
+  line-height: 64rpx;
+}
 
-    &::after {
-      border: none;
-    }
-  }
+.num-btn::after {
+  border: none;
+}
 
-  .num-value {
-    width: 100rpx;
-    height: 60rpx;
-    text-align: center;
-    background-color: #f5f5f5;
-    border-radius: 8rpx;
-    font-size: 28rpx;
-    color: #333;
-  }
+.num-value {
+  width: 80rpx;
+  text-align: center;
+  font-size: 30rpx;
+}
+
+.time-value {
+  color: #ff9f29;
+  font-weight: 600;
+}
+
+.price-section .total {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+  margin-top: 12rpx;
+}
+
+.amount {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #f5222d;
+}
+
+.tip {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.bottom-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 20rpx;
+}
+
+.primary-btn,
+.ghost-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #ff9f29 0%, #ffb84d 100%);
+  color: #ffffff;
+}
+
+.ghost-btn {
+  background-color: #ffffff;
+  color: #ff9f29;
+  border: 2rpx solid rgba(255, 159, 41, 0.4);
 }
 </style>

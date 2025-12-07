@@ -22,6 +22,7 @@ export interface PricingStrategy {
   startDate: string
   endDate: string
   priority: number
+  targetUserTags: number[]  // 目标用户标签ID数组（双向关联）
   description: string
   createdBy: string
   createdAt: string
@@ -41,6 +42,7 @@ let mockPricingStrategies: PricingStrategy[] = [
     startDate: '2025-01-28',
     endDate: '2025-02-04',
     priority: 1,
+    targetUserTags: [],  // 所有用户
     description: '春节假期期间价格上浮50%',
     createdBy: '运营经理-张三',
     createdAt: '2025-01-01T10:00:00.000Z',
@@ -57,6 +59,7 @@ let mockPricingStrategies: PricingStrategy[] = [
     startDate: '2025-11-15',
     endDate: '2026-03-15',
     priority: 2,
+    targetUserTags: [3],  // 新用户标签
     description: '淡季期间价格下调20%',
     createdBy: '运营经理-张三',
     createdAt: '2024-11-01T10:00:00.000Z',
@@ -73,6 +76,7 @@ let mockPricingStrategies: PricingStrategy[] = [
     startDate: '2025-01-01',
     endDate: '2025-12-31',
     priority: 3,
+    targetUserTags: [],  // 所有用户
     description: '周末价格上浮30%',
     createdBy: '运营经理-张三',
     createdAt: '2025-01-01T10:00:00.000Z',
@@ -144,6 +148,7 @@ export interface Coupon {
   endDate: string
   status: CouponStatus
   applicableVehicles: string[]
+  targetUserTags: number[]  // 目标用户标签ID数组（双向关联）
   description: string
   createdBy: string
   createdAt: string
@@ -168,6 +173,7 @@ let mockCoupons: Coupon[] = [
     endDate: '2025-12-31',
     status: 'active',
     applicableVehicles: ['所有车型'],
+    targetUserTags: [3],  // 新用户标签
     description: '新用户首单立减20%，最高减200元',
     createdBy: '运营经理-张三',
     createdAt: '2025-01-01T10:00:00.000Z',
@@ -189,6 +195,7 @@ let mockCoupons: Coupon[] = [
     endDate: '2025-02-10',
     status: 'active',
     applicableVehicles: ['C型房车', 'B型房车'],
+    targetUserTags: [100],  // PLUS会员专享
     description: '春节期间满2000减300',
     createdBy: '运营经理-张三',
     createdAt: '2025-01-10T10:00:00.000Z',
@@ -210,6 +217,7 @@ let mockCoupons: Coupon[] = [
     endDate: '2025-12-31',
     status: 'active',
     applicableVehicles: ['所有车型'],
+    targetUserTags: [1, 2],  // VIP用户和活跃用户
     description: '周末订单立减15%，最高减150元',
     createdBy: '运营经理-张三',
     createdAt: '2025-01-01T10:00:00.000Z',
@@ -274,7 +282,8 @@ export interface MarketingActivity {
   endDate: string
   budget: number
   actualCost: number
-  targetUsers: string
+  targetUsers: string  // 保留文本描述字段
+  targetUserTags: number[]  // 目标用户标签ID数组（双向关联）
   participantCount: number
   orderCount: number
   revenue: number
@@ -298,6 +307,7 @@ let mockActivities: MarketingActivity[] = [
     budget: 50000,
     actualCost: 28500,
     targetUsers: '所有用户',
+    targetUserTags: [],  // 所有用户
     participantCount: 856,
     orderCount: 234,
     revenue: 468000,
@@ -318,6 +328,7 @@ let mockActivities: MarketingActivity[] = [
     budget: 100000,
     actualCost: 45600,
     targetUsers: '新注册用户',
+    targetUserTags: [3],  // 新用户标签
     participantCount: 2280,
     orderCount: 892,
     revenue: 1784000,

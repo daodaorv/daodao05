@@ -1,6 +1,13 @@
 {
 	"pages": [
 		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/dashboard/index",
 			"style": {
 				"navigationBarTitleText": "工作台",
@@ -52,9 +59,85 @@
 			}
 		},
 		{
+			"path": "pages/vehicles/dispatch",
+			"style": {
+				"navigationBarTitleText": "车辆调度",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/vehicles/location",
+			"style": {
+				"navigationBarTitleText": "车辆位置"
+			}
+		},
+		{
+			"path": "pages/vehicles/photo-upload",
+			"style": {
+				"navigationBarTitleText": "上传照片"
+			}
+		},
+		{
 			"path": "pages/messages/index",
 			"style": {
 				"navigationBarTitleText": "消息通知",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/messages/ticket-list",
+			"style": {
+				"navigationBarTitleText": "工单列表",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/messages/ticket-detail",
+			"style": {
+				"navigationBarTitleText": "工单详情"
+			}
+		},
+		{
+			"path": "pages/messages/ticket-create",
+			"style": {
+				"navigationBarTitleText": "创建工单"
+			}
+		},
+		{
+			"path": "pages/messages/chat",
+			"style": {
+				"navigationBarTitleText": "在线客服"
+			}
+		},
+		{
+			"path": "pages/hosting/applications",
+			"style": {
+				"navigationBarTitleText": "托管申请",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/hosting/own-car-review",
+			"style": {
+				"navigationBarTitleText": "自有车托管审核"
+			}
+		},
+		{
+			"path": "pages/hosting/buy-car-review",
+			"style": {
+				"navigationBarTitleText": "购车托管审核"
+			}
+		},
+		{
+			"path": "pages/hosting/self-use-review",
+			"style": {
+				"navigationBarTitleText": "车主自用审核"
+			}
+		},
+		{
+			"path": "pages/hosting/vehicles",
+			"style": {
+				"navigationBarTitleText": "托管车辆",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -68,6 +151,55 @@
 			"path": "pages/profile/edit",
 			"style": {
 				"navigationBarTitleText": "编辑个人信息"
+			}
+		},
+		{
+			"path": "pages/profile/settings",
+			"style": {
+				"navigationBarTitleText": "系统设置"
+			}
+		},
+		{
+			"path": "pages/profile/notifications",
+			"style": {
+				"navigationBarTitleText": "通知设置"
+			}
+		},
+		{
+			"path": "pages/profile/help",
+			"style": {
+				"navigationBarTitleText": "帮助中心"
+			}
+		},
+		{
+			"path": "pages/profile/faq",
+			"style": {
+				"navigationBarTitleText": "常见问题"
+			}
+		},
+		{
+			"path": "pages/profile/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/profile/sync",
+			"style": {
+				"navigationBarTitleText": "数据同步"
+			}
+		},
+		{
+			"path": "pages/common/scan",
+			"style": {
+				"navigationBarTitleText": "扫码识别"
+			}
+		},
+		{
+			"path": "pages/statistics/index",
+			"style": {
+				"navigationBarTitleText": "数据统计",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

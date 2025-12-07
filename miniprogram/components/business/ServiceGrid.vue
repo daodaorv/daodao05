@@ -7,7 +7,7 @@
 			@tap="handleServiceClick(service)"
 		>
 			<view class="service-icon">
-				<u-icon :name="service.icon" size="28" color="#FF9F29"></u-icon>
+				<u-icon :name="service.icon" size="32" color="#FF9F29"></u-icon>
 			</view>
 			<text class="service-name">{{ service.name }}</text>
 		</view>
@@ -22,26 +22,21 @@ interface Service {
 	name: string;
 	icon: string;
 	path: string;
-	isTabBar?: boolean; // 标识是否为 tabBar 页面
+	isTabBar?: boolean;
 }
 
 const services = ref<Service[]>([
-	{ id: '1', name: '特惠租车', icon: 'gift', path: '/pages/special-offer/list' },
-	{ id: '3', name: '托管中心', icon: 'home', path: '/pages/hosting/index', isTabBar: true },
-	{ id: '4', name: '营地预订', icon: 'map', path: '/pages/campsite/list' },
-	{ id: '5', name: '房车旅游', icon: 'car', path: '/pages/tour/list' }
+	{ id: '1', name: '特惠租车', icon: 'gift-fill', path: '/pages/special-offer/list' },
+	{ id: '3', name: '托管中心', icon: 'home-fill', path: '/pages/hosting/index', isTabBar: true },
+	{ id: '4', name: '营地预订', icon: 'map-fill', path: '/pages/campsite/list' },
+	{ id: '5', name: '房车旅游', icon: 'car-fill', path: '/pages/tour/list' }
 ]);
 
 const handleServiceClick = (service: Service) => {
-	// tabBar 页面使用 switchTab，普通页面使用 navigateTo
 	if (service.isTabBar) {
-		uni.switchTab({
-			url: service.path
-		});
+		uni.switchTab({ url: service.path });
 	} else {
-		uni.navigateTo({
-			url: service.path
-		});
+		uni.navigateTo({ url: service.path });
 	}
 };
 </script>
@@ -50,9 +45,11 @@ const handleServiceClick = (service: Service) => {
 .service-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 32rpx 24rpx;
+	gap: 24rpx;
 	padding: 32rpx 24rpx;
 	background-color: #FFFFFF;
+	border-radius: $uni-radius-lg; // 圆角卡片
+	box-shadow: $uni-shadow-sm;
 	margin-bottom: 24rpx;
 }
 
@@ -61,7 +58,6 @@ const handleServiceClick = (service: Service) => {
 	flex-direction: column;
 	align-items: center;
 	gap: 16rpx;
-	transition: transform 0.2s;
 	
 	&:active {
 		transform: scale(0.95);
@@ -69,20 +65,19 @@ const handleServiceClick = (service: Service) => {
 }
 
 .service-icon {
-	width: 100rpx;
-	height: 100rpx;
+	width: 96rpx;
+	height: 96rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg, #FFF5E9 0%, #FFF0E0 100%);
+	background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 100%);
 	border-radius: 32rpx;
-	box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.1);
+	// box-shadow: 0 4rpx 12rpx rgba(255, 159, 41, 0.1);
 }
 
 .service-name {
 	font-size: 26rpx;
 	color: $uni-text-color;
-	text-align: center;
 	font-weight: 500;
 }
 </style>

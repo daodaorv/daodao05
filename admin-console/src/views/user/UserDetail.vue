@@ -47,11 +47,6 @@
               <el-descriptions-item label="邮箱">
                 {{ userInfo.email || '-' }}
               </el-descriptions-item>
-              <el-descriptions-item label="用户类型">
-                <el-tag :type="getUserTypeTagType(userInfo.userType)">
-                  {{ getUserTypeLabel(userInfo.userType) }}
-                </el-tag>
-              </el-descriptions-item>
               <el-descriptions-item label="账号状态">
                 <el-tag :type="getStatusTagType(userInfo.status)">
                   {{ getStatusLabel(userInfo.status) }}
@@ -181,13 +176,6 @@
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="userForm.email" placeholder="请输入邮箱" />
         </el-form-item>
-        <el-form-item label="用户类型" prop="userType">
-          <el-select v-model="userForm.userType" placeholder="请选择用户类型" style="width: 100%">
-            <el-option label="普通用户" value="customer" />
-            <el-option label="移动管理员" value="mobile_admin" />
-            <el-option label="PC管理员" value="pc_admin" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="userForm.status">
             <el-radio label="active">正常</el-radio>
@@ -251,13 +239,13 @@ const dialogVisible = ref(false)
 const submitLoading = ref(false)
 const userFormRef = ref<FormInstance>()
 
-// 用户表单
+// 用户表单（注意：用户管理只管理小程序C端用户，不包含管理员）
 const userForm = reactive({
   id: 0,
   username: '',
   realName: '',
   email: '',
-  userType: 'customer' as 'customer' | 'mobile_admin' | 'pc_admin',
+  userType: 'customer' as const, // 固定为customer类型
   status: 'active' as 'active' | 'inactive' | 'banned',
 })
 
@@ -269,9 +257,6 @@ const userFormRules: FormRules = {
   ],
   email: [
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' },
-  ],
-  userType: [
-    { required: true, message: '请选择用户类型', trigger: 'change' },
   ],
 }
 
@@ -309,7 +294,7 @@ const handleEdit = () => {
   userForm.username = userInfo.value.username
   userForm.realName = userInfo.value.realName || ''
   userForm.email = userInfo.value.email || ''
-  userForm.userType = userInfo.value.userType
+  // userType固定为customer，不需要从userInfo中读取
   userForm.status = userInfo.value.status
   dialogVisible.value = true
 }
@@ -327,7 +312,7 @@ const handleSubmit = async () => {
         id: userForm.id,
         username: userForm.username,
         email: userForm.email,
-        userType: userForm.userType,
+        userType: 'customer', // 固定为customer类型
         status: userForm.status,
         realName: userForm.realName,
       })
@@ -422,27 +407,6 @@ const handleDelete = async () => {
       console.error(error)
     }
   }
-}
-
-// 获取用户类型标签类型
-const getUserTypeTagType = (type: string) => {
-  // @ts-ignore
-  const typeMap: Record<any, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    customer: '',
-    mobile_admin: 'success',
-    pc_admin: 'warning',
-  }
-  return typeMap[type] || ''
-}
-
-// 获取用户类型标签文本
-const getUserTypeLabel = (type: string) => {
-  const typeMap: Record<string, string> = {
-    customer: '普通用户',
-    mobile_admin: '移动管理员',
-    pc_admin: 'PC管理员',
-  }
-  return typeMap[type] || type
 }
 
 // 获取状态标签类型

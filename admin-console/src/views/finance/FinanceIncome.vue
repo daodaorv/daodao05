@@ -184,6 +184,7 @@ import {
   type IncomeStats,
   type IncomeRecord
 } from '@/api/finance'
+import { exportToCSV } from '@/utils/export'
 
 // 统计数据
 const stats = ref<IncomeStats>({
@@ -346,7 +347,16 @@ const handleCurrentChange = (page: number) => {
 
 // 导出数据
 const handleExport = () => {
-  ElMessage.success('导出功能开发中')
+  if (incomeList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(incomeList.value, columns, '收入明细')
 }
 
 // 获取订单类型标签

@@ -112,6 +112,16 @@ export interface TourBookingParams {
   emergencyContact: string;
   emergencyPhone: string;
   remark?: string;
+  couponId?: string;
+  insurancePlanId?: string;
+  insurancePlanName?: string;
+  additionalServices?: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    perPerson?: boolean;
+    price?: number;
+  }>;
 }
 
 /**

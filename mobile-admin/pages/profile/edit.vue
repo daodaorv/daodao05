@@ -100,14 +100,6 @@
       </view>
     </view>
 
-    <!-- 确认对话框 -->
-    <ConfirmDialog
-      v-model:visible="dialogVisible"
-      :title="dialogTitle"
-      :message="dialogMessage"
-      :type="dialogType"
-      @confirm="handleDialogConfirm"
-    />
   </view>
 </template>
 
@@ -116,22 +108,15 @@ import { getUserInfo } from '@/api/auth'
 import { chooseImage, uploadImage } from '@/utils/upload'
 import { validatePhone } from '@/utils/validate'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
 export default {
   components: {
-    LoadingSpinner,
-    ConfirmDialog
+    LoadingSpinner
   },
 
   data() {
     return {
       loading: false,
-      dialogVisible: false,
-      dialogTitle: '',
-      dialogMessage: '',
-      dialogType: 'default',
-      dialogAction: null,
 
       formData: {
         avatar: '',
@@ -288,11 +273,15 @@ export default {
         this.formData.confirmPassword
 
       if (hasChanges) {
-        this.dialogTitle = '取消编辑'
-        this.dialogMessage = '您有未保存的修改，确定要取消吗？'
-        this.dialogType = 'default'
-        this.dialogAction = 'cancel'
-        this.dialogVisible = true
+        uni.showModal({
+          title: '取消编辑',
+          content: '您有未保存的修改，确定要取消吗？',
+          success: (res) => {
+            if (res.confirm) {
+              uni.navigateBack()
+            }
+          }
+        })
       } else {
         uni.navigateBack()
       }
@@ -303,19 +292,15 @@ export default {
         return
       }
 
-      this.dialogTitle = '保存修改'
-      this.dialogMessage = '确认保存个人信息修改吗？'
-      this.dialogType = 'default'
-      this.dialogAction = 'submit'
-      this.dialogVisible = true
-    },
-
-    async handleDialogConfirm() {
-      if (this.dialogAction === 'cancel') {
-        uni.navigateBack()
-      } else if (this.dialogAction === 'submit') {
-        await this.submitForm()
-      }
+      uni.showModal({
+        title: '保存修改',
+        content: '确认保存个人信息修改吗？',
+        success: (res) => {
+          if (res.confirm) {
+            this.submitForm()
+          }
+        }
+      })
     },
 
     async submitForm() {

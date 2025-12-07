@@ -195,7 +195,7 @@ export default {
             read: msg.isRead
           }))
         }
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('加载消息失败:', error.message)
         } else {
@@ -216,7 +216,7 @@ export default {
         this.messageTabs[0].unread = counts.system
         this.messageTabs[1].unread = counts.order
         this.messageTabs[2].unread = counts.ticket
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('加载未读数失败:', error.message)
         } else {
@@ -246,7 +246,7 @@ export default {
           content: message.content,
           showCancel: false
         })
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('标记已读失败:', error.message)
         } else {
@@ -268,7 +268,7 @@ export default {
         uni.navigateTo({
           url: `/pages/orders/detail?id=${message.orderId}`
         })
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('标记已读失败:', error.message)
         } else {
@@ -290,17 +290,20 @@ export default {
           await this.loadUnreadCount()
         }
 
-        // 跳转到工单详情
-        uni.showToast({
-          title: '工单功能开发中',
-          icon: 'none'
+        // 跳转到工单列表页面
+        uni.navigateTo({
+          url: '/pages/messages/ticket-list'
         })
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('标记已读失败:', error.message)
         } else {
           console.error('标记已读失败:', String(error))
         }
+        // 即使标记失败也允许跳转
+        uni.navigateTo({
+          url: '/pages/messages/ticket-list'
+        })
       }
     }
   }

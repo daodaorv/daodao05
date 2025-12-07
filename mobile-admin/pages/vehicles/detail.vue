@@ -128,6 +128,18 @@
       <!-- 底部操作按钮 -->
       <view class="bottom-actions">
         <u-button
+          text="扫码识别"
+          type="warning"
+          plain
+          @click="scanVehicle"
+        ></u-button>
+        <u-button
+          text="上传照片"
+          type="success"
+          plain
+          @click="uploadPhoto"
+        ></u-button>
+        <u-button
           text="更新状态"
           type="info"
           plain
@@ -203,7 +215,7 @@ export default {
       try {
         const data = await getVehicleDetail(this.vehicleId)
         this.vehicle = data
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('加载车辆详情失败:', error.message)
         } else {
@@ -222,7 +234,7 @@ export default {
       try {
         const data = await getMaintenanceRecords(this.vehicleId)
         this.maintenanceRecords = data.list || []
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('加载维保记录失败:', error.message)
         } else {
@@ -254,7 +266,7 @@ export default {
         setTimeout(() => {
           this.loadVehicleDetail()
         }, 1000)
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           console.error('更新车辆状态失败:', error.message)
         } else {
@@ -288,6 +300,27 @@ export default {
       uni.showToast({
         title: '查看文档功能开发中',
         icon: 'none'
+      })
+    },
+
+    scanVehicle() {
+      uni.navigateTo({
+        url: `/pages/common/scan?type=qrcode&from=vehicleDetail&callback=handleScanResult`
+      })
+    },
+
+    handleScanResult(result) {
+      // 处理扫码结果
+      console.log('扫码结果:', result)
+      uni.showToast({
+        title: '扫码成功',
+        icon: 'success'
+      })
+    },
+
+    uploadPhoto() {
+      uni.navigateTo({
+        url: `/pages/vehicles/photo-upload?vehicleId=${this.vehicleId}`
       })
     },
 

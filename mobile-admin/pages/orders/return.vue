@@ -448,16 +448,18 @@
         <view class="section-card">
           <view class="section-title">客户确认</view>
           <view class="confirmation-list">
-            <u-checkbox
-              v-model="completionForm.customerConfirmed"
-              shape="square"
-              label="客户已确认检查结果与费用"
-            ></u-checkbox>
-            <u-checkbox
-              v-model="completionForm.keyRecovered"
-              shape="square"
-              label="钥匙及附件已回收"
-            ></u-checkbox>
+            <u-checkbox-group v-model="confirmationGroup">
+              <u-checkbox
+                name="customerConfirmed"
+                shape="square"
+                label="客户已确认检查结果与费用"
+              ></u-checkbox>
+              <u-checkbox
+                name="keyRecovered"
+                shape="square"
+                label="钥匙及附件已回收"
+              ></u-checkbox>
+            </u-checkbox-group>
             <view class="switch-row">
               <text>发送还车完成通知</text>
               <u-switch v-model="completionForm.notifyCustomer"></u-switch>
@@ -637,9 +639,11 @@ const damagePhotoList = ref<Array<{ url: string }>>([])
 const feeInfo = ref<FeeInfo | null>(null)
 const feeBreakdown = ref<Array<{ name: string; amount: number; paid?: boolean }>>([])
 
+const confirmationGroup = ref<string[]>([])
+
 const completionForm = reactive({
-  customerConfirmed: false,
-  keyRecovered: false,
+  customerConfirmed: computed(() => confirmationGroup.value.includes('customerConfirmed')),
+  keyRecovered: computed(() => confirmationGroup.value.includes('keyRecovered')),
   notifyCustomer: true,
   remarks: '',
   signature: ''
@@ -704,8 +708,7 @@ function resetFormState() {
   damageList.value = []
   feeInfo.value = null
   feeBreakdown.value = []
-  completionForm.customerConfirmed = false
-  completionForm.keyRecovered = false
+  confirmationGroup.value = []
   completionForm.notifyCustomer = true
   completionForm.remarks = ''
   completionForm.signature = ''

@@ -186,6 +186,7 @@ import {
   type FinancialReport,
   type ReportType
 } from '@/api/finance'
+import { exportToCSV } from '@/utils/export'
 
 // 筛选表单
 const filterForm = reactive({
@@ -319,7 +320,32 @@ const handleGenerate = () => {
 
 // 导出报表
 const handleExport = () => {
-  ElMessage.success('导出功能开发中')
+  if (report.value.incomeDetails.length === 0 && report.value.expenseDetails.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  // 导出收入明细
+  if (report.value.incomeDetails.length > 0) {
+    const incomeColumns = [
+      { key: 'category', label: '收入类别' },
+      { key: 'amount', label: '金额' },
+      { key: 'percentage', label: '占比' }
+    ]
+    exportToCSV(report.value.incomeDetails, incomeColumns, '收入明细')
+  }
+
+  // 导出支出明细
+  if (report.value.expenseDetails.length > 0) {
+    const expenseColumns = [
+      { key: 'category', label: '支出类别' },
+      { key: 'amount', label: '金额' },
+      { key: 'percentage', label: '占比' }
+    ]
+    exportToCSV(report.value.expenseDetails, expenseColumns, '支出明细')
+  }
+
+  ElMessage.success('报表导出成功')
 }
 
 // 初始化

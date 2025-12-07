@@ -252,6 +252,7 @@ import {
 } from '@/api/vehicle'
 import { useErrorHandler, useEnumLabel } from '@/composables'
 import { MAINTENANCE_STATUS_OPTIONS } from '@/constants'
+import { exportToCSV } from '@/utils/export'
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -380,7 +381,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出记录',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '成本报表',
@@ -731,6 +732,20 @@ onMounted(() => {
   loadStats()
   loadVehicles()
 })
+
+// 导出数据
+function handleExport() {
+  if (maintenanceList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(maintenanceList.value, columns, '维保记录')
+}
 </script>
 
 <style scoped lang="scss">

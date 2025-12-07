@@ -114,6 +114,7 @@ import {
   type OrderListParams
 } from '@/api/order'
 import { useErrorHandler } from '@/composables'
+import { exportToCSV } from '@/utils/export'
 import { STORE_OPTIONS } from '@/constants/options'
 
 // Composables
@@ -267,7 +268,7 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出订单',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中')
+    onClick: handleExport
   }
 ]
 
@@ -555,6 +556,20 @@ onMounted(() => {
   loadOrderList()
   loadStats()
 })
+
+// 导出数据
+function handleExport() {
+  if (orderList.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  const columns = tableColumns
+    .filter(col => col.prop && col.prop !== 'actions')
+    .map(col => ({ key: col.prop, label: col.label }))
+
+  exportToCSV(orderList.value, columns, '订单列表')
+}
 </script>
 
 <style scoped lang="scss">

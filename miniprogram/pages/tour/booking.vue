@@ -76,6 +76,21 @@
         <text class="title-text">联系人信息</text>
       </view>
 
+      <view class="contact-selector">
+        <view class="selector-left">
+          <u-icon name="server-man" size="20" color="#FF9F29"></u-icon>
+          <text class="selector-label">常用联系人</text>
+        </view>
+        <view class="selector-action" @tap="openContactSelector">
+          <text class="action-text">{{ contactDisplayText }}</text>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
+        </view>
+      </view>
+      <view class="contact-helper">
+        <text class="helper-link" @tap="goToContactManage">管理常用联系人</text>
+        <text class="helper-tip">首次手动填写将自动保存</text>
+      </view>
+
       <!-- 姓名 -->
       <view class="form-item">
         <view class="item-label">
@@ -88,6 +103,7 @@
             v-model="bookingForm.contactName"
             placeholder="请输入联系人姓名"
             placeholder-class="input-placeholder"
+            @input="onContactFieldInput"
           />
         </view>
       </view>
@@ -106,6 +122,7 @@
             maxlength="11"
             placeholder="请输入手机号"
             placeholder-class="input-placeholder"
+            @input="onContactFieldInput"
           />
         </view>
       </view>
@@ -123,6 +140,7 @@
             maxlength="18"
             placeholder="请输入身份证号"
             placeholder-class="input-placeholder"
+            @input="onContactFieldInput"
           />
         </view>
       </view>
@@ -179,6 +197,52 @@
       </view>
     </view>
 
+    <!-- 出行保险 -->
+    <view class="selection-section">
+      <view class="section-title selection-title">
+        <text class="title-text">出行保险</text>
+        <text class="title-tip">可按需选择</text>
+      </view>
+      <view class="option-list">
+        <view
+          class="option-card"
+          v-for="(plan, index) in insurancePlans"
+          :key="plan.id"
+          :class="{ active: selectedInsurance === index }"
+          @tap="selectInsurance(index)"
+        >
+          <view class="option-header">
+            <text class="option-name">{{ plan.name }}</text>
+            <text class="option-price">+¥{{ plan.price }}{{ plan.perPerson ? '/人' : '/团' }}</text>
+          </view>
+          <text class="option-desc">{{ plan.description }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 附加服务 -->
+    <view class="selection-section">
+      <view class="section-title selection-title">
+        <text class="title-text">附加服务</text>
+        <text class="title-tip">可选</text>
+      </view>
+      <view class="service-list">
+        <view
+          class="service-card"
+          v-for="(service, index) in additionalServices"
+          :key="service.id"
+          :class="{ active: service.selected }"
+          @tap="toggleService(index)"
+        >
+          <view class="service-header">
+            <text class="service-name">{{ service.name }}</text>
+            <text class="service-price">+¥{{ service.price }}{{ service.perPerson ? '/人' : '/团' }}</text>
+          </view>
+          <text class="service-desc">{{ service.description }}</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 预订须知 -->
     <view class="notice-section">
       <view class="section-title">
@@ -201,6 +265,21 @@
       </view>
     </view>
 
+    <!-- 优惠券 -->
+    <view class="coupon-section" @tap="selectCoupon">
+      <view class="coupon-row">
+        <text class="section-title">优惠券</text>
+        <view class="coupon-value">
+          <text class="coupon-text">{{ selectedCoupon ? selectedCoupon.name : '请选择可用优惠券' }}</text>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
+        </view>
+      </view>
+      <view v-if="selectedCoupon" class="coupon-tip">
+        <text class="savings-text">已减￥{{ couponDiscount }}</text>
+        <text class="coupon-desc">{{ formatCouponValidity(selectedCoupon) }}</text>
+      </view>
+    </view>
+
     <!-- 价格明细 -->
     <view class="price-section">
       <view class="section-title">
@@ -209,25 +288,42 @@
       <view class="price-list">
         <view class="price-item">
           <text class="price-label">成人费用</text>
-          <text class="price-value">¥{{ tourInfo.pricePerPerson }} × {{ bookingForm.adults }}人</text>
+          <text class="price-value">¥{{ tourInfo.pricePerPerson }} x {{ bookingForm.adults }}人</text>
           <text class="price-amount">¥{{ adultFee }}</text>
         </view>
         <view class="price-item" v-if="bookingForm.children > 0">
           <text class="price-label">儿童费用</text>
-          <text class="price-value">¥{{ tourInfo.childPrice }} × {{ bookingForm.children }}人</text>
+          <text class="price-value">¥{{ tourInfo.childPrice }} x {{ bookingForm.children }}人</text>
           <text class="price-amount">¥{{ childFee }}</text>
         </view>
-        <view class="price-item">
-          <text class="price-label">保险费用</text>
-          <text class="price-value">¥{{ insuranceFee }}/人 × {{ totalPeople }}人</text>
+        <view class="price-item" v-if="selectedInsurancePlan">
+          <text class="price-label">保险 - {{ selectedInsurancePlan.name }}</text>
+          <text class="price-value">{{ insurancePriceLabel }}</text>
           <text class="price-amount">¥{{ totalInsuranceFee }}</text>
+        </view>
+        <view class="price-item" v-if="servicesFee > 0">
+          <text class="price-label">附加服务</text>
+          <text class="price-value">{{ servicesPriceLabel }}</text>
+          <text class="price-amount">¥{{ servicesFee }}</text>
+        </view>
+        <view v-if="couponDiscount > 0" class="price-item discount">
+          <text class="price-label">优惠券抵扣</text>
+          <text class="price-amount">-¥{{ couponDiscount }}</text>
         </view>
         <view class="price-item total">
           <text class="price-label">合计</text>
-          <text class="price-amount highlight">¥{{ totalPrice }}</text>
+          <text class="price-amount highlight">¥{{ payablePrice }}</text>
         </view>
       </view>
     </view>
+
+    <u-action-sheet
+      :show="contactSheetVisible"
+      :actions="contactActions"
+      title="选择常用联系人"
+      @select="handleContactSelect"
+      @close="contactSheetVisible = false"
+    ></u-action-sheet>
 
     <!-- 底部操作栏 -->
     <view class="bottom-bar">
@@ -235,10 +331,15 @@
         <text class="bar-label">总计：</text>
         <view class="bar-price">
           <text class="bar-symbol">¥</text>
-          <text class="bar-amount">{{ totalPrice }}</text>
+          <text class="bar-amount">{{ payablePrice }}</text>
         </view>
       </view>
-      <button class="submit-btn" @tap="submitBooking" :disabled="!canSubmit || submitting" :loading="submitting">
+      <button
+        class="submit-btn"
+        :class="{ disabled: !canSubmit || submitting }"
+        @tap="submitBooking"
+        :loading="submitting"
+      >
         提交预订
       </button>
     </view>
@@ -246,18 +347,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { ref, computed, onUnmounted, watch } from 'vue';
+import { onLoad, onShow } from '@dcloudio/uni-app';
+import { storeToRefs } from 'pinia';
 import { createTourBooking, type TourBookingParams, type TourBookingResponse } from '@/api/tour';
+import { requireLogin, isLoggedIn, buildRedirectUrl } from '@/utils/auth';
+import { registerMockOrder } from '@/api/order';
+import { useContactStore } from '@/stores/contact';
 
 // 获取路由参数
 const tourId = ref('');
 const batchId = ref('');
+const pageReady = ref(false);
+const redirectUrl = ref('/pages/tour/booking');
+let cachedRouteParams: Record<string, any> | null = null;
+let couponListenerRegistered = false;
+
+const setupPage = (options: any) => {
+  tourId.value = options?.tourId || '';
+  batchId.value = options?.batchId || '';
+  selectedContactId.value = '';
+  loadBookingData();
+  if (contactList.value.length) {
+    tryPrefillFromContacts();
+  } else {
+    loadContacts();
+  }
+  if (!couponListenerRegistered) {
+    uni.$on('couponSelected', handleCouponSelected);
+    couponListenerRegistered = true;
+  }
+  pageReady.value = true;
+};
+
+const ensureAuth = (options: any) => {
+  redirectUrl.value = buildRedirectUrl('/pages/tour/booking', options || {});
+  if (isLoggedIn()) {
+    return true;
+  }
+  return requireLogin(redirectUrl.value);
+};
 
 onLoad((options: any) => {
-  tourId.value = options.tourId || '';
-  batchId.value = options.batchId || '';
-  loadBookingData();
+  cachedRouteParams = options || {};
+  pageReady.value = false;
+  if (!ensureAuth(cachedRouteParams)) {
+    return;
+  }
+  setupPage(cachedRouteParams);
+});
+
+onShow(() => {
+  if (!pageReady.value && cachedRouteParams && isLoggedIn()) {
+    setupPage(cachedRouteParams);
+  } else if (pageReady.value && isLoggedIn()) {
+    loadContacts();
+  }
 });
 
 // 线路信息
@@ -291,13 +436,70 @@ const bookingForm = ref({
   remark: ''
 });
 
+const contactStore = useContactStore();
+const { contactList } = storeToRefs(contactStore);
+const selectedContactId = ref('');
+const contactSheetVisible = ref(false);
+const contactLoading = ref(false);
+
 const submitting = ref(false);
+const selectedCoupon = ref<any | null>(null);
 
 // 是否同意协议
 const agreed = ref(false);
 
-// 保险费用（每人）
-const insuranceFee = ref(50);
+const insurancePlans = ref([
+  {
+    id: 'basic',
+    name: '基础出行险',
+    price: 50,
+    description: '含旅途意外、延误及医疗保障，适合日常出行',
+    perPerson: true
+  },
+  {
+    id: 'standard',
+    name: '全面尊享险',
+    price: 120,
+    description: '额外覆盖财物损失与航班延误，提供24小时救援',
+    perPerson: true
+  },
+  {
+    id: 'premium',
+    name: '高原无忧险',
+    price: 260,
+    description: '包含高原特别保障与紧急撤离服务，适合川藏长线',
+    perPerson: true
+  }
+]);
+
+const selectedInsurance = ref(0);
+
+const additionalServices = ref([
+  {
+    id: 'camp_dinner',
+    name: '营地围炉晚餐',
+    price: 199,
+    description: '提供川味烧烤、火锅等营地暖心晚餐',
+    perPerson: false,
+    selected: false
+  },
+  {
+    id: 'airport_transfer',
+    name: '机场/酒店接送',
+    price: 299,
+    description: '成都双流机场或市区酒店单程接送至集合地',
+    perPerson: false,
+    selected: false
+  },
+  {
+    id: 'oxygen_pack',
+    name: '高反应急包',
+    price: 80,
+    description: '包含便携氧气瓶、红景天及常用止痛药',
+    perPerson: true,
+    selected: false
+  }
+]);
 
 // 预订须知
 const bookingNotices = ref([
@@ -329,14 +531,75 @@ const childFee = computed(() => {
   return tourInfo.value.childPrice * bookingForm.value.children;
 });
 
-// 总保险费用
+const selectedInsurancePlan = computed(() => {
+  return insurancePlans.value[selectedInsurance.value] || null;
+});
+
 const totalInsuranceFee = computed(() => {
-  return insuranceFee.value * totalPeople.value;
+  const plan = selectedInsurancePlan.value;
+  if (!plan) return 0;
+  return plan.perPerson ? plan.price * totalPeople.value : plan.price;
+});
+
+const insurancePriceLabel = computed(() => {
+  const plan = selectedInsurancePlan.value;
+  if (!plan) return '';
+  return plan.perPerson
+    ? `¥${plan.price}/人 x ${totalPeople.value}人`
+    : `¥${plan.price}/团`;
+});
+
+const servicesFee = computed(() => {
+  return additionalServices.value.reduce((total, service) => {
+    if (!service.selected) {
+      return total;
+    }
+    return total + (service.perPerson ? service.price * totalPeople.value : service.price);
+  }, 0);
+});
+
+const servicesPriceLabel = computed(() => {
+  const selected = additionalServices.value.filter((service) => service.selected);
+  if (!selected.length) {
+    return '未选择';
+  }
+  return selected
+    .map((service) => (service.perPerson ? `${service.name}(${totalPeople.value}人)` : service.name))
+    .join('、');
 });
 
 // 总价格
 const totalPrice = computed(() => {
-  return adultFee.value + childFee.value + totalInsuranceFee.value;
+  return adultFee.value + childFee.value + totalInsuranceFee.value + servicesFee.value;
+});
+
+const couponDiscount = computed(() => {
+  if (!selectedCoupon.value) return 0;
+  const baseAmount = totalPrice.value;
+  if (baseAmount <= 0) return 0;
+  const coupon = selectedCoupon.value;
+
+  if (typeof coupon.amount === 'number') {
+    return Math.min(coupon.amount, baseAmount);
+  }
+  if (typeof coupon.discount === 'number') {
+    return Math.min(coupon.discount, baseAmount);
+  }
+  if (typeof coupon.discountRate === 'number') {
+    const rate = coupon.discountRate;
+    let discountValue = 0;
+    if (rate > 0 && rate < 1) {
+      discountValue = baseAmount * (1 - rate);
+    } else if (rate > 1 && rate < 10) {
+      discountValue = baseAmount * (1 - rate / 10);
+    }
+    return Math.max(Math.min(Number(discountValue.toFixed(2)), baseAmount), 0);
+  }
+  return 0;
+});
+
+const payablePrice = computed(() => {
+  return Math.max(totalPrice.value - couponDiscount.value, 0);
 });
 
 // 是否可以提交
@@ -351,6 +614,115 @@ const canSubmit = computed(() => {
     /^1[3-9]\d{9}$/.test(bookingForm.value.emergencyPhone) &&
     agreed.value
   );
+});
+
+const contactActions = computed(() => {
+  return contactList.value.map((item: any) => ({
+    name: item.name || '未命名联系人',
+    subname: item.phone || '暂无手机号',
+    id: item.id
+  }));
+});
+
+const formatPhone = (phone?: string) => {
+  if (!phone) return '无手机号';
+  return phone.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+};
+
+const contactDisplayText = computed(() => {
+  if (contactLoading.value) {
+    return '联系人加载中...';
+  }
+  if (selectedContactId.value) {
+    const target = contactList.value.find((item: any) => item.id === selectedContactId.value);
+    if (target) {
+      return `${target.name || '联系人'} · ${formatPhone(target.phone)}`;
+    }
+  }
+  if (bookingForm.value.contactName || bookingForm.value.contactPhone) {
+    return '使用自定义信息';
+  }
+  return contactList.value.length > 0 ? '请选择联系人' : '暂无联系人';
+});
+
+const applyContactToForm = (contact: any) => {
+  if (!contact) return;
+  bookingForm.value.contactName = contact.name || '';
+  bookingForm.value.contactPhone = contact.phone || '';
+  bookingForm.value.idCard = contact.idCard || '';
+  selectedContactId.value = contact.id || '';
+};
+
+const tryPrefillFromContacts = () => {
+  if (
+    selectedContactId.value ||
+    bookingForm.value.contactName ||
+    bookingForm.value.contactPhone ||
+    !contactList.value.length
+  ) {
+    return;
+  }
+  const defaultContact = contactList.value.find((item: any) => item.isDefault) || contactList.value[0];
+  if (defaultContact) {
+    applyContactToForm(defaultContact);
+  }
+};
+
+const loadContacts = async () => {
+  contactLoading.value = true;
+  try {
+    await contactStore.fetchContacts();
+    tryPrefillFromContacts();
+  } catch (error) {
+    console.error('加载联系人失败:', error);
+  } finally {
+    contactLoading.value = false;
+  }
+};
+
+const openContactSelector = () => {
+  if (contactLoading.value) {
+    return;
+  }
+  if (!contactList.value.length) {
+    uni.showModal({
+      title: '提示',
+      content: '暂无常用联系人，是否前往管理页面添加？',
+      confirmText: '去添加',
+      cancelText: '稍后再说',
+      success: (res) => {
+        if (res.confirm) {
+          goToContactManage();
+        }
+      }
+    });
+    return;
+  }
+  contactSheetVisible.value = true;
+};
+
+const handleContactSelect = (action: any) => {
+  const selected = contactList.value.find((item: any) => item.id === action.id);
+  if (selected) {
+    applyContactToForm(selected);
+  }
+  contactSheetVisible.value = false;
+};
+
+const goToContactManage = () => {
+  uni.navigateTo({
+    url: '/pages/profile/contacts'
+  });
+};
+
+const onContactFieldInput = () => {
+  if (selectedContactId.value) {
+    selectedContactId.value = '';
+  }
+};
+
+watch(contactList, () => {
+  tryPrefillFromContacts();
 });
 
 // 加载预订数据
@@ -424,6 +796,150 @@ const decreaseChildren = () => {
   }
 };
 
+onUnmounted(() => {
+  if (couponListenerRegistered) {
+    uni.$off('couponSelected', handleCouponSelected);
+    couponListenerRegistered = false;
+  }
+});
+
+const selectInsurance = (index: number) => {
+  if (index < 0 || index >= insurancePlans.value.length) {
+    return;
+  }
+  selectedInsurance.value = index;
+};
+
+const toggleService = (index: number) => {
+  if (index < 0 || index >= additionalServices.value.length) {
+    return;
+  }
+  additionalServices.value[index].selected = !additionalServices.value[index].selected;
+};
+
+const selectCoupon = () => {
+  if (totalPrice.value <= 0) {
+    uni.showToast({
+      title: '请先完善预订信息',
+      icon: 'none'
+    });
+    return;
+  }
+
+  uni.navigateTo({
+    url: `/pages/order/select-coupon?amount=${totalPrice.value}&selectedId=${selectedCoupon.value?.id || ''}&productType=tour`
+  });
+};
+
+const formatCouponValidity = (coupon: any) => {
+  if (!coupon) return '';
+  const end = coupon.validTo || coupon.validEnd;
+  if (end) {
+    const date = new Date(end);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `有效期至 ${year}.${month}.${day}`;
+  }
+  if (coupon.description) {
+    return coupon.description;
+  }
+  return '已选择优惠券';
+};
+
+const handleCouponSelected = (coupon: any) => {
+  selectedCoupon.value = coupon || null;
+};
+
+const buildISODateTime = (dateStr?: string, hour: number = 9) => {
+  if (!dateStr) {
+    return new Date().toISOString();
+  }
+  const date = new Date(`${dateStr}T00:00:00`);
+  date.setHours(hour, 0, 0, 0);
+  return date.toISOString();
+};
+
+const cacheTourOrder = (bookingResult: TourBookingResponse) => {
+  const departureISO = buildISODateTime(batchInfo.value.departureDate, 9);
+  const returnDate = new Date(departureISO);
+  if (tourInfo.value.duration > 0) {
+    returnDate.setDate(returnDate.getDate() + tourInfo.value.duration - 1);
+  }
+
+  registerMockOrder({
+    id: bookingResult.orderId,
+    orderNo: bookingResult.orderNo,
+    statusId: 1,
+    status: { code: 'pending_payment', name: '待支付' },
+    orderType: 'tour',
+    pickupTime: departureISO,
+    returnTime: returnDate.toISOString(),
+    pickupStore: {
+      name: '集合地点',
+      address: '具体集合地点以出行通知为准'
+    },
+    returnStore: {
+      name: '行程结束',
+      address: '具体地点以出行通知为准'
+    },
+    totalAmount: payablePrice.value,
+    actualAmount: payablePrice.value,
+    passengers: totalPeople.value,
+    pickupContactName: bookingForm.value.contactName,
+    pickupContactPhone: bookingForm.value.contactPhone,
+    vehicle: {
+      id: tourInfo.value.id,
+      name: tourInfo.value.title,
+      brand: '旅游线路',
+      model: `${tourInfo.value.duration}日游`,
+      plateNumber: '线路',
+      images: tourInfo.value.images || ['/static/logo.png'],
+      features: [
+        `成团人数 ${tourInfo.value.minPeople}-${tourInfo.value.maxPeople}`,
+        `成人 ¥${tourInfo.value.pricePerPerson}`,
+        `儿童 ¥${tourInfo.value.childPrice}`,
+        `出行保险：${selectedInsurancePlan.value?.name || '未选择'}`
+      ].concat(
+        servicesPriceLabel.value !== '未选择' ? [`附加服务：${servicesPriceLabel.value}`] : []
+      )
+    }
+  });
+};
+
+const navigateToPayPage = (orderNo: string, amount: number) => {
+  const payUrl = `/pages/order/pay?orderNo=${orderNo}&amount=${amount}`;
+  const openPayPage = () => {
+    uni.navigateTo({
+      url: payUrl,
+      fail: navError => {
+        console.error('收银台 navigateTo 失败:', navError);
+        uni.redirectTo({
+          url: payUrl,
+          fail: redirectError => {
+            console.error('收银台 redirectTo 失败:', redirectError);
+            uni.showToast({
+              title: '跳转支付页面失败，请前往订单列表完成支付',
+              icon: 'none'
+            });
+            uni.reLaunch({
+              url: '/pages/order/list'
+            });
+          }
+        });
+      }
+    });
+  };
+
+  uni.showToast({
+    title: '订单已创建，正在跳转支付',
+    icon: 'none',
+    duration: 1500
+  });
+
+  openPayPage();
+};
+
 // 协议变化
 const onAgreementChange = (e: any) => {
   agreed.value = e.detail.value.includes('agree');
@@ -440,38 +956,89 @@ const viewAgreement = () => {
 
 // 提交预订
 const submitBooking = async () => {
-  if (!canSubmit.value) {
-    uni.showToast({
-      title: '请完善预订信息',
-      icon: 'none'
-    });
+  if (!isLoggedIn()) {
+    requireLogin(redirectUrl.value);
     return;
   }
+
+  if (!canSubmit.value || submitting.value) {
+    if (!canSubmit.value) {
+      uni.showToast({
+        title: '请完善预订信息',
+        icon: 'none'
+      });
+    }
+    return;
+  }
+
+  submitting.value = true;
 
   try {
     uni.showLoading({ title: '提交中...' });
 
-    // Mock提交
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const payload: TourBookingParams = {
+      tourId: tourInfo.value.id || tourId.value,
+      batchId: batchInfo.value.id || batchId.value,
+      adults: bookingForm.value.adults,
+      children: bookingForm.value.children,
+      contactName: bookingForm.value.contactName.trim(),
+      contactPhone: bookingForm.value.contactPhone,
+      idCard: bookingForm.value.idCard,
+      emergencyContact: bookingForm.value.emergencyContact.trim(),
+      emergencyPhone: bookingForm.value.emergencyPhone,
+      remark: bookingForm.value.remark?.trim() || '',
+      couponId: selectedCoupon.value?.id,
+      insurancePlanId: selectedInsurancePlan.value?.id,
+      insurancePlanName: selectedInsurancePlan.value?.name,
+      additionalServices: additionalServices.value
+        .filter((service) => service.selected)
+        .map((service) => ({
+          id: service.id,
+          name: service.name,
+          quantity: service.perPerson ? totalPeople.value : 1,
+          perPerson: service.perPerson,
+          price: service.price
+        }))
+    };
+
+    let bookingResult: TourBookingResponse | null = null;
+
+    try {
+      const response = await createTourBooking(payload);
+      if (response.code === 0 && response.data) {
+        bookingResult = response.data;
+        cacheTourOrder(bookingResult);
+      } else {
+        throw new Error(response.message || '预订失败');
+      }
+    } catch (apiError) {
+      console.warn('创建旅游预订接口暂不可用，使用Mock数据回退', apiError);
+      const now = Date.now();
+      bookingResult = {
+        orderId: `mock-${now}`,
+        orderNo: `TR${now}`,
+        status: 'PENDING_PAYMENT',
+        totalPrice: payablePrice.value,
+        paymentDeadline: new Date(now + 15 * 60 * 1000).toISOString()
+      };
+      cacheTourOrder(bookingResult);
+    }
+
+    if (!bookingResult) {
+      throw new Error('未获取到有效的订单信息');
+    }
 
     uni.hideLoading();
-    uni.showModal({
-      title: '预订成功',
-      content: `您已成功预订${bookingForm.value.adults + bookingForm.value.children}个名额，请前往订单页面查看详情并完成支付`,
-      showCancel: false,
-      success: () => {
-        uni.navigateBack({ delta: 2 });
-      }
-    });
-
+    navigateToPayPage(bookingResult.orderNo, bookingResult.totalPrice);
   } catch (error) {
     console.error('提交预订失败:', error);
+    uni.hideLoading();
     uni.showToast({
       title: '提交失败，请重试',
       icon: 'none'
     });
   } finally {
-    uni.hideLoading();
+    submitting.value = false;
   }
 };
 </script>
@@ -673,6 +1240,120 @@ const submitBooking = async () => {
   }
 }
 
+.contact-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #F0F0F0;
+
+  .selector-left {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+
+    .selector-label {
+      font-size: 28rpx;
+      color: #333;
+      font-weight: 500;
+    }
+  }
+
+  .selector-action {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    font-size: 26rpx;
+    color: #666;
+  }
+}
+
+.contact-helper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16rpx 0 8rpx;
+  font-size: 24rpx;
+  color: #999;
+
+  .helper-link {
+    color: #FF9F29;
+  }
+}
+
+.selection-section {
+  background-color: #FFFFFF;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+
+  .selection-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24rpx;
+
+    .title-text {
+      font-size: 32rpx;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .title-tip {
+      font-size: 24rpx;
+      color: #999;
+    }
+  }
+}
+
+.option-list,
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.option-card,
+.service-card {
+  border: 2rpx solid #F0F0F0;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  background-color: #FFF;
+  transition: all 0.2s;
+
+  &.active {
+    border-color: #FF9F29;
+    background-color: rgba(255, 159, 41, 0.08);
+  }
+}
+
+.option-header,
+.service-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+
+  .option-name,
+  .service-name {
+    font-size: 28rpx;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .option-price,
+  .service-price {
+    font-size: 26rpx;
+    color: #FF9F29;
+  }
+}
+
+.option-desc,
+.service-desc {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
 // 预订须知
 .notice-section {
   background-color: #FFFFFF;
@@ -804,6 +1485,58 @@ const submitBooking = async () => {
           font-weight: 700;
         }
       }
+
+      &.discount {
+        .price-label,
+        .price-amount {
+          color: #52C41A;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// 优惠券区域
+.coupon-section {
+  background-color: #FFFFFF;
+  padding: 32rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+
+  .coupon-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .coupon-value {
+      display: flex;
+      align-items: center;
+      gap: 8rpx;
+
+      .coupon-text {
+        font-size: 26rpx;
+        color: #333;
+      }
+    }
+  }
+
+  .coupon-tip {
+    display: flex;
+    flex-direction: column;
+    gap: 6rpx;
+
+    .savings-text {
+      font-size: 26rpx;
+      color: #52C41A;
+      font-weight: 500;
+    }
+
+    .coupon-desc {
+      font-size: 24rpx;
+      color: #999;
     }
   }
 }
@@ -865,7 +1598,7 @@ const submitBooking = async () => {
       border: none;
     }
 
-    &:disabled {
+    &.disabled {
       background: #E0E0E0;
       color: #999;
     }

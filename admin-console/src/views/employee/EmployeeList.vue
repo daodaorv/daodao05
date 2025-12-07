@@ -28,7 +28,7 @@
           </el-avatar>
           <div class="employee-detail">
             <div class="name">{{ row.realName }}</div>
-            <div class="job-number">工号：{{ row.jobNumber }}</div>
+            <div class="job-number">工号:{{ row.jobNumber }}</div>
           </div>
         </div>
       </template>
@@ -37,6 +37,26 @@
         <el-tag :type="(getRoleTypeTag(row.role)) as any" size="small">
           {{ row.role }}
         </el-tag>
+      </template>
+
+      <template #loginPlatforms="{ row }">
+        <div class="login-platforms">
+          <el-tag
+            v-if="row.loginPlatforms.includes('pc')"
+            type="primary"
+            size="small"
+            style="margin-right: 4px"
+          >
+            PC端
+          </el-tag>
+          <el-tag
+            v-if="row.loginPlatforms.includes('mobile')"
+            type="success"
+            size="small"
+          >
+            移动端
+          </el-tag>
+        </div>
       </template>
 
       <template #status="{ row }">
@@ -70,7 +90,6 @@
       v-model="dialogVisible"
       :title="dialogTitle"
       :fields="formFields"
-// @ts-ignore
       :form-data="formData"
       :rules="formRules"
       :loading="submitLoading"
@@ -89,7 +108,7 @@
     >
       <template #header>
         <div style="margin-bottom: 16px;">
-          <strong>员工：</strong>{{ currentEmployee?.realName }} ({{ currentEmployee?.jobNumber }})
+          <strong>员工:</strong>{{ currentEmployee?.realName }} ({{ currentEmployee?.jobNumber }})
         </div>
       </template>
     </FormDialog>
@@ -111,6 +130,7 @@ import type { TableColumn, TableAction, ToolbarButton } from '@/components/commo
 import type { FormField } from '@/components/common/FormDialog.vue'
 import { useErrorHandler } from '@/composables'
 import { VEHICLE_STATUS_OPTIONS } from '@/constants'
+import { exportToCSV, downloadImportTemplate } from '@/utils/export'
 
 const router = useRouter()
 
@@ -131,9 +151,10 @@ interface Employee {
   status: 'active' | 'inactive'
   avatar: string
   joinDate: string
+  loginPlatforms: ('pc' | 'mobile')[]
 }
 
-// Mock 数据（实际应该从 API 获取）
+// Mock 数据(实际应该从 API 获取)
 const list = ref<Employee[]>([
   {
     id: 1,
@@ -148,6 +169,7 @@ const list = ref<Employee[]>([
     status: 'active',
     avatar: '',
     joinDate: '2024-01-15',
+    loginPlatforms: ['pc', 'mobile'],
   },
   {
     id: 2,
@@ -162,6 +184,7 @@ const list = ref<Employee[]>([
     status: 'active',
     avatar: '',
     joinDate: '2024-02-10',
+    loginPlatforms: ['pc', 'mobile'],
   },
   {
     id: 3,
@@ -176,6 +199,7 @@ const list = ref<Employee[]>([
     status: 'active',
     avatar: '',
     joinDate: '2024-03-05',
+    loginPlatforms: ['mobile'],
   },
 ])
 
@@ -209,6 +233,12 @@ const ROLE_OPTIONS = [
   { label: '区域经理', value: 2 },
   { label: '门店经理', value: 3 },
   { label: '门店员工', value: 4 },
+]
+
+// 登录平台选项
+const LOGIN_PLATFORM_OPTIONS = [
+  { label: 'PC管理端', value: 'pc' },
+  { label: '移动管理端', value: 'mobile' },
 ]
 
 // 搜索字段配置
@@ -253,6 +283,7 @@ const tableColumns: TableColumn[] = [
   { prop: 'phone', label: '手机号', width: 130 },
   { prop: 'email', label: '邮箱', width: 180, showOverflowTooltip: true },
   { prop: 'role', label: '角色', width: 120, slot: 'role' },
+  { prop: 'loginPlatforms', label: '可登录平台', width: 150, slot: 'loginPlatforms' },
   { prop: 'storeName', label: '所属门店', width: 150 },
   { prop: 'department', label: '部门', width: 120 },
   { prop: 'status', label: '状态', width: 100, slot: 'status' },
@@ -270,12 +301,12 @@ const toolbarButtons: ToolbarButton[] = [
   {
     label: '导出',
     icon: Download,
-    onClick: () => ElMessage.info('导出功能开发中'),
+    onClick: handleExport,
   },
   {
     label: '导入',
     icon: Upload,
-    onClick: () => ElMessage.info('导入功能开发中'),
+    onClick: handleImport,
   },
 ]
 
@@ -297,6 +328,7 @@ const formData = reactive({
   storeId: null as number | null,
   department: '',
   joinDate: '',
+  loginPlatforms: [] as ('pc' | 'mobile')[],
   status: 'active' as Employee['status'],
 })
 
@@ -387,6 +419,12 @@ const formFields: FormField[] = [
       },
     ],
   },
+  {
+    prop: 'loginPlatforms',
+    label: '可登录平台',
+    type: 'checkbox',
+    options: LOGIN_PLATFORM_OPTIONS,
+  },
 ]
 
 const formRules = {
@@ -406,6 +444,9 @@ const formRules = {
   ],
   storeId: [
     { required: true, message: '请选择所属门店', trigger: 'change' },
+  ],
+  loginPlatforms: [
+    { required: true, message: '请选择至少一个登录平台', trigger: 'change', type: 'array', min: 1 },
   ],
 }
 
@@ -457,6 +498,7 @@ function handleCreate() {
     storeId: null,
     department: '',
     joinDate: '',
+    loginPlatforms: [],
     status: 'active',
   })
   dialogVisible.value = true
@@ -480,6 +522,7 @@ function handleEdit(row: Employee) {
     storeId: row.storeId,
     department: row.department,
     joinDate: row.joinDate,
+    loginPlatforms: [...row.loginPlatforms],
     status: row.status,
   })
   dialogVisible.value = true
@@ -497,7 +540,7 @@ async function handleStatusChange(row: Employee) {
   const action = row.status === 'active' ? '离职' : '复职'
   try {
     await ElMessageBox.confirm(
-      `确定要将员工 "${row.realName}" 设置为${action}状态吗？`,
+      `确定要将员工 "${row.realName}" 设置为${action}状态吗?`,
       `${action}确认`,
       {
         confirmButtonText: '确定',
@@ -530,6 +573,7 @@ async function handleSubmit() {
           storeId: formData.storeId!,
           department: formData.department,
           joinDate: formData.joinDate,
+          loginPlatforms: [...formData.loginPlatforms],
           status: formData.status,
         }
       }
@@ -548,6 +592,7 @@ async function handleSubmit() {
         status: formData.status,
         avatar: '',
         joinDate: formData.joinDate,
+        loginPlatforms: [...formData.loginPlatforms],
       }
       list.value.push(newEmployee)
       pagination.total++
@@ -588,6 +633,76 @@ function handleCurrentChange(page: number) {
   pagination.page = page
 }
 
+// 导出员工列表
+function handleExport() {
+  if (list.value.length === 0) {
+    ElMessage.warning('暂无数据可导出')
+    return
+  }
+
+  // 定义导出列
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'realName', label: '真实姓名' },
+    { key: 'jobNumber', label: '工号' },
+    { key: 'phone', label: '手机号' },
+    { key: 'email', label: '邮箱' },
+    { key: 'role', label: '角色' },
+    { key: 'loginPlatforms', label: '可登录平台' },
+    { key: 'storeName', label: '所属门店' },
+    { key: 'department', label: '部门' },
+    { key: 'status', label: '状态' },
+    { key: 'joinDate', label: '入职日期' }
+  ]
+
+  // 处理数据
+  const exportData = list.value.map(emp => ({
+    ...emp,
+    loginPlatforms: emp.loginPlatforms.map(p => p === 'pc' ? 'PC端' : '移动端').join('、'),
+    status: emp.status === 'active' ? '在职' : '离职'
+  }))
+
+  // 导出
+  exportToCSV(exportData, columns, '员工列表')
+}
+
+// 导入员工
+function handleImport() {
+  // 下载导入模板
+  const columns = [
+    { key: 'realName', label: '真实姓名' },
+    { key: 'jobNumber', label: '工号' },
+    { key: 'phone', label: '手机号' },
+    { key: 'email', label: '邮箱' },
+    { key: 'department', label: '部门' },
+    { key: 'joinDate', label: '入职日期' },
+    { key: 'loginPlatforms', label: '可登录平台(pc/mobile,多个用逗号分隔)' }
+  ]
+
+  const sampleData = [
+    {
+      realName: '张三',
+      jobNumber: 'EMP001',
+      phone: '13800138000',
+      email: 'zhangsan@daodao.com',
+      department: '技术部',
+      joinDate: '2024-01-15',
+      loginPlatforms: 'pc,mobile'
+    },
+    {
+      realName: '李四',
+      jobNumber: 'EMP002',
+      phone: '13800138001',
+      email: 'lisi@daodao.com',
+      department: '运营部',
+      joinDate: '2024-02-01',
+      loginPlatforms: 'mobile'
+    }
+  ]
+
+  downloadImportTemplate(columns, '员工导入', sampleData)
+}
+
 // 获取角色类型标签
 function getRoleTypeTag(role: string) {
   const typeMap: Record<string, string> = {
@@ -620,6 +735,13 @@ function getRoleTypeTag(role: string) {
         color: #909399;
       }
     }
+  }
+
+  .login-platforms {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 }
 </style>

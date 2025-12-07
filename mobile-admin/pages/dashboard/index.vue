@@ -63,12 +63,9 @@
       </view>
 
       <view class="todo-list">
-        <u-card
+        <view
           v-for="todo in todoList"
           :key="todo.id"
-          :padding="24"
-          :margin="0"
-          :border-radius="12"
           class="todo-card"
           :class="'priority-' + todo.priority"
         >
@@ -91,7 +88,7 @@
               @click="handleTodo(todo)"
             />
           </view>
-        </u-card>
+        </view>
 
         <u-empty
           v-if="todoList.length === 0"
@@ -175,7 +172,7 @@ export default {
         // 边界检查：确保返回的数据是数组
         const todoList = Array.isArray(todoData?.list) ? todoData.list : []
         this.todoList = todoList.slice(0, 3)
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           logger.error('Dashboard', '加载数据失败:', error.message)
         } else {
@@ -369,6 +366,8 @@ export default {
 .todo-card {
   background: #f8f8f8;
   border-left: 6rpx solid #3cc51f;
+  border-radius: 12rpx;
+  padding: 24rpx;
   margin-bottom: 20rpx;
 }
 

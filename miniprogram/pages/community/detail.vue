@@ -337,7 +337,7 @@ onMounted(() => {
 }
 
 .header-section {
-	padding: 20rpx 32rpx;
+	padding: 20rpx $uni-spacing-lg;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -366,7 +366,7 @@ onMounted(() => {
 .author-name {
 	font-size: 30rpx;
 	font-weight: 600;
-	color: #333;
+	color: $uni-text-color;
 	margin-bottom: 4rpx;
 }
 
@@ -374,11 +374,11 @@ onMounted(() => {
 	display: flex;
 	align-items: center;
 	font-size: 24rpx;
-	color: #999;
+	color: $uni-text-color-placeholder;
 }
 
 .separator {
-	margin: 0 8rpx;
+	margin: 0 $uni-spacing-xs;
 }
 
 .follow-btn {
@@ -386,16 +386,17 @@ onMounted(() => {
 	border-radius: 30rpx;
 	font-size: 26rpx;
 	font-weight: 500;
-	background-color: #FF9F29;
+	background-color: $uni-color-primary;
 	color: #FFF;
 	line-height: 1.2;
-	
+	transition: all 0.2s ease;
+
 	&.following {
 		background-color: #F5F5F5;
-		color: #999;
+		color: $uni-text-color-placeholder;
 		border: 1rpx solid #EEE;
 	}
-	
+
 	&::after { border: none; }
 }
 
@@ -416,57 +417,57 @@ onMounted(() => {
 }
 
 .content-container {
-	padding: 32rpx;
+	padding: $uni-spacing-lg;
 }
 
 .title {
 	font-size: 40rpx;
 	font-weight: bold;
-	color: #333;
+	color: $uni-text-color;
 	line-height: 1.4;
-	margin-bottom: 24rpx;
+	margin-bottom: $uni-spacing-md;
 	display: block;
 }
 
 .article-content {
-	margin-bottom: 32rpx;
+	margin-bottom: $uni-spacing-lg;
 }
 
 .tags-row {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16rpx;
-	margin-bottom: 24rpx;
+	gap: $uni-spacing-md;
+	margin-bottom: $uni-spacing-md;
 }
 
 .tag-chip {
 	font-size: 26rpx;
 	color: #576B95;
 	background-color: #F2F5FF;
-	padding: 8rpx 20rpx;
-	border-radius: 8rpx;
+	padding: $uni-spacing-xs 20rpx;
+	border-radius: $uni-radius-xs;
 }
 
 .stats-row {
 	font-size: 24rpx;
-	color: #999;
-	margin-top: 32rpx;
-	padding-bottom: 32rpx;
+	color: $uni-text-color-placeholder;
+	margin-top: $uni-spacing-lg;
+	padding-bottom: $uni-spacing-lg;
 	border-bottom: 1rpx solid #F5F5F5;
 }
 
 .comments-section {
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
 }
 
 .section-header {
-	padding: 32rpx 0;
+	padding: $uni-spacing-lg 0;
 }
 
 .section-title {
 	font-size: 30rpx;
 	font-weight: 600;
-	color: #333;
+	color: $uni-text-color;
 }
 
 .comment-item {
@@ -490,12 +491,12 @@ onMounted(() => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 8rpx;
+	margin-bottom: $uni-spacing-xs;
 }
 
 .username {
 	font-size: 26rpx;
-	color: #666;
+	color: $uni-text-color-secondary;
 	font-weight: 500;
 }
 
@@ -503,26 +504,26 @@ onMounted(() => {
 	display: flex;
 	align-items: center;
 	gap: 4rpx;
-	
+
 	.count {
 		font-size: 24rpx;
-		color: #999;
+		color: $uni-text-color-placeholder;
 	}
 }
 
 .comment-content {
 	font-size: 28rpx;
-	color: #333;
+	color: $uni-text-color;
 	line-height: 1.6;
 	display: block;
-	margin-bottom: 12rpx;
+	margin-bottom: $uni-spacing-sm;
 }
 
 .comment-footer {
 	display: flex;
 	align-items: center;
-	gap: 24rpx;
-	margin-bottom: 16rpx;
+	gap: $uni-spacing-md;
+	margin-bottom: $uni-spacing-md;
 }
 
 .time {
@@ -538,32 +539,32 @@ onMounted(() => {
 
 .sub-comments {
 	background-color: #F9F9F9;
-	padding: 16rpx;
-	border-radius: 8rpx;
+	padding: $uni-spacing-md;
+	border-radius: $uni-radius-xs;
 }
 
 .sub-comment-item {
 	font-size: 26rpx;
 	line-height: 1.6;
-	margin-bottom: 8rpx;
-	
+	margin-bottom: $uni-spacing-xs;
+
 	&:last-child { margin-bottom: 0; }
 }
 
 .sub-user {
-	color: #666;
+	color: $uni-text-color-secondary;
 	font-weight: 500;
 }
 
 .reply-arrow {
-	color: #999;
+	color: $uni-text-color-placeholder;
 	margin: 0 4rpx;
 }
 
 .empty-state {
 	padding: 60rpx 0;
 	text-align: center;
-	color: #999;
+	color: $uni-text-color-placeholder;
 	font-size: 26rpx;
 }
 
@@ -577,7 +578,7 @@ onMounted(() => {
 	border-top: 1rpx solid #F0F0F0;
 	display: flex;
 	align-items: center;
-	padding: 0 32rpx;
+	padding: 0 $uni-spacing-lg;
 	z-index: 100;
 	padding-bottom: env(safe-area-inset-bottom);
 }
@@ -589,13 +590,13 @@ onMounted(() => {
 	border-radius: 36rpx;
 	display: flex;
 	align-items: center;
-	padding: 0 24rpx;
-	margin-right: 32rpx;
-	
+	padding: 0 $uni-spacing-md;
+	margin-right: $uni-spacing-lg;
+
 	.placeholder {
 		font-size: 28rpx;
-		color: #999;
-		margin-left: 12rpx;
+		color: $uni-text-color-placeholder;
+		margin-left: $uni-spacing-sm;
 	}
 }
 
@@ -610,13 +611,13 @@ onMounted(() => {
 	flex-direction: column;
 	align-items: center;
 	position: relative;
-	
+
 	.count {
 		position: absolute;
 		top: -8rpx;
 		right: -10rpx;
 		font-size: 20rpx;
-		color: #666;
+		color: $uni-text-color-secondary;
 		background-color: #FFF;
 		padding: 0 4rpx;
 	}
@@ -637,16 +638,16 @@ onMounted(() => {
 
 .input-panel {
 	background-color: #FFF;
-	padding: 32rpx;
-	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-	border-radius: 24rpx 24rpx 0 0;
+	padding: $uni-spacing-lg;
+	padding-bottom: calc($uni-spacing-lg + env(safe-area-inset-bottom));
+	border-radius: $uni-radius-lg $uni-radius-lg 0 0;
 }
 
 .comment-textarea {
 	width: 100%;
 	height: 200rpx;
 	background-color: #F5F5F5;
-	border-radius: 12rpx;
+	border-radius: $uni-radius-sm;
 	padding: 20rpx;
 	font-size: 28rpx;
 	margin-bottom: 20rpx;
@@ -658,7 +659,7 @@ onMounted(() => {
 }
 
 .send-btn {
-	background-color: #FF9F29;
+	background-color: $uni-color-primary;
 	color: #FFF;
 	font-size: 28rpx;
 	padding: 0 40rpx;
@@ -666,5 +667,13 @@ onMounted(() => {
 	line-height: 64rpx;
 	border-radius: 32rpx;
 	margin: 0;
+	transition: all 0.2s ease;
+
+	&:active {
+		opacity: 0.8;
+		transform: scale(0.98);
+	}
+
+	&::after { border: none; }
 }
 </style>

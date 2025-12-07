@@ -172,7 +172,7 @@ export default {
 
         // 更新状态计数
         this.updateStatusCount()
-      } catch (error: unknown) {
+      } catch (error) {
         if (error instanceof Error) {
           logger.error('Order', '加载订单失败:', error.message)
         } else {
@@ -270,7 +270,7 @@ export default {
                 icon: 'success'
               })
               this.loadOrders()
-            } catch (error: unknown) {
+            } catch (error) {
               if (error instanceof Error) {
                 logger.error('Order', '确认订单失败:', error.message)
               } else {
@@ -307,7 +307,7 @@ export default {
                 icon: 'success'
               })
               this.loadOrders()
-            } catch (error: unknown) {
+            } catch (error) {
               if (error instanceof Error) {
                 logger.error('Order', '取消订单失败:', error.message)
               } else {

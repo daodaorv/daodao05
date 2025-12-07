@@ -1,68 +1,81 @@
 <template>
 	<view class="index-page">
-		<!-- 自定义导航栏 -->
-		<view class="custom-navbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+		<!-- 沉浸式导航栏 (Fixed) -->
+		<view class="navbar-fixed" :style="{ paddingTop: statusBarHeight + 'px', background: navbarBackground }">
 			<view class="navbar-content">
-				<text class="navbar-title">叨叨房车</text>
+				<text class="navbar-title" :style="{ color: navbarColor }">叨叨房车</text>
 				<view class="navbar-actions">
-					<u-icon name="bell" size="24" color="#333"></u-icon>
+					<u-icon name="bell" size="24" :color="navbarColor"></u-icon>
 				</view>
 			</view>
 		</view>
 
-		<!-- 公告轮播 -->
-		<NoticeBanner :notices="notices" @click="handleNoticeClick" />
-
-		<!-- 轮播图 -->
-		<view class="banner-swiper">
+		<!-- 沉浸式 Hero 区域 (包含轮播) -->
+		<view class="hero-section">
 			<u-swiper
 				:list="banners"
 				keyName="photo"
 				:autoplay="true"
 				:circular="true"
-				radius="16"
-				height="340"
+				height="480"
+				:radius="0"
+				bgColor="#F8F9FC"
 				indicator
-				indicatorMode="line"
+				indicatorMode="dot"
 				indicatorActiveColor="#FF9F29"
+				indicatorInactiveColor="rgba(255,255,255,0.5)"
 			></u-swiper>
+			<!-- 底部遮罩，平滑过渡到页面背景 -->
+			<view class="hero-mask"></view>
 		</view>
 
-		<!-- 预订表单 -->
-		<view class="booking-section">
-			<BookingForm ref="bookingFormRef" @search="handleSearch" @open-date-picker="handleOpenDatePicker" />
-		</view>
-
-		<!-- 服务入口 -->
-		<ServiceGrid />
-
-		<!-- 推广卡片 -->
-		<view class="promo-cards">
-			<view class="promo-card" @tap="navigateTo('/pages/coupon-mall/index')">
-				<view class="promo-content">
-					<text class="promo-title">特惠商城</text>
-					<text class="promo-desc">特惠套餐</text>
-				</view>
-				<u-icon name="gift-fill" size="40" color="#FF9F29"></u-icon>
+		<!-- 主要内容容器 (负 margin 实现悬浮堆叠) -->
+		<view class="content-container">
+			
+			<!-- 悬浮预订表单 -->
+			<view class="floating-form-wrapper">
+				<BookingForm ref="bookingFormRef" @search="handleSearch" @open-date-picker="handleOpenDatePicker" />
 			</view>
-			<view class="promo-card" @tap="navigateTo('/pages/membership/index')">
-				<view class="promo-content">
-					<text class="promo-title">PLUS会员</text>
-					<text class="promo-desc">专属权益</text>
-				</view>
-				<u-icon name="level" size="40" color="#FF9F29"></u-icon>
-			</view>
-		</view>
 
-		<!-- 社区内容列表 -->
-		<view class="content-section">
-			<view class="section-title">
-				<text class="title-text">社区精选</text>
-				<view class="more-link" @tap="uni.switchTab({ url: '/pages/community/index' })">
-					<text class="more-text">更多</text>
-					<u-icon name="arrow-right" size="14" color="#999"></u-icon>
+			<!-- 公告栏 (移到表单下方) -->
+			<view class="notice-wrapper">
+				<NoticeBanner :notices="notices" @click="handleNoticeClick" />
+			</view>
+
+			<!-- 金刚区服务 -->
+			<ServiceGrid />
+
+			<!-- 推广卡片 -->
+			<view class="promo-cards">
+				<view class="promo-card" @tap="navigateTo('/pages/coupon-mall/index')">
+					<view class="promo-content">
+						<text class="promo-title">特惠商城</text>
+						<text class="promo-desc">限时特惠套餐</text>
+					</view>
+					<view class="promo-icon-box">
+						<u-icon name="gift-fill" size="28" color="#FF9F29"></u-icon>
+					</view>
+				</view>
+				<view class="promo-card" @tap="navigateTo('/pages/membership/index')">
+					<view class="promo-content">
+						<text class="promo-title">PLUS会员</text>
+						<text class="promo-desc">尊享专属权益</text>
+					</view>
+					<view class="promo-icon-box">
+						<u-icon name="level" size="28" color="#FFD700"></u-icon>
+					</view>
 				</view>
 			</view>
+
+			<!-- 社区精选 -->
+			<view class="section-header">
+				<text class="section-title">社区精选</text>
+				<view class="section-more" @tap="uni.switchTab({ url: '/pages/community/index' })">
+					<text>更多</text>
+					<u-icon name="arrow-right" size="12" color="#999"></u-icon>
+				</view>
+			</view>
+			
 			<view class="content-list">
 				<view
 					v-for="(item, index) in communityList"
@@ -73,18 +86,21 @@
 					<image class="content-image" :src="item.image" mode="aspectFill"></image>
 					<view class="content-info">
 						<text class="content-title">{{ item.title }}</text>
-						<text class="content-desc">{{ item.description }}</text>
-						<view class="content-meta">
-							<text class="meta-text">by @{{ item.author }}</text>
-							<view class="meta-likes">
+						<view class="content-footer">
+							<view class="author-box">
+								<u-icon name="account" size="14" color="#999"></u-icon>
+								<text class="author-name">{{ item.author }}</text>
+							</view>
+							<view class="likes-box">
 								<u-icon name="heart" size="14" color="#999"></u-icon>
-								<text class="meta-text">{{ item.likes }}</text>
+								<text class="likes-count">{{ item.likes }}</text>
 							</view>
 						</view>
 					</view>
 				</view>
 			</view>
 		</view>
+
 		<!-- 根节点弹窗 -->
 		<RentDatePicker ref="rentDatePickerRef" @confirm="handleDateConfirm" />
 	</view>
@@ -92,6 +108,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { onPageScroll } from '@dcloudio/uni-app';
 import NoticeBanner from '@/components/base/NoticeBanner.vue';
 import BookingForm from '@/components/business/BookingForm.vue';
 import ServiceGrid from '@/components/business/ServiceGrid.vue';
@@ -99,6 +116,9 @@ import RentDatePicker from '@/components/business/RentDatePicker.vue';
 
 // 状态栏高度
 const statusBarHeight = ref(0);
+// 导航栏样式状态
+const navbarBackground = ref('rgba(255, 255, 255, 0)');
+const navbarColor = ref('#FFFFFF');
 
 // 公告数据
 const notices = ref([
@@ -106,7 +126,7 @@ const notices = ref([
 	{ id: '2', content: '新用户注册即送100元优惠券!' }
 ]);
 
-// 轮播图数据
+// 轮播图数据 (使用更宽幅的图片展示)
 const banners = ref([
 	{ id: '1', image: '/static/场景推荐2.jpg' },
 	{ id: '2', image: '/static/优惠政策.jpg' }
@@ -115,12 +135,11 @@ const banners = ref([
 const bookingFormRef = ref();
 const rentDatePickerRef = ref();
 
-
 // 社区内容
 const communityList = ref([
 	{
 		id: '1',
-		title: '我们最爱的海滨营地',
+		title: '我们最爱的海滨营地，拥有绝美海景的完美度假地',
 		description: '拥有绝美海景的完美度假地。',
 		author: '旅行一家人',
 		likes: '1.2k',
@@ -128,7 +147,7 @@ const communityList = ref([
 	},
 	{
 		id: '2',
-		title: '优胜美地周末游',
+		title: '优胜美地周末游，充分利用国家公园之旅的小贴士',
 		description: '充分利用国家公园之旅的小贴士。',
 		author: '冒险家',
 		likes: '980',
@@ -136,7 +155,7 @@ const communityList = ref([
 	},
 	{
 		id: '3',
-		title: '房车露营初体验',
+		title: '房车露营初体验，第一次租房车需要注意什么？',
 		description: '第一次租房车需要注意什么？',
 		author: '新手上路',
 		likes: '560',
@@ -144,7 +163,7 @@ const communityList = ref([
 	},
 	{
 		id: '4',
-		title: '川西小环线攻略',
+		title: '川西小环线攻略，7天6晚，感受高原的魅力',
 		description: '7天6晚，感受高原的魅力。',
 		author: '自驾达人',
 		likes: '2.3k',
@@ -153,14 +172,29 @@ const communityList = ref([
 ]);
 
 onMounted(() => {
-	// 获取状态栏高度
 	const systemInfo = uni.getSystemInfoSync();
 	statusBarHeight.value = systemInfo.statusBarHeight || 0;
-	
-	// 自动定位逻辑
 	checkLocationPermission();
 });
 
+// 监听滚动，实现导航栏渐变
+onPageScroll((e) => {
+	const scrollTop = e.scrollTop;
+	const threshold = 100; // 滚动阈值
+	
+	if (scrollTop > threshold) {
+		navbarBackground.value = 'rgba(255, 255, 255, 0.98)';
+		navbarColor.value = '#1A1A1A';
+	} else {
+		// 计算透明度
+		const opacity = scrollTop / threshold;
+		navbarBackground.value = `rgba(255, 255, 255, ${opacity})`;
+		// 文字颜色过渡 (简单处理: 超过一半变黑，否则白)
+		navbarColor.value = opacity > 0.5 ? '#1A1A1A' : '#FFFFFF';
+	}
+});
+
+// ... (Location and Handler logic remains the same) ...
 const checkLocationPermission = () => {
 	// #ifdef MP-WEIXIN
 	uni.getSetting({
@@ -174,7 +208,7 @@ const checkLocationPermission = () => {
 	});
 	// #endif
 	// #ifndef MP-WEIXIN
-	getLocation(); // H5或其他平台直接尝试获取
+	getLocation(); 
 	// #endif
 };
 
@@ -186,7 +220,6 @@ const authorizeLocation = () => {
 		},
 		fail() {
 			console.log('用户拒绝定位权限');
-			// 可以选择显示默认城市或提示用户
 		}
 	});
 };
@@ -196,12 +229,6 @@ const getLocation = () => {
 		type: 'gcj02',
 		success: function (res) {
 			console.log('当前位置：' + res.longitude + ',' + res.latitude);
-			// TODO: 调用逆地理编码API获取城市名称
-			// 这里模拟定位到杭州
-			uni.showToast({
-				title: '已定位到杭州',
-				icon: 'none'
-			});
 		},
 		fail: function () {
 			console.log('获取位置失败');
@@ -214,19 +241,14 @@ const handleNoticeClick = (notice: any) => {
 };
 
 const handleSearch = (params: any) => {
-	console.log('搜索参数:', params);
-	uni.navigateTo({
-		url: '/pages/vehicle/list'
-	});
+	uni.navigateTo({ url: '/pages/vehicle/list' });
 };
 
 const handleOpenDatePicker = (data: any) => {
-	console.log('Index received open-date-picker:', data);
 	rentDatePickerRef.value?.open(data.pickupDate, data.returnDate, data.time);
 };
 
 const handleDateConfirm = (data: any) => {
-	console.log('Index received date confirm:', data);
 	bookingFormRef.value?.onDateConfirm(data);
 };
 
@@ -239,80 +261,90 @@ const navigateTo = (url: string) => {
 .index-page {
 	min-height: 100vh;
 	background-color: $uni-bg-color;
-	padding-bottom: 20rpx;
+	padding-bottom: 40rpx;
 }
 
-.custom-navbar {
-	background-color: rgba(255, 255, 255, 0.95);
-	backdrop-filter: blur(10px);
-	position: sticky;
+/* 沉浸式导航 */
+.navbar-fixed {
+	position: fixed;
 	top: 0;
-	z-index: 99;
-	box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+	left: 0;
+	width: 100%;
+	z-index: 100;
+	transition: background 0.3s ease;
+	backdrop-filter: blur(5px);
 }
 
 .navbar-content {
+	height: 88rpx; /* 标准导航栏高度 */
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 88rpx;
 	padding: 0 32rpx;
 }
 
 .navbar-title {
 	font-size: 36rpx;
 	font-weight: 800;
-	color: $uni-color-secondary;
-	letter-spacing: -0.5px;
+	letter-spacing: 1px;
+	transition: color 0.3s;
 }
 
 .navbar-actions {
-	display: flex;
-	align-items: center;
+	transition: color 0.3s;
 }
 
-.banner-swiper {
-	width: 100%;
-	padding: 24rpx 0 0; // Remove horizontal padding
-}
-
-.swiper {
-	width: 100%;
-	height: 340rpx;
-	// border-radius: $uni-border-radius-lg; // Remove border radius for full width
-	overflow: hidden;
-	box-shadow: $uni-shadow-md;
-	transform: translateY(0);
-}
-
-.banner-image {
-	width: 100%;
-	height: 100%;
-}
-
-.booking-section {
-	padding: 0 32rpx;
-	margin-top: 24rpx;
+/* Hero 区域 */
+.hero-section {
 	position: relative;
-	z-index: 10;
+	width: 100%;
+	z-index: 0;
 }
 
+.hero-mask {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 160rpx;
+	background: linear-gradient(to bottom, rgba(248,249,252,0) 0%, rgba(248,249,252,1) 100%);
+	z-index: 1;
+}
+
+/* 内容容器 */
+.content-container {
+	position: relative;
+	z-index: 1;
+	padding: 0 32rpx;
+	margin-top: -120rpx; /* 关键：负边距实现重叠 */
+}
+
+.floating-form-wrapper {
+	margin-bottom: 32rpx;
+}
+
+.notice-wrapper {
+	margin-bottom: 32rpx;
+}
+
+/* 推广卡片 */
 .promo-cards {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: 1fr 1fr;
 	gap: 24rpx;
-	padding: 0 32rpx 32rpx;
+	margin-top: 32rpx;
 }
 
 .promo-card {
+	background: #FFFFFF;
+	border-radius: 24rpx;
+	padding: 24rpx;
 	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	padding: 32rpx;
-	background-color: #FFFFFF;
-	border-radius: $uni-border-radius-lg;
+	align-items: flex-start;
 	box-shadow: $uni-shadow-sm;
-	transition: transform 0.2s;
+	position: relative;
+	overflow: hidden;
 	
 	&:active {
 		transform: scale(0.98);
@@ -320,15 +352,15 @@ const navigateTo = (url: string) => {
 }
 
 .promo-content {
-	display: flex;
-	flex-direction: column;
-	gap: 8rpx;
+	z-index: 2;
 }
 
 .promo-title {
+	display: block;
 	font-size: 30rpx;
 	font-weight: bold;
 	color: $uni-text-color;
+	margin-bottom: 8rpx;
 }
 
 .promo-desc {
@@ -336,33 +368,34 @@ const navigateTo = (url: string) => {
 	color: $uni-text-color-secondary;
 }
 
-.content-section {
-	padding: 0 32rpx 32rpx;
+.promo-icon-box {
+	width: 64rpx;
+	height: 64rpx;
+	background-color: rgba(255, 159, 41, 0.08);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.section-title {
+/* 社区精选 */
+.section-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 24rpx;
+	margin: 48rpx 0 24rpx;
 }
 
-.title-text {
-	font-size: 34rpx;
-	font-weight: bold;
+.section-title {
+	font-size: 36rpx;
+	font-weight: 800;
 	color: $uni-text-color;
 }
 
-.more-link {
+.section-more {
 	display: flex;
 	align-items: center;
 	gap: 4rpx;
-	padding: 8rpx 16rpx;
-	background-color: rgba(0, 0, 0, 0.03);
-	border-radius: 24rpx;
-}
-
-.more-text {
 	font-size: 24rpx;
 	color: $uni-text-color-secondary;
 }
@@ -374,21 +407,22 @@ const navigateTo = (url: string) => {
 }
 
 .content-item {
-	display: flex;
-	gap: 24rpx;
-	background-color: #FFFFFF;
-	border-radius: $uni-border-radius-lg;
+	background: #FFFFFF;
+	border-radius: 24rpx;
 	overflow: hidden;
-	padding: 20rpx;
 	box-shadow: $uni-shadow-sm;
+	display: flex;
+	flex-direction: row;
+	padding: 20rpx;
+	gap: 24rpx;
 }
 
 .content-image {
-	width: 200rpx;
-	height: 200rpx;
-	flex-shrink: 0;
-	border-radius: $uni-border-radius-md;
+	width: 220rpx;
+	height: 160rpx;
+	border-radius: 16rpx;
 	background-color: #F0F0F0;
+	flex-shrink: 0;
 }
 
 .content-info {
@@ -396,57 +430,35 @@ const navigateTo = (url: string) => {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	padding: 4rpx 0;
 }
 
 .content-title {
 	font-size: 30rpx;
-	font-weight: bold;
+	font-weight: 600;
 	color: $uni-text-color;
 	line-height: 1.4;
-	margin-bottom: 8rpx;
-}
-
-.content-desc {
-	font-size: 24rpx;
-	color: $uni-text-color-secondary;
-	line-height: 1.5;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
 	overflow: hidden;
 }
 
-.content-meta {
+.content-footer {
 	display: flex;
-	align-items: center;
 	justify-content: space-between;
+	align-items: center;
 	margin-top: 16rpx;
 }
 
-.meta-text {
-	font-size: 22rpx;
-	color: #999;
-}
-
-.meta-likes {
+.author-box, .likes-box {
 	display: flex;
 	align-items: center;
-	gap: 6rpx;
-	background-color: #FFF5E9;
-	padding: 4rpx 12rpx;
-	border-radius: 20rpx;
-	
-	.meta-text {
-		color: $uni-color-primary;
-		font-weight: 500;
-	}
+	gap: 8rpx;
+	font-size: 22rpx;
+	color: $uni-text-color-secondary;
 }
 
-.placeholder-text {
-	text-align: center;
-	padding: 80rpx 0;
-	font-size: 28rpx;
-	color: $uni-text-color-secondary;
+.likes-count {
+	font-family: 'DIN Alternate', sans-serif;
 }
 </style>

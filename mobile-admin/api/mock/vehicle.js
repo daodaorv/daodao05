@@ -99,6 +99,78 @@ const mockVehicles = [
   }
 ]
 
+function formatDateTime(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hour = String(date.getHours()).padStart(2, '0')
+  const minute = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hour}:${minute}`
+}
+
+const mockUploadHistory = [
+  {
+    id: 'history_1',
+    vehicleId: 1,
+    type: 'inspection',
+    remark: 'Pre-rental inspection photos',
+    operator: 'Operator A',
+    createTime: '2025-11-26 09:30',
+    photos: [
+      {
+        url: DEFAULT_VEHICLE_IMAGE,
+        location: '39.9042,116.4074',
+        locationName: 'Beijing HQ',
+        time: '2025-11-26 09:25'
+      },
+      {
+        url: DEFAULT_VEHICLE_IMAGE,
+        location: '39.9042,116.4074',
+        locationName: 'Beijing HQ',
+        time: '2025-11-26 09:26'
+      }
+    ]
+  },
+  {
+    id: 'history_2',
+    vehicleId: 1,
+    type: 'damage',
+    remark: 'Customer reported scratch',
+    operator: 'Operator B',
+    createTime: '2025-11-20 18:15',
+    photos: [
+      {
+        url: DEFAULT_VEHICLE_IMAGE,
+        location: '31.2304,121.4737',
+        locationName: 'Shanghai Service Center',
+        time: '2025-11-20 18:10'
+      }
+    ]
+  },
+  {
+    id: 'history_3',
+    vehicleId: 2,
+    type: 'maintenance',
+    remark: 'Regular maintenance record',
+    operator: 'Operator C',
+    createTime: '2025-11-18 11:05',
+    photos: [
+      {
+        url: DEFAULT_VEHICLE_IMAGE,
+        location: '22.5431,114.0579',
+        locationName: 'Shenzhen Workshop',
+        time: '2025-11-18 10:55'
+      },
+      {
+        url: DEFAULT_VEHICLE_IMAGE,
+        location: '22.5431,114.0579',
+        locationName: 'Shenzhen Workshop',
+        time: '2025-11-18 10:56'
+      }
+    ]
+  }
+]
+
 /**
  * 获取车辆列表
  */
@@ -228,10 +300,82 @@ export function getMaintenanceRecords(id) {
   })
 }
 
+/**
+ * 上传车辆照片
+ */
+export function uploadVehiclePhotos(data = {}) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const now = new Date()
+      const record = {
+        id: `history_${Date.now()}`,
+        vehicleId: data.vehicleId || 0,
+        type: data.type || 'inspection',
+        remark: data.remark || '',
+        operator: data.operator || 'On-site staff',
+        createTime: formatDateTime(now),
+        photos: (data.photos || []).map((photo, index) => ({
+          url: photo.url || DEFAULT_VEHICLE_IMAGE,
+          location: photo.location || '',
+          locationName: photo.locationName || '',
+          time: photo.time || formatDateTime(now),
+          id: photo.id || `${Date.now()}_${index}`
+        }))
+      }
+
+      if (record.photos.length === 0) {
+        record.photos.push({
+          url: DEFAULT_VEHICLE_IMAGE,
+          location: '',
+          locationName: '',
+          time: formatDateTime(now),
+          id: `${record.id}_0`
+        })
+      }
+
+      mockUploadHistory.unshift(record)
+
+      resolve({
+        code: 200,
+        message: 'Upload success',
+        data: {
+          id: record.id
+        }
+      })
+    }, 500)
+  })
+}
+
+/**
+ * 获取车辆上传历史
+ */
+export function getUploadHistory(params = {}) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let list = [...mockUploadHistory]
+      if (params.vehicleId) {
+        const vehicleId = String(params.vehicleId)
+        list = list.filter(item => String(item.vehicleId) === vehicleId)
+      }
+
+      resolve({
+        code: 200,
+        message: 'Success',
+        data: {
+          list,
+          total: list.length
+        }
+      })
+    }, 400)
+  })
+}
+
 export default {
   getVehicleList,
   getVehicleDetail,
   updateVehicleStatus,
   addMaintenanceRecord,
-  getMaintenanceRecords
+  getMaintenanceRecords,
+  uploadVehiclePhotos,
+  getUploadHistory
 }

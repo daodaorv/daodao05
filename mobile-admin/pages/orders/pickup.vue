@@ -254,13 +254,15 @@
       </view>
 
       <view class="agreement-section">
-        <u-checkbox
-          v-model="agreed"
-          shape="square"
-          activeColor="#1890ff"
-        >
-          我已确认车辆状况，同意租赁协议条款
-        </u-checkbox>
+        <u-checkbox-group v-model="agreementGroup">
+          <u-checkbox
+            name="agreed"
+            shape="square"
+            activeColor="#1890ff"
+          >
+            我已确认车辆状况，同意租赁协议条款
+          </u-checkbox>
+        </u-checkbox-group>
       </view>
 
       <view class="action-buttons">
@@ -333,12 +335,15 @@ export default {
         interior: {}
       },
       signatureData: '',
-      agreed: false,
+      agreementGroup: [],
       submitting: false,
       signatureContext: null
     }
   },
   computed: {
+    agreed() {
+      return this.agreementGroup.includes('agreed')
+    },
     canProceedStep1() {
       return this.depositPaid && this.documents.idCard && this.documents.driverLicense
     },
