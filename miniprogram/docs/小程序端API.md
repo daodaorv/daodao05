@@ -320,7 +320,7 @@
     "nickname": "string",
     "avatar": "string",
     "userType": "CUSTOMER",
-    "memberLevel": "NORMAL",
+    "tags": [],  // 用户标签列表，如 ["PLUS会员", "VIP用户"]
     "walletBalance": 0,
     "integrals": 0,
     "profile": {
@@ -2472,7 +2472,7 @@
   "data": {
     "id": "mem_001",
     "userId": "user_001",
-    "memberLevel": "PLUS",
+    "tagName": "PLUS会员",  // 标签名称
     "startDate": "2024-01-15",
     "endDate": "2025-01-15",
     "autoRenew": true,
