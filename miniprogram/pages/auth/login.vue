@@ -9,7 +9,22 @@
 
 		<!-- 一键登录（仅小程序平台） -->
 		<view v-if="showOneClickLogin" class="oneclick-section">
-			<button class="oneclick-btn" @click="handleOneClickLogin">
+			<!-- 微信小程序使用 open-type 获取手机号 -->
+			<button
+				v-if="platform === 'weixin'"
+				class="oneclick-btn"
+				open-type="getPhoneNumber"
+				@getphonenumber="handleWechatPhoneNumber"
+			>
+				<image class="platform-icon" :src="platformIcon" mode="aspectFit" />
+				<text class="btn-text">{{ oneClickLoginText }}</text>
+			</button>
+			<!-- 支付宝和抖音使用普通点击 -->
+			<button
+				v-else
+				class="oneclick-btn"
+				@click="handleOneClickLogin"
+			>
 				<image class="platform-icon" :src="platformIcon" mode="aspectFit" />
 				<text class="btn-text">{{ oneClickLoginText }}</text>
 			</button>
@@ -409,8 +424,10 @@ const handleLogin = async () => {
 	}
 }
 
-// 一键登录
-const handleOneClickLogin = async () => {
+// 微信手机号授权回调
+const handleWechatPhoneNumber = async (e: any) => {
+	console.log('[微信手机号授权] 回调事件:', e)
+
 	if (!agreed.value) {
 		uni.showToast({
 			title: '请先同意用户协议和隐私政策',
@@ -419,68 +436,244 @@ const handleOneClickLogin = async () => {
 		return
 	}
 
-	try {
-		loading.value = true
-
-		// 根据平台调用不同的登录方法
-		let result
-		if (platform.value === 'weixin') {
-			// 微信登录
-			const loginRes = await uni.login({ provider: 'weixin' })
-			if (!loginRes[1] || !loginRes[1].code) {
-				throw new Error('获取微信授权失败')
-			}
-			result = await wechatLogin({ code: loginRes[1].code })
-		} else if (platform.value === 'alipay') {
-			// 支付宝登录
-			const loginRes = await uni.login({ provider: 'alipay' })
-			if (!loginRes[1] || !loginRes[1].code) {
-				throw new Error('获取支付宝授权失败')
-			}
-			result = await alipayLogin({ code: loginRes[1].code })
-		} else if (platform.value === 'douyin') {
-			// 抖音登录
-			const loginRes = await uni.login({ provider: 'toutiao' })
-			if (!loginRes[1] || !loginRes[1].code) {
-				throw new Error('获取抖音授权失败')
-			}
-			result = await douyinLogin({ code: loginRes[1].code })
-		}
-
-		if (!result) {
-			throw new Error('登录失败')
-		}
-
-		// 检查是否需要绑定手机号
-		if (!result.user.phone) {
-			// 保存临时token
-			uni.setStorageSync('tempToken', result.token)
-			uni.setStorageSync('tempUserInfo', result.user)
-			// 跳转到手机绑定页面
-			uni.navigateTo({
-				url: '/pages/auth/bind-phone'
-			})
-			return
-		}
-
-		// 保存登录信息
-		saveLoginInfo(result.token, result.refreshToken, result.user)
-
+	// 用户拒绝授权
+	if (e.detail.errMsg && e.detail.errMsg.indexOf('fail') !== -1) {
+		console.log('[微信手机号授权] 用户拒绝授权')
 		uni.showToast({
-			title: '登录成功',
-			icon: 'success'
-		})
-
-		// 延迟跳转
-		setTimeout(() => {
-			handleLoginSuccess()
-		}, 1500)
-	} catch (error: any) {
-		uni.showToast({
-			title: error.message || '登录失败',
+			title: '您拒绝了授权，请使用其他方式登录',
 			icon: 'none'
 		})
-	} finally {
+		return
+	}
+
+	// 用户同意授权
+	if (e.detail.code) {
+		loading.value = true
+
+		try {
+			// 先调用 uni.login 获取登录凭证
+			uni.login({
+				provider: 'weixin',
+				success: async (loginRes) => {
+					try {
+						console.log('[微信登录] 获取code成功:', loginRes.code)
+						console.log('[微信手机号] 获取手机号code成功:', e.detail.code)
+
+						if (!loginRes.code) {
+							throw new Error('获取微信登录code失败')
+						}
+
+						// 调用后端API进行登录，同时传递手机号授权code
+						const result = await wechatLogin({
+							code: loginRes.code,
+							// 传递手机号加密数据给后端解密
+							encryptedData: e.detail.encryptedData,
+							iv: e.detail.iv
+						})
+
+						// 保存登录信息
+						saveLoginInfo(result.token, result.refreshToken, result.user)
+
+						// 检查用户信息是否完整（头像和昵称）
+						const needCompleteInfo = !result.user.nickname || !result.user.avatar
+
+						if (needCompleteInfo) {
+							// 需要完善信息，跳转到完善信息页面
+							console.log('[微信登录] 需要完善用户信息')
+							uni.showToast({
+								title: '登录成功',
+								icon: 'success',
+								duration: 1500
+							})
+
+							setTimeout(() => {
+								uni.redirectTo({
+									url: '/pages/profile/complete-info?from=login'
+								})
+							}, 1500)
+						} else {
+							// 信息完整，直接跳转首页
+							uni.showToast({
+								title: '登录成功',
+								icon: 'success'
+							})
+
+							setTimeout(() => {
+								handleLoginSuccess()
+							}, 1500)
+						}
+					} catch (error: any) {
+						console.error('[微信登录] 登录失败:', error)
+						uni.showToast({
+							title: error.message || '登录失败',
+							icon: 'none'
+						})
+					} finally {
+						loading.value = false
+					}
+				},
+				fail: (err) => {
+					console.error('[微信登录] 获取授权失败:', err)
+					uni.showToast({
+						title: err.errMsg || '获取微信授权失败',
+						icon: 'none'
+					})
+					loading.value = false
+				}
+			})
+		} catch (error: any) {
+			console.error('[微信手机号授权] 处理失败:', error)
+			uni.showToast({
+				title: error.message || '授权失败',
+				icon: 'none'
+			})
+			loading.value = false
+		}
+	} else {
+		console.error('[微信手机号授权] 未获取到code')
+		uni.showToast({
+			title: '获取手机号失败，请重试',
+			icon: 'none'
+		})
+	}
+}
+
+// 一键登录（支付宝和抖音）
+const handleOneClickLogin = () => {
+	if (!agreed.value) {
+		uni.showToast({
+			title: '请先同意用户协议和隐私政策',
+			icon: 'none'
+		})
+		return
+	}
+
+	loading.value = true
+
+	// 根据平台调用不同的登录方法
+	if (platform.value === 'alipay') {
+		// 支付宝小程序登录
+		uni.login({
+			provider: 'alipay',
+			success: async (loginRes) => {
+				try {
+					console.log('[支付宝登录] 获取code成功:', loginRes.code)
+
+					if (!loginRes.code) {
+						throw new Error('获取支付宝授权code失败')
+					}
+
+					// 调用后端API进行登录
+					const result = await alipayLogin({ code: loginRes.code })
+
+					// 检查是否需要绑定手机号
+					if (!result.user.phone) {
+						// 保存临时token
+						uni.setStorageSync('tempToken', result.token)
+						uni.setStorageSync('tempUserInfo', result.user)
+						loading.value = false
+						// 跳转到手机绑定页面
+						uni.navigateTo({
+							url: '/pages/auth/bind-phone'
+						})
+						return
+					}
+
+					// 保存登录信息
+					saveLoginInfo(result.token, result.refreshToken, result.user)
+
+					uni.showToast({
+						title: '登录成功',
+						icon: 'success'
+					})
+
+					// 延迟跳转
+					setTimeout(() => {
+						handleLoginSuccess()
+					}, 1500)
+				} catch (error: any) {
+					console.error('[支付宝登录] 登录失败:', error)
+					uni.showToast({
+						title: error.message || '登录失败',
+						icon: 'none'
+					})
+				} finally {
+					loading.value = false
+				}
+			},
+			fail: (err) => {
+				console.error('[支付宝登录] 获取授权失败:', err)
+				uni.showToast({
+					title: err.errMsg || '获取支付宝授权失败',
+					icon: 'none'
+				})
+				loading.value = false
+			}
+		})
+	} else if (platform.value === 'douyin') {
+		// 抖音小程序登录
+		uni.login({
+			provider: 'toutiao',
+			success: async (loginRes) => {
+				try {
+					console.log('[抖音登录] 获取code成功:', loginRes.code)
+
+					if (!loginRes.code) {
+						throw new Error('获取抖音授权code失败')
+					}
+
+					// 调用后端API进行登录
+					const result = await douyinLogin({ code: loginRes.code })
+
+					// 检查是否需要绑定手机号
+					if (!result.user.phone) {
+						// 保存临时token
+						uni.setStorageSync('tempToken', result.token)
+						uni.setStorageSync('tempUserInfo', result.user)
+						loading.value = false
+						// 跳转到手机绑定页面
+						uni.navigateTo({
+							url: '/pages/auth/bind-phone'
+						})
+						return
+					}
+
+					// 保存登录信息
+					saveLoginInfo(result.token, result.refreshToken, result.user)
+
+					uni.showToast({
+						title: '登录成功',
+						icon: 'success'
+					})
+
+					// 延迟跳转
+					setTimeout(() => {
+						handleLoginSuccess()
+					}, 1500)
+				} catch (error: any) {
+					console.error('[抖音登录] 登录失败:', error)
+					uni.showToast({
+						title: error.message || '登录失败',
+						icon: 'none'
+					})
+				} finally {
+					loading.value = false
+				}
+			},
+			fail: (err) => {
+				console.error('[抖音登录] 获取授权失败:', err)
+				uni.showToast({
+					title: err.errMsg || '获取抖音授权失败',
+					icon: 'none'
+				})
+				loading.value = false
+			}
+		})
+	} else {
+		uni.showToast({
+			title: '当前平台不支持一键登录',
+			icon: 'none'
+		})
 		loading.value = false
 	}
 }

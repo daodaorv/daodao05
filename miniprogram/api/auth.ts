@@ -18,6 +18,7 @@ export interface UserInfo {
 	birthday?: string
 	email?: string
 	userType: 'NORMAL' | 'PLUS' | 'HOST'
+	tags: string[]  // 用户标签列表（如：['PLUS会员', 'VIP用户']）
 	status: 'ACTIVE' | 'INACTIVE' | 'BANNED'
 }
 
@@ -67,7 +68,7 @@ export type PlatformType = 'weixin' | 'alipay' | 'douyin' | 'h5'
 // 登录方式类型
 export type LoginMethodType = 'oneclick' | 'phone' | 'password' | 'username'
 
-// Mock 数据
+// Mock 数据 - 普通用户
 const mockUser: UserInfo = {
 	id: 'user_001',
 	phone: '13800138000',
@@ -75,6 +76,19 @@ const mockUser: UserInfo = {
 	avatar: '/static/default-avatar.png',
 	gender: 1,
 	userType: 'NORMAL',
+	tags: [],  // 普通用户无标签
+	status: 'ACTIVE'
+}
+
+// Mock 数据 - PLUS会员用户
+const mockPlusUser: UserInfo = {
+	id: 'user_002',
+	phone: '13900139000',
+	nickname: 'PLUS会员用户',
+	avatar: '/static/default-avatar.png',
+	gender: 1,
+	userType: 'PLUS',
+	tags: ['PLUS会员', '活跃用户'],  // PLUS会员标签
 	status: 'ACTIVE'
 }
 
@@ -182,13 +196,21 @@ export function wechatLogin(params: WechatLoginParams): Promise<LoginResponse> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
 			console.log('[Mock] 微信授权登录:', params)
+
+			// 模拟首次登录：返回空的昵称和头像，触发完善信息流程
+			// 如果有 encryptedData，说明获取了手机号，但首次登录用户信息为空
+			const isFirstLogin = !!params.encryptedData
+
 			resolve({
 				token: mockToken,
 				refreshToken: mockRefreshToken,
 				user: {
 					...mockUser,
-					nickname: '微信用户',
-					avatar: '/static/default-avatar.png'
+					// 首次登录返回空昵称和头像，需要用户完善信息
+					nickname: isFirstLogin ? '' : '微信用户',
+					avatar: isFirstLogin ? '' : '/static/default-avatar.png',
+					// 如果有 encryptedData，模拟后端解密后获取的手机号
+					phone: params.encryptedData ? '13800138000' : mockUser.phone
 				}
 			})
 		}, 1000)

@@ -32,7 +32,8 @@ export const authData = {
                     phone: data.phone,
                     nickname: '新用户',
                     avatar: 'https://via.placeholder.com/100',
-                    userType: 'CUSTOMER'
+                    userType: 'CUSTOMER',
+                    tags: ['新用户']  // 新用户标签
                 }
             }
         };
@@ -53,7 +54,8 @@ export const authData = {
                     phone: data.phone,
                     nickname: '叨叨用户',
                     avatar: 'https://via.placeholder.com/100',
-                    userType: 'CUSTOMER'
+                    userType: 'CUSTOMER',
+                    tags: []  // 普通用户无标签
                 }
             }
         };
@@ -72,7 +74,7 @@ export const authData = {
                 nickname: '叨叨用户',
                 avatar: 'https://via.placeholder.com/100',
                 userType: 'CUSTOMER',
-                memberLevel: 'NORMAL',
+                tags: [],  // 普通用户无标签
                 walletBalance: 0,
                 integrals: 0,
                 profile: {

@@ -11,10 +11,16 @@ export const useUserStore = defineStore('user', () => {
     const token = ref('');
     const refreshToken = ref('');
     const userInfo = ref<any>(null);
+    const userTags = ref<string[]>([]);  // 用户标签列表
 
     // 计算属性
     const isLoggedIn = computed(() => !!token.value);
-    const isPlusMember = computed(() => userInfo.value?.memberLevel === 'PLUS');
+    const isPlusMember = computed(() => userTags.value.includes('PLUS会员'));
+
+    // 检查用户是否拥有指定标签
+    const hasTag = (tagName: string) => {
+        return userTags.value.includes(tagName);
+    };
 
     // 初始化:从本地存储恢复
     const parseStoredUserInfo = (stored: any) => {
@@ -35,6 +41,17 @@ export const useUserStore = defineStore('user', () => {
         token.value = uni.getStorageSync('token') || '';
         refreshToken.value = uni.getStorageSync('refreshToken') || '';
         userInfo.value = parseStoredUserInfo(uni.getStorageSync('userInfo'));
+
+        // 恢复标签列表
+        const storedTags = uni.getStorageSync('userTags');
+        if (storedTags) {
+            try {
+                userTags.value = typeof storedTags === 'string' ? JSON.parse(storedTags) : storedTags;
+            } catch (error) {
+                console.warn('[userStore] 解析 userTags 失败');
+                userTags.value = [];
+            }
+        }
     };
 
     // 登录
@@ -45,11 +62,13 @@ export const useUserStore = defineStore('user', () => {
                 token.value = res.data.token;
                 refreshToken.value = res.data.refreshToken;
                 userInfo.value = res.data.user;
+                userTags.value = res.data.user.tags || [];  // 更新标签列表
 
                 // 保存到本地存储
                 uni.setStorageSync('token', res.data.token);
                 uni.setStorageSync('refreshToken', res.data.refreshToken);
                 uni.setStorageSync('userInfo', JSON.stringify(res.data.user));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.user.tags || []));
 
                 return true;
             }
@@ -68,10 +87,12 @@ export const useUserStore = defineStore('user', () => {
                 token.value = res.data.token;
                 refreshToken.value = res.data.refreshToken;
                 userInfo.value = res.data.user;
+                userTags.value = res.data.user.tags || [];  // 更新标签列表
 
                 uni.setStorageSync('token', res.data.token);
                 uni.setStorageSync('refreshToken', res.data.refreshToken);
                 uni.setStorageSync('userInfo', JSON.stringify(res.data.user));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.user.tags || []));
 
                 return true;
             }
@@ -88,7 +109,9 @@ export const useUserStore = defineStore('user', () => {
             const res = await getUserProfile();
             if (res.code === 0) {
                 userInfo.value = res.data;
+                userTags.value = res.data.tags || [];  // 更新标签列表
                 uni.setStorageSync('userInfo', JSON.stringify(res.data));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.tags || []));
                 return true;
             }
             return false;
@@ -103,10 +126,12 @@ export const useUserStore = defineStore('user', () => {
         token.value = '';
         refreshToken.value = '';
         userInfo.value = null;
+        userTags.value = [];
 
         uni.removeStorageSync('token');
         uni.removeStorageSync('refreshToken');
         uni.removeStorageSync('userInfo');
+        uni.removeStorageSync('userTags');
     };
 
     // 更新用户信息
@@ -120,9 +145,11 @@ export const useUserStore = defineStore('user', () => {
         token,
         refreshToken,
         userInfo,
+        userTags,
         // 计算属性
         isLoggedIn,
         isPlusMember,
+        hasTag,
         // 方法
         init,
         doLogin,
