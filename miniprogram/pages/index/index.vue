@@ -113,6 +113,7 @@ import NoticeBanner from '@/components/base/NoticeBanner.vue';
 import BookingForm from '@/components/business/BookingForm.vue';
 import ServiceGrid from '@/components/business/ServiceGrid.vue';
 import RentDatePicker from '@/components/business/RentDatePicker.vue';
+import { getUserLocation, reverseGeocode, type LocationResult, type LocationError, LocationErrorType } from '@/utils/location';
 
 // 状态栏高度
 const statusBarHeight = ref(0);
@@ -171,10 +172,16 @@ const communityList = ref([
 	}
 ]);
 
+// 用户位置信息
+const userLocation = ref<LocationResult | null>(null);
+const userCity = ref<string>('');
+
 onMounted(() => {
 	const systemInfo = uni.getSystemInfoSync();
 	statusBarHeight.value = systemInfo.statusBarHeight || 0;
-	checkLocationPermission();
+
+	// 初始化定位
+	initLocation();
 });
 
 // 监听滚动，实现导航栏渐变
@@ -194,46 +201,66 @@ onPageScroll((e) => {
 	}
 });
 
-// ... (Location and Handler logic remains the same) ...
-const checkLocationPermission = () => {
-	// #ifdef MP-WEIXIN
-	uni.getSetting({
-		success(res) {
-			if (!res.authSetting['scope.userLocation']) {
-				authorizeLocation();
-			} else {
-				getLocation();
-			}
-		}
-	});
-	// #endif
-	// #ifndef MP-WEIXIN
-	getLocation(); 
-	// #endif
-};
+/**
+ * 初始化定位
+ */
+const initLocation = async () => {
+	try {
+		console.log('[首页] 开始获取用户位置');
 
-const authorizeLocation = () => {
-	uni.authorize({
-		scope: 'scope.userLocation',
-		success() {
-			getLocation();
-		},
-		fail() {
-			console.log('用户拒绝定位权限');
-		}
-	});
-};
+		// 获取用户位置
+		const location = await getUserLocation({
+			type: 'gcj02',
+			showLoading: true,
+			timeout: 10000
+		});
 
-const getLocation = () => {
-	uni.getLocation({
-		type: 'gcj02',
-		success: function (res) {
-			console.log('当前位置：' + res.longitude + ',' + res.latitude);
-		},
-		fail: function () {
-			console.log('获取位置失败');
+		userLocation.value = location;
+		console.log('[首页] 获取位置成功:', location);
+
+		// 逆地理编码获取城市
+		const city = await reverseGeocode(location.latitude, location.longitude);
+		userCity.value = city;
+		console.log('[首页] 当前城市:', city);
+
+		// 显示成功提示
+		uni.showToast({
+			title: `定位成功：${city}`,
+			icon: 'success',
+			duration: 2000
+		});
+
+	} catch (error) {
+		const locationError = error as LocationError;
+		console.error('[首页] 获取位置失败:', locationError);
+
+		// 根据错误类型显示不同提示
+		let errorMessage = '定位失败';
+
+		switch (locationError.type) {
+			case LocationErrorType.PERMISSION_DENIED:
+				errorMessage = '定位权限被拒绝，部分功能可能无法使用';
+				break;
+			case LocationErrorType.TIMEOUT:
+				errorMessage = '定位超时，请检查网络连接';
+				break;
+			case LocationErrorType.LOCATION_UNAVAILABLE:
+				errorMessage = '定位服务不可用，请检查手机定位设置';
+				break;
+			default:
+				errorMessage = locationError.message || '定位失败';
 		}
-	});
+
+		uni.showToast({
+			title: errorMessage,
+			icon: 'none',
+			duration: 3000
+		});
+
+		// 使用默认城市
+		userCity.value = '北京';
+		console.log('[首页] 使用默认城市:', userCity.value);
+	}
 };
 
 const handleNoticeClick = (notice: any) => {

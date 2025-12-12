@@ -115,13 +115,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
+import { getUserOrders } from '@/api/order';
 
 // Mock Data
 const statusList = [
 	{ label: '全部', value: 'all' },
 	{ label: '待付款', value: 'pending_payment' },
 	{ label: '待取车', value: 'pending_pickup' },
-	{ label: '租赁中', value: 'renting' },
+	{ label: '租赁中', value: 'in_progress' },
 	{ label: '已完成', value: 'completed' },
 	{ label: '已取消', value: 'cancelled' }
 ];
@@ -131,46 +132,6 @@ const refreshing = ref(false);
 const loading = ref(false);
 const orders = ref<any[]>([]);
 const statusBarHeight = ref(0);
-
-// Mock Orders
-const mockOrders = [
-	{
-		id: '1',
-		orderNo: 'ORD20241206001',
-		vehicleName: '上汽大通RG10 生活家V90',
-		vehicleImage: '/static/场景推荐2.jpg',
-		status: 'pending_payment',
-		statusText: '待付款',
-		pickupTime: '2024-12-10 10:00',
-		returnTime: '2024-12-12 10:00',
-		pickupStoreName: '深圳宝安店',
-		totalAmount: '1360.00'
-	},
-	{
-		id: '2',
-		orderNo: 'ORD20241120002',
-		vehicleName: '宇通B530 舒适版',
-		vehicleImage: '/static/优惠政策.jpg',
-		status: 'renting',
-		statusText: '租赁中',
-		pickupTime: '2024-12-05 14:00',
-		returnTime: '2024-12-08 14:00',
-		pickupStoreName: '广州天河店',
-		totalAmount: '2580.00'
-	},
-	{
-		id: '3',
-		orderNo: 'ORD20241001003',
-		vehicleName: '览众C7 经典版',
-		vehicleImage: '/static/场景推荐2.jpg',
-		status: 'completed',
-		statusText: '已完成',
-		pickupTime: '2024-10-01 09:00',
-		returnTime: '2024-10-05 18:00',
-		pickupStoreName: '杭州西湖店',
-		totalAmount: '4200.00'
-	}
-];
 
 onMounted(() => {
 	const sys = uni.getSystemInfoSync();
@@ -182,17 +143,42 @@ const goBack = () => {
 	uni.navigateBack();
 };
 
-const loadOrders = () => {
+const loadOrders = async () => {
 	loading.value = true;
-	setTimeout(() => {
-		if (currentStatus.value === 'all') {
-			orders.value = [...mockOrders];
-		} else {
-			orders.value = mockOrders.filter(o => o.status === currentStatus.value);
+	try {
+		const params: any = {};
+		if (currentStatus.value !== 'all') {
+			params.status = currentStatus.value;
 		}
+
+		const res: any = await getUserOrders(params);
+		if (res.code === 0 && res.data) {
+			// 映射数据结构为列表页需要的格式
+			orders.value = res.data.orders.map((order: any) => ({
+				id: order.id,
+				orderNo: order.orderNo,
+				vehicleName: order.vehicle?.name || '未知车辆',
+				vehicleImage: order.vehicle?.images?.[0] || '/static/logo.png',
+				status: order.status.code,
+				statusText: order.status.name,
+				pickupTime: order.pickupTime,
+				returnTime: order.returnTime,
+				pickupStoreName: order.pickupStore?.name || '未知门店',
+				totalAmount: order.actualAmount,
+				vehicleId: order.vehicle?.id || '',
+				storePhone: '400-123-4567'
+			}));
+		}
+	} catch (error) {
+		console.error('加载订单列表失败:', error);
+		uni.showToast({
+			title: '加载失败',
+			icon: 'none'
+		});
+	} finally {
 		loading.value = false;
 		refreshing.value = false;
-	}, 500);
+	}
 };
 
 const switchStatus = (status: string) => {
@@ -247,9 +233,117 @@ const getOrderActions = (order: any) => {
 	return [];
 };
 
+// 按钮处理函数
 const handleAction = (action: any, order: any) => {
-	console.log('Action:', action.code, order.id);
-	uni.showToast({ title: `点击了${action.text}`, icon: 'none' });
+	switch (action.code) {
+		case 'pay':
+			handlePay(order);
+			break;
+		case 'cancel':
+			handleCancel(order);
+			break;
+		case 'contact':
+			handleContact(order);
+			break;
+		case 'renew':
+			handleRenew(order);
+			break;
+		case 'delete':
+			handleDelete(order);
+			break;
+		case 'rebook':
+			handleRebook(order);
+			break;
+	}
+};
+
+// 去支付
+const handlePay = (order: any) => {
+	uni.navigateTo({
+		url: `/pages/order/pay?orderNo=${order.orderNo}&amount=${order.totalAmount}`
+	});
+};
+
+// 取消订单
+const handleCancel = async (order: any) => {
+	try {
+		const res = await uni.showModal({
+			title: '确认取消',
+			content: '确定要取消该订单吗？',
+			confirmText: '确认取消',
+			cancelText: '我再想想'
+		});
+
+		if (res.confirm) {
+			// 更新订单状态
+			order.status = 'cancelled';
+			order.statusText = '已取消';
+			uni.showToast({ title: '订单已取消', icon: 'success' });
+
+			// 刷新列表
+			await loadOrders();
+		}
+	} catch (error) {
+		// 用户取消操作
+	}
+};
+
+// 联系门店
+const handleContact = (order: any) => {
+	if (!order.storePhone) {
+		uni.showToast({ title: '暂无门店电话', icon: 'none' });
+		return;
+	}
+
+	uni.makePhoneCall({
+		phoneNumber: order.storePhone,
+		fail: () => {
+			uni.showToast({ title: '拨号失败', icon: 'none' });
+		}
+	});
+};
+
+// 续租
+const handleRenew = (order: any) => {
+	uni.navigateTo({
+		url: `/pages/order/renewal?orderNo=${order.orderNo}`
+	});
+};
+
+// 删除订单
+const handleDelete = async (order: any) => {
+	try {
+		const res = await uni.showModal({
+			title: '确认删除',
+			content: '删除后无法恢复，确定要删除该订单吗？',
+			confirmText: '确认删除',
+			cancelText: '取消'
+		});
+
+		if (res.confirm) {
+			// 从列表中移除
+			const index = orders.value.findIndex(o => o.id === order.id);
+			if (index > -1) {
+				orders.value.splice(index, 1);
+			}
+
+			uni.showToast({ title: '订单已删除', icon: 'success' });
+		}
+	} catch (error) {
+		// 用户取消操作
+	}
+};
+
+// 再次预订
+const handleRebook = (order: any) => {
+	if (!order.vehicleId) {
+		uni.showToast({ title: '车辆信息缺失', icon: 'none' });
+		return;
+	}
+
+	uni.navigateTo({
+		url: `/pages/vehicle/detail?id=${order.vehicleId}`
+	});
 };
 
 const goToDetail = (order: any) => {

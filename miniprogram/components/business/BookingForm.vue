@@ -6,38 +6,51 @@
 			<!-- <view class="tab-item">企业用车</view> -->
 		</view>
 
-		<!-- 城市选择行 -->
-		<view class="city-selection-row">
-			<view class="city-block pickup">
-				<view class="label">取车</view>
-				<view class="city-name" :class="{ placeholder: !pickupCity }" @tap.stop="openCityPicker('pickup')">
-					{{ pickupCity || '选择城市' }}
-				</view>
-				<view class="store-name" @tap.stop="openStorePicker('pickup')">
-					{{ pickupStore || '选择门店' }}
+		<!-- 取车选择区域 -->
+		<view class="location-selection-section">
+			<view class="section-header">
+				<text class="label">取车</text>
+				<!-- 异地还车开关 -->
+				<view class="diff-loc-switch" @tap.stop="toggleDifferentLocation">
+					<text class="switch-text" :class="{ active: isDifferentLocation }">异地还车</text>
+					<u-icon :name="isDifferentLocation ? 'checkmark-circle-fill' : 'checkmark-circle'"
+							:color="isDifferentLocation ? '#FF9F29' : '#CCCCCC'" size="16"></u-icon>
 				</view>
 			</view>
 
-			<view class="city-divider">
-				<u-icon name="arrow-right" color="#E5E6EB" size="20"></u-icon>
+			<!-- 取车城市/门店选择 -->
+			<view class="city-store-row">
+				<view class="city-selector" @tap.stop="openCityPicker('pickup')">
+					<text class="city-name" :class="{ placeholder: !pickupCity }">
+						{{ pickupCity || '选择城市' }}
+					</text>
+				</view>
+				<view class="store-selector" @tap.stop="openStorePicker('pickup')">
+					<text class="store-name" :class="{ placeholder: !pickupStore }">
+						{{ pickupStore || '选择门店' }}
+					</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- 还车选择区域（异地还车时显示）-->
+		<view class="location-selection-section return-section" :class="{ show: isDifferentLocation }">
+			<view class="section-header">
+				<text class="label">还车</text>
 			</view>
 
-			<view class="city-block return">
-				<view class="label">还车</view>
-				<view class="city-name" :class="{ placeholder: !isDifferentLocation && !pickupCity }"
-					  @tap.stop="isDifferentLocation ? openCityPicker('return') : handleDisabledClick()">
-					{{ isDifferentLocation ? (returnCity || '选择城市') : (pickupCity || '同取车') }}
+			<!-- 还车城市/门店选择 -->
+			<view class="city-store-row">
+				<view class="city-selector" @tap.stop="openCityPicker('return')">
+					<text class="city-name" :class="{ placeholder: !returnCity }">
+						{{ returnCity || '选择城市' }}
+					</text>
 				</view>
-				<view class="store-name" @tap.stop="isDifferentLocation ? openStorePicker('return') : handleDisabledClick()">
-					{{ isDifferentLocation ? (returnStore || '选择门店') : (pickupStore || '同门店') }}
+				<view class="store-selector" @tap.stop="openStorePicker('return')">
+					<text class="store-name" :class="{ placeholder: !returnStore }">
+						{{ returnStore || '选择门店' }}
+					</text>
 				</view>
-			</view>
-			
-			<!-- 异地还车开关 (绝对定位或浮动) -->
-			<view class="diff-loc-switch" @tap.stop="toggleDifferentLocation">
-				<text class="switch-text" :class="{ active: isDifferentLocation }">异地还车</text>
-				<u-icon :name="isDifferentLocation ? 'checkmark-circle-fill' : 'checkmark-circle'" 
-						:color="isDifferentLocation ? '#FF9F29' : '#CCCCCC'" size="16"></u-icon>
 			</view>
 		</view>
 
@@ -69,8 +82,8 @@
 		</view>
 
 		<!-- 查询按钮 -->
-		<button 
-			class="submit-btn" 
+		<button
+			class="submit-btn"
 			hover-class="submit-btn-hover"
 			@tap="handleSearch"
 		>
@@ -78,22 +91,30 @@
 		</button>
 
 		<!-- 弹窗组件 -->
-		<CityStorePicker 
-			ref="cityStorePicker" 
-			:type="pickerType" 
-			:title="pickerTitle" 
+		<CityStorePicker
+			ref="cityStorePicker"
+			:type="pickerType"
+			:title="pickerTitle"
 			:data="pickerData"
 			:selected-id="currentSelectedId"
+			:user-location="userLocation"
 			@confirm="onPickerConfirm"
 		/>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import CityStorePicker from './CityStorePicker.vue';
+import {
+	getUserLocation,
+	reverseGeocode,
+	findNearestStore,
+	sortStoresByDistance,
+	sortStoresByName
+} from '../../utils/location';
 
 dayjs.locale('zh-cn');
 
@@ -156,9 +177,13 @@ const returnStoreId = ref('');
 const pickupDate = ref('');
 const pickupTime = ref('10:00');
 const returnDate = ref('');
-const returnTime = ref('10:00'); // 始终同步pickupTime
+const returnTime = ref('10:00');
 
 const isDifferentLocation = ref(false);
+
+// 新增：定位相关状态
+const userLocation = ref<{ lat: number; lng: number } | null>(null);
+const isLocating = ref(false);
 
 // --- Picker State ---
 const cityStorePicker = ref();
@@ -178,22 +203,115 @@ const duration = computed(() => {
 });
 
 // --- Lifecycle ---
-onMounted(() => {
-	loadFromStorage();
-	if (!pickupCity.value) {
-		// 默认值
-		pickupCity.value = '深圳';
-		pickupCityId.value = '4';
-		pickupStore.value = '深圳宝安店';
-		pickupStoreId.value = '401';
-		
-		const now = dayjs();
-		pickupDate.value = now.add(2, 'hour').format('YYYY-MM-DD');
-		returnDate.value = now.add(2, 'day').add(2, 'hour').format('YYYY-MM-DD');
+onMounted(async () => {
+	const hasCache = loadFromStorage();
+
+	// 获取用户定位
+	try {
+		isLocating.value = true;
+		const location = await getUserLocation({
+			type: 'gcj02',
+			showLoading: false,
+			timeout: 10000
+		});
+		userLocation.value = {
+			lat: location.latitude,
+			lng: location.longitude
+		};
+		console.log('[BookingForm] 获取定位成功:', userLocation.value);
+
+		// 如果没有缓存数据，或者缓存的城市与定位城市不一致，则更新
+		if (!hasCache || !pickupCity.value) {
+			await initDefaultLocation();
+		} else {
+			// 有缓存数据，但检查是否需要更新门店（选择最近的门店）
+			const cityName = await reverseGeocode(
+				userLocation.value.lat,
+				userLocation.value.lng
+			);
+
+			// 如果定位城市与缓存城市一致，更新为最近的门店
+			if (cityName === pickupCity.value && pickupCityId.value) {
+				const cityStores = (stores as any)[pickupCityId.value] || [];
+				if (cityStores.length > 0) {
+					const nearest = findNearestStore(cityStores, userLocation.value);
+					if (nearest && nearest.id !== pickupStoreId.value) {
+						console.log('[BookingForm] 更新为最近的门店:', nearest.name);
+						pickupStore.value = nearest.name;
+						pickupStoreId.value = nearest.id;
+						if (!isDifferentLocation.value) {
+							returnStore.value = nearest.name;
+							returnStoreId.value = nearest.id;
+						}
+						saveToStorage();
+					}
+				}
+			}
+			// 如果定位城市与缓存城市不一致，更新城市和门店
+			else if (cityName !== pickupCity.value) {
+				console.log('[BookingForm] 定位城市变化，从', pickupCity.value, '更新为', cityName);
+				await initDefaultLocation();
+			}
+		}
+	} catch (error) {
+		console.error('[BookingForm] 获取定位失败:', error);
+		userLocation.value = null;
+
+		// 定位失败，如果没有缓存数据，使用默认位置
+		if (!hasCache || !pickupCity.value) {
+			await initDefaultLocation();
+		}
+	} finally {
+		isLocating.value = false;
 	}
 });
 
 // --- Methods ---
+
+// 初始化默认位置
+async function initDefaultLocation() {
+	let defaultCity = '北京';
+	let defaultCityId = '1';
+
+	// 如果有定位，尝试匹配城市
+	if (userLocation.value) {
+		const cityName = await reverseGeocode(
+			userLocation.value.lat,
+			userLocation.value.lng
+		);
+		const city = cities.find(c => c.name === cityName);
+		if (city) {
+			defaultCity = city.name;
+			defaultCityId = city.id;
+		}
+	}
+
+	// 设置城市
+	pickupCity.value = defaultCity;
+	pickupCityId.value = defaultCityId;
+
+	// 获取门店列表并选择最近的
+	const cityStores = (stores as any)[defaultCityId] || [];
+	if (cityStores.length > 0) {
+		let selectedStore = cityStores[0];
+
+		// 如果有定位，选择最近的门店
+		if (userLocation.value) {
+			const nearest = findNearestStore(cityStores, userLocation.value);
+			if (nearest) selectedStore = nearest;
+		}
+
+		pickupStore.value = selectedStore.name;
+		pickupStoreId.value = selectedStore.id;
+	}
+
+	// 设置默认日期
+	const now = dayjs();
+	pickupDate.value = now.add(2, 'hour').format('YYYY-MM-DD');
+	returnDate.value = now.add(2, 'day').add(2, 'hour').format('YYYY-MM-DD');
+
+	saveToStorage();
+}
 
 const formatDate = (date: string, template: string) => {
 	if (!date) return '';
@@ -201,14 +319,6 @@ const formatDate = (date: string, template: string) => {
 };
 
 // Picker Handlers
-const handleDisabledClick = () => {
-	uni.showToast({
-		title: '请先开启异地还车',
-		icon: 'none',
-		duration: 2000
-	});
-};
-
 const openCityPicker = (target: 'pickup' | 'return') => {
 	console.log('🔍 openCityPicker 被调用', target);
 	currentPickerTarget.value = target;
@@ -231,7 +341,17 @@ const openStorePicker = (target: 'pickup' | 'return') => {
 	currentPickerTarget.value = target;
 	pickerType.value = 'store';
 	pickerTitle.value = target === 'pickup' ? '选择取车门店' : '选择还车门店';
-	pickerData.value = (stores as any)[cityId] || [];
+
+	// 获取门店列表
+	let cityStores = (stores as any)[cityId] || [];
+
+	// 根据是否有定位进行排序
+	if (userLocation.value) {
+		pickerData.value = sortStoresByDistance(cityStores, userLocation.value);
+	} else {
+		pickerData.value = sortStoresByName(cityStores);
+	}
+
 	currentSelectedId.value = target === 'pickup' ? pickupStoreId.value : returnStoreId.value;
 	cityStorePicker.value?.open();
 };
@@ -241,28 +361,67 @@ const onPickerConfirm = (item: any) => {
 		if (currentPickerTarget.value === 'pickup') {
 			pickupCity.value = item.name;
 			pickupCityId.value = item.id;
-			// 重置门店
-			pickupStore.value = '';
-			pickupStoreId.value = '';
-            // 如果未开启异地还车，还车城市跟随变化
-            if (!isDifferentLocation.value) {
-                returnCity.value = item.name;
-                returnCityId.value = item.id;
-            }
+
+			// 自动填充门店
+			const cityStores = (stores as any)[item.id] || [];
+			if (cityStores.length > 0) {
+				let selectedStore = cityStores[0];
+
+				// 如果有定位，选择最近的门店
+				if (userLocation.value) {
+					const nearest = findNearestStore(cityStores, userLocation.value);
+					if (nearest) selectedStore = nearest;
+				}
+
+				pickupStore.value = selectedStore.name;
+				pickupStoreId.value = selectedStore.id;
+
+				// 如果未开启异地还车，还车门店也跟随变化
+				if (!isDifferentLocation.value) {
+					returnStore.value = selectedStore.name;
+					returnStoreId.value = selectedStore.id;
+				}
+			} else {
+				// 如果该城市没有门店，清空门店信息
+				pickupStore.value = '';
+				pickupStoreId.value = '';
+			}
+
+			// 如果未开启异地还车，还车城市跟随变化
+			if (!isDifferentLocation.value) {
+				returnCity.value = item.name;
+				returnCityId.value = item.id;
+			}
 		} else {
 			returnCity.value = item.name;
 			returnCityId.value = item.id;
-			returnStore.value = '';
-			returnStoreId.value = '';
+
+			// 自动填充还车门店
+			const cityStores = (stores as any)[item.id] || [];
+			if (cityStores.length > 0) {
+				let selectedStore = cityStores[0];
+
+				// 如果有定位，选择最近的门店
+				if (userLocation.value) {
+					const nearest = findNearestStore(cityStores, userLocation.value);
+					if (nearest) selectedStore = nearest;
+				}
+
+				returnStore.value = selectedStore.name;
+				returnStoreId.value = selectedStore.id;
+			} else {
+				returnStore.value = '';
+				returnStoreId.value = '';
+			}
 		}
 	} else {
 		if (currentPickerTarget.value === 'pickup') {
 			pickupStore.value = item.name;
 			pickupStoreId.value = item.id;
-            if (!isDifferentLocation.value) {
-                returnStore.value = item.name;
-                returnStoreId.value = item.id;
-            }
+			if (!isDifferentLocation.value) {
+				returnStore.value = item.name;
+				returnStoreId.value = item.id;
+			}
 		} else {
 			returnStore.value = item.name;
 			returnStoreId.value = item.id;
@@ -286,25 +445,25 @@ const onDateConfirm = (data: any) => {
 	pickupDate.value = data.pickupDate;
 	returnDate.value = data.returnDate;
 	pickupTime.value = data.time;
-	returnTime.value = data.time; // 同步还车时间
+	returnTime.value = data.time;
 	saveToStorage();
 };
 
 const toggleDifferentLocation = () => {
 	isDifferentLocation.value = !isDifferentLocation.value;
 	if (!isDifferentLocation.value) {
-		// 清空还车信息，恢复为同取车
+		// 清空还车信息
 		returnCity.value = '';
 		returnCityId.value = '';
 		returnStore.value = '';
 		returnStoreId.value = '';
 	} else {
-        // 开启时，默认还车地点等于取车地点
-        returnCity.value = pickupCity.value;
-        returnCityId.value = pickupCityId.value;
-        returnStore.value = pickupStore.value;
-        returnStoreId.value = pickupStoreId.value;
-    }
+		// 开启时，默认还车地点等于取车地点
+		returnCity.value = pickupCity.value;
+		returnCityId.value = pickupCityId.value;
+		returnStore.value = pickupStore.value;
+		returnStoreId.value = pickupStoreId.value;
+	}
 	saveToStorage();
 };
 
@@ -322,7 +481,7 @@ const handleSearch = () => {
 		uni.showToast({ title: '请选择还车城市和门店', icon: 'none' });
 		return;
 	}
-	
+
 	const params = {
 		pickupCity: pickupCity.value,
 		pickupStore: pickupStore.value,
@@ -335,7 +494,7 @@ const handleSearch = () => {
 		returnStore: isDifferentLocation.value ? returnStore.value : pickupStore.value,
 		duration: duration.value
 	};
-	
+
 	console.log('Search Params:', params);
 	emit('search', params);
 };
@@ -360,7 +519,7 @@ const saveToStorage = () => {
 	uni.setStorageSync('booking_form_data', data);
 };
 
-const loadFromStorage = () => {
+const loadFromStorage = (): boolean => {
 	const data = uni.getStorageSync('booking_form_data');
 	if (data) {
 		pickupCity.value = data.pickupCity;
@@ -376,8 +535,11 @@ const loadFromStorage = () => {
 		returnCityId.value = data.returnCityId;
 		returnStore.value = data.returnStore;
 		returnStoreId.value = data.returnStoreId;
+		return true;
 	}
+	return false;
 };
+
 defineExpose({ onDateConfirm });
 </script>
 
@@ -394,7 +556,7 @@ defineExpose({ onDateConfirm });
 .form-header {
 	display: flex;
 	margin-bottom: 32rpx;
-	
+
 	.tab-item {
 		font-size: 32rpx;
 		font-weight: bold;
@@ -402,11 +564,11 @@ defineExpose({ onDateConfirm });
 		margin-right: 40rpx;
 		position: relative;
 		transition: all 0.3s;
-		
+
 		&.active {
 			color: $uni-text-color;
 			font-size: 36rpx;
-			
+
 			&::after {
 				content: '';
 				position: absolute;
@@ -421,82 +583,106 @@ defineExpose({ onDateConfirm });
 	}
 }
 
-.city-selection-row {
-	display: flex;
-	align-items: center;
-	position: relative;
-	padding: 8rpx 0 24rpx;
+// 位置选择区域
+.location-selection-section {
+	padding: 16rpx 0;
+
+	&.return-section {
+		max-height: 0;
+		overflow: hidden;
+		opacity: 0;
+		transition: all 0.3s ease-in-out;
+
+		&.show {
+			max-height: 200rpx;
+			opacity: 1;
+			padding: 16rpx 0;
+		}
+	}
 }
 
-.city-block {
-	flex: 1;
+.section-header {
 	display: flex;
-	flex-direction: column;
-	
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12rpx;
+
 	.label {
-		font-size: 20rpx;
-		color: $uni-text-color-secondary;
-		margin-bottom: 4rpx;
-	}
-	
-	.city-name {
-		font-size: 40rpx;
-		font-weight: 800; // Heavy weight
-		color: $uni-text-color;
-		line-height: 1.2;
-		margin-bottom: 4rpx;
-		cursor: pointer;
-		transition: opacity 0.2s;
-
-		&.placeholder {
-			color: $uni-text-color-placeholder;
-			font-size: 32rpx;
-		}
-
-		&:active {
-			opacity: 0.6;
-		}
-	}
-
-	.store-name {
 		font-size: 24rpx;
 		color: $uni-text-color-secondary;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+	}
+}
+
+// 城市门店选择行
+.city-store-row {
+	display: flex;
+	gap: 16rpx;
+
+	.city-selector {
+		flex: 0 0 35%;
+		background: $uni-bg-color;
+		border-radius: 12rpx;
+		padding: 20rpx 16rpx;
 		cursor: pointer;
 		transition: opacity 0.2s;
 
 		&:active {
-			opacity: 0.6;
+			opacity: 0.7;
+		}
+
+		.city-name {
+			font-size: 32rpx;
+			font-weight: bold;
+			color: $uni-text-color;
+
+			&.placeholder {
+				color: $uni-text-color-placeholder;
+				font-size: 28rpx;
+				font-weight: normal;
+			}
 		}
 	}
-	
-	&.return {
-		padding-left: 32rpx;
+
+	.store-selector {
+		flex: 1;
+		background: $uni-bg-color;
+		border-radius: 12rpx;
+		padding: 20rpx 16rpx;
+		cursor: pointer;
+		transition: opacity 0.2s;
+
+		&:active {
+			opacity: 0.7;
+		}
+
+		.store-name {
+			font-size: 28rpx;
+			color: $uni-text-color;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+
+			&.placeholder {
+				color: $uni-text-color-placeholder;
+			}
+		}
 	}
 }
 
-.city-divider {
-	padding: 0 16rpx;
-	opacity: 0.3;
-}
-
+// 异地还车开关
 .diff-loc-switch {
-	position: absolute;
-	top: 0;
-	right: 0;
 	display: flex;
 	align-items: center;
 	gap: 8rpx;
 	padding: 4rpx 12rpx;
 	background-color: $uni-bg-color;
 	border-radius: 20rpx;
-	
+	cursor: pointer;
+
 	.switch-text {
-		font-size: 20rpx;
+		font-size: 24rpx;
 		color: $uni-text-color-secondary;
-		
+
 		&.active {
 			color: $uni-color-primary;
 			font-weight: 500;
@@ -520,31 +706,31 @@ defineExpose({ onDateConfirm });
 .date-block {
 	display: flex;
 	flex-direction: column;
-	
+
 	.date-main {
 		display: flex;
 		align-items: baseline;
 		gap: 8rpx;
 		margin-bottom: 4rpx;
 	}
-	
+
 	.month-day {
 		font-size: 36rpx;
 		font-weight: bold;
 		color: $uni-text-color;
 		font-family: 'DIN Alternate', sans-serif;
 	}
-	
+
 	.week {
 		font-size: 24rpx;
 		color: $uni-text-color-secondary;
 	}
-	
+
 	.time {
 		font-size: 24rpx;
 		color: $uni-text-color-placeholder;
 	}
-	
+
 	&.right {
 		align-items: flex-end;
 	}
@@ -557,13 +743,13 @@ defineExpose({ onDateConfirm });
 	justify-content: center;
 	gap: 8rpx;
 	padding: 0 20rpx;
-	
+
 	.line {
 		height: 1rpx;
 		flex: 1;
 		background-color: #E5E6EB;
 	}
-	
+
 	.day-badge {
 		font-size: 20rpx;
 		color: $uni-text-color-secondary;
@@ -583,7 +769,7 @@ defineExpose({ onDateConfirm });
 	border-radius: $uni-radius-btn;
 	box-shadow: $uni-shadow-glow;
 	border: none;
-	
+
 	&::after {
 		border: none;
 	}
