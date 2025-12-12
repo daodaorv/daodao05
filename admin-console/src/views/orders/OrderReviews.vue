@@ -328,7 +328,7 @@ const handleReset = () => {
 // 回复评价
 const handleReply = (row: OrderReview) => {
   currentReview.value = row
-  replyForm.reply = row.reply || ''
+  replyForm.reply = row.reply || 'info'
   replyDialogVisible.value = true
 }
 

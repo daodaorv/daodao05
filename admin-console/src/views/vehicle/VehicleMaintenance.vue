@@ -567,7 +567,7 @@ const handleEdit = (row: MaintenanceRecord) => {
   form.type = row.type
   form.description = row.description
   form.serviceProvider = row.serviceProvider
-  form.contactPhone = (row as any).contactPhone || ''
+  form.contactPhone = (row as any).contactPhone || 'info'
   form.scheduledDate = row.maintenanceDate
   form.estimatedCost = row.totalCost
   form.currentMileage = row.mileage

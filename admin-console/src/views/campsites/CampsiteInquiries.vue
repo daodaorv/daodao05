@@ -98,8 +98,8 @@
           {{ currentInquiry?.id }}
         </el-descriptions-item>
         <el-descriptions-item label="咨询状态">
-          <el-tag :type="(getInquiryStatusTag(currentInquiry?.status || '')) as any" size="small">
-            {{ getInquiryStatusLabel(currentInquiry?.status || '') }}
+          <el-tag :type="(getInquiryStatusTag(currentInquiry?.status || 'info')) as any" size="small">
+            {{ getInquiryStatusLabel(currentInquiry?.status || 'info') }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="营地名称">
@@ -343,7 +343,7 @@ const handleReset = () => {
 // 回复咨询
 const handleReply = (row: CampsiteInquiry) => {
   currentInquiry.value = row
-  replyForm.reply = row.reply || ''
+  replyForm.reply = row.reply || 'info'
   replyDialogVisible.value = true
 }
 
@@ -356,7 +356,7 @@ const handleView = (row: CampsiteInquiry) => {
 // 从详情对话框打开回复对话框
 const handleReplyFromDetail = () => {
   detailDialogVisible.value = false
-  replyForm.reply = currentInquiry.value?.reply || ''
+  replyForm.reply = currentInquiry.value?.reply || 'info'
   replyDialogVisible.value = true
 }
 

@@ -57,8 +57,8 @@
           {{ currentReservation?.id }}
         </el-descriptions-item>
         <el-descriptions-item label="预订状态">
-          <el-tag :type="(getReservationStatusTag(currentReservation?.status || '')) as any" size="small">
-            {{ getReservationStatusLabel(currentReservation?.status || '') }}
+          <el-tag :type="(getReservationStatusTag(currentReservation?.status || 'info')) as any" size="small">
+            {{ getReservationStatusLabel(currentReservation?.status || 'info') }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="营地名称" :span="2">

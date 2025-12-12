@@ -339,7 +339,7 @@ const getActionType = (action?: string) => {
     delete: 'danger',
     query: 'info',
   }
-  return typeMap[action || ''] || 'info'
+  return typeMap[action || 'info'] || 'info'
 }
 
 // 页面加载

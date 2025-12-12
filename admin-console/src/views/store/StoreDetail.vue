@@ -3,7 +3,7 @@
   <div class="store-detail-container">
     <PageHeader
       :title="store?.name || '门店详情'"
-      :description="`${store?.code || ''} - ${store?.address || ''}`"
+      :description="`${store?.code || 'info'} - ${store?.address || 'info'}`"
       show-back
     />
 

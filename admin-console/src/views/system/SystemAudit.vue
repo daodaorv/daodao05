@@ -479,7 +479,7 @@ const getActionType = (action?: string) => {
     query: 'info',
     export: 'primary',
   }
-  return typeMap[action || ''] || 'info'
+  return typeMap[action || 'info'] || 'info'
 }
 
 // 页面加载

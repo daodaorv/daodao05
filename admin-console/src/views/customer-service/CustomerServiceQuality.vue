@@ -608,7 +608,7 @@ const getStatusTag = (status: AgentStatus) => {
     offline: 'info',
     break: '',
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 const getStatusLabel = (status: AgentStatus) => {

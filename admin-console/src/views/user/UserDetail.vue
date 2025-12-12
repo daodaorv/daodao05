@@ -292,8 +292,8 @@ const handleBack = () => {
 const handleEdit = () => {
   userForm.id = userInfo.value.id
   userForm.username = userInfo.value.username
-  userForm.realName = userInfo.value.realName || ''
-  userForm.email = userInfo.value.email || ''
+  userForm.realName = userInfo.value.realName || 'info'
+  userForm.email = userInfo.value.email || 'info'
   // userType固定为customer，不需要从userInfo中读取
   userForm.status = userInfo.value.status
   dialogVisible.value = true
@@ -416,7 +416,7 @@ const getStatusTagType = (status: string): 'primary' | 'success' | 'warning' | '
     inactive: 'warning',
     banned: 'danger',
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签文本

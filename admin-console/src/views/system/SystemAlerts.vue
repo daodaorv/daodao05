@@ -486,7 +486,7 @@ const getLevelType = (level?: string) => {
     warning: 'warning',
     info: 'info',
   }
-  return typeMap[level || ''] || 'info'
+  return typeMap[level || 'info'] || 'info'
 }
 
 // 获取级别标签文本
@@ -496,7 +496,7 @@ const getLevelLabel = (level?: string) => {
     warning: '警告',
     info: '提示',
   }
-  return labelMap[level || ''] || level
+  return labelMap[level || 'info'] || level
 }
 
 // 获取类型标签文本
@@ -507,7 +507,7 @@ const getTypeLabel = (type?: string) => {
     performance: '性能异常',
     security: '安全异常',
   }
-  return labelMap[type || ''] || type
+  return labelMap[type || 'info'] || type
 }
 
 // 获取状态类型标签
@@ -518,7 +518,7 @@ const getStatusType = (status?: string): 'primary' | 'success' | 'warning' | 'in
     resolved: 'success',
     ignored: 'info',
   }
-  return typeMap[status || ''] || 'info'
+  return typeMap[status || 'info'] || 'info'
 }
 
 // 获取状态标签文本
@@ -529,7 +529,7 @@ const getStatusLabel = (status?: string) => {
     resolved: '已处理',
     ignored: '已忽略',
   }
-  return labelMap[status || ''] || status
+  return labelMap[status || 'info'] || status
 }
 
 // 页面加载

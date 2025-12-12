@@ -618,7 +618,7 @@ const getTypeTagType = (type: TicketType) => {
     refund: 'info',
     other: ''
   }
-  return typeMap[type] || ''
+  return typeMap[type] || 'info'
 }
 
 // 获取工单类型标签
@@ -642,7 +642,7 @@ const getPriorityTagType = (priority: TicketPriority) => {
     high: 'warning',
     urgent: 'danger'
   }
-  return priorityMap[priority] || ''
+  return priorityMap[priority] || 'info'
 }
 
 // 获取优先级标签
@@ -665,7 +665,7 @@ const getStatusTagType = (status: TicketStatus) => {
     closed: 'info',
     reopened: 'danger'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签
@@ -688,7 +688,7 @@ const getAgentStatusType = (status: ServiceStatus) => {
     offline: 'info',
     break: ''
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取客服状态标签

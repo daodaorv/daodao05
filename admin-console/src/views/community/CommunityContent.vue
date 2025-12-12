@@ -594,7 +594,7 @@ const getContentTypeTag = (type: ContentType) => {
     image: 'warning',
     video: 'danger',
   }
-  return typeMap[type] || ''
+  return typeMap[type] || 'info'
 }
 
 const getContentTypeLabel = (type: ContentType) => {
@@ -614,7 +614,7 @@ const getStatusTag = (status: ContentStatus) => {
     hidden: 'warning',
     deleted: 'danger',
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 const getStatusLabel = (status: ContentStatus) => {

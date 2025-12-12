@@ -450,7 +450,7 @@ const getStatusTagType = (status: ReconciliationStatus) => {
     completed: 'success',
     failed: 'danger'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签

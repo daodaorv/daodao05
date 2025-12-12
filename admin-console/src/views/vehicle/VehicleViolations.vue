@@ -529,7 +529,7 @@ function handleEdit(row: ViolationRecord) {
   form.fineAmount = row.fineAmount
   form.driverName = row.driverName
   form.driverLicense = row.driverLicense
-  form.remark = row.remark || ''
+  form.remark = row.remark || 'info'
   dialogVisible.value = true
 }
 

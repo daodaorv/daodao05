@@ -367,7 +367,7 @@ const getOrderTypeTag = (type: string) => {
     '押金': 'info',
     '违章罚款': 'danger'
   }
-  return typeMap[type] || ''
+  return typeMap[type] || 'info'
 }
 
 // 获取进度条颜色

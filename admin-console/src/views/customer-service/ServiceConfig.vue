@@ -298,7 +298,7 @@ const getAgentStatusType = (status: ServiceStatus) => {
     offline: 'info',
     break: ''
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取客服状态标签

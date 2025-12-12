@@ -515,9 +515,9 @@ function handleEdit(row: UserInfo) {
   Object.assign(formData, {
     id: row.id,
     username: row.username,
-    realName: row.realName || '',
+    realName: row.realName || 'info',
     phone: row.phone,
-    email: row.email || '',
+    email: row.email || 'info',
     password: '',
     status: row.status,
   })
@@ -742,7 +742,7 @@ function handleExport() {
   // 处理数据
   const exportData = list.value.map(user => ({
     ...user,
-    tags: user.tags?.map(tag => tag.name).join('、') || '',
+    tags: user.tags?.map(tag => tag.name).join('、') || 'info',
     status: getUserStatusLabel(user.status),
     lastLoginAt: formatDateTime(user.lastLoginAt),
     createdAt: formatDateTime(user.createdAt)
@@ -759,7 +759,7 @@ function getStatusTag(status: string) {
     inactive: 'warning',
     banned: 'danger',
   }
-  return tagMap[status] || ''
+  return tagMap[status] || 'info'
 }
 
 // 组件挂载时加载标签

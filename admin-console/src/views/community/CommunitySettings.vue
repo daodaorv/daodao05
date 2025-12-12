@@ -467,7 +467,7 @@ const getSectionStatusType = (status: SectionStatus) => {
     inactive: 'info',
     archived: 'warning'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取版块状态标签

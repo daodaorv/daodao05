@@ -487,7 +487,7 @@ const getStatusTagType = (status: InvoiceStatus) => {
     paid: 'success',
     cancelled: 'danger'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签

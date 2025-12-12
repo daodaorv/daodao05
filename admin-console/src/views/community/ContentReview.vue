@@ -662,7 +662,7 @@ const getContentTypeTagType = (type: ContentType) => {
     image: 'warning',
     video: 'danger'
   }
-  return typeMap[type] || ''
+  return typeMap[type] || 'info'
 }
 
 // 获取内容类型标签
@@ -686,7 +686,7 @@ const getStatusTagType = (status: ReviewStatus) => {
     manual_approved: 'success',
     manual_rejected: 'info'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签

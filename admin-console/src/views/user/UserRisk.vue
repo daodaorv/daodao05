@@ -414,7 +414,7 @@ function getRiskLevelTag(level?: string) {
     medium: 'warning',
     low: 'info',
   }
-  return tagMap[level || ''] || 'info'
+  return tagMap[level || 'info'] || 'info'
 }
 
 // 获取风险评分样式

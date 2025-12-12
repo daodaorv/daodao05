@@ -75,13 +75,13 @@
           {{ currentCampsite?.name }}
         </el-descriptions-item>
         <el-descriptions-item label="营地类型">
-          <el-tag :type="(getCampsiteTypeTag(currentCampsite?.type || '')) as any" size="small">
-            {{ getCampsiteTypeLabel(currentCampsite?.type || '') }}
+          <el-tag :type="(getCampsiteTypeTag(currentCampsite?.type || 'info')) as any" size="small">
+            {{ getCampsiteTypeLabel(currentCampsite?.type || 'info') }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="运营状态">
-          <el-tag :type="(getCampsiteStatusTag(currentCampsite?.status || '')) as any" size="small">
-            {{ getCampsiteStatusLabel(currentCampsite?.status || '') }}
+          <el-tag :type="(getCampsiteStatusTag(currentCampsite?.status || 'info')) as any" size="small">
+            {{ getCampsiteStatusLabel(currentCampsite?.status || 'info') }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="详细地址" :span="2">

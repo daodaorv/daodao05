@@ -851,7 +851,7 @@ const handleExecuteAutoRule = async (tag: Tag) => {
           conditions: tag.autoRule?.conditions || [],
           logic: (tag.autoRule as any)?.logic || 'AND',
           triggerMode: tag.autoRule?.triggerMode || 'manual',
-          description: tag.autoRule?.description || ''
+          description: tag.autoRule?.description || 'info'
         },
         usersData
       )
@@ -872,7 +872,7 @@ const handleExecuteAutoRule = async (tag: Tag) => {
         conditions: tag.autoRule?.conditions || [],
         logic: (tag.autoRule as any)?.logic || 'AND',
         triggerMode: tag.autoRule?.triggerMode || 'manual',
-        description: tag.autoRule?.description || ''
+        description: tag.autoRule?.description || 'info'
       })
 
       // 记录执行日志
@@ -941,7 +941,7 @@ const handleEditTag = (tag: Tag) => {
   tagForm.category = tag.category || 'user_attribute'
   tagForm.priority = tag.priority || 1
   tagForm.status = tag.status || 'active'
-  tagForm.expiresAt = tag.expiresAt || ''
+  tagForm.expiresAt = tag.expiresAt || 'info'
 
   // 自动规则
   if (tag.autoRule) {

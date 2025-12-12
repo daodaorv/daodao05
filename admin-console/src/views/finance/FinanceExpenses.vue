@@ -406,7 +406,7 @@ const getCategoryTagType = (category: ExpenseCategory) => {
     marketing: 'warning',
     other: 'info'
   }
-  return categoryMap[category] || ''
+  return categoryMap[category] || 'info'
 }
 
 // 获取类别标签

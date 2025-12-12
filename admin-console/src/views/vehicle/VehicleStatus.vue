@@ -104,8 +104,8 @@
           <div>{{ currentVehicle?.vehicleNumber }} - {{ currentVehicle?.modelName }}</div>
         </el-form-item>
         <el-form-item label="当前状态">
-          <el-tag :type="(getVehicleStatusTag(currentVehicle?.status || '')) as any" size="small">
-            {{ getVehicleStatusLabel(currentVehicle?.status || '') }}
+          <el-tag :type="(getVehicleStatusTag(currentVehicle?.status || 'info')) as any" size="small">
+            {{ getVehicleStatusLabel(currentVehicle?.status || 'info') }}
           </el-tag>
         </el-form-item>
         <el-form-item label="变更为" prop="newStatus">

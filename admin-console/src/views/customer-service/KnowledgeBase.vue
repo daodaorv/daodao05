@@ -523,7 +523,7 @@ const getCategoryTagType = (category: KnowledgeCategory) => {
     technical: 'danger',
     other: 'info'
   }
-  return categoryMap[category] || ''
+  return categoryMap[category] || 'info'
 }
 
 // 获取分类标签

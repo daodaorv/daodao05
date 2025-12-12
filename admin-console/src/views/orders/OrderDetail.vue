@@ -2,8 +2,8 @@
 <template>
   <div class="order-detail-container">
     <PageHeader
-      :title="`订单详情 - ${order?.orderNo || ''}`"
-      :description="`${order?.userName || ''} - ${order?.userPhone || ''}`"
+      :title="`订单详情 - ${order?.orderNo || 'info'}`"
+      :description="`${order?.userName || 'info'} - ${order?.userPhone || 'info'}`"
       show-back
     />
 

@@ -336,7 +336,7 @@ const handleReset = () => {
 // 处理异常
 const handleProcess = (row: OrderException) => {
   currentException.value = row
-  handleForm.resolution = row.resolution || ''
+  handleForm.resolution = row.resolution || 'info'
   handleDialogVisible.value = true
 }
 

@@ -514,8 +514,8 @@ function handleEdit(row: InsuranceRecord) {
     endDate: row.endDate,
     premium: row.premium,
     coverageAmount: row.coverageAmount || 0,
-    coverageItems: row.coverageItems || '',
-    remark: row.remark || '',
+    coverageItems: row.coverageItems || 'info',
+    remark: row.remark || 'info',
   })
   dialogVisible.value = true
 }

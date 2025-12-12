@@ -556,7 +556,7 @@ const getPriorityTagType = (priority: string) => {
     high: 'warning',
     urgent: 'danger'
   }
-  return priorityMap[priority] || ''
+  return priorityMap[priority] || 'info'
 }
 
 // 获取优先级标签
@@ -578,7 +578,7 @@ const getStatusTagType = (status: HandleStatus) => {
     resolved: 'success',
     rejected: 'info'
   }
-  return statusMap[status] || ''
+  return statusMap[status] || 'info'
 }
 
 // 获取状态标签
