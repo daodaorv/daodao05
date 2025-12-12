@@ -61,7 +61,10 @@
             "scope.userLocation" : {
                 "desc" : "仅用于为您提供附近门店服务"
             }
-        }
+        },
+        "requiredPrivateInfos" : [
+            "getLocation"
+        ]
     },
     "vueVersion" : "3",
     "h5" : {
