@@ -4,21 +4,13 @@
 
 import type {
   VehicleModelPriceGroupListParams,
-  VehicleModelPriceGroupListResponse,
   VehicleModelPriceHistoryListParams,
-  VehicleModelPriceHistoryListResponse,
   UpdateModelPriceRequest,
-  UpdateModelPriceResponse,
   BatchUpdatePriceRequest,
-  BatchUpdatePriceResponse,
   CreatePriceGroupRequest,
-  CreatePriceGroupResponse,
   JoinPriceGroupRequest,
-  JoinPriceGroupResponse,
   UpdateGroupPriceRequest,
-  UpdateGroupPriceResponse,
   LeaveGroupRequest,
-  LeaveGroupResponse,
   VehicleModelPriceGroup,
 } from '../types/vehicleModel'
 
