@@ -42,7 +42,16 @@ fi
 if git diff --cached --name-only | grep -q "^admin-console/"; then
   echo "[INFO] Checking admin-console code..."
   cd admin-console
-  if [ -f "package.json" ]; then
+  if [ -f "scripts/quality-check.js" ]; then
+    echo "🔍 运行代码质量门禁检查..."
+    node scripts/quality-check.js
+    if [ $? -ne 0 ]; then
+      echo "❌ admin-console 质量检查失败，提交被阻止"
+      cd ..
+      exit 1
+    fi
+    echo "✅ admin-console 质量检查通过"
+  elif [ -f "package.json" ]; then
     npm run lint 2>/dev/null || echo "[WARNING] Admin-console lint check failed, but continuing"
   fi
   cd ..
