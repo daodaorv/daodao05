@@ -1,7 +1,6 @@
 /**
  * 营销管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetPricingStrategyList,
   mockGetCouponList,

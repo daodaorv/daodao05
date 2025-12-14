@@ -1,7 +1,6 @@
 /**
  * 合作商管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetPartnerList,
   mockGetPartnerDetail,

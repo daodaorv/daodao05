@@ -1,7 +1,6 @@
 /**
  * 托管管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetOldCarApplicationList,
   mockReviewOldCarApplication,

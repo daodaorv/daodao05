@@ -105,7 +105,6 @@ import DataTable from '@/components/common/DataTable.vue'
 import FormDialog from '@/components/common/FormDialog.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
-import type { FormField } from '@/components/common/FormDialog.vue'
 import {
   getExtraFeeList,
   type ExtraFee,

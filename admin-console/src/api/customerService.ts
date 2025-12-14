@@ -1,7 +1,6 @@
 /**
  * 客服管理 API
  */
-import request from '@/utils/request'
 import {
   getTickets as mockGetTickets,
   getTicketStats as mockGetTicketStats,

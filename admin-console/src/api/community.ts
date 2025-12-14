@@ -1,7 +1,6 @@
 /**
  * 社区管理 API
  */
-import request from '@/utils/request'
 import {
   getContentReviews as mockGetContentReviews,
   getContentReviewStats as mockGetContentReviewStats,

@@ -143,7 +143,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { profitSharingApi } from '@/api/profitSharing'
 import type { ProfitConfig } from '@/api/profitSharing'

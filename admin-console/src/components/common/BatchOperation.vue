@@ -150,7 +150,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import {
   ArrowDown,
   WarningFilled,

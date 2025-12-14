@@ -1,7 +1,6 @@
 /**
  * 供应商管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetSupplierList,
   mockGetSupplierDetail,

@@ -1,7 +1,6 @@
 /**
  * 营地管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetCampsiteList,
   mockGetCampsiteDetail,

@@ -1,7 +1,6 @@
 /**
  * 门店管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetStoreList,
   mockGetStoreDetail,
