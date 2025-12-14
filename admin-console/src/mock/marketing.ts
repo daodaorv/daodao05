@@ -30,7 +30,7 @@ export interface PricingStrategy {
 }
 
 // Mock 价格策略数据
-let mockPricingStrategies: PricingStrategy[] = [
+const mockPricingStrategies: PricingStrategy[] = [
   {
     id: 1,
     name: '春节假期价格上浮',
@@ -156,7 +156,7 @@ export interface Coupon {
 }
 
 // Mock 优惠券数据
-let mockCoupons: Coupon[] = [
+const mockCoupons: Coupon[] = [
   {
     id: 1,
     name: '新用户专享券',
@@ -296,7 +296,7 @@ export interface MarketingActivity {
 }
 
 // Mock 营销活动数据
-let mockActivities: MarketingActivity[] = [
+const mockActivities: MarketingActivity[] = [
   {
     id: 1,
     name: '春节房车自驾游活动',
@@ -408,7 +408,7 @@ export interface Package {
 }
 
 // Mock 特惠套餐数据
-let mockPackages: Package[] = [
+const mockPackages: Package[] = [
   {
     id: 1,
     name: '春节7天自驾套餐',
@@ -519,7 +519,7 @@ export interface Tour {
 }
 
 // Mock 房车旅游数据
-let mockTours: Tour[] = [
+const mockTours: Tour[] = [
   {
     id: 1,
     name: '川藏线房车自驾游',
@@ -627,7 +627,7 @@ export interface ExtraFee {
 }
 
 // Mock 增值费用数据
-let mockExtraFees: ExtraFee[] = [
+const mockExtraFees: ExtraFee[] = [
   {
     id: 1,
     name: '全险保障',

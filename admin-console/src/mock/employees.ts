@@ -4,7 +4,7 @@
 import type { Employee, EmployeeListParams, CreateEmployeeParams, UpdateEmployeeParams } from '@/api/employee'
 
 // Mock 员工数据
-let mockEmployees: Employee[] = [
+const mockEmployees: Employee[] = [
   {
     id: 1,
     realName: '张三',

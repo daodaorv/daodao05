@@ -370,16 +370,16 @@ export const menuConfig: MenuItem[] = [
     },
     children: [
       {
+        path: '/marketing/price-calendar',
+        name: 'PriceCalendar',
+        meta: { title: '价格日历' },
+        component: () => import('@/views/marketing/PriceCalendar.vue'),
+      },
+      {
         path: '/marketing/pricing',
         name: 'MarketingPricing',
         meta: { title: '价格策略' },
         component: () => import('@/views/marketing/MarketingPricing.vue'),
-      },
-      {
-        path: '/marketing/price-calculation',
-        name: 'PriceCalculationDemo',
-        meta: { title: '价格计算演示' },
-        component: () => import('@/views/marketing/PriceCalculationDemo.vue'),
       },
       {
         path: '/marketing/coupons',

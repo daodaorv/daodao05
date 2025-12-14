@@ -72,6 +72,9 @@
         <el-button link type="primary" size="small" @click="handleAdjustPrice(row)">
           调整价格
         </el-button>
+        <el-button link type="success" size="small" @click="handleViewPriceCalendar(row)">
+          价格日历
+        </el-button>
         <el-button link type="info" size="small" @click="handleViewHistory(row)">
           价格历史
         </el-button>
@@ -1422,6 +1425,17 @@ const handleLeaveGroup = async (row: VehicleModel) => {
       handleApiError(error, '脱离分组失败')
     }
   }
+}
+
+// 查看价格日历
+const handleViewPriceCalendar = (row: VehicleModel) => {
+  router.push({
+    name: 'PriceCalendar',
+    query: {
+      modelId: row.id,
+      modelName: row.modelName
+    }
+  })
 }
 
 // 查看价格历史

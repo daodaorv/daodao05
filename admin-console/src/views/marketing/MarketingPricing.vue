@@ -1,68 +1,96 @@
 <!-- @ts-nocheck -->
 <template>
   <div class="marketing-pricing-container">
-    <PageHeader title="价格策略管理" description="管理动态定价策略和价格调整规则" />
-
-    <SearchForm
-      v-model="searchForm"
-      :fields="searchFields"
-      @search="handleSearch"
-      @reset="handleReset"
+    <PageHeader
+      title="价格策略配置中心"
+      description="统一管理价格日历、时间因子、城市因子和其他价格规则"
     />
 
-    <DataTable
-      :data="strategyList"
-      :columns="tableColumns"
-      :loading="loading"
-      :actions="tableActions"
-      :toolbar-buttons="toolbarButtons"
-      :pagination="pagination"
-      :actions-width="200"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    >
-      <template #type="{ row }">
-        <el-tag :type="(getStrategyTypeTag(row.type)) as any" size="small">
-          {{ getStrategyTypeLabel(row.type) }}
-        </el-tag>
-      </template>
-      <template #status="{ row }">
-        <el-tag :type="(getStrategyStatusTag(row.status)) as any" size="small">
-          {{ getStrategyStatusLabel(row.status) }}
-        </el-tag>
-      </template>
-      <template #adjustment="{ row }">
-        <span :style="{ color: row.adjustmentValue > 0 ? '#f56c6c' : '#67c23a', fontWeight: 'bold' }">
-          {{ row.adjustmentValue > 0 ? '+' : '' }}{{ row.adjustmentValue }}{{ row.adjustmentType === 'percentage' ? '%' : '元' }}
-        </span>
-      </template>
-      <template #dateRange="{ row }">
-        <div style="font-size: 12px">
-          <div>{{ row.startDate }}</div>
-          <div>{{ row.endDate }}</div>
+    <el-tabs v-model="activeTab" type="border-card" class="pricing-tabs">
+      <!-- Tab 1: 价格日历 -->
+      <el-tab-pane label="价格日历" name="calendar">
+        <div class="tab-content">
+          <el-alert
+            type="info"
+            :closable="false"
+            style="margin-bottom: 16px"
+          >
+            <template #title>
+              <div style="font-size: 13px">
+                价格日历展示每个日期的最终价格，由车型基础价 + 城市因子 + 时间因子 + 其他因子动态计算而成
+              </div>
+            </template>
+          </el-alert>
+
+          <div style="text-align: center; padding: 40px 0">
+            <el-button type="primary" size="large" @click="handleViewPriceCalendar">
+              查看完整价格日历
+            </el-button>
+          </div>
         </div>
-      </template>
-      <template #targetUserTags="{ row }">
-        <el-tag
-          v-for="tagId in row.targetUserTags"
-          :key="tagId"
-          size="small"
-          style="margin-right: 4px"
-        >
-          {{ getTagName(tagId) }}
-        </el-tag>
-        <span v-if="!row.targetUserTags || row.targetUserTags.length === 0" style="color: #909399">
-          全部用户
-        </span>
-      </template>
-      <template #vehicleTypes="{ row }">
-        <div style="display: flex; flex-wrap: wrap; gap: 4px">
-          <el-tag v-for="(type, index) in row.vehicleTypes" :key="index" size="small" type="info">
-            {{ type }}
-          </el-tag>
+      </el-tab-pane>
+
+      <!-- Tab 2: 时间因子配置 -->
+      <el-tab-pane label="时间因子配置" name="timeFactor">
+        <div class="tab-content">
+          <el-alert
+            type="info"
+            :closable="false"
+            style="margin-bottom: 16px"
+          >
+            <template #title>
+              <div style="font-size: 13px">
+                时间因子包括法定节假日和自定义时间规则，用于在特定日期调整价格
+              </div>
+            </template>
+          </el-alert>
+
+          <el-tabs v-model="timeFactorTab" type="card">
+            <el-tab-pane label="法定节假日" name="holiday">
+              <NationalHolidayList />
+            </el-tab-pane>
+            <el-tab-pane label="自定义时间规则" name="custom">
+              <CustomTimeRuleList />
+            </el-tab-pane>
+          </el-tabs>
         </div>
-      </template>
-    </DataTable>
+      </el-tab-pane>
+
+      <!-- Tab 3: 城市因子配置 -->
+      <el-tab-pane label="城市因子配置" name="cityFactor">
+        <div class="tab-content">
+          <CityFactorList />
+        </div>
+      </el-tab-pane>
+
+      <!-- Tab 4: 其他价格规则 -->
+      <el-tab-pane label="其他价格规则" name="otherRules">
+        <div class="tab-content">
+          <OtherPriceRuleList />
+        </div>
+      </el-tab-pane>
+
+      <!-- Tab 5: 价格计算演示 -->
+      <el-tab-pane label="价格计算演示" name="calculator">
+        <div class="tab-content">
+          <el-alert
+            type="info"
+            :closable="false"
+            style="margin-bottom: 16px"
+          >
+            <template #title>
+              <div style="font-size: 13px">
+                价格计算演示工具可以帮助您理解价格计算逻辑：最终价格 = 基础价 + 城市因子 + 时间因子 + 其他因子
+              </div>
+            </template>
+          </el-alert>
+
+          <div style="text-align: center; padding: 40px 0">
+            <el-empty description="价格计算演示功能开发中" />
+          </div>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
 
     <!-- 创建/编辑对话框 -->
     <FormDialog
@@ -136,25 +164,40 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import FormDialog from '@/components/common/FormDialog.vue'
+import NationalHolidayList from '@/components/marketing/NationalHolidayList.vue'
+import CustomTimeRuleList from '@/components/marketing/CustomTimeRuleList.vue'
+import CityFactorList from '@/components/marketing/CityFactorList.vue'
+import OtherPriceRuleList from '@/components/marketing/OtherPriceRuleList.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
 import type { FormField } from '@/components/common/FormDialog.vue'
 import {
   getPricingStrategyList,
+  createPricingStrategy,
+  updatePricingStrategy,
+  deletePricingStrategy,
   type PricingStrategy,
   type PricingStrategyListParams
 } from '@/api/marketing'
 import { tagApi, type Tag } from '@/api/user'
 import { useErrorHandler } from '@/composables'
 
+// Router
+const router = useRouter()
+
 // Composables
 const { handleApiError } = useErrorHandler()
+
+// Tab 状态
+const activeTab = ref('timeFactor')
+const timeFactorTab = ref('holiday')
 
 // 标签列表
 const tagList = ref<Tag[]>([])
@@ -554,7 +597,7 @@ const handleDelete = async (row: PricingStrategy) => {
       }
     )
 
-    // TODO: 调用删除API
+    await deletePricingStrategy(row.id)
     ElMessage.success('删除成功')
     loadStrategyList()
   } catch (error) {
@@ -569,10 +612,10 @@ const handleSubmit = async (data: any) => {
   submitLoading.value = true
   try {
     if (isEdit.value) {
-      // TODO: 调用编辑API
+      await updatePricingStrategy(currentStrategyId.value!, data)
       ElMessage.success('编辑成功')
     } else {
-      // TODO: 调用创建API
+      await createPricingStrategy(data)
       ElMessage.success('创建成功')
     }
 
@@ -583,6 +626,13 @@ const handleSubmit = async (data: any) => {
   } finally {
     submitLoading.value = false
   }
+}
+
+// 查看价格日历
+const handleViewPriceCalendar = () => {
+  router.push({
+    name: 'PriceCalendar'
+  })
 }
 
 // 分页
@@ -678,5 +728,14 @@ onMounted(() => {
 <style scoped lang="scss">
 .marketing-pricing-container {
   padding: 20px;
+
+  .pricing-tabs {
+    margin-top: 20px;
+
+    .tab-content {
+      padding: 20px;
+      min-height: 400px;
+    }
+  }
 }
 </style>

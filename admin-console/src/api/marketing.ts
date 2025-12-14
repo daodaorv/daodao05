@@ -52,6 +52,30 @@ export const getPricingStrategyList = (params: PricingStrategyListParams) => {
   return mockGetPricingStrategyList(params)
 }
 
+/**
+ * 创建价格策略
+ */
+export const createPricingStrategy = (data: Partial<PricingStrategy>) => {
+  // return request.post('/marketing/pricing-strategies', data)
+  return Promise.resolve({ success: true, data })
+}
+
+/**
+ * 更新价格策略
+ */
+export const updatePricingStrategy = (id: number, data: Partial<PricingStrategy>) => {
+  // return request.put(`/marketing/pricing-strategies/${id}`, data)
+  return Promise.resolve({ success: true, data })
+}
+
+/**
+ * 删除价格策略
+ */
+export const deletePricingStrategy = (id: number) => {
+  // return request.delete(`/marketing/pricing-strategies/${id}`)
+  return Promise.resolve({ success: true })
+}
+
 // ==================== 优惠券管理 ====================
 
 /**

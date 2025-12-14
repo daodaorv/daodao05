@@ -8,6 +8,13 @@ export type StoreType = 'direct' | 'franchise' | 'cooperative'
 // 门店状态
 export type StoreStatus = 'active' | 'inactive' | 'suspended'
 
+// 门店价格策略配置
+export interface StorePriceStrategyConfig {
+  useCustomCityFactor: boolean // 是否使用自定义城市因子
+  customCityFactorId?: number // 自定义城市因子ID
+  specialRules?: number[] // 门店专属规则ID列表
+}
+
 // 门店信息
 export interface Store {
   id: number
@@ -36,6 +43,9 @@ export interface Store {
   description: string
   createdAt: string
   updatedAt: string
+
+  // 价格策略配置（新增）
+  priceStrategyConfig?: StorePriceStrategyConfig
 }
 
 // 城市信息
@@ -79,7 +89,7 @@ export interface StoreStats {
 }
 
 // Mock 门店数据
-let mockStores: Store[] = [
+const mockStores: Store[] = [
   {
     id: 1,
     name: '北京朝阳店',
@@ -264,7 +274,7 @@ let mockStores: Store[] = [
 ]
 
 // Mock 城市数据
-let mockCities: City[] = [
+const mockCities: City[] = [
   {
     id: 1,
     name: '北京',
@@ -334,7 +344,7 @@ let mockCities: City[] = [
 ]
 
 // Mock 区域数据
-let mockRegions: Region[] = [
+const mockRegions: Region[] = [
   {
     id: 1,
     name: '华北区',

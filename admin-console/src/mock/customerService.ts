@@ -124,7 +124,7 @@ export interface KnowledgeStats {
 }
 
 // Mock 工单数据
-let mockTickets: Ticket[] = [
+const mockTickets: Ticket[] = [
   {
     id: 1,
     ticketNo: 'TK202512030001',
@@ -248,7 +248,7 @@ let mockTickets: Ticket[] = [
 ]
 
 // Mock 客服人员数据
-let mockServiceAgents: ServiceAgent[] = [
+const mockServiceAgents: ServiceAgent[] = [
   {
     id: 1,
     name: '客服小王',
@@ -340,7 +340,7 @@ let mockRoutingConfig: RoutingConfig = {
 }
 
 // Mock 知识库数据
-let mockKnowledgeArticles: KnowledgeArticle[] = [
+const mockKnowledgeArticles: KnowledgeArticle[] = [
   {
     id: 1,
     title: '如何预订房车？',

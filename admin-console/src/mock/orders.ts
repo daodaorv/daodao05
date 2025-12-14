@@ -78,7 +78,7 @@ export interface OrderStats {
 }
 
 // Mock 订单数据
-let mockOrders: Order[] = [
+const mockOrders: Order[] = [
   {
     id: 1,
     orderNo: 'ORD202412030001',
@@ -713,7 +713,7 @@ export interface OrderException {
 }
 
 // Mock 异常订单数据
-let mockExceptions: OrderException[] = [
+const mockExceptions: OrderException[] = [
   {
     id: 1,
     orderId: 1,
@@ -981,7 +981,7 @@ export interface Refund {
 }
 
 // Mock 退款数据
-let mockRefunds: Refund[] = [
+const mockRefunds: Refund[] = [
   {
     id: 1,
     orderId: 5,
@@ -1188,7 +1188,7 @@ export interface OrderReview {
 }
 
 // Mock 评价数据
-let mockReviews: OrderReview[] = [
+const mockReviews: OrderReview[] = [
   {
     id: 1,
     orderId: 3,
