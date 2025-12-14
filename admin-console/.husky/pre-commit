@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit quality checks..."
+
+# 运行代码质量检查
+node scripts/quality-check.js
+
+# 如果检查失败，阻止提交
+if [ $? -ne 0 ]; then
+  echo "❌ Pre-commit checks failed. Commit aborted."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
