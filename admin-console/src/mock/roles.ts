@@ -4,7 +4,7 @@
 import type { Role, RoleListParams, CreateRoleParams, UpdateRoleParams, ConfigPermissionsParams, RoleUser } from '@/api/role'
 
 // Mock 角色数据
-let mockRoles: Role[] = [
+const mockRoles: Role[] = [
   {
     id: 1,
     name: '平台管理员',

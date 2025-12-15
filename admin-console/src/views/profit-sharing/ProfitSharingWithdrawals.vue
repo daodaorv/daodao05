@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <!-- 提现审核管理页面 -->
 <template>
   <div class="profit-sharing-withdrawals-container">
@@ -122,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'

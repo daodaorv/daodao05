@@ -218,9 +218,10 @@ const getOrderActions = (order: any) => {
 			{ text: '去支付', primary: true, code: 'pay' }
 		];
 	}
-	if (status === 'renting') {
+	// 租赁中状态：支持 in_progress 和 renting 两种状态码
+	if (status === 'in_progress' || status === 'renting') {
 		return [
-			{ text: '联系门店', primary: false, code: 'contact' },
+			{ text: '车辆异常', primary: false, code: 'report' },
 			{ text: '续租', primary: true, code: 'renew' }
 		];
 	}
@@ -247,6 +248,9 @@ const handleAction = (action: any, order: any) => {
 			break;
 		case 'renew':
 			handleRenew(order);
+			break;
+		case 'report':
+			handleReport(order);
 			break;
 		case 'delete':
 			handleDelete(order);
@@ -307,6 +311,13 @@ const handleContact = (order: any) => {
 const handleRenew = (order: any) => {
 	uni.navigateTo({
 		url: `/pages/order/renewal?orderNo=${order.orderNo}`
+	});
+};
+
+// 车辆异常
+const handleReport = (order: any) => {
+	uni.navigateTo({
+		url: `/pages/order/report?orderId=${order.id}&orderNo=${order.orderNo}`
 	});
 };
 

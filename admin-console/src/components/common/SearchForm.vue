@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <el-card class="search-card" shadow="never">
     <el-form :model="modelValue" inline>
@@ -74,7 +75,7 @@ export interface SearchField {
   options?: Array<{ label: string; value: string | number }>
 }
 
-const props = defineProps<{
+const _props = defineProps<{
   modelValue: Record<string, any>
   fields: SearchField[]
 }>()

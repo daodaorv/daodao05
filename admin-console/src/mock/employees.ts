@@ -4,7 +4,7 @@
 import type { Employee, EmployeeListParams, CreateEmployeeParams, UpdateEmployeeParams } from '@/api/employee'
 
 // Mock 员工数据
-let mockEmployees: Employee[] = [
+const mockEmployees: Employee[] = [
   {
     id: 1,
     realName: '张三',
@@ -369,7 +369,7 @@ export const mockExportEmployees = () => {
 }
 
 // Mock 导入员工数据
-export const mockImportEmployees = (file: File) => {
+export const mockImportEmployees = (_file: File) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

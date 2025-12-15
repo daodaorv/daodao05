@@ -549,12 +549,12 @@ const handleRestore = async (row: Backup) => {
 }
 
 // 下载备份
-const handleDownload = (row: Backup) => {
+const handleDownload = (_row: Backup) => {
   ElMessage.info('下载功能开发中...')
 }
 
 // 验证备份
-const handleVerify = (row: Backup) => {
+const handleVerify = (_row: Backup) => {
   ElMessage.info('验证功能开发中...')
 }
 

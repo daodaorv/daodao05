@@ -103,7 +103,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
+const orderId = ref('')
+const orderNo = ref('')
 const reportType = ref<'accident' | 'breakdown'>('accident')
 const description = ref('')
 const maxImages = 6
@@ -114,31 +117,70 @@ const currentLocation = ref<{ latitude?: number; longitude?: number }>({})
 const submitting = ref(false)
 const locating = ref(false)
 
+// 腾讯地图API密钥 - 需要在 https://lbs.qq.com/ 申请
+const TENCENT_MAP_KEY = 'XOUBZ-CASKW-PXZRP-6T7UV-QNKO7-YNFBH'
+
+// 接收订单参数
+onLoad((options: any) => {
+  if (options.orderId) {
+    orderId.value = options.orderId
+  }
+  if (options.orderNo) {
+    orderNo.value = options.orderNo
+  }
+})
+
 const chooseLocation = () => {
   if (locating.value) return
   locating.value = true
   const finish = () => {
     locating.value = false
   }
-  uni.chooseLocation({
-    success: res => {
-      currentAddress.value = res.address || `${res.latitude},${res.longitude}`
+
+  // 直接获取当前位置
+  uni.getLocation({
+    type: 'gcj02',
+    success: async (res) => {
       currentLocation.value = { latitude: res.latitude, longitude: res.longitude }
+
+      // 使用腾讯地图WebService API逆地理编码
+      try {
+        const result: any = await uni.request({
+          url: 'https://apis.map.qq.com/ws/geocoder/v1/',
+          data: {
+            location: `${res.latitude},${res.longitude}`,
+            key: TENCENT_MAP_KEY,
+            get_poi: 1
+          }
+        })
+
+        console.log('逆地理编码结果:', result)
+
+        if (result.statusCode === 200 && result.data.status === 0) {
+          const addressData = result.data.result
+          const formattedAddress = addressData.formatted_addresses?.recommend ||
+                                   addressData.address ||
+                                   `${addressData.address_component?.province || ''}${addressData.address_component?.city || ''}${addressData.address_component?.district || ''}${addressData.address_component?.street || ''}`
+
+          currentAddress.value = formattedAddress
+          console.log('解析的地址:', formattedAddress)
+        } else {
+          console.error('地址解析失败:', result.data)
+          currentAddress.value = `${res.latitude.toFixed(6)}, ${res.longitude.toFixed(6)}`
+          uni.showToast({ title: '地址解析失败，请手动输入', icon: 'none' })
+        }
+      } catch (error) {
+        console.error('逆地理编码请求失败:', error)
+        currentAddress.value = `${res.latitude.toFixed(6)}, ${res.longitude.toFixed(6)}`
+        uni.showToast({ title: '地址解析失败，请手动输入', icon: 'none' })
+      }
+
       finish()
     },
-    fail: () => {
-      uni.getLocation({
-        type: 'gcj02',
-        success: res => {
-          currentLocation.value = { latitude: res.latitude, longitude: res.longitude }
-          currentAddress.value = `当前位置：${res.latitude.toFixed(4)},${res.longitude.toFixed(4)}`
-          finish()
-        },
-        fail: () => {
-          uni.showToast({ title: '定位失败，请手动输入', icon: 'none' })
-          finish()
-        }
-      })
+    fail: (err) => {
+      console.error('定位失败:', err)
+      uni.showToast({ title: '定位失败，请检查定位权限或手动输入地址', icon: 'none' })
+      finish()
     }
   })
 }
@@ -198,6 +240,24 @@ const submitReport = () => {
     uni.showToast({ title: '请提供当前位置', icon: 'none' })
     return
   }
+
+  // 构建提交数据
+  const reportData = {
+    orderId: orderId.value,
+    orderNo: orderNo.value,
+    reportType: reportType.value,
+    description: description.value,
+    images: imageList.value,
+    contactPhone: contactPhone.value,
+    location: {
+      address: currentAddress.value,
+      latitude: currentLocation.value.latitude,
+      longitude: currentLocation.value.longitude
+    }
+  }
+
+  console.log('提交异常申报:', reportData)
+
   submitting.value = true
   uni.showLoading({ title: '提交中...' })
   setTimeout(() => {
@@ -366,18 +426,18 @@ const submitReport = () => {
   right: 0;
   bottom: 0;
   background-color: #ffffff;
-  padding: 20rpx 32rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -6rpx 16rpx rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .btn-submit {
   height: 88rpx;
   border-radius: 44rpx;
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 600;
   background: linear-gradient(135deg, #ff9f29 0%, #ffb84d 100%);
   color: #ffffff;
@@ -387,8 +447,9 @@ const submitReport = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  font-size: 24rpx;
+  gap: 6rpx;
+  font-size: 22rpx;
   color: #999999;
+  line-height: 1.4;
 }
 </style>

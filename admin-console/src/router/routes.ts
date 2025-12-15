@@ -8,7 +8,7 @@ import { menuConfig } from '@/config/menu'
 import type { MenuItem } from '@/types/permission'
 
 // 将菜单配置转换为路由配置
-const generateRoutes = (menus: MenuItem[], parentPath = ''): RouteRecordRaw[] => {
+const generateRoutes = (menus: MenuItem[], _parentPath = ''): RouteRecordRaw[] => {
   const routes: RouteRecordRaw[] = []
 
   menus.forEach((menu) => {

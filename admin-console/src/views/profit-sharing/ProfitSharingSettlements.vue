@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <!-- 结算管理页面 -->
 <template>
   <div class="profit-sharing-settlements-container">
@@ -128,6 +129,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'

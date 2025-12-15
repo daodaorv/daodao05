@@ -660,7 +660,7 @@ export const mockGetVehicles = (params: {
     storeId,
     status,
     ownershipType,
-    crowdfundingProjectId,
+    crowdfundingProjectId: _crowdfundingProjectId,
   } = params
 
   // 过滤数据

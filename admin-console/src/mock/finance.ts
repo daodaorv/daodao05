@@ -264,7 +264,7 @@ const mockInvoices: Invoice[] = Array.from({ length: 30 }, (_, i) => ({
 /**
  * 获取收入统计
  */
-export function mockGetIncomeStats(params: {
+export function mockGetIncomeStats(_params: {
   startDate: string
   endDate: string
 }): Promise<IncomeStats> {
@@ -668,7 +668,7 @@ export function mockUpdateInvoice(id: number, data: Partial<Invoice>): Promise<I
 /**
  * 获取财务分析
  */
-export function mockGetFinancialAnalysis(params: {
+export function mockGetFinancialAnalysis(_params: {
   startDate: string
   endDate: string
   storeId?: number

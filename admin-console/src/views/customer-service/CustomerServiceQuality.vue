@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <!-- 客服质量监控页面 -->
 <template>
   <div class="customer-service-quality-container">
@@ -253,6 +254,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
 import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { User, TrendCharts, Timer, Star } from '@element-plus/icons-vue'

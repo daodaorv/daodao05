@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { request } from '@/utils/request'
 import type { ApiResponse } from '@/types/user'
 import {

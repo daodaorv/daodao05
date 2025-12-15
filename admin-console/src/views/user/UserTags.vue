@@ -616,7 +616,7 @@ import {
   MoreFilled,
   CircleCheck,
 } from '@element-plus/icons-vue'
-import type { Tag, TagType, TagCategory } from '@/api/user'
+import type { Tag,  TagCategory } from '@/api/user'
 import { mockTags } from '@/mock/tags'
 
 const router = useRouter()

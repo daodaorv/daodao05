@@ -130,7 +130,7 @@ export interface ReportStats {
 }
 
 // Mock 内容审核数据
-let mockContentReviews: ContentReview[] = [
+const mockContentReviews: ContentReview[] = [
   {
     id: 1,
     contentId: 1001,
@@ -256,7 +256,7 @@ let mockContentReviews: ContentReview[] = [
 ]
 
 // Mock 社区版块数据
-let mockSections: CommunitySection[] = [
+const mockSections: CommunitySection[] = [
   {
     id: 1,
     name: '旅游攻略',
@@ -345,7 +345,7 @@ let mockSections: CommunitySection[] = [
 ]
 
 // Mock 举报数据
-let mockReports: Report[] = [
+const mockReports: Report[] = [
   {
     id: 1,
     reportType: 'content',

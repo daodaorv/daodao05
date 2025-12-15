@@ -194,7 +194,7 @@ import { LOG_MODULE_OPTIONS, LOG_ACTION_OPTIONS } from '@/constants'
 // Composables
 const { handleApiError } = useErrorHandler()
 const { getLogModuleLabel, getLogActionLabel } = useEnumLabel()
-const { formatDateTime } = useDateFormat()
+const { _formatDateTime } = useDateFormat()
 
 // 审计日志数据类型
 interface AuditLog {

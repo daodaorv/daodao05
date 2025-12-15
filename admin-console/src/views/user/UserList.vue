@@ -264,14 +264,13 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Download, Upload, ArrowDown, UploadFilled, Star } from '@element-plus/icons-vue'
+import { Plus, Download, Upload,  UploadFilled, Star } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import FormDialog from '@/components/common/FormDialog.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
-import type { FormField } from '@/components/common/FormDialog.vue'
 import { userApi, tagApi } from '@/api/user'
 import type { UserInfo, Tag } from '@/api/user'
 import { useListPage, useDateFormat, useErrorHandler, useEnumLabel } from '@/composables'
@@ -589,7 +588,7 @@ async function handleDelete(row: UserInfo) {
 }
 
 // 更改用户状态
-async function handleStatusChange(row: UserInfo, status: 'active' | 'inactive' | 'banned') {
+async function _handleStatusChange(row: UserInfo, status: 'active' | 'inactive' | 'banned') {
   try {
     const statusText = getUserStatusLabel(status)
     await ElMessageBox.confirm(

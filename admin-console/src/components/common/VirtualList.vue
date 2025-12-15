@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts" generic="T = any">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 interface Props {
   /** 列表数据 */

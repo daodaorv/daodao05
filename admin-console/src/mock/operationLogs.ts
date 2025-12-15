@@ -169,7 +169,7 @@ export const mockExportOperationLogs = () => {
 }
 
 // Mock 清理操作日志
-export const mockCleanOperationLogs = (beforeDate: string) => {
+export const mockCleanOperationLogs = (_beforeDate: string) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

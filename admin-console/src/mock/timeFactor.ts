@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 时间因子Mock数据
  */

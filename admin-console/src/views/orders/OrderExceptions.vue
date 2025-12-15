@@ -63,11 +63,11 @@
         label-width="100px"
       >
         <el-form-item label="异常标题">
-          <el-input v-model="currentException?.title" disabled />
+          <el-input :value="currentException?.title" disabled />
         </el-form-item>
         <el-form-item label="异常描述">
           <el-input
-            v-model="currentException?.description"
+            :value="currentException?.description"
             type="textarea"
             :rows="3"
             disabled

@@ -1,0 +1,154 @@
+
+> daodao-admin-console@1.0.0 lint
+> eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore
+
+
+E:\VMwareShare\daodao\admin-console\src\api\hosting.ts
+  264:37  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\api\marketing.ts
+  73:39  warning  'id' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\ChartCard.vue
+  151:7  warning  'hasData' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\DataTable.vue
+   64:31  warning  Unexpected mutation of "pagination" prop                                          vue/no-mutating-props
+   65:28  warning  Unexpected mutation of "pagination" prop                                          vue/no-mutating-props
+  108:7   warning  'props' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\FormDialogItem.vue
+   11:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   23:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   36:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   48:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   59:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   79:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+   95:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  111:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  118:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  131:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  144:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  159:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  171:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+  186:16  warning  Unexpected mutation of "formData" prop  vue/no-mutating-props
+
+E:\VMwareShare\daodao\admin-console\src\components\common\ImageViewer.vue
+  122:32  warning  'nextTick' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\NotificationBell.vue
+  405:7  warning  'cleanup' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\SearchForm.vue
+  12:20  warning  Unexpected mutation of "modelValue" prop                                          vue/no-mutating-props
+  21:20  warning  Unexpected mutation of "modelValue" prop                                          vue/no-mutating-props
+  37:20  warning  Unexpected mutation of "modelValue" prop                                          vue/no-mutating-props
+  48:20  warning  Unexpected mutation of "modelValue" prop                                          vue/no-mutating-props
+  77:7   warning  'props' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\common\VirtualList.vue
+  18:32  warning  'onMounted' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+  18:43  warning  'onBeforeUnmount' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\marketing\BatchPriceAdjustForm.vue
+  214:11  warning  'requestData' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\marketing\CityFactorList.vue
+  472:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\marketing\CustomTimeRuleList.vue
+  475:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\marketing\NationalHolidayList.vue
+  373:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\components\marketing\OtherPriceRuleList.vue
+  526:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\composables\useErrorHandler.ts
+  2:15  warning  'AxiosError' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\auth.ts
+  63:42  warning  'password' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\employees.ts
+  372:37  warning  'file' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\finance.ts
+  267:36  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  671:42  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\operationLogs.ts
+  172:40  warning  'beforeDate' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\profit.ts
+   329:48  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   662:50  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   971:49  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  1311:50  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\system.ts
+  585:41  warning  'id' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  616:40  warning  'id' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\mock\vehicles.ts
+  663:5  warning  'crowdfundingProjectId' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\router\routes.ts
+  11:44  warning  'parentPath' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\campsites\CampsiteReservations.vue
+  115:40  warning  'CircleClose' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\employee\EmployeeRoles.vue
+  209:7  warning  'LOGIN_PLATFORM_OPTIONS' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\hosting\HostingOldCar.vue
+  293:7  warning  'CONDITION_RATING_OPTIONS' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\marketing\MarketingActivities.vue
+  512:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\marketing\MarketingCoupons.vue
+  610:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\marketing\MarketingExtras.vue
+  430:29  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\permission\PermissionRoles.vue
+  228:7  warning  'router' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\profit-sharing\ProfitSharingConfig.vue
+  154:7  warning  'tagOptions' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\system\SystemAudit.vue
+  197:9  warning  'formatDateTime' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\system\SystemBackup.vue
+  552:25  warning  'row' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  557:23  warning  'row' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\user\UserList.vue
+  267:34  warning  'ArrowDown' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+  274:15  warning  'FormField' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+  592:16  warning  'handleStatusChange' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\user\UserRisk.vue
+  350:21  warning  'row' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\user\UserTags.vue
+  619:20  warning  'TagType' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\vehicle\VehicleList.vue
+  294:3   warning  'ArrowDown' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+  316:3   warning  'isValidVirtualPlate' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+  321:3   warning  'getBasePrice' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+  322:3   warning  'getPriceRange' is defined but never used. Allowed unused vars must match /^_/u                @typescript-eslint/no-unused-vars
+  570:21  warning  'row' is defined but never used. Allowed unused args must match /^_/u                          @typescript-eslint/no-unused-vars
+  599:7   warning  'handleStatusChange' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+E:\VMwareShare\daodao\admin-console\src\views\vehicle\VehicleModels.vue
+  1006:21  warning  'row' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 71 problems (0 errors, 71 warnings)
+

@@ -402,7 +402,7 @@ if (props.autoRefresh) {
 }
 
 // 清理定时器
-const cleanup = () => {
+const _cleanup = () => {
   if (refreshTimer) {
     clearInterval(refreshTimer)
     refreshTimer = null

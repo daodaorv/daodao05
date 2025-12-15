@@ -39,7 +39,7 @@ export interface OldCarHostingApplication {
 }
 
 // Mock 自有车托管申请数据
-let mockOldCarApplications: OldCarHostingApplication[] = [
+const mockOldCarApplications: OldCarHostingApplication[] = [
   {
     id: 1,
     applicationNo: 'OLD20250101001',
@@ -179,7 +179,7 @@ export interface NewCarHostingApplication {
 }
 
 // Mock 购车托管申请数据
-let mockNewCarApplications: NewCarHostingApplication[] = [
+const mockNewCarApplications: NewCarHostingApplication[] = [
   {
     id: 1,
     applicationNo: 'NEW20250101001',
@@ -290,7 +290,7 @@ export interface HostingVehicle {
 }
 
 // Mock 托管车辆数据
-let mockHostingVehicles: HostingVehicle[] = [
+const mockHostingVehicles: HostingVehicle[] = [
   {
     id: 1,
     vehicleNo: 'HV20250001',
@@ -370,7 +370,7 @@ export interface OwnerUsageApplication {
 }
 
 // Mock 车主自用申请数据
-let mockOwnerUsageApplications: OwnerUsageApplication[] = [
+const mockOwnerUsageApplications: OwnerUsageApplication[] = [
   {
     id: 1,
     applicationNo: 'OU20250101001',
@@ -450,7 +450,7 @@ export interface IncomeRecord {
 }
 
 // Mock 收益记录数据
-let mockIncomeRecords: IncomeRecord[] = [
+const mockIncomeRecords: IncomeRecord[] = [
   {
     id: 1,
     recordNo: 'IR20250101001',

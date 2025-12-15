@@ -291,7 +291,7 @@ import {
   Download,
   Upload,
   Picture,
-  ArrowDown,
+  
 } from '@element-plus/icons-vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
@@ -313,13 +313,13 @@ import { VEHICLE_STATUS_OPTIONS, STORE_OPTIONS } from '@/constants'
 import { exportToCSV } from '@/utils/export'
 import {
   generateVirtualPlate,
-  isValidVirtualPlate,
+  _isValidVirtualPlate,
   formatPlateDisplay,
   isVirtualPlate
 } from '@/utils/vehicleHelper'
 import {
-  getBasePrice,
-  getPriceRange,
+  _getBasePrice,
+  _getPriceRange,
   calculateSuggestedPrice,
   getVehicleTypePriceInfo
 } from '@/utils/pricingHelper'
@@ -567,7 +567,7 @@ const handleCreate = () => {
 }
 
 // 查看车辆
-const handleView = (row: Vehicle) => {
+const handleView = (_row: Vehicle) => {
   ElMessage.info('查看功能开发中...')
 }
 
@@ -596,7 +596,7 @@ const handleEdit = (row: Vehicle) => {
 }
 
 // 状态变更
-const handleStatusChange = async (row: Vehicle, status: string) => {
+const _handleStatusChange = async (row: Vehicle, status: string) => {
   try {
     await ElMessageBox.confirm(
       `确定要将车辆 "${row.vehicleNumber}" 状态设置为"${getVehicleStatusLabel(status)}"吗？`,

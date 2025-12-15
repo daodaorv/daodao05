@@ -60,7 +60,7 @@ export const mockUsers: Record<string, User> = {
 }
 
 // Mock 登录
-export const mockLogin = (phone: string, password: string) => {
+export const mockLogin = (phone: string, _password: string) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       // 简单验证：任何密码都接受（开发环境）

@@ -58,7 +58,7 @@ export const mockUpdateSystemConfig = (data: UpdateSystemConfigParams) => {
 }
 
 // ==================== 系统参数 Mock 数据 ====================
-let mockSystemParams: SystemParam[] = [
+const mockSystemParams: SystemParam[] = [
   {
     id: 1,
     name: '会话超时时间',
@@ -495,7 +495,7 @@ export const mockGetSystemMonitorLogs = (params: { level?: string; limit?: numbe
 }
 
 // ==================== 数据备份 Mock 数据 ====================
-let mockSystemBackups: SystemBackup[] = [
+const mockSystemBackups: SystemBackup[] = [
   {
     id: 1,
     name: '每日自动备份-20241201',
@@ -582,7 +582,7 @@ export const mockCreateSystemBackup = (data: CreateSystemBackupParams) => {
   })
 }
 
-export const mockRestoreSystemBackup = (id: number) => {
+export const mockRestoreSystemBackup = (_id: number) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -613,7 +613,7 @@ export const mockDeleteSystemBackup = (id: number) => {
   })
 }
 
-export const mockVerifySystemBackup = (id: number) => {
+export const mockVerifySystemBackup = (_id: number) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

@@ -148,7 +148,7 @@ const chartInstance = ref<ECharts>()
 const refreshing = ref(false)
 
 // 计算属性
-const hasData = computed(() => {
+const _hasData = computed(() => {
   if (props.chartType === 'custom') return true
   return props.options && Object.keys(props.options).length > 0
 })

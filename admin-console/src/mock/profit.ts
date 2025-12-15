@@ -326,7 +326,7 @@ export const mockPayHostingProfit = (id: number, paymentMethod: string) => {
 /**
  * 导出托管分润记录
  */
-export const mockExportHostingProfitRecords = (params: HostingProfitListParams) => {
+export const mockExportHostingProfitRecords = (_params: HostingProfitListParams) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -659,7 +659,7 @@ export const mockPayPriceDiffProfit = (id: number, paymentMethod: string) => {
 /**
  * 导出差价分润记录
  */
-export const mockExportPriceDiffProfitRecords = (params: PriceDiffProfitListParams) => {
+export const mockExportPriceDiffProfitRecords = (_params: PriceDiffProfitListParams) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -968,7 +968,7 @@ export const mockPayEmployeeProfit = (id: number, paymentMethod: string) => {
 /**
  * 导出员工激励分润记录
  */
-export const mockExportEmployeeProfitRecords = (params: EmployeeProfitListParams) => {
+export const mockExportEmployeeProfitRecords = (_params: EmployeeProfitListParams) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -1308,7 +1308,7 @@ export const mockPayPromotionProfit = (id: number, paymentMethod: string) => {
 /**
  * 导出推广分润记录
  */
-export const mockExportPromotionProfitRecords = (params: PromotionProfitListParams) => {
+export const mockExportPromotionProfitRecords = (_params: PromotionProfitListParams) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

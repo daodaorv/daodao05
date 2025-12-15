@@ -135,6 +135,11 @@
 				<text>客服</text>
 			</view>
 			<view class="action-group">
+				<!-- 租赁中状态的操作按钮 -->
+				<button v-if="order.status === 'in_progress'" class="btn ghost" @tap="goToReport">车辆异常</button>
+				<button v-if="order.status === 'in_progress'" class="btn primary" @tap="goToRenewal">续租</button>
+
+				<!-- 其他状态的按钮 -->
 				<button v-if="canCancel" class="btn ghost" @tap="cancelOrder">取消订单</button>
 				<button v-if="canPay" class="btn primary" @tap="goToPayment">去支付</button>
 				<button v-if="order.status === 'completed'" class="btn ghost" @tap="rebook">再次预订</button>
@@ -283,6 +288,19 @@ const goToPayment = () => uni.showToast({ title: '去支付', icon: 'none' });
 const rebook = () => uni.showToast({ title: '再次预订', icon: 'none' });
 const contactService = () => uni.showToast({ title: '联系客服', icon: 'none' });
 const goToVehicle = () => uni.showToast({ title: '查看车辆', icon: 'none' });
+
+// 租赁中状态的操作方法
+const goToRenewal = () => {
+	uni.navigateTo({
+		url: `/pages/order/renewal?orderId=${order.value.id}&orderNo=${order.value.orderNo}`
+	});
+};
+
+const goToReport = () => {
+	uni.navigateTo({
+		url: `/pages/order/report?orderId=${order.value.id}&orderNo=${order.value.orderNo}`
+	});
+};
 
 const copyText = (text: string) => {
 	uni.setClipboardData({

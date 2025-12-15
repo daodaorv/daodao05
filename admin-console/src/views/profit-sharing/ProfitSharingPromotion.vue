@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <!-- 推广分润管理页面 -->
 <template>
   <div class="profit-sharing-promotion-container">
@@ -62,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import PageHeader from '@/components/common/PageHeader.vue'

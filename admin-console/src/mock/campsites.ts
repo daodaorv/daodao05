@@ -110,7 +110,7 @@ export interface CampsiteInquiry {
 }
 
 // Mock 营地数据
-let mockCampsites: Campsite[] = [
+const mockCampsites: Campsite[] = [
   {
     id: 1,
     name: '北京怀柔雁栖湖房车营地',
@@ -288,7 +288,7 @@ let mockCampsites: Campsite[] = [
 ]
 
 // Mock 预订数据
-let mockReservations: CampsiteReservation[] = [
+const mockReservations: CampsiteReservation[] = [
   {
     id: 1,
     campsiteId: 1,
@@ -346,7 +346,7 @@ let mockReservations: CampsiteReservation[] = [
 ]
 
 // Mock 咨询数据
-let mockInquiries: CampsiteInquiry[] = [
+const mockInquiries: CampsiteInquiry[] = [
   {
     id: 1,
     campsiteId: 1,

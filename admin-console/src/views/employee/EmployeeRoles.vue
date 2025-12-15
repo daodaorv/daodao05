@@ -206,7 +206,7 @@ const ROLE_OPTIONS = [
 ]
 
 // 登录平台选项
-const LOGIN_PLATFORM_OPTIONS = [
+const _LOGIN_PLATFORM_OPTIONS = [
   { label: 'PC管理端', value: 'pc' },
   { label: '移动管理端', value: 'mobile' },
 ]

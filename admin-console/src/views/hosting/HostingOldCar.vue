@@ -269,7 +269,7 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
-import type { TableColumn, TableAction } from '@/components/common/DataTable.vue'
+import type { TableAction } from '@/components/common/DataTable.vue'
 import {
   getOldCarApplicationList,
   reviewOldCarApplication,
@@ -290,7 +290,7 @@ const APPLICATION_STATUS_OPTIONS = [
 ]
 
 // 车况评级选项
-const CONDITION_RATING_OPTIONS = [
+const _CONDITION_RATING_OPTIONS = [
   { label: '优秀', value: 'excellent' },
   { label: '良好', value: 'good' },
   { label: '一般', value: 'fair' },

@@ -143,7 +143,6 @@ import DataTable from '@/components/common/DataTable.vue'
 import FormDialog from '@/components/common/FormDialog.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
-import type { FormField } from '@/components/common/FormDialog.vue'
 import {
   getActivityList,
   type MarketingActivity,
@@ -510,7 +509,7 @@ const handleDelete = async (row: MarketingActivity) => {
 }
 
 // 提交表单
-const handleSubmit = async (data: any) => {
+const handleSubmit = async (_data: any) => {
   submitLoading.value = true
   try {
     if (isEdit.value) {

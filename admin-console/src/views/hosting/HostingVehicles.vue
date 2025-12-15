@@ -217,7 +217,7 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
-import type { TableColumn, TableAction } from '@/components/common/DataTable.vue'
+import type { TableAction } from '@/components/common/DataTable.vue'
 import {
   getHostingVehicleList,
   updateHostingVehicleStatus,

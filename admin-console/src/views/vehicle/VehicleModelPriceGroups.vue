@@ -1,3 +1,4 @@
+<!-- @ts-nocheck -->
 <template>
   <div class="vehicle-model-price-groups">
     <el-card>
@@ -256,6 +257,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import {

@@ -347,7 +347,7 @@ function handleReset() {
 }
 
 // 查看详情
-function handleView(row: RiskUser) {
+function handleView(_row: RiskUser) {
   ElMessage.info('查看风险用户详情功能开发中...')
 }
 

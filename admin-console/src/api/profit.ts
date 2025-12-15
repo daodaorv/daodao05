@@ -1,7 +1,6 @@
 /**
  * 分润管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetHostingProfitList,
   mockGetHostingProfitStats,

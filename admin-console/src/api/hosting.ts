@@ -1,7 +1,6 @@
 /**
  * 托管管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetOldCarApplicationList,
   mockReviewOldCarApplication,
@@ -262,7 +261,7 @@ export const getIncomeStats = () => {
 /**
  * 导出收益记录
  */
-export const exportIncomeRecords = (params: IncomeRecordListParams) => {
+export const exportIncomeRecords = (_params: IncomeRecordListParams) => {
   // 🟡 使用 Mock 数据（前端独立开发阶段）
   return new Promise((resolve) => {
     setTimeout(() => {

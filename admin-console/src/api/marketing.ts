@@ -1,7 +1,6 @@
 /**
  * 营销管理 API
  */
-import request from '@/utils/request'
 import {
   mockGetPricingStrategyList,
   mockGetCouponList,
@@ -50,6 +49,30 @@ export type {
 export const getPricingStrategyList = (params: PricingStrategyListParams) => {
   // return request.get('/marketing/pricing-strategies', { params })
   return mockGetPricingStrategyList(params)
+}
+
+/**
+ * 创建价格策略
+ */
+export const createPricingStrategy = (data: Partial<PricingStrategy>) => {
+  // return request.post('/marketing/pricing-strategies', data)
+  return Promise.resolve({ success: true, data })
+}
+
+/**
+ * 更新价格策略
+ */
+export const updatePricingStrategy = (id: number, data: Partial<PricingStrategy>) => {
+  // return request.put(`/marketing/pricing-strategies/${id}`, data)
+  return Promise.resolve({ success: true, data })
+}
+
+/**
+ * 删除价格策略
+ */
+export const deletePricingStrategy = (_id: number) => {
+  // return request.delete(`/marketing/pricing-strategies/${_id}`)
+  return Promise.resolve({ success: true })
 }
 
 // ==================== 优惠券管理 ====================

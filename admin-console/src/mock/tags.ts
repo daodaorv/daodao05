@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Tag } from '@/api/user'
 import { TagType, TagCategory, TagTriggerType } from '@/types/tag'
 

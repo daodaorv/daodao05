@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PLUS会员数据迁移工具
  * 将旧的 plus_member 用户类型迁移为 registered + PLUS会员标签

@@ -225,7 +225,7 @@ import { useErrorHandler, useEnumLabel, useDateFormat } from '@/composables'
 import { ROLE_STATUS_OPTIONS, ROLE_TYPE_OPTIONS, DATA_SCOPE_OPTIONS } from '@/constants'
 import { exportToCSV } from '@/utils/export'
 
-const router = useRouter()
+const _router = useRouter()
 
 // Composables
 const { handleApiError } = useErrorHandler()
