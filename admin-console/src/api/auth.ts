@@ -1,64 +1,44 @@
-import request from './request'
+import { request } from '@/utils/request'
+import type { LoginForm, ApiResponse, User } from '@/types/user'
+import { mockLogin, mockGetUserInfo, mockLogout } from '@/mock/auth'
 
-// 登录接口
-export interface LoginParams {
-  phone: string
-  password?: string
-  code?: string
-  login_type: 'password' | 'sms'
-  platform?: string
-}
+// 是否使用 Mock 数据（开发环境默认使用）
+const USE_MOCK = import.meta.env.DEV
 
-export interface LoginResponse {
-  code: number
-  message: string
-  data: {
-    token: string
-    user: {
-      id: number
-      phone: string
-      nickname: string
-      avatar: string
-      role: string
+export const authApi = {
+  // 登录
+  login: (data: LoginForm) => {
+    if (USE_MOCK) {
+      return mockLogin(data.username, data.password) as Promise<ApiResponse<{ token: string; user: User }>>
     }
-  }
-}
+    return request.post<ApiResponse<{ token: string; user: User }>>('/auth/login', {
+      phone: data.username,
+      password: data.password,
+    })
+  },
 
-export function login(data: LoginParams) {
-  return request({
-    url: '/auth/login',
-    method: 'post',
-    data
-  })
-}
+  // 登出
+  logout: () => {
+    if (USE_MOCK) {
+      return mockLogout() as Promise<ApiResponse>
+    }
+    return request.post<ApiResponse>('/auth/logout')
+  },
 
-// 发送验证码
-export interface SendCodeParams {
-  phone: string
-  type: 'login' | 'register' | 'reset_password'
-}
+  // 获取用户信息
+  getUserInfo: () => {
+    if (USE_MOCK) {
+      const token = localStorage.getItem('token') || ''
+      return mockGetUserInfo(token) as Promise<ApiResponse<User>>
+    }
+    return request.get<ApiResponse<User>>('/auth/me')
+  },
 
-export function sendCode(data: SendCodeParams) {
-  return request({
-    url: '/auth/send-code',
-    method: 'post',
-    data
-  })
-}
+  // 刷新token
+  refreshToken: () =>
+    request.post<ApiResponse<{ token: string }>>('/auth/refresh'),
 
-// 获取当前用户信息
-export function getCurrentUser() {
-  return request({
-    url: '/auth/current-user',
-    method: 'get'
-  })
+  // 修改密码
+  changePassword: (data: { oldPassword: string; newPassword: string }) =>
+    request.post<ApiResponse>('/auth/change-password', data),
 }
-
-// 退出登录
-export function logout() {
-  return request({
-    url: '/auth/logout',
-    method: 'post'
-  })
-}
-

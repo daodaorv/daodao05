@@ -8,15 +8,13 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  console.log('叨叨房车管理后台启动')
+  console.log('叨叨房车租赁管理平台启动')
 })
 </script>
 
-<style>
+<style scoped>
 #app {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   height: 100vh;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
 }
 </style>

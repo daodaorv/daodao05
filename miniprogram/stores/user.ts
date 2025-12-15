@@ -1,0 +1,161 @@
+/**
+ * 用户状态管理
+ */
+
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { login, getUserProfile, wechatLogin } from '@/api/auth';
+
+export const useUserStore = defineStore('user', () => {
+    // 状态
+    const token = ref('');
+    const refreshToken = ref('');
+    const userInfo = ref<any>(null);
+    const userTags = ref<string[]>([]);  // 用户标签列表
+
+    // 计算属性
+    const isLoggedIn = computed(() => !!token.value);
+    const isPlusMember = computed(() => userTags.value.includes('PLUS会员'));
+
+    // 检查用户是否拥有指定标签
+    const hasTag = (tagName: string) => {
+        return userTags.value.includes(tagName);
+    };
+
+    // 初始化:从本地存储恢复
+    const parseStoredUserInfo = (stored: any) => {
+        if (!stored) return null;
+        if (typeof stored === 'string') {
+            try {
+                return JSON.parse(stored);
+            } catch (error) {
+                console.warn('[userStore] 解析 userInfo 失败，已清理异常缓存');
+                uni.removeStorageSync('userInfo');
+                return null;
+            }
+        }
+        return stored;
+    };
+
+    const init = () => {
+        token.value = uni.getStorageSync('token') || '';
+        refreshToken.value = uni.getStorageSync('refreshToken') || '';
+        userInfo.value = parseStoredUserInfo(uni.getStorageSync('userInfo'));
+
+        // 恢复标签列表
+        const storedTags = uni.getStorageSync('userTags');
+        if (storedTags) {
+            try {
+                userTags.value = typeof storedTags === 'string' ? JSON.parse(storedTags) : storedTags;
+            } catch (error) {
+                console.warn('[userStore] 解析 userTags 失败');
+                userTags.value = [];
+            }
+        }
+    };
+
+    // 登录
+    const doLogin = async (phone: string, password: string) => {
+        try {
+            const res = await login(phone, password);
+            if (res.code === 0) {
+                token.value = res.data.token;
+                refreshToken.value = res.data.refreshToken;
+                userInfo.value = res.data.user;
+                userTags.value = res.data.user.tags || [];  // 更新标签列表
+
+                // 保存到本地存储
+                uni.setStorageSync('token', res.data.token);
+                uni.setStorageSync('refreshToken', res.data.refreshToken);
+                uni.setStorageSync('userInfo', JSON.stringify(res.data.user));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.user.tags || []));
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('登录失败:', error);
+            return false;
+        }
+    };
+
+    // 微信登录
+    const doWechatLogin = async (code: string, userInfoData?: any) => {
+        try {
+            const res = await wechatLogin(code, userInfoData);
+            if (res.code === 0) {
+                token.value = res.data.token;
+                refreshToken.value = res.data.refreshToken;
+                userInfo.value = res.data.user;
+                userTags.value = res.data.user.tags || [];  // 更新标签列表
+
+                uni.setStorageSync('token', res.data.token);
+                uni.setStorageSync('refreshToken', res.data.refreshToken);
+                uni.setStorageSync('userInfo', JSON.stringify(res.data.user));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.user.tags || []));
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('微信登录失败:', error);
+            return false;
+        }
+    };
+
+    // 获取用户信息
+    const fetchUserInfo = async () => {
+        try {
+            const res = await getUserProfile();
+            if (res.code === 0) {
+                userInfo.value = res.data;
+                userTags.value = res.data.tags || [];  // 更新标签列表
+                uni.setStorageSync('userInfo', JSON.stringify(res.data));
+                uni.setStorageSync('userTags', JSON.stringify(res.data.tags || []));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('获取用户信息失败:', error);
+            return false;
+        }
+    };
+
+    // 退出登录
+    const logout = () => {
+        token.value = '';
+        refreshToken.value = '';
+        userInfo.value = null;
+        userTags.value = [];
+
+        uni.removeStorageSync('token');
+        uni.removeStorageSync('refreshToken');
+        uni.removeStorageSync('userInfo');
+        uni.removeStorageSync('userTags');
+    };
+
+    // 更新用户信息
+    const updateUserInfo = (data: any) => {
+        userInfo.value = { ...userInfo.value, ...data };
+        uni.setStorageSync('userInfo', JSON.stringify(userInfo.value));
+    };
+
+    return {
+        // 状态
+        token,
+        refreshToken,
+        userInfo,
+        userTags,
+        // 计算属性
+        isLoggedIn,
+        isPlusMember,
+        hasTag,
+        // 方法
+        init,
+        doLogin,
+        doWechatLogin,
+        fetchUserInfo,
+        logout,
+        updateUserInfo
+    };
+});

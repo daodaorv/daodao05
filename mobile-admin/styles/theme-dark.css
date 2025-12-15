@@ -1,0 +1,528 @@
+/**
+ * 深色主题样式
+ * 为移动管理端提供完整的深色模式支持
+ */
+
+/* 全局深色主题变量 */
+page.dark-theme {
+  /* 主色调 */
+  --primary-color: #667eea;
+  --primary-color-light: #8b9ef5;
+  --primary-color-dark: #4c63d2;
+
+  /* 背景色 */
+  --bg-color: #1a1a1a;
+  --bg-color-secondary: #2d2d2d;
+  --bg-color-tertiary: #3a3a3a;
+  --bg-color-overlay: rgba(0, 0, 0, 0.7);
+
+  /* 文字颜色 */
+  --text-color-primary: #e5e5e5;
+  --text-color-secondary: #b3b3b3;
+  --text-color-tertiary: #808080;
+  --text-color-disabled: #4d4d4d;
+  --text-color-inverse: #1a1a1a;
+
+  /* 边框颜色 */
+  --border-color: #404040;
+  --border-color-light: #333333;
+  --border-color-dark: #4d4d4d;
+
+  /* 状态颜色 */
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+
+  /* 阴影 */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color-light: rgba(0, 0, 0, 0.3);
+
+  /* 卡片背景 */
+  --card-bg: #2d2d2d;
+  --card-bg-hover: #3a3a3a;
+
+  /* 输入框 */
+  --input-bg: #3a3a3a;
+  --input-border: #4d4d4d;
+  --input-placeholder: #808080;
+
+  /* 按钮 */
+  --button-bg: #3a3a3a;
+  --button-bg-hover: #4d4d4d;
+  --button-text: #e5e5e5;
+
+  /* 分割线 */
+  --divider-color: #404040;
+
+  /* 遮罩 */
+  --mask-color: rgba(0, 0, 0, 0.7);
+}
+
+/* 全局容器 */
+page.dark-theme {
+  background-color: var(--bg-color);
+  color: var(--text-color-primary);
+}
+
+/* 通用容器 */
+.dark-theme .container,
+.dark-theme .page-container {
+  background-color: var(--bg-color);
+  color: var(--text-color-primary);
+}
+
+/* 卡片 */
+.dark-theme .card,
+.dark-theme .info-section,
+.dark-theme .menu-group,
+.dark-theme .form-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 文字 */
+.dark-theme .title,
+.dark-theme .section-title {
+  color: var(--text-color-primary);
+}
+
+.dark-theme .subtitle,
+.dark-theme .description {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .hint,
+.dark-theme .placeholder {
+  color: var(--text-color-tertiary);
+}
+
+/* 输入框 */
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme .input-field {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-color-primary);
+}
+
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* 按钮 */
+.dark-theme .button,
+.dark-theme button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--border-color);
+}
+
+.dark-theme .button:hover,
+.dark-theme button:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.dark-theme .button-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+  color: #fff;
+}
+
+/* 列表 */
+.dark-theme .list-item,
+.dark-theme .menu-item {
+  background-color: var(--card-bg);
+  border-bottom-color: var(--border-color-light);
+}
+
+.dark-theme .list-item:hover,
+.dark-theme .menu-item:hover {
+  background-color: var(--card-bg-hover);
+}
+
+/* 分割线 */
+.dark-theme .divider,
+.dark-theme .separator {
+  background-color: var(--divider-color);
+  border-color: var(--divider-color);
+}
+
+/* 标签 */
+.dark-theme .tag,
+.dark-theme .badge {
+  background-color: var(--bg-color-tertiary);
+  color: var(--text-color-primary);
+  border-color: var(--border-color);
+}
+
+/* 表格 */
+.dark-theme table {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-theme th {
+  background-color: var(--bg-color-tertiary);
+  color: var(--text-color-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme td {
+  border-color: var(--border-color-light);
+  color: var(--text-color-secondary);
+}
+
+/* 弹窗 */
+.dark-theme .modal,
+.dark-theme .popup,
+.dark-theme .dialog {
+  background-color: var(--card-bg);
+  color: var(--text-color-primary);
+}
+
+.dark-theme .modal-header,
+.dark-theme .popup-header {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .modal-footer,
+.dark-theme .popup-footer {
+  border-top-color: var(--border-color);
+}
+
+/* 导航栏 */
+.dark-theme .navbar,
+.dark-theme .tabbar {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-theme .navbar-title {
+  color: var(--text-color-primary);
+}
+
+/* 搜索框 */
+.dark-theme .search-box {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+}
+
+.dark-theme .search-input {
+  color: var(--text-color-primary);
+}
+
+/* 空状态 */
+.dark-theme .empty-state {
+  background-color: var(--card-bg);
+  color: var(--text-color-secondary);
+}
+
+/* 加载状态 */
+.dark-theme .loading-spinner {
+  color: var(--text-color-secondary);
+}
+
+/* 图标 */
+.dark-theme .icon {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .icon-primary {
+  color: var(--primary-color);
+}
+
+/* 阴影 */
+.dark-theme .shadow {
+  box-shadow: 0 2px 8px var(--shadow-color-light);
+}
+
+.dark-theme .shadow-lg {
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+/* 遮罩 */
+.dark-theme .mask,
+.dark-theme .overlay {
+  background-color: var(--mask-color);
+}
+
+/* 状态颜色 */
+.dark-theme .status-success {
+  color: var(--success-color);
+}
+
+.dark-theme .status-warning {
+  color: var(--warning-color);
+}
+
+.dark-theme .status-danger {
+  color: var(--danger-color);
+}
+
+.dark-theme .status-info {
+  color: var(--info-color);
+}
+
+/* 特定组件样式 */
+
+/* 用户卡片 */
+.dark-theme .user-card {
+  background: linear-gradient(135deg, #4c63d2 0%, #5a4a8a 100%);
+}
+
+/* 统计卡片 */
+.dark-theme .stat-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-theme .stat-value {
+  color: var(--primary-color);
+}
+
+/* 消息列表 */
+.dark-theme .message-item {
+  background-color: var(--card-bg);
+  border-bottom-color: var(--border-color-light);
+}
+
+.dark-theme .message-unread {
+  background-color: var(--bg-color-tertiary);
+}
+
+/* 订单卡片 */
+.dark-theme .order-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 车辆卡片 */
+.dark-theme .vehicle-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 工单卡片 */
+.dark-theme .ticket-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* 表单 */
+.dark-theme .form-item {
+  border-bottom-color: var(--border-color-light);
+}
+
+.dark-theme .form-label {
+  color: var(--text-color-primary);
+}
+
+.dark-theme .form-value {
+  color: var(--text-color-secondary);
+}
+
+/* 选择器 */
+.dark-theme .picker {
+  background-color: var(--card-bg);
+  color: var(--text-color-primary);
+}
+
+/* 开关 */
+.dark-theme .switch {
+  background-color: var(--bg-color-tertiary);
+}
+
+.dark-theme .switch.checked {
+  background-color: var(--primary-color);
+}
+
+/* 滑块 */
+.dark-theme .slider {
+  background-color: var(--bg-color-tertiary);
+}
+
+.dark-theme .slider-track {
+  background-color: var(--primary-color);
+}
+
+/* 进度条 */
+.dark-theme .progress {
+  background-color: var(--bg-color-tertiary);
+}
+
+.dark-theme .progress-bar {
+  background-color: var(--primary-color);
+}
+
+/* 时间线 */
+.dark-theme .timeline-item {
+  border-left-color: var(--border-color);
+}
+
+.dark-theme .timeline-dot {
+  background-color: var(--primary-color);
+  border-color: var(--border-color);
+}
+
+/* 步骤条 */
+.dark-theme .steps-item {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .steps-item.active {
+  color: var(--primary-color);
+}
+
+/* 标签页 */
+.dark-theme .tabs {
+  background-color: var(--card-bg);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .tab-item {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .tab-item.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* 折叠面板 */
+.dark-theme .collapse-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-theme .collapse-header {
+  background-color: var(--bg-color-tertiary);
+}
+
+/* 抽屉 */
+.dark-theme .drawer {
+  background-color: var(--card-bg);
+}
+
+/* 通知 */
+.dark-theme .notification {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* 提示 */
+.dark-theme .toast {
+  background-color: rgba(45, 45, 45, 0.95);
+  color: var(--text-color-primary);
+}
+
+/* 气泡 */
+.dark-theme .popover {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* 下拉菜单 */
+.dark-theme .dropdown {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.dark-theme .dropdown-item:hover {
+  background-color: var(--bg-color-tertiary);
+}
+
+/* 面包屑 */
+.dark-theme .breadcrumb {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .breadcrumb-item.active {
+  color: var(--text-color-primary);
+}
+
+/* 分页 */
+.dark-theme .pagination {
+  color: var(--text-color-secondary);
+}
+
+.dark-theme .pagination-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-theme .pagination-item.active {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+/* 评分 */
+.dark-theme .rate {
+  color: var(--text-color-tertiary);
+}
+
+.dark-theme .rate.active {
+  color: var(--warning-color);
+}
+
+/* 头像 */
+.dark-theme .avatar {
+  background-color: var(--bg-color-tertiary);
+  border-color: var(--border-color);
+}
+
+/* 徽章 */
+.dark-theme .badge {
+  background-color: var(--danger-color);
+  color: #fff;
+}
+
+/* 骨架屏 */
+.dark-theme .skeleton {
+  background: linear-gradient(90deg, var(--bg-color-tertiary) 25%, var(--bg-color-secondary) 50%, var(--bg-color-tertiary) 75%);
+}
+
+/* 图片占位 */
+.dark-theme .image-placeholder {
+  background-color: var(--bg-color-tertiary);
+}
+
+/* 代码块 */
+.dark-theme pre,
+.dark-theme code {
+  background-color: var(--bg-color-tertiary);
+  color: var(--text-color-primary);
+  border-color: var(--border-color);
+}
+
+/* 引用 */
+.dark-theme blockquote {
+  background-color: var(--bg-color-tertiary);
+  border-left-color: var(--primary-color);
+  color: var(--text-color-secondary);
+}
+
+/* 链接 */
+.dark-theme a {
+  color: var(--primary-color);
+}
+
+.dark-theme a:hover {
+  color: var(--primary-color-light);
+}
+
+/* 滚动条 */
+.dark-theme ::-webkit-scrollbar {
+  background-color: var(--bg-color-secondary);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background-color: var(--bg-color-tertiary);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--border-color);
+}

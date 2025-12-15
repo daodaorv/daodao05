@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>房车众筹</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-orange": "#FF9F29",
+                        "brand-gray": "#333333",
+                        "brand-beige": "#F8F8F8",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-50 font-display">
+<div class="max-w-md mx-auto bg-white">
+<div class="sticky top-0 bg-white z-10 p-4 pb-0">
+<div class="relative flex items-center justify-between p-1 rounded-lg bg-brand-beige">
+<div class="absolute inset-0 p-1 transition-all duration-300 ease-in-out">
+<div class="w-1/2 h-full bg-brand-orange rounded-md shadow-sm"></div>
+</div>
+<button class="relative z-10 flex-1 py-2 text-sm font-bold text-white transition-colors duration-300">众筹项目</button>
+<button class="relative z-10 flex-1 py-2 text-sm font-medium text-brand-gray transition-colors duration-300">份额交易市场</button>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<div class="bg-brand-beige rounded-xl p-4 space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="font-bold text-lg text-brand-gray">旗舰T型房车-01期</h3>
+<div class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">稳健型</div>
+</div>
+<div class="flex items-center">
+<div class="w-full bg-gray-200 rounded-full h-2">
+<div class="bg-brand-orange h-2 rounded-full" style="width: 75%;"></div>
+</div>
+<span class="ml-3 text-sm font-semibold text-brand-orange">75%</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center">
+<div>
+<p class="text-xs text-gray-500">众筹目标</p>
+<p class="font-bold text-brand-gray">¥500,000</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">年化范围</p>
+<p class="font-bold text-brand-gray">8%-12%</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">剩余时间</p>
+<p class="font-bold text-brand-gray">15天</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 border border-brand-orange text-brand-orange text-sm font-bold">
+                        选择份额
+                    </button>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-brand-orange text-white text-sm font-bold">
+                        立即支持
+                    </button>
+</div>
+</div>
+<div class="bg-brand-beige rounded-xl p-4 space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="font-bold text-lg text-brand-gray">越野B型房车-12期</h3>
+<div class="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full">进取型</div>
+</div>
+<div class="flex items-center">
+<div class="w-full bg-gray-200 rounded-full h-2">
+<div class="bg-brand-orange h-2 rounded-full" style="width: 42%;"></div>
+</div>
+<span class="ml-3 text-sm font-semibold text-brand-orange">42%</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center">
+<div>
+<p class="text-xs text-gray-500">众筹目标</p>
+<p class="font-bold text-brand-gray">¥800,000</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">年化范围</p>
+<p class="font-bold text-brand-gray">10%-18%</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">剩余时间</p>
+<p class="font-bold text-brand-gray">28天</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 border border-brand-orange text-brand-orange text-sm font-bold">
+                        选择份额
+                    </button>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-brand-orange text-white text-sm font-bold">
+                        立即支持
+                    </button>
+</div>
+</div>
+<div class="bg-brand-beige rounded-xl p-4 space-y-4 opacity-60">
+<div class="flex justify-between items-center">
+<h3 class="font-bold text-lg text-brand-gray">经济C型房车-05期</h3>
+<div class="text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded-full">已结束</div>
+</div>
+<div class="flex items-center">
+<div class="w-full bg-gray-300 rounded-full h-2">
+<div class="bg-gray-400 h-2 rounded-full" style="width: 100%;"></div>
+</div>
+<span class="ml-3 text-sm font-semibold text-gray-500">100%</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center text-gray-500">
+<div>
+<p class="text-xs">众筹目标</p>
+<p class="font-bold">¥350,000</p>
+</div>
+<div>
+<p class="text-xs">年化范围</p>
+<p class="font-bold">6%-10%</p>
+</div>
+<div>
+<p class="text-xs">剩余时间</p>
+<p class="font-bold">0天</p>
+</div>
+</div>
+<div class="pt-2">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-gray-300 text-gray-500 text-sm font-bold cursor-not-allowed">
+                        查看详情
+                    </button>
+</div>
+</div>
+</div>
+<div class="hidden p-4 space-y-4">
+<div class="bg-brand-gray rounded-xl p-4 text-white space-y-4">
+<div class="flex justify-between items-baseline">
+<h3 class="font-bold text-lg">旗舰T型房车-01期 份额</h3>
+<span class="text-xs text-gray-400">代码: FCT01</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center items-end">
+<div>
+<p class="text-sm text-gray-300">最新价</p>
+<p class="text-2xl font-bold text-brand-orange">¥10.85</p>
+</div>
+<div>
+<p class="text-sm text-gray-300">涨跌幅</p>
+<p class="text-lg font-semibold text-brand-orange">+2.36%</p>
+</div>
+<div>
+<p class="text-sm text-gray-300">成交量</p>
+<p class="text-lg font-semibold">1.2万手</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-brand-orange text-white text-sm font-bold">
+                        买入
+                    </button>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-green-600 text-white text-sm font-bold">
+                        卖出
+                    </button>
+</div>
+</div>
+<div class="bg-brand-gray rounded-xl p-4 text-white space-y-4">
+<div class="flex justify-between items-baseline">
+<h3 class="font-bold text-lg">越野B型房车-12期 份额</h3>
+<span class="text-xs text-gray-400">代码: FCY12</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center items-end">
+<div>
+<p class="text-sm text-gray-300">最新价</p>
+<p class="text-2xl font-bold text-green-500">¥9.92</p>
+</div>
+<div>
+<p class="text-sm text-gray-300">涨跌幅</p>
+<p class="text-lg font-semibold text-green-500">-0.80%</p>
+</div>
+<div>
+<p class="text-sm text-gray-300">成交量</p>
+<p class="text-lg font-semibold">8,540手</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-brand-orange text-white text-sm font-bold">
+                        买入
+                    </button>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-green-600 text-white text-sm font-bold">
+                        卖出
+                    </button>
+</div>
+</div>
+<div class="pt-4">
+<div class="grid grid-cols-2 gap-4 text-center">
+<a class="py-3 bg-brand-beige rounded-lg text-brand-gray font-medium" href="#">
+                        我的委托记录
+                    </a>
+<a class="py-3 bg-brand-beige rounded-lg text-brand-gray font-medium" href="#">
+                        历史交易查询
+                    </a>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

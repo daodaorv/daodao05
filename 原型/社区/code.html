@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>叨叨房车 - 社区与发现</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#FF9F29", // 主色调: 橙色
+              "text-primary": "#333333", // 辅色: 深灰色
+              "background-light": "#F8F8F8", // 辅色: 米白色
+              "card-light": "#FFFFFF",
+              "text-secondary-light": "#6C757D",
+              "border-light": "#e9ecef",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" },
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light font-display text-text-primary">
+<div class="relative w-full overflow-x-hidden pb-8">
+<div class="p-4">
+<h2 class="text-xl font-bold mb-3 text-text-primary">探索与预订</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2 rounded-xl bg-card-light shadow-sm overflow-hidden border border-primary/20">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover" data-alt="A tranquil campsite next to a lake with mountains in the background at sunrise." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDWbfDlrpYcfgadSXh93Tk5azgVi2KtPjANRRScV13MJYzwBD3SRBm4hBfGmhPr4zWHppB3ZVAe787PZ9IxhjqPWTq5FWUxeB2XJBXQxLqPx6eHN-lorR_xhDWhzdSHvF-t2v-PQx0gljxtqJ3z6nnp0z5q3L63mXvt9Y2kJc6gJsk3GiSVhoOCnxrxegzWyQV2Zn7wIFDFRA9r5eJmvxbnPCEG_utVMoyoB0N4PQv9t-GbqqAzfG6oZTGrXe9uTx-mYbRI9dpTy4GZ");'></div>
+<div class="p-3 pt-1">
+<h3 class="font-bold text-text-primary">营地预订推荐</h3>
+<p class="text-xs text-text-secondary-light mt-1">发现绝美风景营地</p>
+<button class="flex min-w-[84px] mt-3 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">立即预订</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl bg-card-light shadow-sm overflow-hidden border border-primary/20">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover" data-alt="A modern RV parked in a sunny, scenic mountain landscape during summer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAqOjH80VP4mXCdSIuza-Z91NVgkE4L6O2w5oeY-GJ2NUVA3MIr27yI1CKiu6F0tMhoibpr-kVcH31OxvTo1imbhfXapiLxgxmnTFN-yW298lCvVSAuQPSf5KGbKP9-oYahFnFoU47xZsk6rtRmHyaE4DLnF3DnOdKpzW_47U1SEKitUQ7PT1-_a8bTtJ9c9XYtVVSxfGa8pX16DzoDZ5lhFelphOzXIYri1uUkKTVvrEaU3Au7Kxhhenyh2KFWWBt_Nn_kHCAJcb9h");'></div>
+<div class="p-3 pt-1">
+<h3 class="font-bold text-text-primary">房车旅游推荐</h3>
+<p class="text-xs text-text-secondary-light mt-1">精选热门旅游路线</p>
+<button class="flex min-w-[84px] mt-3 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">查看路线</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4">
+<h2 class="text-xl font-bold mb-3 text-text-primary">社区精选</h2>
+<div class="columns-2 gap-4 space-y-4">
+<div class="break-inside-avoid bg-card-light rounded-xl shadow-sm overflow-hidden">
+<img class="w-full" data-alt="The iconic Half Dome rock formation in Yosemite National Park under a blue sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHbE44Nevj7pWTIB-KWbtcrtCCG9H2Syp59bQO7CuRKro3njmkAI_Iyo_zWjNIjNE6Eh-oDv5UnRmlA9w5XRO8FjnW8ihHBQjjCB4xZGcJ1w0ficLFSfkIKkClasjFs-0sxTU7J5CEdMp3zyXzN9684-LyH3p5PceuQzT7TpEhXW9NkUu3znDrqGKiHe2XMbKcfVF4uw9Mim4FROkG7P5ytM175XezvKTNMIitQHVf-AXWQzE-GhJbDi4I35Al8zk6QcNuWw8mM2ta"/>
+<div class="p-3">
+<h3 class="font-bold text-sm text-text-primary leading-tight">优胜美地周末游：房车旅行全攻略</h3>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<img alt="avatar" class="w-5 h-5 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdCnEm9MfYTUP6VtQcf3ZIvjOie5hNBrwbzBPUTgbLbW4aU-fPmyxeWYasfYyPuUo1Nsi8Eutlgw6kYDthR-J2fXMGs3jABXagzJvKPab9pIDiBjcL_NYT9UwyGhJJh67Xb59ozQrgNVy7R6jl05YDEvdEe4TeQSgJeX1BQxTC8zs2ohpA_VFhggoa0rsES-6E7lT-Xnx-7wZhwf3_2nqeIYyCNKyZFuYHw2qvYgEjTAteigVE3XsMmyuDoFxj0Z-lAnmbPC6HUk9h"/>
+<span class="text-xs text-text-secondary-light">冒险家</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-sm">favorite_border</span>
+<span>980</span>
+</div>
+</div>
+</div>
+</div>
+<div class="break-inside-avoid bg-card-light rounded-xl shadow-sm overflow-hidden">
+<img class="w-full" data-alt="An RV with its awning extended in front of a forest with autumn colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9KKkGh5IyBcbC3dawtQg4gujokRdhNeAxbGQtxWuHvK0dlp8AaDUkVfbRi0E683LEuvA7uZFlHcnyRda8-BuOG6NTi2W9I0MkodKBSlHYGn6pBCaX2MVnrV1OrttJwM27v_yUvq0_KK3bsTEjN1syqj_o-JIaZmaOM_YG85OpW2ou17tKYm0Mf2qQOp7o_gWY1xcBKWoIU39AUjS5fESSRzHh0gz0GOwRh9_4ty1mBO-gc2gyqXQhOBuMCm6SOT5AYg7-wKPjeL6O"/>
+<div class="p-3">
+<h3 class="font-bold text-sm text-text-primary leading-tight">【活动】金秋川西，寻找最美红叶</h3>
+<div class="mt-1.5">
+<span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">#线下活动</span>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<img alt="avatar" class="w-5 h-5 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPWfQCah_3uDtyy-_mIn6GjJYBYX6xNUJHlGDiuexAMBT-xpnB7pTZ0-kTviKj94uqmG9D_VDrb7Yiu7Gsu3nUue8x8rewL0txZ96pWLFm5EV1zNh0k4nSqxgSkYjv6qIXMWOtiNEIcwjpVK27N10Ae9GXaEQYYFivL7Dhgkvo8D_wNnBKMRurv47i7ulA4HNQ7wbeGaR7SIo_lp1IBhzwuwDplMAy0R-PrxcQW8QAfRgw4s8j6VOo0J3GG1j_tRkaSPinWImkeuhY"/>
+<span class="text-xs text-text-secondary-light">叨叨官方</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-sm">favorite_border</span>
+<span>2.1k</span>
+</div>
+</div>
+</div>
+</div>
+<div class="break-inside-avoid bg-card-light rounded-xl shadow-sm overflow-hidden">
+<img class="w-full" data-alt="A tranquil campsite next to a lake with mountains in the background at sunrise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWbfDlrpYcfgadSXh93Tk5azgVi2KtPjANRRScV13MJYzwBD3SRBm4hBfGmhPr4zWHppB3ZVAe787PZ9IxhjqPWTq5FWUxeB2XJBXQxLqPx6eHN-lorR_xhDWhzdSHvF-t2v-PQx0gljxtqJ3z6nnp0z5q3L63mXvt9Y2kJc6gJsk3GiSVhoOCnxrxegzWyQV2Zn7wIFDFRA9r5eJmvxbnPCEG_utVMoyoB0N4PQv9t-GbqqAzfG6oZTGrXe9uTx-mYbRI9dpTy4GZ"/>
+<div class="p-3">
+<h3 class="font-bold text-sm text-text-primary leading-tight">分享我们最爱的海滨营地，吹海风看日落</h3>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<img alt="avatar" class="w-5 h-5 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMwkSmH-yrkxjRIowYg1rSZoxAeHVZNJftVqOrxupQJQAVtb6K7w76jyOouPrdheGAwyvAbJ10vcvvozuqDtfLThQzZTPE1c2PlwoBLrQ4MQW6Aj_i52wJRHxLe3QIJbKf1kd6uDOuJrTE0t6xoRO-xp_ivuyzpMRUOBuMW6aou13T6jPbKBe-Pjrops-gYIyM-ItFXMb00IgQSFewRgXMXEZUhMWXCuolhWDGrAV0J1o4jUtYJScD3vJXO9ksfTADXM_Mf8KTneWc"/>
+<span class="text-xs text-text-secondary-light">旅行一家人</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-sm">favorite_border</span>
+<span>1.2k</span>
+</div>
+</div>
+</div>
+</div>
+<div class="break-inside-avoid bg-card-light rounded-xl shadow-sm overflow-hidden">
+<img class="w-full" data-alt="A modern RV parked in a sunny, scenic mountain landscape during summer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqOjH80VP4mXCdSIuza-Z91NVgkE4L6O2w5oeY-GJ2NUVA3MIr27yI1CKiu6F0tMhoibpr-kVcH31OxvTo1imbhfXapiLxgxmnTFN-yW298lCvVSAuQPSf5KGbKP9-oYahFnFoU47xZsk6rtRmHyaE4DLnF3DnOdKpzW_47U1SEKitUQ7PT1-_a8bTtJ9c9XYtVVSxfGa8pX16DzoDZ5lhFelphOzXIYri1uUkKTVvrEaU3Au7Kxhhenyh2KFWWBt_Nn_kHCAJcb9h"/>
+<div class="p-3">
+<h3 class="font-bold text-sm text-text-primary leading-tight">新手第一次房车体验，需要注意什么？</h3>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1.5">
+<img alt="avatar" class="w-5 h-5 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3dbIvkFUk3qQoZi7TLt2wy4vGFvi1hlIYFrw87lPVNjywXQMbWUIO7CFSX9Gy5wR49Kdf3EKieS7XqMfaFkw5HLVX_E0RGhKB8UaQNT9c_B7v-71-s3RF1GVmuU1eES4cvCEssACJ4C46Wa0XSjiK84OhqLBbbzvZnYj6G7ydlQqc20-D_U7h7B-1XwBxyhlSlPIGnJZFzm5yqrNh_ZLTE03sFqi3lHqkhlomnch1EmvMGCmv3K9u6Klv6pZmz6PSZKHXhtgkJxoJ"/>
+<span class="text-xs text-text-secondary-light">房车小白</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-text-secondary-light">
+<span class="material-symbols-outlined text-sm">favorite_border</span>
+<span>875</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

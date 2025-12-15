@@ -5,23 +5,23 @@
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,
-    /* 5+App特有相关 */
     "app-plus" : {
+        /* 5+App特有相关 */
         "usingComponents" : true,
+        "nvueCompiler" : "uni-app",
         "nvueStyleCompiler" : "uni-app",
-        "compilerVersion" : 3,
         "splashscreen" : {
             "alwaysShowBeforeRender" : true,
             "waiting" : true,
             "autoclose" : true,
             "delay" : 0
         },
-        /* 模块配置 */
         "modules" : {},
-        /* 应用发布信息 */
+        /* 模块配置 */
         "distribute" : {
-            /* android打包配置 */
+            /* 应用发布信息 */
             "android" : {
+                /* android打包配置 */
                 "permissions" : [
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
@@ -40,38 +40,26 @@
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ]
             },
-            /* ios打包配置 */
             "ios" : {},
-            /* SDK配置 */
+            /* ios打包配置 */
             "sdkConfigs" : {}
         }
     },
-    /* 快应用特有相关 */
+    /* SDK配置 */
     "quickapp" : {},
-    /* 小程序特有相关 */
+    /* 快应用特有相关 */
     "mp-weixin" : {
-        "appid" : "wx22adb9162e896132",
+        /* 小程序特有相关 */
+        "appid" : "wx545d8668053b84a8",
         "setting" : {
             "urlCheck" : false
         },
         "usingComponents" : true,
         "permission" : {
             "scope.userLocation" : {
-                "desc" : "用于向最近客户提供服务"
+                "desc" : "仅用于提供附近门店服务"
             }
         }
-    },
-    "mp-alipay" : {
-        "usingComponents" : true
-    },
-    "mp-baidu" : {
-        "usingComponents" : true
-    },
-    "mp-toutiao" : {
-        "usingComponents" : true
-    },
-    "uniStatistics" : {
-        "enable" : false
     },
     "vueVersion" : "3",
     "h5" : {
@@ -86,6 +74,5 @@
                 }
             }
         }
-    },
-    "locale" : "zh-Hans"
+    }
 }

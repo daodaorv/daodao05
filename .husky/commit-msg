@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Extract commit message
+commit_msg=$(cat "$1")
+
+# Check if AI tool tag is present
+if ! echo "$commit_msg" | grep -qE '\[(claude-code|codex|antigravity|human)\]'; then
+  echo "=========================================="
+  echo "[ERROR] Commit rejected: Missing AI tool tag"
+  echo "=========================================="
+  echo ""
+  echo "Commit message must end with one of these tags:"
+  echo "  [claude-code]  - Claude Code commits"
+  echo "  [codex]        - Codex commits"
+  echo "  [antigravity]  - Antigravity commits"
+  echo "  [human]        - Human commits"
+  echo ""
+  echo "Examples:"
+  echo "  feat(backend): Add user API [claude-code]"
+  echo "  fix(miniprogram): Fix order list [codex]"
+  echo ""
+  exit 1
+fi
+
+# Check commit message format
+if ! echo "$commit_msg" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|revert)(\(.+\))?: .+ \[(claude-code|codex|antigravity|human)\]'; then
+  echo "=========================================="
+  echo "[WARNING] Commit message format not standard"
+  echo "=========================================="
+  echo ""
+  echo "Recommended format: <type>(<scope>): <subject> [<ai-tool>]"
+  echo ""
+  echo "Type: feat, fix, docs, style, refactor, perf, test, chore, revert"
+  echo "Scope: backend, admin, miniprogram, mobile-admin, shared, infra"
+  echo ""
+  echo "Current commit: $commit_msg"
+  echo ""
+  echo "Continue in 3 seconds... (Press Ctrl+C to cancel)"
+  sleep 3
+fi
+
+echo "[SUCCESS] Commit message validation passed"

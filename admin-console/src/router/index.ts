@@ -1,65 +1,61 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
-
-const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/Home.vue'),
-    meta: { title: '首页' }
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue'),
-    meta: { title: '登录' }
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/Dashboard.vue'),
-    meta: { title: '仪表盘', requiresAuth: true }
-  },
-  {
-    path: '/users',
-    name: 'UserList',
-    component: () => import('@/views/users/index.vue'),
-    meta: { title: '用户管理', requiresAuth: true }
-  },
-  {
-    path: '/users/:id',
-    name: 'UserDetail',
-    component: () => import('@/views/users/Detail.vue'),
-    meta: { title: '用户详情', requiresAuth: true }
-  },
-  {
-    path: '/users/:id/edit',
-    name: 'UserEdit',
-    component: () => import('@/views/users/Edit.vue'),
-    meta: { title: '编辑用户', requiresAuth: true }
-  }
-]
+import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/app'
+import { routes } from './routes'
+import { canAccessRoute } from '@/utils/permission'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
-// Navigation guards
-router.beforeEach((to, from, next) => {
-  // Set page title
+// 路由守卫
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+  const appStore = useAppStore()
+  const isAuthenticated = userStore.isAuthenticated
+
+  // 设置页面标题
   if (to.meta?.title) {
-    document.title = `${to.meta.title} - 叨叨房车管理后台`
+    document.title = `${to.meta.title} - 叨叨房车租赁管理平台`
   }
 
-  // Authentication check
-  if (to.meta?.requiresAuth) {
-    const token = localStorage.getItem('admin_token')
-    if (!token) {
-      next('/login')
-      return
-    }
+  // 不需要认证的页面直接放行
+  if (to.meta.requiresAuth === false) {
+    next()
+    return
   }
+
+  // 需要认证但未登录，跳转到登录页
+  if (!isAuthenticated) {
+    next('/login')
+    return
+  }
+
+  // 已登录用户访问登录页，跳转到工作台
+  if (to.path === '/login') {
+    next('/dashboard')
+    return
+  }
+
+  // 检查权限
+  const user = userStore.user
+  if (!canAccessRoute(user, to.meta)) {
+    // 无权限访问，跳转到 404
+    next('/404')
+    return
+  }
+
+  // 更新面包屑
+  const breadcrumb = []
+  const matched = to.matched.filter(item => item.meta?.title)
+  for (const route of matched) {
+    breadcrumb.push({
+      name: route.meta?.title as string,
+      path: route.path,
+    })
+  }
+  appStore.setBreadcrumb(breadcrumb)
 
   next()
 })

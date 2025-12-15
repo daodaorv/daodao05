@@ -1,45 +1,271 @@
 {
 	"pages": [
 		{
-			"path": "pages/login/login",
+			"path": "pages/login/index",
 			"style": {
 				"navigationBarTitleText": "登录",
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/index/index",
+			"path": "pages/dashboard/index",
 			"style": {
-				"navigationBarTitleText": "首页"
+				"navigationBarTitleText": "工作台",
+				"enablePullDownRefresh": true
 			}
 		},
 		{
-			"path": "pages/users/users",
+			"path": "pages/orders/index",
 			"style": {
-				"navigationBarTitleText": "用户管理"
+				"navigationBarTitleText": "订单管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/orders/detail",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			"path": "pages/orders/verification",
+			"style": {
+				"navigationBarTitleText": "现场核验"
+			}
+		},
+		{
+			"path": "pages/orders/return",
+			"style": {
+				"navigationBarTitleText": "还车流程"
+			}
+		},
+		{
+			"path": "pages/vehicles/index",
+			"style": {
+				"navigationBarTitleText": "车辆管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/vehicles/detail",
+			"style": {
+				"navigationBarTitleText": "车辆详情"
+			}
+		},
+		{
+			"path": "pages/vehicles/maintenance",
+			"style": {
+				"navigationBarTitleText": "添加维保记录"
+			}
+		},
+		{
+			"path": "pages/vehicles/dispatch",
+			"style": {
+				"navigationBarTitleText": "车辆调度",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/vehicles/location",
+			"style": {
+				"navigationBarTitleText": "车辆位置"
+			}
+		},
+		{
+			"path": "pages/vehicles/photo-upload",
+			"style": {
+				"navigationBarTitleText": "上传照片"
+			}
+		},
+		{
+			"path": "pages/messages/index",
+			"style": {
+				"navigationBarTitleText": "消息通知",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/messages/ticket-list",
+			"style": {
+				"navigationBarTitleText": "工单列表",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/messages/ticket-detail",
+			"style": {
+				"navigationBarTitleText": "工单详情"
+			}
+		},
+		{
+			"path": "pages/messages/ticket-create",
+			"style": {
+				"navigationBarTitleText": "创建工单"
+			}
+		},
+		{
+			"path": "pages/messages/chat",
+			"style": {
+				"navigationBarTitleText": "在线客服"
+			}
+		},
+		{
+			"path": "pages/hosting/applications",
+			"style": {
+				"navigationBarTitleText": "托管申请",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/hosting/own-car-review",
+			"style": {
+				"navigationBarTitleText": "自有车托管审核"
+			}
+		},
+		{
+			"path": "pages/hosting/buy-car-review",
+			"style": {
+				"navigationBarTitleText": "购车托管审核"
+			}
+		},
+		{
+			"path": "pages/hosting/self-use-review",
+			"style": {
+				"navigationBarTitleText": "车主自用审核"
+			}
+		},
+		{
+			"path": "pages/hosting/vehicles",
+			"style": {
+				"navigationBarTitleText": "托管车辆",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/profile/index",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/profile/edit",
+			"style": {
+				"navigationBarTitleText": "编辑个人信息"
+			}
+		},
+		{
+			"path": "pages/profile/settings",
+			"style": {
+				"navigationBarTitleText": "系统设置"
+			}
+		},
+		{
+			"path": "pages/profile/notifications",
+			"style": {
+				"navigationBarTitleText": "通知设置"
+			}
+		},
+		{
+			"path": "pages/profile/help",
+			"style": {
+				"navigationBarTitleText": "帮助中心"
+			}
+		},
+		{
+			"path": "pages/profile/faq",
+			"style": {
+				"navigationBarTitleText": "常见问题"
+			}
+		},
+		{
+			"path": "pages/profile/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/profile/sync",
+			"style": {
+				"navigationBarTitleText": "数据同步"
+			}
+		},
+		{
+			"path": "pages/common/scan",
+			"style": {
+				"navigationBarTitleText": "扫码识别"
+			}
+		},
+		{
+			"path": "pages/statistics/index",
+			"style": {
+				"navigationBarTitleText": "数据统计",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "欢迎页"
+			}
+		},
+		{
+			"path": "pages/test/uview-test",
+			"style": {
+				"navigationBarTitleText": "uView Plus 组件测试"
 			}
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "white",
+		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "叨叨房车移动管理端",
-		"navigationBarBackgroundColor": "#007AFF",
+		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
 		"color": "#7A7E83",
-		"selectedColor": "#007AFF",
+		"selectedColor": "#3cc51f",
 		"borderStyle": "black",
-		"backgroundColor": "#F8F8F8",
+		"backgroundColor": "#ffffff",
 		"list": [
 			{
-				"pagePath": "pages/index/index",
-				"text": "首页"
+				"pagePath": "pages/dashboard/index",
+				"iconPath": "static/tabbar/dashboard.png",
+				"selectedIconPath": "static/tabbar/dashboard-active.png",
+				"text": "工作台"
 			},
 			{
-				"pagePath": "pages/users/users",
-				"text": "用户"
+				"pagePath": "pages/orders/index",
+				"iconPath": "static/tabbar/orders.png",
+				"selectedIconPath": "static/tabbar/orders-active.png",
+				"text": "订单"
+			},
+			{
+				"pagePath": "pages/vehicles/index",
+				"iconPath": "static/tabbar/vehicles.png",
+				"selectedIconPath": "static/tabbar/vehicles-active.png",
+				"text": "车辆"
+			},
+			{
+				"pagePath": "pages/messages/index",
+				"iconPath": "static/tabbar/messages.png",
+				"selectedIconPath": "static/tabbar/messages-active.png",
+				"text": "消息"
+			},
+			{
+				"pagePath": "pages/profile/index",
+				"iconPath": "static/tabbar/profile.png",
+				"selectedIconPath": "static/tabbar/profile-active.png",
+				"text": "我的"
 			}
 		]
+	},
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)": "@/uni_modules/uni-$1/components/uni-$1/uni-$1.vue",
+			"^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
+			"^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+			"^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue"
+		}
 	}
 }

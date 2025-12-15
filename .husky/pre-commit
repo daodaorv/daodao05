@@ -1,0 +1,51 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "[INFO] Running pre-commit checks..."
+
+# Check for sensitive files
+sensitive_files=".env .env.local .env.production credentials.json secrets.yaml"
+for file in $sensitive_files; do
+  if git diff --cached --name-only | grep -q "^$file$"; then
+    echo "=========================================="
+    echo "[ERROR] Sensitive file detected: $file"
+    echo "=========================================="
+    echo "Please add it to .gitignore and unstage it"
+    exit 1
+  fi
+done
+
+# Check for large files (>10MB)
+large_files=$(git diff --cached --name-only | xargs -I {} sh -c 'if [ -f "{}" ] && [ $(stat -c%s "{}") -gt 10485760 ]; then echo "{}"; fi' 2>/dev/null)
+if [ -n "$large_files" ]; then
+  echo "=========================================="
+  echo "[WARNING] Large files detected (>10MB):"
+  echo "=========================================="
+  echo "$large_files"
+  echo ""
+  echo "Consider using Git LFS for large files"
+  echo "Continue in 3 seconds... (Press Ctrl+C to cancel)"
+  sleep 3
+fi
+
+# Check backend code
+if git diff --cached --name-only | grep -q "^backend/"; then
+  echo "[INFO] Checking backend code..."
+  cd backend
+  if [ -f "package.json" ]; then
+    npm run lint 2>/dev/null || echo "[WARNING] Backend lint check failed, but continuing"
+  fi
+  cd ..
+fi
+
+# Check admin-console code
+if git diff --cached --name-only | grep -q "^admin-console/"; then
+  echo "[INFO] Checking admin-console code..."
+  cd admin-console
+  if [ -f "package.json" ]; then
+    npm run lint 2>/dev/null || echo "[WARNING] Admin-console lint check failed, but continuing"
+  fi
+  cd ..
+fi
+
+echo "[SUCCESS] Pre-commit checks completed"
