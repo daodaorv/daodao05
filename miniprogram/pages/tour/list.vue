@@ -60,7 +60,7 @@
                 <text class="detail-text">{{ item.days }}天{{ item.days - 1 }}晚</text>
               </view>
               <view class="detail-item">
-                <u-icon name="account" size="14" color="#999"></u-icon>
+                <u-icon name="account-fill" size="14" color="#999"></u-icon>
                 <text class="detail-text">{{ item.minPeople }}-{{ item.maxPeople }}人成团</text>
               </view>
             </view>
@@ -120,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue';
 import { onLoad, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app';
 
@@ -241,7 +242,7 @@ const loadTours = async (isRefresh = false) => {
     }
 
   } catch (error) {
-    console.error('加载旅游线路失败:', error);
+    logger.error('加载旅游线路失败:', error);
     uni.showToast({
       title: '加载失败，请重试',
       icon: 'none'

@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getContacts, createContact, updateContact, deleteContact } from '@/api/contact';
+import { logger } from '@/utils/logger';
 
 export const useContactStore = defineStore('contact', () => {
     // 状态
@@ -21,7 +22,7 @@ export const useContactStore = defineStore('contact', () => {
             }
             return null;
         } catch (error) {
-            console.error('获取联系人列表失败:', error);
+            logger.error('获取联系人列表失败', error);
             return null;
         }
     };
@@ -36,7 +37,7 @@ export const useContactStore = defineStore('contact', () => {
             }
             return false;
         } catch (error) {
-            console.error('添加联系人失败:', error);
+            logger.error('添加联系人失败', error);
             return false;
         }
     };
@@ -51,7 +52,7 @@ export const useContactStore = defineStore('contact', () => {
             }
             return false;
         } catch (error) {
-            console.error('编辑联系人失败:', error);
+            logger.error('编辑联系人失败', error);
             return false;
         }
     };
@@ -66,7 +67,7 @@ export const useContactStore = defineStore('contact', () => {
             }
             return false;
         } catch (error) {
-            console.error('删除联系人失败:', error);
+            logger.error('删除联系人失败', error);
             return false;
         }
     };

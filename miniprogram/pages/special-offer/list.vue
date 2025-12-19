@@ -142,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 
@@ -272,7 +273,7 @@ const loadOffers = async (isRefresh = false) => {
     }
 
   } catch (error) {
-    console.error('加载套餐列表失败:', error);
+    logger.error('加载套餐列表失败:', error);
     uni.showToast({
       title: '加载失败，请重试',
       icon: 'none'

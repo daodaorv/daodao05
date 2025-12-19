@@ -1,5 +1,13 @@
 import { get, post } from '@/utils/request'
 import mockHosting from './mock/hosting'
+import type {
+  OldCarApplicationData,
+  NewCarApplicationData,
+  SelfUseApplicationData,
+  IncomeDetailParams,
+  WithdrawData,
+  ModelBookingData
+} from '@/types/hosting'
 
 const USE_MOCK = true // 开发环境使用Mock数据
 
@@ -24,7 +32,7 @@ export const getHostingVehicles = () => {
 }
 
 // 提交自有车托管申请
-export const submitOldCarApplication = (data: any) => {
+export const submitOldCarApplication = (data: OldCarApplicationData) => {
   if (USE_MOCK) {
     return Promise.resolve(mockHosting.submitOldCarApplication(data))
   }
@@ -32,7 +40,7 @@ export const submitOldCarApplication = (data: any) => {
 }
 
 // 提交购车托管申请
-export const submitNewCarApplication = (data: any) => {
+export const submitNewCarApplication = (data: NewCarApplicationData) => {
   if (USE_MOCK) {
     return Promise.resolve(mockHosting.submitNewCarApplication(data))
   }
@@ -40,7 +48,7 @@ export const submitNewCarApplication = (data: any) => {
 }
 
 // 申请车主自用
-export const applySelfUse = (data: any) => {
+export const applySelfUse = (data: SelfUseApplicationData) => {
   if (USE_MOCK) {
     return Promise.resolve(mockHosting.applySelfUse(data))
   }
@@ -48,7 +56,7 @@ export const applySelfUse = (data: any) => {
 }
 
 // 获取收益明细
-export const getIncomeDetail = (params: any) => {
+export const getIncomeDetail = (params: IncomeDetailParams) => {
   if (USE_MOCK) {
     return Promise.resolve(mockHosting.getIncomeDetail(params))
   }
@@ -56,7 +64,7 @@ export const getIncomeDetail = (params: any) => {
 }
 
 // 提现
-export const withdrawIncome = (data: any) => {
+export const withdrawIncome = (data: WithdrawData) => {
   if (USE_MOCK) {
     return Promise.resolve(mockHosting.withdrawIncome(data))
   }
@@ -79,6 +87,22 @@ export const getPopularModels = () => {
   return get('/hosting/models/popular')
 }
 
+// 获取车型详情
+export const getModelDetail = (id: number) => {
+  if (USE_MOCK) {
+    return Promise.resolve(mockHosting.getModelDetail(id))
+  }
+  return get(`/hosting/models/${id}`)
+}
+
+// 提交购车预定
+export const submitModelBooking = (data: ModelBookingData) => {
+  if (USE_MOCK) {
+    return Promise.resolve(mockHosting.submitModelBooking(data))
+  }
+  return post('/hosting/models/booking', data)
+}
+
 // 获取门店列表
 export const getStoreList = () => {
   if (USE_MOCK) {
@@ -97,5 +121,7 @@ export default {
   withdrawIncome,
   getVehicleDetail,
   getPopularModels,
+  getModelDetail,
+  submitModelBooking,
   getStoreList
 }

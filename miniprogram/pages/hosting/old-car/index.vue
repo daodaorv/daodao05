@@ -35,18 +35,18 @@
 
       <!-- 车辆照片上传 -->
       <view class="form-item">
-        <text class="form-label">车辆实拍照片（至少12张） <text class="required">*</text></text>
+        <text class="form-label">车况照片（最多9张） <text class="required">*</text></text>
         <view class="photo-grid">
           <view v-for="(photo, index) in formData.photos" :key="index" class="photo-item">
             <image :src="photo" class="photo-img" mode="aspectFill"></image>
             <view class="photo-delete" @click="deletePhoto(index)">×</view>
           </view>
-          <view v-if="formData.photos.length < 20" class="photo-add" @click="uploadPhotos">
+          <view v-if="formData.photos.length < 9" class="photo-add" @click="uploadPhotos">
             <text class="add-icon">+</text>
             <text class="add-text">添加照片</text>
           </view>
         </view>
-        <text class="form-tip">请拍摄车辆外观、内饰、仪表盘等，照片越详细审核越快</text>
+        <text class="form-tip">请拍摄车辆外观、内饰、仪表盘等。更详细的车况图片等资源将在线下验车时由门店处理</text>
       </view>
 
       <!-- 车主信息 -->
@@ -60,13 +60,26 @@
         <input class="form-input" v-model="formData.phone" name="number" placeholder="请输入联系电话" />
       </view>
 
+      <!-- 选择城市 -->
+      <view class="form-item">
+        <text class="form-label">选择城市 <text class="required">*</text></text>
+        <picker mode="selector" :range="cities" range-key="name" @change="onCityChange">
+          <view class="picker-input">
+            <text :class="formData.cityId ? '' : 'placeholder'">
+              {{ formData.cityId ? cities.find(c => c.id === formData.cityId)?.name : '请选择城市' }}
+            </text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
       <!-- 选择门店 -->
       <view class="form-item">
         <text class="form-label">交车门店 <text class="required">*</text></text>
-        <picker mode="selector" :range="stores" range-key="name" @change="onStoreChange">
-          <view class="picker-input">
+        <picker mode="selector" :range="stores" range-key="name" @change="onStoreChange" :disabled="!formData.cityId">
+          <view class="picker-input" :class="!formData.cityId ? 'disabled' : ''">
             <text :class="formData.storeId ? '' : 'placeholder'">
-              {{ formData.storeId ? stores.find(s => s.id === formData.storeId).name : '请选择就近门店' }}
+              {{ formData.storeId ? stores.find(s => s.id === formData.storeId)?.name : (formData.cityId ? '请选择门店' : '请先选择城市') }}
             </text>
             <text class="picker-arrow">›</text>
           </view>
@@ -110,6 +123,9 @@
 </template>
 
 <script>
+import { logger } from '@/utils/logger';
+import hostingMock from '@/api/mock/hosting'
+
 export default {
   data() {
     return {
@@ -125,18 +141,141 @@ export default {
         photos: [],
         ownerName: '',
         phone: '',
+        cityId: '',
         storeId: ''
       },
-      stores: [
-        { id: 1, name: '北京朝阳门店' },
-        { id: 2, name: '北京海淀门店' },
-        { id: 3, name: '上海浦东门店' }
-      ],
+      cities: [],
+      stores: [],
+      userLocation: null,
       agreed: false
     }
   },
 
+  onLoad() {
+    this.loadCities()
+    this.getUserLocation()
+  },
+
   methods: {
+    // 加载城市列表
+    loadCities() {
+      this.cities = hostingMock.getCityList()
+    },
+
+    // 获取用户定位
+    getUserLocation() {
+      uni.getLocation({
+        type: 'gcj02',
+        success: (res) => {
+          this.userLocation = {
+            latitude: res.latitude,
+            longitude: res.longitude
+          }
+          this.autoSelectCityAndStore()
+        },
+        fail: () => {
+          logger.debug('获取定位失败，使用默认城市')
+          // 定位失败时默认选择第一个城市
+          if (this.cities.length > 0) {
+            this.formData.cityId = this.cities[0].id
+            this.loadStores()
+          }
+        }
+      })
+    },
+
+    // 自动选择最近的城市和门店
+    autoSelectCityAndStore() {
+      if (!this.userLocation || this.cities.length === 0) return
+
+      // 计算距离并找到最近的城市
+      let nearestCity = null
+      let minDistance = Infinity
+
+      this.cities.forEach(city => {
+        const distance = this.calculateDistance(
+          this.userLocation.latitude,
+          this.userLocation.longitude,
+          city.latitude,
+          city.longitude
+        )
+        if (distance < minDistance) {
+          minDistance = distance
+          nearestCity = city
+        }
+      })
+
+      if (nearestCity) {
+        this.formData.cityId = nearestCity.id
+        this.loadStores()
+
+        // 自动选择该城市最近的门店
+        this.$nextTick(() => {
+          this.autoSelectNearestStore()
+        })
+      }
+    },
+
+    // 自动选择最近的门店
+    autoSelectNearestStore() {
+      if (!this.userLocation || this.stores.length === 0) return
+
+      let nearestStore = null
+      let minDistance = Infinity
+
+      this.stores.forEach(store => {
+        const distance = this.calculateDistance(
+          this.userLocation.latitude,
+          this.userLocation.longitude,
+          store.latitude,
+          store.longitude
+        )
+        if (distance < minDistance) {
+          minDistance = distance
+          nearestStore = store
+        }
+      })
+
+      if (nearestStore) {
+        this.formData.storeId = nearestStore.id
+      }
+    },
+
+    // 计算两点之间的距离（单位：公里）
+    calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371 // 地球半径（公里）
+      const dLat = this.toRad(lat2 - lat1)
+      const dLon = this.toRad(lon2 - lon1)
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      return R * c
+    },
+
+    // 角度转弧度
+    toRad(degrees) {
+      return degrees * (Math.PI / 180)
+    },
+
+    // 加载门店列表
+    loadStores() {
+      if (this.formData.cityId) {
+        this.stores = hostingMock.getStoreList(this.formData.cityId)
+        // 如果当前选择的门店不在新城市的门店列表中，清空门店选择
+        if (this.formData.storeId) {
+          const storeExists = this.stores.some(s => s.id === this.formData.storeId)
+          if (!storeExists) {
+            this.formData.storeId = ''
+          }
+        }
+      } else {
+        this.stores = []
+        this.formData.storeId = ''
+      }
+    },
+
     // 上传行驶证
     uploadLicense() {
       uni.chooseImage({
@@ -149,9 +288,9 @@ export default {
 
     // 上传车辆照片
     uploadPhotos() {
-      const maxCount = 20 - this.formData.photos.length
+      const maxCount = 9 - this.formData.photos.length
       uni.chooseImage({
-        count: Math.min(maxCount, 9),
+        count: maxCount,
         success: (res) => {
           this.formData.photos.push(...res.tempFilePaths)
         }
@@ -161,6 +300,18 @@ export default {
     // 删除照片
     deletePhoto(index) {
       this.formData.photos.splice(index, 1)
+    },
+
+    // 选择城市
+    onCityChange(e) {
+      this.formData.cityId = this.cities[e.detail.value].id
+      this.loadStores()
+      // 自动选择该城市最近的门店
+      if (this.userLocation) {
+        this.$nextTick(() => {
+          this.autoSelectNearestStore()
+        })
+      }
     },
 
     // 选择门店
@@ -187,8 +338,8 @@ export default {
         uni.showToast({ title: '请上传行驶证', icon: 'none' })
         return
       }
-      if (this.formData.photos.length < 12) {
-        uni.showToast({ title: '请至少上传12张车辆照片', icon: 'none' })
+      if (this.formData.photos.length === 0) {
+        uni.showToast({ title: '请上传车况照片', icon: 'none' })
         return
       }
       if (!this.formData.ownerName) {
@@ -197,6 +348,10 @@ export default {
       }
       if (!this.formData.phone) {
         uni.showToast({ title: '请输入联系电话', icon: 'none' })
+        return
+      }
+      if (!this.formData.cityId) {
+        uni.showToast({ title: '请选择城市', icon: 'none' })
         return
       }
       if (!this.formData.storeId) {
@@ -442,6 +597,10 @@ export default {
 .picker-arrow {
   font-size: 32rpx;
   color: #CCCCCC;
+}
+
+.picker-input.disabled {
+  opacity: 0.5;
 }
 
 .income-card {

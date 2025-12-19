@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import dayjs from 'dayjs';
+import { logger } from '@/utils/logger';
 
 // 定义接口
 interface Day {
@@ -264,12 +265,12 @@ const onTimeClick = (time: string) => {
 };
 
 const open = (pickupDate?: string, returnDate?: string, time?: string) => {
-	console.log('🔍 RentDatePicker open 被调用:', pickupDate, returnDate, time);
+	logger.debug('RentDatePicker open 被调用', { pickupDate, returnDate, time });
 	tempPickupDate.value = pickupDate || '';
 	tempReturnDate.value = returnDate || '';
 	tempTime.value = time || props.defaultTime;
 	show.value = true;
-	console.log('🔍 show.value 已设置为:', show.value);
+	logger.debug('show.value 已设置', { show: show.value });
 };
 
 const close = () => {
@@ -277,7 +278,7 @@ const close = () => {
 };
 
 const confirm = () => {
-	console.log('Confirming selection:', tempPickupDate.value, tempReturnDate.value, tempTime.value);
+	logger.debug('确认选择', { pickupDate: tempPickupDate.value, returnDate: tempReturnDate.value, time: tempTime.value });
 	if (!tempPickupDate.value) {
 		uni.showToast({ title: `请选择${pickupLabelText.value}日期`, icon: 'none' });
 		return;

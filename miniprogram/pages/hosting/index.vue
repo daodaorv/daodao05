@@ -117,7 +117,7 @@
       </view>
       <view class="feature-item" @click="goToNewCarHosting">
         <image class="feature-icon" src="/static/images/new-car-icon.png" mode="aspectFit"></image>
-        <text class="feature-title">0首付购车托管</text>
+        <text class="feature-title">购车托管</text>
         <text class="feature-subtitle">保底+高分成</text>
         <view class="feature-badge">保底3500元/月</view>
       </view>
@@ -126,6 +126,8 @@
 </template>
 
 <script>
+import { logger } from '@/utils/logger';
+
 export default {
   data() {
     return {
@@ -268,7 +270,7 @@ export default {
 
     // 公告点击
     handleNoticeClick(notice) {
-      console.log('点击公告:', notice)
+      logger.debug('点击公告:', notice)
     }
   }
 }

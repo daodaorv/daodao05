@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { login, getUserProfile, wechatLogin } from '@/api/auth';
+import { logger } from '@/utils/logger';
 
 export const useUserStore = defineStore('user', () => {
     // 状态
@@ -29,7 +30,7 @@ export const useUserStore = defineStore('user', () => {
             try {
                 return JSON.parse(stored);
             } catch (error) {
-                console.warn('[userStore] 解析 userInfo 失败，已清理异常缓存');
+                logger.warn('解析 userInfo 失败，已清理异常缓存', error);
                 uni.removeStorageSync('userInfo');
                 return null;
             }
@@ -48,7 +49,7 @@ export const useUserStore = defineStore('user', () => {
             try {
                 userTags.value = typeof storedTags === 'string' ? JSON.parse(storedTags) : storedTags;
             } catch (error) {
-                console.warn('[userStore] 解析 userTags 失败');
+                logger.warn('解析 userTags 失败', error);
                 userTags.value = [];
             }
         }
@@ -74,7 +75,7 @@ export const useUserStore = defineStore('user', () => {
             }
             return false;
         } catch (error) {
-            console.error('登录失败:', error);
+            logger.error('登录失败', error);
             return false;
         }
     };
@@ -98,7 +99,7 @@ export const useUserStore = defineStore('user', () => {
             }
             return false;
         } catch (error) {
-            console.error('微信登录失败:', error);
+            logger.error('微信登录失败', error);
             return false;
         }
     };
@@ -116,7 +117,7 @@ export const useUserStore = defineStore('user', () => {
             }
             return false;
         } catch (error) {
-            console.error('获取用户信息失败:', error);
+            logger.error('获取用户信息失败', error);
             return false;
         }
     };

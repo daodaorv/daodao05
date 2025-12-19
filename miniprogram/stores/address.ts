@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getAddresses, createAddress, updateAddress, deleteAddress } from '@/api/address'
+import { logger } from '@/utils/logger'
 
 export const useAddressStore = defineStore('address', () => {
   const addressList = ref<any[]>([])
@@ -18,7 +19,7 @@ export const useAddressStore = defineStore('address', () => {
       }
       return null
     } catch (error) {
-      console.error('获取地址列表失败:', error)
+      logger.error('获取地址列表失败', error)
       return null
     }
   }
@@ -32,7 +33,7 @@ export const useAddressStore = defineStore('address', () => {
       }
       return false
     } catch (error) {
-      console.error('新增地址失败:', error)
+      logger.error('新增地址失败', error)
       return false
     }
   }
@@ -46,7 +47,7 @@ export const useAddressStore = defineStore('address', () => {
       }
       return false
     } catch (error) {
-      console.error('更新地址失败:', error)
+      logger.error('更新地址失败', error)
       return false
     }
   }
@@ -60,7 +61,7 @@ export const useAddressStore = defineStore('address', () => {
       }
       return false
     } catch (error) {
-      console.error('删除地址失败:', error)
+      logger.error('删除地址失败', error)
       return false
     }
   }

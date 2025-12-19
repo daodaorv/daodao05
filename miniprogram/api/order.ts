@@ -17,15 +17,18 @@ const mockStatusList = [
     { code: 'cancelled', name: '已取消' }
 ];
 
+// 导入类型定义
+import type { Vehicle, Store, OrderStatus } from '@/types/order'
+
 // Mock 订单数据
 interface MockOrderRecord {
     id: string;
     orderNo: string;
-    status: { code: string; name: string };
+    status: OrderStatus;
     statusId?: number;
-    vehicle?: Record<string, any> | null;
-    pickupStore?: { id?: string; name: string; address?: string } | null;
-    returnStore?: { id?: string; name: string; address?: string } | null;
+    vehicle?: Vehicle | null;
+    pickupStore?: Store | null;
+    returnStore?: Store | null;
     pickupTime?: string;
     returnTime?: string;
     totalAmount: number;
@@ -33,7 +36,6 @@ interface MockOrderRecord {
     depositAmount?: number;
     createdAt: string;
     isRated?: boolean;
-    [key: string]: any;
 }
 
 const mockOrders: MockOrderRecord[] = [
@@ -221,7 +223,7 @@ export function registerMockOrder(order: Partial<MockOrderRecord> & { orderNo: s
 /**
  * 计算订单价格
  */
-export function calculatePrice(data: any) {
+export function calculatePrice(data: import('@/types/order').CalculatePriceParams) {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
@@ -242,7 +244,7 @@ export function calculatePrice(data: any) {
 /**
  * 创建订单
  */
-export function createOrder(data: any) {
+export function createOrder(data: import('@/types/order').CreateOrderParams) {
     return new Promise((resolve) => {
         setTimeout(() => {
             const newOrder = {

@@ -16,7 +16,7 @@
 				open-type="getPhoneNumber"
 				@getphonenumber="handleWechatPhoneNumber"
 			>
-				<image class="platform-icon" :src="platformIcon" mode="aspectFit" />
+				<u-icon name="weixin-circle-fill" size="20" color="#FFFFFF"></u-icon>
 				<text class="btn-text">{{ oneClickLoginText }}</text>
 			</button>
 			<!-- 支付宝和抖音使用普通点击 -->
@@ -25,7 +25,8 @@
 				class="oneclick-btn"
 				@click="handleOneClickLogin"
 			>
-				<image class="platform-icon" :src="platformIcon" mode="aspectFit" />
+				<u-icon v-if="platform === 'alipay'" name="zhifubao-circle-fill" size="20" color="#FFFFFF"></u-icon>
+				<u-icon v-else name="play-circle-fill" size="20" color="#FFFFFF"></u-icon>
 				<text class="btn-text">{{ oneClickLoginText }}</text>
 			</button>
 			<view class="divider">
@@ -140,7 +141,7 @@
 				<!-- 用户名输入 -->
 				<view class="form-item">
 					<view class="input-wrapper">
-						<u-icon name="account" size="20" color="#999999" />
+						<u-icon name="account-fill" size="20" color="#999999" />
 						<input
 							v-model="usernameForm.username"
 							placeholder="请输入用户名/邮箱"
@@ -224,6 +225,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import {
 	login,
@@ -319,7 +321,7 @@ const canSubmit = computed(() => {
 onMounted(() => {
 	platform.value = getPlatform()
 	showOneClickLogin.value = supportOneClickLogin()
-	console.log('[登录页面] 当前平台:', platform.value, '支持一键登录:', showOneClickLogin.value)
+	logger.debug('[登录页面] 当前平台:', platform.value, '支持一键登录:', showOneClickLogin.value)
 })
 
 // 切换登录方式
@@ -426,7 +428,7 @@ const handleLogin = async () => {
 
 // 微信手机号授权回调
 const handleWechatPhoneNumber = async (e: any) => {
-	console.log('[微信手机号授权] 回调事件:', e)
+	logger.debug('[微信手机号授权] 回调事件:', e)
 
 	if (!agreed.value) {
 		uni.showToast({
@@ -438,7 +440,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 
 	// 用户拒绝授权
 	if (e.detail.errMsg && e.detail.errMsg.indexOf('fail') !== -1) {
-		console.log('[微信手机号授权] 用户拒绝授权')
+		logger.debug('[微信手机号授权] 用户拒绝授权')
 		uni.showToast({
 			title: '您拒绝了授权，请使用其他方式登录',
 			icon: 'none'
@@ -456,8 +458,8 @@ const handleWechatPhoneNumber = async (e: any) => {
 				provider: 'weixin',
 				success: async (loginRes) => {
 					try {
-						console.log('[微信登录] 获取code成功:', loginRes.code)
-						console.log('[微信手机号] 获取手机号code成功:', e.detail.code)
+						logger.debug('[微信登录] 获取code成功:', loginRes.code)
+						logger.debug('[微信手机号] 获取手机号code成功:', e.detail.code)
 
 						if (!loginRes.code) {
 							throw new Error('获取微信登录code失败')
@@ -479,7 +481,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 
 						if (needCompleteInfo) {
 							// 需要完善信息，跳转到完善信息页面
-							console.log('[微信登录] 需要完善用户信息')
+							logger.debug('[微信登录] 需要完善用户信息')
 							uni.showToast({
 								title: '登录成功',
 								icon: 'success',
@@ -503,7 +505,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 							}, 1500)
 						}
 					} catch (error: any) {
-						console.error('[微信登录] 登录失败:', error)
+						logger.error('[微信登录] 登录失败:', error)
 						uni.showToast({
 							title: error.message || '登录失败',
 							icon: 'none'
@@ -513,7 +515,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 					}
 				},
 				fail: (err) => {
-					console.error('[微信登录] 获取授权失败:', err)
+					logger.error('[微信登录] 获取授权失败:', err)
 					uni.showToast({
 						title: err.errMsg || '获取微信授权失败',
 						icon: 'none'
@@ -522,7 +524,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 				}
 			})
 		} catch (error: any) {
-			console.error('[微信手机号授权] 处理失败:', error)
+			logger.error('[微信手机号授权] 处理失败:', error)
 			uni.showToast({
 				title: error.message || '授权失败',
 				icon: 'none'
@@ -530,7 +532,7 @@ const handleWechatPhoneNumber = async (e: any) => {
 			loading.value = false
 		}
 	} else {
-		console.error('[微信手机号授权] 未获取到code')
+		logger.error('[微信手机号授权] 未获取到code')
 		uni.showToast({
 			title: '获取手机号失败，请重试',
 			icon: 'none'
@@ -557,7 +559,7 @@ const handleOneClickLogin = () => {
 			provider: 'alipay',
 			success: async (loginRes) => {
 				try {
-					console.log('[支付宝登录] 获取code成功:', loginRes.code)
+					logger.debug('[支付宝登录] 获取code成功:', loginRes.code)
 
 					if (!loginRes.code) {
 						throw new Error('获取支付宝授权code失败')
@@ -592,7 +594,7 @@ const handleOneClickLogin = () => {
 						handleLoginSuccess()
 					}, 1500)
 				} catch (error: any) {
-					console.error('[支付宝登录] 登录失败:', error)
+					logger.error('[支付宝登录] 登录失败:', error)
 					uni.showToast({
 						title: error.message || '登录失败',
 						icon: 'none'
@@ -602,7 +604,7 @@ const handleOneClickLogin = () => {
 				}
 			},
 			fail: (err) => {
-				console.error('[支付宝登录] 获取授权失败:', err)
+				logger.error('[支付宝登录] 获取授权失败:', err)
 				uni.showToast({
 					title: err.errMsg || '获取支付宝授权失败',
 					icon: 'none'
@@ -616,7 +618,7 @@ const handleOneClickLogin = () => {
 			provider: 'toutiao',
 			success: async (loginRes) => {
 				try {
-					console.log('[抖音登录] 获取code成功:', loginRes.code)
+					logger.debug('[抖音登录] 获取code成功:', loginRes.code)
 
 					if (!loginRes.code) {
 						throw new Error('获取抖音授权code失败')
@@ -651,7 +653,7 @@ const handleOneClickLogin = () => {
 						handleLoginSuccess()
 					}, 1500)
 				} catch (error: any) {
-					console.error('[抖音登录] 登录失败:', error)
+					logger.error('[抖音登录] 登录失败:', error)
 					uni.showToast({
 						title: error.message || '登录失败',
 						icon: 'none'
@@ -661,7 +663,7 @@ const handleOneClickLogin = () => {
 				}
 			},
 			fail: (err) => {
-				console.error('[抖音登录] 获取授权失败:', err)
+				logger.error('[抖音登录] 获取授权失败:', err)
 				uni.showToast({
 					title: err.errMsg || '获取抖音授权失败',
 					icon: 'none'
@@ -692,7 +694,7 @@ const handleThirdPartyLogin = (type: 'wechat' | 'alipay') => {
 		title: `${type === 'wechat' ? '微信' : '支付宝'}登录开发中`,
 		icon: 'none'
 	})
-	// TODO: H5环境的第三方登录
+	// 功能开发中 - H5环境的第三方登录待实现
 }
 
 // 忘记密码
@@ -721,7 +723,7 @@ const viewAgreement = (type: 'user' | 'privacy') => {
 		title: `查看${title}`,
 		icon: 'none'
 	})
-	// TODO: 跳转到协议页面
+	// 功能开发中 - 协议页面待实现
 }
 </script>
 

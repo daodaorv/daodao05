@@ -33,23 +33,24 @@
         <text class="value">￥{{ orderInfo.dailyPrice }}</text>
       </view>
       <view class="price-row total">
-        <text class="label">预计续租费用</text>
+        <text class="label">续租费用</text>
         <text class="amount">￥{{ totalPrice }}</text>
       </view>
       <view class="tip">
         <u-icon name="info" color="#FF9F29" size="14"></u-icon>
-        <text>实际费用以门店确认结果为准，提交后客服会主动联系您</text>
+        <text>支付成功后系统将自动确认续租，如无法续租将自动退款</text>
       </view>
     </view>
 
     <view class="bottom-actions">
       <button class="ghost-btn" @tap="contactStore">联系门店</button>
-      <button class="primary-btn" @tap="submitRenewal" :loading="submitting">提交续租申请</button>
+      <button class="primary-btn" @tap="goToPayment" :loading="submitting">立即支付续租费用</button>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { orderApi } from '@/api/order'
@@ -102,23 +103,34 @@ const contactStore = () => {
   })
 }
 
-const submitRenewal = () => {
+const goToPayment = () => {
   if (!orderInfo.value.orderId && !orderInfo.value.orderNo) {
     uni.showToast({ title: '缺少订单信息', icon: 'none' })
     return
   }
-  submitting.value = true
-  uni.showLoading({ title: '提交中...' })
-  setTimeout(() => {
-    submitting.value = false
-    uni.hideLoading()
-    uni.showModal({
-      title: '续租申请已提交',
-      content: '我们会尽快确认续租可用性，并通过短信或电话通知您。',
-      showCancel: false,
-      success: () => uni.navigateBack()
-    })
-  }, 1200)
+
+  if (totalPrice.value <= 0) {
+    uni.showToast({ title: '续租费用异常', icon: 'none' })
+    return
+  }
+
+  // 构建支付页面参数
+  const params = {
+    orderNo: orderInfo.value.orderNo,
+    amount: totalPrice.value,
+    type: 'renewal', // 标识这是续租支付
+    renewalDays: days.value,
+    newReturnTime: encodeURIComponent(newReturnTimeText.value)
+  }
+
+  // 跳转到支付页面
+  const queryString = Object.entries(params)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&')
+
+  uni.navigateTo({
+    url: `/pages/order/pay?${queryString}`
+  })
 }
 
 const loadOrderInfo = async (orderId?: string) => {
@@ -138,7 +150,7 @@ const loadOrderInfo = async (orderId?: string) => {
       }
     }
   } catch (error) {
-    console.error('加载订单失败', error)
+    logger.error('加载订单失败', error)
     uni.showToast({ title: '加载订单失败', icon: 'none' })
   } finally {
     uni.hideLoading()

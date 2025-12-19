@@ -124,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import { mockCreateRating, type RatingType } from '@/api/rating'
 
@@ -263,7 +264,7 @@ const handleSubmit = async () => {
 			}
 		})
 	} catch (error) {
-		console.error('提交评价失败:', error)
+		logger.error('提交评价失败:', error)
 		uni.hideLoading()
 		uni.showToast({
 			title: '提交失败',

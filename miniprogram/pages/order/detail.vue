@@ -31,10 +31,10 @@
 					</view>
 				</view>
 
-				<!-- 车辆卡片 -->
+				<!-- 车辆/营位卡片 -->
 				<view class="detail-card vehicle-card" @tap="goToVehicle">
 					<view class="card-header">
-						<text class="card-title">预订车辆</text>
+						<text class="card-title">{{ order.orderType === 'campsite' ? '预订营位' : '预订车辆' }}</text>
 						<u-icon name="arrow-right" size="12" color="#CCC"></u-icon>
 					</view>
 					<view class="vehicle-body">
@@ -44,7 +44,7 @@
 							<text class="v-spec">{{ order.vehicleSpec || '自动挡 | 4座2卧' }}</text>
 							<view class="v-tags">
 								<text class="tag">免费取消</text>
-								<text class="tag">到店付</text>
+								<text class="tag" v-if="order.orderType !== 'campsite'">到店付</text>
 							</view>
 						</view>
 					</view>
@@ -54,19 +54,19 @@
 				<view class="detail-card trip-card">
 					<view class="trip-row">
 						<view class="trip-point">
-							<view class="time-label">取车</view>
+							<view class="time-label">{{ order.orderType === 'campsite' ? '入住' : '取车' }}</view>
 							<text class="time-val">{{ formatTime(order.pickupTime) }}</text>
 							<text class="date-val">{{ formatDate(order.pickupTime) }}</text>
 							<text class="store-val">{{ order.pickupStoreName }}</text>
 						</view>
-						
+
 						<view class="trip-duration">
 							<view class="line"></view>
-							<view class="day-badge">{{ duration }}天</view>
+							<view class="day-badge">{{ order.orderType === 'campsite' ? (order.nights || duration) + '晚' : duration + '天' }}</view>
 						</view>
-						
+
 						<view class="trip-point right">
-							<view class="time-label">还车</view>
+							<view class="time-label">{{ order.orderType === 'campsite' ? '离店' : '还车' }}</view>
 							<text class="time-val">{{ formatTime(order.returnTime) }}</text>
 							<text class="date-val">{{ formatDate(order.returnTime) }}</text>
 							<text class="store-val">{{ order.returnStoreName }}</text>
@@ -80,14 +80,39 @@
 						<text class="card-title">费用明细</text>
 					</view>
 					<view class="fee-list">
-						<view class="fee-item">
-							<text class="fee-name">车辆租金 ({{ duration }}天)</text>
-							<text class="fee-amount">¥{{ order.rentalFee }}</text>
-						</view>
-						<view class="fee-item">
-							<text class="fee-name">基础服务费</text>
-							<text class="fee-amount">¥{{ order.serviceFee }}</text>
-						</view>
+						<!-- 营地订单费用明细 -->
+						<template v-if="order.orderType === 'campsite'">
+							<view class="fee-item">
+								<text class="fee-name">营位费用 ({{ order.nights || duration }}晚)</text>
+								<text class="fee-amount">¥{{ order.siteFee || 0 }}</text>
+							</view>
+							<view class="fee-item" v-if="order.cleaningFee > 0">
+								<text class="fee-name">清洁费</text>
+								<text class="fee-amount">¥{{ order.cleaningFee }}</text>
+							</view>
+							<view class="fee-item" v-if="order.insuranceFee > 0">
+								<text class="fee-name">保险费用</text>
+								<text class="fee-amount">¥{{ order.insuranceFee }}</text>
+							</view>
+							<view class="fee-item" v-if="order.servicesFee > 0">
+								<text class="fee-name">附加服务</text>
+								<text class="fee-amount">¥{{ order.servicesFee }}</text>
+							</view>
+						</template>
+
+						<!-- 房车订单费用明细 -->
+						<template v-else>
+							<view class="fee-item">
+								<text class="fee-name">车辆租金 ({{ duration }}天)</text>
+								<text class="fee-amount">¥{{ order.rentalFee || 0 }}</text>
+							</view>
+							<view class="fee-item">
+								<text class="fee-name">基础服务费</text>
+								<text class="fee-amount">¥{{ order.serviceFee || 0 }}</text>
+							</view>
+						</template>
+
+						<!-- 优惠减免（通用） -->
 						<view class="fee-item discount" v-if="order.discountAmount > 0">
 							<text class="fee-name">优惠减免</text>
 							<text class="fee-amount">-¥{{ order.discountAmount }}</text>
@@ -131,7 +156,7 @@
 		<!-- 底部操作栏 (Fixed) -->
 		<view class="bottom-bar">
 			<view class="service-btn" @tap="contactService">
-				<u-icon name="server-fill" size="20" color="#4E5969"></u-icon>
+				<u-icon name="server-man" size="20" color="#4E5969"></u-icon>
 				<text>客服</text>
 			</view>
 			<view class="action-group">
@@ -149,6 +174,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import dayjs from 'dayjs';
@@ -179,36 +205,63 @@ onLoad(async (options: any) => {
 	const sys = uni.getSystemInfoSync();
 	statusBarHeight.value = sys.statusBarHeight || 0;
 
-	if (options.id) {
+	// 支持通过 id 或 orderNo 参数加载订单详情
+	const orderId = options.id || options.orderNo;
+
+	if (orderId) {
 		// 从 Mock 数据加载订单详情
 		try {
-			const res: any = await getOrderDetail(options.id);
+			const res: any = await getOrderDetail(orderId);
 			if (res.code === 0 && res.data) {
 				// 映射数据结构
 				const orderData = res.data;
+				const isCampsiteOrder = orderData.orderType === 'campsite';
+
+				// 根据订单类型处理费用明细
+				let feeDetails: any = {};
+				if (isCampsiteOrder && orderData.campsiteFeeDetails) {
+					// 营地订单费用明细
+					feeDetails = {
+						siteFee: orderData.campsiteFeeDetails.siteFee || 0,
+						cleaningFee: orderData.campsiteFeeDetails.cleaningFee || 0,
+						insuranceFee: orderData.campsiteFeeDetails.insuranceFee || 0,
+						servicesFee: orderData.campsiteFeeDetails.servicesFee || 0,
+						discountAmount: orderData.campsiteFeeDetails.couponDiscount || 0,
+						nights: orderData.campsiteFeeDetails.nights || 1
+					};
+				} else {
+					// 房车订单费用明细
+					feeDetails = {
+						rentalFee: orderData.totalAmount - (orderData.actualAmount - orderData.totalAmount),
+						serviceFee: 160,
+						discountAmount: orderData.totalAmount - orderData.actualAmount
+					};
+				}
+
 				order.value = {
 					id: orderData.id,
 					orderNo: orderData.orderNo,
 					status: orderData.status.code,
-					vehicleName: orderData.vehicle?.name || '未知车辆',
+					orderType: orderData.orderType || 'vehicle',
+					vehicleName: orderData.vehicle?.name || (isCampsiteOrder ? '未知营位' : '未知车辆'),
 					vehicleImage: orderData.vehicle?.images?.[0] || '/static/logo.png',
-					vehicleSpec: `${orderData.vehicle?.specifications?.transmission || ''} | ${orderData.vehicle?.specifications?.seats || ''}座 | ${orderData.vehicle?.specifications?.fuelType || ''}`,
+					vehicleSpec: isCampsiteOrder
+						? orderData.vehicle?.model || '营位信息'
+						: `${orderData.vehicle?.specifications?.transmission || ''} | ${orderData.vehicle?.specifications?.seats || ''}座 | ${orderData.vehicle?.specifications?.fuelType || ''}`,
 					pickupTime: orderData.pickupTime,
 					returnTime: orderData.returnTime,
-					pickupStoreName: orderData.pickupStore?.name || '未知门店',
-					returnStoreName: orderData.returnStore?.name || '未知门店',
-					rentalFee: orderData.totalAmount - (orderData.actualAmount - orderData.totalAmount),
-					serviceFee: 160,
-					discountAmount: orderData.totalAmount - orderData.actualAmount,
+					pickupStoreName: orderData.pickupStore?.name || (isCampsiteOrder ? '未知营地' : '未知门店'),
+					returnStoreName: orderData.returnStore?.name || (isCampsiteOrder ? '未知营地' : '未知门店'),
 					totalAmount: orderData.actualAmount,
 					createdAt: dayjs(orderData.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-					contactName: '张三',
-					contactPhone: '138****0000'
+					contactName: orderData.pickupContactName || '张三',
+					contactPhone: orderData.pickupContactPhone || '138****0000',
+					...feeDetails
 				};
-				console.log('成功加载订单详情:', options.id, order.value);
+				logger.debug('成功加载订单详情:', orderId, order.value);
 			}
 		} catch (error) {
-			console.error('加载订单详情失败:', error);
+			logger.error('加载订单详情失败:', error);
 			uni.showToast({
 				title: '订单不存在',
 				icon: 'none'

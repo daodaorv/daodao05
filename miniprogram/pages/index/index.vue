@@ -14,7 +14,7 @@
 		<view class="hero-section">
 			<u-swiper
 				:list="banners"
-				keyName="photo"
+				keyName="image"
 				:autoplay="true"
 				:circular="true"
 				height="480"
@@ -88,7 +88,7 @@
 						<text class="content-title">{{ item.title }}</text>
 						<view class="content-footer">
 							<view class="author-box">
-								<u-icon name="account" size="14" color="#999"></u-icon>
+								<u-icon name="account-fill" size="14" color="#999"></u-icon>
 								<text class="author-name">{{ item.author }}</text>
 							</view>
 							<view class="likes-box">
@@ -107,6 +107,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue';
 import { onPageScroll } from '@dcloudio/uni-app';
 import NoticeBanner from '@/components/base/NoticeBanner.vue';
@@ -206,7 +207,7 @@ onPageScroll((e) => {
  */
 const initLocation = async () => {
 	try {
-		console.log('[首页] 开始获取用户位置');
+		logger.debug('[首页] 开始获取用户位置');
 
 		// 获取用户位置
 		const location = await getUserLocation({
@@ -216,12 +217,12 @@ const initLocation = async () => {
 		});
 
 		userLocation.value = location;
-		console.log('[首页] 获取位置成功:', location);
+		logger.debug('[首页] 获取位置成功:', location);
 
 		// 逆地理编码获取城市
 		const city = await reverseGeocode(location.latitude, location.longitude);
 		userCity.value = city;
-		console.log('[首页] 当前城市:', city);
+		logger.debug('[首页] 当前城市:', city);
 
 		// 显示成功提示
 		uni.showToast({
@@ -232,7 +233,7 @@ const initLocation = async () => {
 
 	} catch (error) {
 		const locationError = error as LocationError;
-		console.error('[首页] 获取位置失败:', locationError);
+		logger.error('[首页] 获取位置失败:', locationError);
 
 		// 根据错误类型显示不同提示
 		let errorMessage = '定位失败';
@@ -259,12 +260,12 @@ const initLocation = async () => {
 
 		// 使用默认城市
 		userCity.value = '北京';
-		console.log('[首页] 使用默认城市:', userCity.value);
+		logger.debug('[首页] 使用默认城市:', userCity.value);
 	}
 };
 
 const handleNoticeClick = (notice: any) => {
-	console.log('点击公告:', notice);
+	logger.debug('点击公告:', notice);
 };
 
 const handleSearch = (params: any) => {

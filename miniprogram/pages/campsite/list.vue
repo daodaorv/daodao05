@@ -39,7 +39,7 @@
     >
       <!-- 空状态 -->
       <view v-if="campsites.length === 0 && !loading" class="empty-state">
-        <u-icon name="map" size="80" color="#DDD"></u-icon>
+        <u-icon name="map-fill" size="80" color="#DDD"></u-icon>
         <text class="empty-text">暂无营地信息</text>
         <text class="empty-tip">敬请期待更多营地</text>
       </view>
@@ -75,7 +75,7 @@
             </view>
 
             <view class="location-info">
-              <u-icon name="map" size="14" color="#999"></u-icon>
+              <u-icon name="map-fill" size="14" color="#999"></u-icon>
               <text class="distance">距离{{ item.distance }}km</text>
             </view>
 
@@ -133,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue';
 import { onLoad, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app';
 
@@ -251,7 +252,7 @@ const loadCampsites = async (isRefresh = false) => {
     }
 
   } catch (error) {
-    console.error('加载营地列表失败:', error);
+    logger.error('加载营地列表失败:', error);
     uni.showToast({
       title: '加载失败，请重试',
       icon: 'none'

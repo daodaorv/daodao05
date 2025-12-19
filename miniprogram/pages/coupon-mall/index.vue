@@ -289,7 +289,7 @@ const handleCouponAction = (coupon: CouponData) => {
 };
 
 const claimCoupon = (coupon: CouponData) => {
-	// TODO: 调用API领取优惠券
+	// Mock实现 - 待后端API开发
 	uni.showLoading({
 		title: '领取中...'
 	});
@@ -331,7 +331,7 @@ onReachBottom(() => {
 	// 加载更多
 	if (loadMoreStatus.value === 'more') {
 		loadMoreStatus.value = 'loading';
-		// TODO: 加载更多数据
+		// Mock实现 - 待后端API开发
 		setTimeout(() => {
 			loadMoreStatus.value = 'noMore';
 		}, 1000);

@@ -3,6 +3,7 @@
  */
 
 import { get, post } from '@/utils/request';
+import { logger } from '@/utils/logger';
 
 /**
  * 查询可用房车
@@ -52,7 +53,7 @@ export function lockVehicle(data: {
 }) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            console.log('锁定车辆库存:', data);
+            logger.debug('锁定车辆库存', data);
             resolve({
                 code: 0,
                 message: 'success',
@@ -72,7 +73,7 @@ export function lockVehicle(data: {
 export function unlockVehicle(lockId: string) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            console.log('释放车辆库存:', lockId);
+            logger.debug('释放车辆库存', { lockId });
             resolve({
                 code: 0,
                 message: 'success',

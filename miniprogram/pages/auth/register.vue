@@ -82,7 +82,7 @@
 					<text class="optional">（可选）</text>
 				</view>
 				<view class="input-wrapper">
-					<u-icon name="account" size="20" color="#999999" />
+					<u-icon name="account-fill" size="20" color="#999999" />
 					<input
 						v-model="formData.nickname"
 						maxlength="20"
@@ -295,7 +295,7 @@ const viewAgreement = (type: 'user' | 'privacy') => {
 		title: `查看${title}`,
 		icon: 'none'
 	})
-	// TODO: 跳转到协议页面
+	// 功能开发中 - 协议页面待实现
 }
 </script>
 

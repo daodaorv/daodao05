@@ -181,6 +181,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 
@@ -302,7 +303,7 @@ const loadOfferDetail = async () => {
     offerDetail.value = mockDetail;
 
   } catch (error) {
-    console.error('加载套餐详情失败:', error);
+    logger.error('加载套餐详情失败:', error);
     uni.showToast({
       title: '加载失败',
       icon: 'none'

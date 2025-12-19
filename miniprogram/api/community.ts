@@ -49,6 +49,15 @@ export interface CommunityPost {
 }
 
 /**
+ * 关联产品信息
+ */
+export interface RelatedProduct {
+  id: string
+  type: 'campsite' | 'travel' | 'rental'
+  name: string
+}
+
+/**
  * 发布内容请求参数
  */
 export interface CreatePostParams {
@@ -58,6 +67,7 @@ export interface CreatePostParams {
   images: string[]
   tags: string[]
   location?: string
+  relatedProduct?: RelatedProduct
 }
 
 /**
@@ -208,9 +218,10 @@ const mockUserProfile: UserProfile = {
 
 /**
  * 发布内容
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const createPost = async (params: CreatePostParams): Promise<CommunityPost> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       const newPost: CommunityPost = {
@@ -240,9 +251,10 @@ export const createPost = async (params: CreatePostParams): Promise<CommunityPos
 
 /**
  * 获取内容详情
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const getPostDetail = async (id: string): Promise<CommunityPost> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       const post = mockPosts.find(p => p.id === id) || mockPosts[0]
@@ -253,9 +265,10 @@ export const getPostDetail = async (id: string): Promise<CommunityPost> => {
 
 /**
  * 点赞内容
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const likePost = async (id: string): Promise<{ isLiked: boolean; likeCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -268,9 +281,10 @@ export const likePost = async (id: string): Promise<{ isLiked: boolean; likeCoun
 
 /**
  * 取消点赞
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const unlikePost = async (id: string): Promise<{ isLiked: boolean; likeCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -283,9 +297,10 @@ export const unlikePost = async (id: string): Promise<{ isLiked: boolean; likeCo
 
 /**
  * 评论内容
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const commentPost = async (id: string, params: CommentParams): Promise<Comment> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       const newComment: Comment = {
@@ -307,12 +322,13 @@ export const commentPost = async (id: string, params: CommentParams): Promise<Co
 
 /**
  * 获取评论列表
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const getComments = async (
   id: string,
   params: { page?: number; pageSize?: number } = {}
 ): Promise<{ list: Comment[]; total: number; hasMore: boolean }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -326,9 +342,10 @@ export const getComments = async (
 
 /**
  * 收藏内容
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const favoritePost = async (id: string): Promise<{ isFavorited: boolean; favoriteCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -341,9 +358,10 @@ export const favoritePost = async (id: string): Promise<{ isFavorited: boolean; 
 
 /**
  * 取消收藏
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const unfavoritePost = async (id: string): Promise<{ isFavorited: boolean; favoriteCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -356,9 +374,10 @@ export const unfavoritePost = async (id: string): Promise<{ isFavorited: boolean
 
 /**
  * 获取用户主页
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const getUserProfile = async (id: string): Promise<UserProfile> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockUserProfile)
@@ -368,9 +387,10 @@ export const getUserProfile = async (id: string): Promise<UserProfile> => {
 
 /**
  * 关注用户
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const followUser = async (id: string): Promise<{ isFollowing: boolean; followerCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -383,9 +403,10 @@ export const followUser = async (id: string): Promise<{ isFollowing: boolean; fo
 
 /**
  * 取消关注
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const unfollowUser = async (id: string): Promise<{ isFollowing: boolean; followerCount: number }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -398,9 +419,10 @@ export const unfollowUser = async (id: string): Promise<{ isFollowing: boolean; 
 
 /**
  * 上传图片
+ * @status 已开发 - 使用Mock数据，待后端API开发后对接
  */
 export const uploadImage = async (filePath: string): Promise<{ url: string; thumbnail: string }> => {
-  // TODO: 替换为真实API调用
+  // Mock实现 - 待后端API开发
   return new Promise((resolve) => {
     setTimeout(() => {
       // 模拟上传成功，返回图片URL

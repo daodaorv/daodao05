@@ -44,7 +44,7 @@
 					class="benefit-item"
 				>
 					<view class="benefit-icon">
-						<image :src="getBenefitIcon(benefit.icon)" mode="aspectFit"></image>
+						<u-icon :name="getBenefitIcon(benefit.icon)" size="28" :color="getBenefitIconColor(benefit.icon)"></u-icon>
 					</view>
 					<view class="benefit-content">
 						<text class="benefit-name">{{ benefit.name }}</text>
@@ -93,7 +93,7 @@
 				>
 					<view class="payment-info">
 						<view class="icon-box wechat">
-							<u-icon name="weixin" size="24" color="#FFFFFF"></u-icon>
+							<u-icon name="weixin-circle-fill" size="24" color="#FFFFFF"></u-icon>
 						</view>
 						<view class="payment-text">
 							<text class="name">微信支付</text>
@@ -162,6 +162,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import { mockGetMembershipPackages, mockPurchaseMembership, type MemberBenefit } from '@/api/membership'
 
@@ -196,17 +197,30 @@ const cashAmount = computed(() => {
 // 协议同意
 const agreedToTerms = ref(false)
 
-// 获取权益图标
+// 获取权益图标（使用 uView UI 字体图标）
 const getBenefitIcon = (icon: string) => {
 	const iconMap: Record<string, string> = {
-		discount: '/static/icons/benefit-discount.png',
-		cancel: '/static/icons/benefit-cancel.png',
-		service: '/static/icons/benefit-service.png',
-		gift: '/static/icons/benefit-gift.png',
-		points: '/static/icons/benefit-points.png',
-		priority: '/static/icons/benefit-priority.png'
+		discount: 'tags-fill',        // 租车95折
+		cancel: 'close-circle-fill',  // 免费取消
+		service: 'server-man',        // 专属客服
+		gift: 'gift-fill',            // 生日优惠
+		points: 'integral-fill',      // 积分翻倍
+		priority: 'star-fill'         // 优先取车
 	}
-	return iconMap[icon] || '/static/icons/benefit-default.png'
+	return iconMap[icon] || 'star-fill'
+}
+
+// 获取权益图标颜色
+const getBenefitIconColor = (icon: string) => {
+	const colorMap: Record<string, string> = {
+		discount: '#FF6B6B',   // 红色 - 折扣
+		cancel: '#4ECDC4',     // 青色 - 取消
+		service: '#95E1D3',    // 绿色 - 客服
+		gift: '#FFD93D',       // 黄色 - 礼物
+		points: '#FF9F29',     // 橙色 - 积分
+		priority: '#A8E6CF'    // 浅绿 - 优先
+	}
+	return colorMap[icon] || '#999999'
 }
 
 const toggleBalance = (e: any) => {
@@ -239,6 +253,7 @@ const viewAgreement = () => {
 
 // 处理购买
 const handlePurchase = async () => {
+	// 1. 验证协议同意
 	if (!agreedToTerms.value) {
 		uni.showToast({
 			title: '请先同意服务协议',
@@ -247,6 +262,7 @@ const handlePurchase = async () => {
 		return
 	}
 
+	// 2. 验证支付方式
 	if (!isBalanceCovered.value && !selectedPayment.value) {
 		uni.showToast({
 			title: '请选择支付方式',
@@ -256,35 +272,203 @@ const handlePurchase = async () => {
 	}
 
 	try {
-		uni.showLoading({ title: '处理中...' })
+		uni.showLoading({ title: '创建订单...' })
 
-		// 使用Mock数据
-		const result = await mockPurchaseMembership({
+		// 3. 创建会员订单
+		const orderData = {
 			packageId: 'package_001',
+			packageName: 'PLUS会员年卡',
+			price: membershipPrice.value,
 			autoRenew: false,
-			paymentMethod: isBalanceCovered.value
-				? 'balance'
-				: (selectedPayment.value === 'alipay' ? 'alipay' : 'wechat')
-		})
+			purchaseType: purchaseType.value
+		}
+
+		const result = await mockPurchaseMembership(orderData)
+		const orderNo = result.orderNo || 'MB' + Date.now()
 
 		uni.hideLoading()
 
-		// 模拟支付成功
+		// 4. 判断支付方式
+		if (isBalanceCovered.value) {
+			// 余额全额支付，直接完成
+			await handleBalancePayment(orderNo)
+		} else {
+			// 需要第三方支付
+			await handleThirdPartyPayment(orderNo)
+		}
+
+	} catch (error: any) {
+		logger.error('购买失败:', error)
+		uni.hideLoading()
+		uni.showToast({
+			title: error.message || '购买失败，请重试',
+			icon: 'none'
+		})
+	}
+}
+
+// 余额支付处理
+const handleBalancePayment = async (orderNo: string) => {
+	try {
+		uni.showLoading({ title: '支付中...' })
+
+		// 模拟余额支付
+		await new Promise(resolve => setTimeout(resolve, 1000))
+
+		uni.hideLoading()
+
+		// 支付成功，显示结果
 		uni.showModal({
 			title: '支付成功',
-			content: purchaseType.value === 'renew' ? '会员续费成功！' : '恭喜您成为PLUS会员！',
+			content: purchaseType.value === 'renew'
+				? '会员续费成功！有效期已延长12个月'
+				: '恭喜您成为PLUS会员！立即享受专属权益',
 			showCancel: false,
 			success: () => {
-				// 返回会员中心
-				uni.navigateBack()
+				// 跳转到会员中心
+				uni.redirectTo({
+					url: '/pages/membership/index'
+				})
 			}
 		})
 	} catch (error) {
-		console.error('购买失败:', error)
 		uni.hideLoading()
-		uni.showToast({
-			title: '购买失败',
-			icon: 'none'
+		throw error
+	}
+}
+
+// 第三方支付处理
+const handleThirdPartyPayment = async (orderNo: string) => {
+	try {
+		const paymentMethod = selectedPayment.value
+		const paymentAmount = parseFloat(cashAmount.value)
+
+		// 构建支付参数
+		const paymentData: any = {
+			orderNo: orderNo,
+			amount: paymentAmount,
+			subject: 'PLUS会员年卡',
+			body: purchaseType.value === 'renew' ? '会员续费' : '会员开通'
+		}
+
+		// 如果使用了余额抵扣
+		if (useBalance.value && deductionAmount.value > 0) {
+			paymentData.balanceAmount = deductionAmount.value
+		}
+
+		uni.showLoading({ title: '正在调起支付...' })
+
+		// 根据平台调用不同的支付方式
+		if (paymentMethod === 'wxpay') {
+			// 微信支付
+			await handleWechatPayment(paymentData)
+		} else if (paymentMethod === 'alipay') {
+			// 支付宝支付
+			await handleAlipayPayment(paymentData)
+		}
+
+	} catch (error: any) {
+		uni.hideLoading()
+
+		// 用户取消支付
+		if (error.errMsg && error.errMsg.includes('cancel')) {
+			uni.showToast({
+				title: '已取消支付',
+				icon: 'none'
+			})
+		} else {
+			throw error
+		}
+	}
+}
+
+// 微信支付
+const handleWechatPayment = async (paymentData: any) => {
+	// 模拟调用后端获取支付参数
+	await new Promise(resolve => setTimeout(resolve, 500))
+
+	// 模拟微信支付参数
+	const wxPayParams = {
+		timeStamp: String(Date.now()),
+		nonceStr: 'mock_nonce_' + Date.now(),
+		package: 'prepay_id=mock_prepay_id',
+		signType: 'RSA',
+		paySign: 'mock_sign'
+	}
+
+	uni.hideLoading()
+
+	// 调起微信支付
+	uni.requestPayment({
+		provider: 'wxpay',
+		...wxPayParams,
+		success: async () => {
+			// 支付成功
+			await handlePaymentSuccess(paymentData.orderNo)
+		},
+		fail: (err) => {
+			logger.error('微信支付失败:', err)
+			throw err
+		}
+	})
+}
+
+// 支付宝支付
+const handleAlipayPayment = async (paymentData: any) => {
+	// 模拟调用后端获取支付参数
+	await new Promise(resolve => setTimeout(resolve, 500))
+
+	// 模拟支付宝支付参数
+	const alipayParams = {
+		orderInfo: 'mock_order_info_' + Date.now()
+	}
+
+	uni.hideLoading()
+
+	// 调起支付宝支付
+	uni.requestPayment({
+		provider: 'alipay',
+		orderInfo: alipayParams.orderInfo,
+		success: async () => {
+			// 支付成功
+			await handlePaymentSuccess(paymentData.orderNo)
+		},
+		fail: (err) => {
+			logger.error('支付宝支付失败:', err)
+			throw err
+		}
+	})
+}
+
+// 支付成功处理
+const handlePaymentSuccess = async (orderNo: string) => {
+	try {
+		uni.showLoading({ title: '处理中...' })
+
+		// 模拟通知后端支付成功
+		await new Promise(resolve => setTimeout(resolve, 1000))
+
+		uni.hideLoading()
+
+		// 显示支付成功提示
+		uni.showModal({
+			title: '支付成功',
+			content: purchaseType.value === 'renew'
+				? '会员续费成功！有效期已延长12个月'
+				: '恭喜您成为PLUS会员！立即享受专属权益',
+			showCancel: false,
+			success: () => {
+				// 跳转到会员中心
+				uni.redirectTo({
+					url: '/pages/membership/index'
+				})
+			}
+		})
+	} catch (error) {
+		logger.error('支付成功处理失败:', error)
+		// 即使处理失败，也跳转到会员中心
+		uni.redirectTo({
+			url: '/pages/membership/index'
 		})
 	}
 }
@@ -298,7 +482,7 @@ const loadPackageInfo = async () => {
 			benefits.value = packages[0].benefits
 		}
 	} catch (error) {
-		console.error('加载套餐信息失败:', error)
+		logger.error('加载套餐信息失败:', error)
 	}
 }
 
@@ -458,11 +642,11 @@ onMounted(() => {
 			width: 56rpx;
 			height: 56rpx;
 			margin-right: 24rpx;
-
-			image {
-				width: 100%;
-				height: 100%;
-			}
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(255, 159, 41, 0.1);
+			border-radius: 50%;
 		}
 
 		.benefit-content {

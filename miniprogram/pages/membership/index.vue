@@ -49,7 +49,7 @@
 					:class="isPlusMember ? 'active' : 'inactive'"
 				>
 					<view class="benefit-icon">
-						<image :src="getBenefitIcon(benefit.icon)" mode="aspectFit"></image>
+						<u-icon :name="getBenefitIcon(benefit.icon)" size="32" :color="getBenefitIconColor(benefit.icon)"></u-icon>
 					</view>
 					<view class="benefit-info">
 						<text class="benefit-name">{{ benefit.name }}</text>
@@ -150,6 +150,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import { mockGetMembershipInfo, mockGetMembershipPackages, type MembershipInfo, type MemberBenefit } from '@/api/membership'
 import { useUserStore } from '@/stores/user'
@@ -211,17 +212,30 @@ const formatDate = (dateStr: string) => {
 	return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 }
 
-// 获取权益图标
+// 获取权益图标（使用 uView UI 字体图标）
 const getBenefitIcon = (icon: string) => {
 	const iconMap: Record<string, string> = {
-		discount: '/static/icons/benefit-discount.png',
-		cancel: '/static/icons/benefit-cancel.png',
-		service: '/static/icons/benefit-service.png',
-		gift: '/static/icons/benefit-gift.png',
-		points: '/static/icons/benefit-points.png',
-		priority: '/static/icons/benefit-priority.png'
+		discount: 'tags-fill',        // 租车95折
+		cancel: 'close-circle-fill',  // 免费取消
+		service: 'server-man',        // 专属客服
+		gift: 'gift-fill',            // 生日优惠
+		points: 'integral-fill',      // 积分翻倍
+		priority: 'medal-fill'        // 优先取车
 	}
-	return iconMap[icon] || '/static/icons/benefit-default.png'
+	return iconMap[icon] || 'star-fill'
+}
+
+// 获取权益图标颜色
+const getBenefitIconColor = (icon: string) => {
+	const colorMap: Record<string, string> = {
+		discount: '#FF6B6B',   // 红色 - 折扣
+		cancel: '#4ECDC4',     // 青色 - 取消
+		service: '#95E1D3',    // 绿色 - 客服
+		gift: '#FFD93D',       // 黄色 - 礼物
+		points: '#FF9F29',     // 橙色 - 积分
+		priority: '#A8E6CF'    // 浅绿 - 优先
+	}
+	return colorMap[icon] || '#999999'
 }
 
 // 切换FAQ展开状态
@@ -254,7 +268,7 @@ const handleAutoRenewChange = (e: any) => {
 			: '关闭后，会员到期将不会自动扣费，需手动续费。',
 		success: (res) => {
 			if (res.confirm) {
-				// TODO: 调用API更新自动续费状态
+				// Mock实现 - 待后端API开发
 				memberInfo.value.autoRenew = enabled
 				uni.showToast({
 					title: enabled ? '已开启自动续费' : '已关闭自动续费',
@@ -277,7 +291,7 @@ const loadMembershipInfo = async () => {
 
 		uni.hideLoading()
 	} catch (error) {
-		console.error('加载会员信息失败:', error)
+		logger.error('加载会员信息失败:', error)
 		uni.hideLoading()
 		uni.showToast({
 			title: '加载失败',
@@ -441,11 +455,11 @@ onMounted(() => {
 			width: 64rpx;
 			height: 64rpx;
 			margin-right: 24rpx;
-
-			image {
-				width: 100%;
-				height: 100%;
-			}
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(255, 159, 41, 0.1);
+			border-radius: 50%;
 		}
 
 		.benefit-info {

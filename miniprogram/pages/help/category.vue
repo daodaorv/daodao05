@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { mockGetHelpArticles, type HelpArticle } from '@/api/help'
@@ -67,7 +68,7 @@ const loadArticles = async () => {
       pager.value.page += 1
     }
   } catch (error) {
-    console.error('加载分类文章失败', error)
+    logger.error('加载分类文章失败', error)
     uni.showToast({ title: '加载失败，请稍后再试', icon: 'none' })
   } finally {
     loading.value = false

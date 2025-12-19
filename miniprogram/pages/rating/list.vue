@@ -133,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue'
 import { mockGetMyRatings, type Rating, type RatingType, type RatingStatus } from '@/api/rating'
 
@@ -260,7 +261,7 @@ const loadRatings = async () => {
 		hasMore.value = result.hasMore
 		loading.value = false
 	} catch (error) {
-		console.error('加载评价列表失败:', error)
+		logger.error('加载评价列表失败:', error)
 		loading.value = false
 		uni.showToast({
 			title: '加载失败',
@@ -290,7 +291,7 @@ const handleDelete = (rating: Rating) => {
 		content: '确定删除这条评价吗？',
 		success: (res) => {
 			if (res.confirm) {
-				// TODO: 调用删除API
+				// Mock实现 - 待后端API开发
 				uni.showToast({
 					title: '删除成功',
 					icon: 'success'

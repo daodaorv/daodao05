@@ -115,6 +115,7 @@ import {
 	sortStoresByDistance,
 	sortStoresByName
 } from '../../utils/location';
+import { logger } from '@/utils/logger';
 
 dayjs.locale('zh-cn');
 
@@ -218,7 +219,7 @@ onMounted(async () => {
 			lat: location.latitude,
 			lng: location.longitude
 		};
-		console.log('[BookingForm] 获取定位成功:', userLocation.value);
+		logger.debug('获取定位成功', { location: userLocation.value });
 
 		// 如果没有缓存数据，或者缓存的城市与定位城市不一致，则更新
 		if (!hasCache || !pickupCity.value) {
@@ -236,7 +237,7 @@ onMounted(async () => {
 				if (cityStores.length > 0) {
 					const nearest = findNearestStore(cityStores, userLocation.value);
 					if (nearest && nearest.id !== pickupStoreId.value) {
-						console.log('[BookingForm] 更新为最近的门店:', nearest.name);
+						logger.debug('更新为最近的门店', { storeName: nearest.name });
 						pickupStore.value = nearest.name;
 						pickupStoreId.value = nearest.id;
 						if (!isDifferentLocation.value) {
@@ -249,12 +250,12 @@ onMounted(async () => {
 			}
 			// 如果定位城市与缓存城市不一致，更新城市和门店
 			else if (cityName !== pickupCity.value) {
-				console.log('[BookingForm] 定位城市变化，从', pickupCity.value, '更新为', cityName);
+				logger.debug('定位城市变化', { from: pickupCity.value, to: cityName });
 				await initDefaultLocation();
 			}
 		}
 	} catch (error) {
-		console.error('[BookingForm] 获取定位失败:', error);
+		logger.error('获取定位失败', error);
 		userLocation.value = null;
 
 		// 定位失败，如果没有缓存数据，使用默认位置
@@ -320,7 +321,7 @@ const formatDate = (date: string, template: string) => {
 
 // Picker Handlers
 const openCityPicker = (target: 'pickup' | 'return') => {
-	console.log('🔍 openCityPicker 被调用', target);
+	logger.debug('openCityPicker 被调用', { target });
 	currentPickerTarget.value = target;
 	pickerType.value = 'city';
 	pickerTitle.value = target === 'pickup' ? '选择取车城市' : '选择还车城市';
@@ -330,7 +331,7 @@ const openCityPicker = (target: 'pickup' | 'return') => {
 };
 
 const openStorePicker = (target: 'pickup' | 'return') => {
-	console.log('🔍 openStorePicker 被调用', target);
+	logger.debug('openStorePicker 被调用', { target });
 
 	const cityId = target === 'pickup' ? pickupCityId.value : returnCityId.value;
 	if (!cityId) {
@@ -432,7 +433,7 @@ const onPickerConfirm = (item: any) => {
 
 // Date Picker Handlers
 const openDatePicker = () => {
-	console.log('🔍 openDatePicker 被调用 (emitting event)');
+	logger.debug('openDatePicker 被调用');
 	emit('open-date-picker', {
 		pickupDate: pickupDate.value,
 		returnDate: returnDate.value,
@@ -441,7 +442,7 @@ const openDatePicker = () => {
 };
 
 const onDateConfirm = (data: any) => {
-	console.log('Date Picker Confirmed:', data);
+	logger.debug('日期选择确认', data);
 	pickupDate.value = data.pickupDate;
 	returnDate.value = data.returnDate;
 	pickupTime.value = data.time;
@@ -495,7 +496,7 @@ const handleSearch = () => {
 		duration: duration.value
 	};
 
-	console.log('Search Params:', params);
+	logger.debug('搜索参数', params);
 	emit('search', params);
 };
 

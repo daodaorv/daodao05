@@ -173,6 +173,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 
@@ -222,7 +223,7 @@ onLoad((options: any) => {
 
 	if (options.id) {
 		vehicle.value.id = options.id;
-		console.log('加载车辆详情:', options.id);
+		logger.debug('加载车辆详情:', options.id);
 	}
 });
 

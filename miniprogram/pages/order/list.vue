@@ -72,7 +72,7 @@
 									</text>
 								</view>
 								<view class="info-row">
-									<u-icon name="map" size="14" color="#86909C"></u-icon>
+									<u-icon name="map-fill" size="14" color="#86909C"></u-icon>
 									<text class="info-text">{{ order.pickupStoreName }}</text>
 								</view>
 								<view class="price-row">
@@ -113,9 +113,12 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
+import { onLoad, onShow } from '@dcloudio/uni-app';
 import { getUserOrders } from '@/api/order';
+import { requireLogin, isLoggedIn, buildRedirectUrl } from '@/utils/auth';
 
 // Mock Data
 const statusList = [
@@ -132,11 +135,13 @@ const refreshing = ref(false);
 const loading = ref(false);
 const orders = ref<any[]>([]);
 const statusBarHeight = ref(0);
+const pageReady = ref(false);
+const redirectUrl = ref('/pages/order/list');
+let cachedRouteParams: Record<string, any> | null = null;
 
 onMounted(() => {
 	const sys = uni.getSystemInfoSync();
 	statusBarHeight.value = sys.statusBarHeight || 0;
-	loadOrders();
 });
 
 const goBack = () => {
@@ -144,6 +149,12 @@ const goBack = () => {
 };
 
 const loadOrders = async () => {
+	// 检查登录状态
+	if (!isLoggedIn()) {
+		orders.value = [];
+		return;
+	}
+
 	loading.value = true;
 	try {
 		const params: any = {};
@@ -170,7 +181,7 @@ const loadOrders = async () => {
 			}));
 		}
 	} catch (error) {
-		console.error('加载订单列表失败:', error);
+		logger.error('加载订单列表失败:', error);
 		uni.showToast({
 			title: '加载失败',
 			icon: 'none'
@@ -362,6 +373,42 @@ const goToDetail = (order: any) => {
 		url: `/pages/order/detail?id=${order.id}`
 	});
 };
+
+// 页面初始化时的设置
+const setupOrderListPage = (options: any) => {
+	// 如果有状态参数，设置当前状态
+	if (options.status) {
+		currentStatus.value = options.status;
+	}
+	pageReady.value = true;
+	loadOrders();
+};
+
+// 确保用户已登录
+const ensureAuth = (options: any) => {
+	redirectUrl.value = buildRedirectUrl('/pages/order/list', options || {});
+	if (isLoggedIn()) {
+		return true;
+	}
+	return requireLogin(redirectUrl.value);
+};
+
+// 页面加载时检查登录状态
+onLoad((options: any) => {
+	cachedRouteParams = options || {};
+	pageReady.value = false;
+	if (!ensureAuth(cachedRouteParams)) {
+		return;
+	}
+	setupOrderListPage(cachedRouteParams);
+});
+
+// 页面显示时检查登录状态（从登录页返回时）
+onShow(() => {
+	if (!pageReady.value && cachedRouteParams && isLoggedIn()) {
+		setupOrderListPage(cachedRouteParams);
+	}
+});
 </script>
 
 <style scoped lang="scss">

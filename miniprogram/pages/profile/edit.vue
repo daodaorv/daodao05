@@ -135,7 +135,7 @@ const handleSave = () => {
 };
 
 onLoad(() => {
-	// TODO: 获取用户信息
+	// Mock实现 - 待后端API开发
 });
 </script>
 

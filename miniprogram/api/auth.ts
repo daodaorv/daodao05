@@ -2,6 +2,8 @@
  * 认证相关API接口
  */
 
+import { logger } from '@/utils/logger'
+
 // 类型定义
 export interface LoginResponse {
 	token: string
@@ -101,7 +103,7 @@ const mockRefreshToken = 'mock_refresh_token_' + Date.now()
 export function sendCode(phone: string, type: 'login' | 'register' | 'bind' = 'login') {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log(`[Mock] 发送验证码到 ${phone}，类型：${type}`)
+			logger.debug('发送验证码', { phone, type })
 			resolve({
 				code: 0,
 				message: '验证码已发送',
@@ -120,7 +122,7 @@ export function sendCode(phone: string, type: 'login' | 'register' | 'bind' = 'l
 export function register(data: RegisterParams): Promise<LoginResponse> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 用户注册:', data)
+			logger.debug('用户注册', data)
 			resolve({
 				token: mockToken,
 				refreshToken: mockRefreshToken,
@@ -141,7 +143,7 @@ export function register(data: RegisterParams): Promise<LoginResponse> {
 export function login(params: LoginParams): Promise<LoginResponse> {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			console.log('[Mock] 密码登录:', params)
+			logger.debug('密码登录', params)
 			// 模拟密码验证
 			if (params.password.length < 6) {
 				reject({
@@ -168,7 +170,7 @@ export function login(params: LoginParams): Promise<LoginResponse> {
 export function loginWithCode(phone: string, code: string): Promise<LoginResponse> {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			console.log('[Mock] 验证码登录:', { phone, code })
+			logger.debug('验证码登录', { phone, code })
 			// 模拟验证码验证
 			if (code.length !== 6) {
 				reject({
@@ -195,7 +197,7 @@ export function loginWithCode(phone: string, code: string): Promise<LoginRespons
 export function wechatLogin(params: WechatLoginParams): Promise<LoginResponse> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 微信授权登录:', params)
+			logger.debug('微信授权登录', params)
 
 			// 模拟首次登录：返回空的昵称和头像，触发完善信息流程
 			// 如果有 encryptedData，说明获取了手机号，但首次登录用户信息为空
@@ -223,7 +225,7 @@ export function wechatLogin(params: WechatLoginParams): Promise<LoginResponse> {
 export function alipayLogin(params: AlipayLoginParams): Promise<LoginResponse> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 支付宝授权登录:', params)
+			logger.debug('支付宝授权登录', params)
 			resolve({
 				token: mockToken,
 				refreshToken: mockRefreshToken,
@@ -243,7 +245,7 @@ export function alipayLogin(params: AlipayLoginParams): Promise<LoginResponse> {
 export function douyinLogin(params: DouyinLoginParams): Promise<LoginResponse> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 抖音授权登录:', params)
+			logger.debug('抖音授权登录', params)
 			resolve({
 				token: mockToken,
 				refreshToken: mockRefreshToken,
@@ -263,7 +265,7 @@ export function douyinLogin(params: DouyinLoginParams): Promise<LoginResponse> {
 export function loginWithUsername(params: UsernameLoginParams): Promise<LoginResponse> {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			console.log('[Mock] 用户名密码登录:', params)
+			logger.debug('用户名密码登录', params)
 			// 模拟密码验证
 			if (params.password.length < 6) {
 				reject({
@@ -318,7 +320,7 @@ export function supportOneClickLogin(): boolean {
 export function bindPhone(params: BindPhoneParams): Promise<{ success: boolean }> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 绑定手机号:', params)
+			logger.debug('绑定手机号', params)
 			resolve({
 				success: true
 			})
@@ -332,7 +334,7 @@ export function bindPhone(params: BindPhoneParams): Promise<{ success: boolean }
 export function refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 刷新Token:', refreshToken)
+			logger.debug('刷新Token', { refreshToken })
 			resolve({
 				token: 'new_mock_token_' + Date.now(),
 				refreshToken: 'new_mock_refresh_token_' + Date.now()
@@ -347,7 +349,7 @@ export function refreshToken(refreshToken: string): Promise<{ token: string; ref
 export function getUserProfile(): Promise<UserInfo> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 获取用户信息')
+			logger.debug('获取用户信息')
 			resolve(mockUser)
 		}, 500)
 	})
@@ -359,7 +361,7 @@ export function getUserProfile(): Promise<UserInfo> {
 export function updateUserProfile(data: Partial<UserInfo>): Promise<UserInfo> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 更新用户资料:', data)
+			logger.debug('更新用户资料', data)
 			resolve({
 				...mockUser,
 				...data
@@ -374,7 +376,7 @@ export function updateUserProfile(data: Partial<UserInfo>): Promise<UserInfo> {
 export function logout(): Promise<{ success: boolean }> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 退出登录')
+			logger.debug('退出登录')
 			// 清除本地存储的token
 			uni.removeStorageSync('token')
 			uni.removeStorageSync('refreshToken')
@@ -402,7 +404,7 @@ export function checkLoginStatus(): Promise<{ isLoggedIn: boolean; user?: UserIn
 					parsedUser = undefined
 				}
 			}
-			console.log('[Mock] 检查登录状态:', { hasToken: !!token, hasUserInfo: !!parsedUser })
+			logger.debug('检查登录状态', { hasToken: !!token, hasUserInfo: !!parsedUser })
 			resolve({
 				isLoggedIn: !!token,
 				user: parsedUser || undefined

@@ -17,7 +17,7 @@
 		<!-- 使用统计卡片 -->
 		<view class="stats-card">
 			<view class="stats-header">
-				<u-icon name="chart-fill" size="20" color="#FF9F29"></u-icon>
+				<u-icon name="list" size="20" color="#FF9F29"></u-icon>
 				<text class="stats-title">优惠券统计</text>
 			</view>
 			<view class="stats-content">

@@ -3,6 +3,8 @@
  * 包含积分余额、积分记录、积分规则等接口
  */
 
+import { logger } from '@/utils/logger'
+
 // ==================== 类型定义 ====================
 
 /**
@@ -101,7 +103,7 @@ export interface PointsStatistics {
 export function getPointsBalance(): Promise<PointsBalance> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 获取积分余额')
+			logger.debug('获取积分余额')
 			resolve({
 				balance: 1580,
 				totalEarned: 2350,
@@ -126,7 +128,7 @@ export function getPointsRecords(
 ): Promise<{ records: PointsRecord[]; total: number }> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log(`[Mock] 获取积分记录 - 类型: ${type || '全部'}, 页码: ${page}`)
+			logger.debug('获取积分记录', { type: type || '全部', page })
 
 			// Mock 数据
 			const allRecords: PointsRecord[] = [
@@ -242,7 +244,7 @@ export function getPointsRecords(
 export function getPointsRules(): Promise<PointsRule[]> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 获取积分规则')
+			logger.debug('获取积分规则')
 			resolve([
 				{
 					id: '1',
@@ -309,7 +311,7 @@ export function getPointsRules(): Promise<PointsRule[]> {
 export function getPointsStatistics(): Promise<PointsStatistics> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
-			console.log('[Mock] 获取积分统计')
+			logger.debug('获取积分统计')
 			resolve({
 				monthEarned: 720,
 				monthUsed: 300,
@@ -344,7 +346,7 @@ export function getPointsStatistics(): Promise<PointsStatistics> {
 export function dailySignIn(): Promise<{ points: number; continuousDays: number }> {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			console.log('[Mock] 每日签到')
+			logger.debug('每日签到')
 
 			// 模拟签到成功
 			const continuousDays = Math.floor(Math.random() * 7) + 1

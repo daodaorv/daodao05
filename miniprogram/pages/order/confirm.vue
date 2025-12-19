@@ -100,7 +100,7 @@
 								</view>
 								<view class="timeline-detail">
 									<view class="detail-item">
-										<u-icon name="map" size="14" color="#999"></u-icon>
+										<u-icon name="map-fill" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.pickupLocation }}</text>
 									</view>
 									<view class="detail-item">
@@ -124,7 +124,7 @@
 								</view>
 								<view class="timeline-detail">
 									<view class="detail-item">
-										<u-icon name="map" size="14" color="#999"></u-icon>
+										<u-icon name="map-fill" size="14" color="#999"></u-icon>
 										<text class="detail-text">{{ orderData.returnLocation }}</text>
 									</view>
 									<view class="detail-item">
@@ -473,6 +473,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, watch, onUnmounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { storeToRefs } from 'pinia';
@@ -780,7 +781,7 @@ const loadContacts = async () => {
 		await contactStore.fetchContacts();
 		tryPrefillFromContacts();
 	} catch (error) {
-		console.error('加载联系人失败', error);
+		logger.error('加载联系人失败', error);
 	} finally {
 		contactLoading.value = false;
 	}
@@ -869,7 +870,7 @@ const uploadLicenseFile = async (type: LicenseSide, localPath: string) => {
 		}
 		uni.showToast({ title: '上传成功', icon: 'success' });
 	} catch (error) {
-		console.error('上传驾驶证失败', error);
+		logger.error('上传驾驶证失败', error);
 		uni.showToast({ title: '上传失败，请重试', icon: 'none' });
 	} finally {
 		licenseUploading.value[type] = false;
@@ -974,7 +975,7 @@ const loadRentalNotices = async () => {
 		rentalNotice.value = res.data;
 		noticeAgreed.value = false;
 	} catch (error) {
-		console.error('加载租车须知失败', error);
+		logger.error('加载租车须知失败', error);
 		uni.showToast({ title: '租车须知加载失败', icon: 'none' });
 		rentalNotice.value = {
 			productType: isSpecialOffer.value ? 'special-offer' : 'vehicle',
@@ -1021,7 +1022,7 @@ const loadSpecialOfferData = async (offerId: string) => {
 	try {
 		uni.showLoading({ title: '加载中...' });
 
-		// TODO: 调用API加载特惠套餐详情
+		// Mock实现 - 待后端API开发
 		// const response = await getSpecialOfferDetail(offerId);
 
 		// Mock数据
@@ -1078,7 +1079,7 @@ const loadSpecialOfferData = async (offerId: string) => {
 
 		uni.hideLoading();
 	} catch (error) {
-		console.error('加载特惠套餐失败:', error);
+		logger.error('加载特惠套餐失败:', error);
 		uni.hideLoading();
 		uni.showToast({
 			title: '加载失败',
@@ -1090,7 +1091,7 @@ const loadSpecialOfferData = async (offerId: string) => {
 const handleCouponSelected = (coupon: any) => {
 	if (isSpecialOffer.value) return;
 	selectedCoupon.value = coupon || null;
-	console.log('选中优惠券:', coupon);
+	logger.debug('选中优惠券:', coupon);
 };
 
 const setupOrderPage = (options: any) => {
@@ -1101,8 +1102,8 @@ const setupOrderPage = (options: any) => {
 	} else if (options.vehicleId) {
 		orderType.value = 'normal';
 		orderData.value.vehicleId = options.vehicleId;
-		// TODO: 根据vehicleId加载车辆信息
-		console.log('加载常规订单确认页:', options.vehicleId);
+		// Mock实现 - 待后端API开发
+		logger.debug('加载常规订单确认页:', options.vehicleId);
 	}
 
 	if (!couponListener) {

@@ -93,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import { updateUserProfile } from '@/api/auth'
 import { onLoad } from '@dcloudio/uni-app'
@@ -116,7 +117,7 @@ const canSubmit = computed(() => {
 
 // 页面加载
 onLoad((options) => {
-	console.log('[完善信息] 页面参数:', options)
+	logger.debug('[完善信息] 页面参数:', options)
 
 	// 检查是否从登录页跳转
 	if (options?.from === 'login') {
@@ -138,14 +139,14 @@ onLoad((options) => {
 				gender: parsed.gender || 0
 			}
 		} catch (error) {
-			console.error('[完善信息] 解析用户信息失败:', error)
+			logger.error('[完善信息] 解析用户信息失败:', error)
 		}
 	}
 })
 
 // 选择头像回调
 const handleChooseAvatar = (e: any) => {
-	console.log('[选择头像] 回调事件:', e)
+	logger.debug('[选择头像] 回调事件:', e)
 
 	if (e.detail.avatarUrl) {
 		// 临时显示头像
@@ -158,11 +159,11 @@ const handleChooseAvatar = (e: any) => {
 
 // 上传头像
 const uploadAvatar = (tempFilePath: string) => {
-	console.log('[上传头像] 开始上传，临时文件路径:', tempFilePath)
+	logger.debug('[上传头像] 开始上传，临时文件路径:', tempFilePath)
 
 	// 当前使用 Mock 模式，直接使用微信临时头像
 	// 等待后端上传接口开发完成后再对接
-	console.log('[上传头像] Mock 模式：直接使用微信临时头像')
+	logger.debug('[上传头像] Mock 模式：直接使用微信临时头像')
 
 	uni.showToast({
 		title: '头像已选择',
@@ -189,7 +190,7 @@ const uploadAvatar = (tempFilePath: string) => {
 			'Authorization': `Bearer ${uni.getStorageSync('token')}`
 		},
 		success: (uploadRes) => {
-			console.log('[上传头像] 服务器响应:', uploadRes)
+			logger.debug('[上传头像] 服务器响应:', uploadRes)
 
 			// 检查 HTTP 状态码
 			if (uploadRes.statusCode !== 200) {
@@ -207,7 +208,7 @@ const uploadAvatar = (tempFilePath: string) => {
 
 				if (data.code === 0 || data.success) {
 					userInfo.value.avatar = data.url || data.data?.url
-					console.log('[上传头像] 成功:', userInfo.value.avatar)
+					logger.debug('[上传头像] 成功:', userInfo.value.avatar)
 					uni.showToast({
 						title: '头像上传成功',
 						icon: 'success'
@@ -216,8 +217,8 @@ const uploadAvatar = (tempFilePath: string) => {
 					throw new Error(data.message || '上传失败')
 				}
 			} catch (parseError: any) {
-				console.error('[上传头像] JSON 解析失败:', parseError)
-				console.error('[上传头像] 原始响应数据:', uploadRes.data)
+				logger.error('[上传头像] JSON 解析失败:', parseError)
+				logger.error('[上传头像] 原始响应数据:', uploadRes.data)
 
 				// 如果解析失败，显示原始错误信息
 				const errorMsg = typeof uploadRes.data === 'string'
@@ -228,7 +229,7 @@ const uploadAvatar = (tempFilePath: string) => {
 			}
 		},
 		fail: (err) => {
-			console.error('[上传头像] 请求失败:', err)
+			logger.error('[上传头像] 请求失败:', err)
 			uni.showToast({
 				title: err.errMsg || '上传失败',
 				icon: 'none'
@@ -245,14 +246,14 @@ const uploadAvatar = (tempFilePath: string) => {
 
 // 昵称输入失焦
 const handleNicknameBlur = (e: any) => {
-	console.log('[昵称输入] 值:', e.detail.value)
+	logger.debug('[昵称输入] 值:', e.detail.value)
 	userInfo.value.nickname = e.detail.value.trim()
 }
 
 // 性别选择
 const handleGenderChange = (gender: number) => {
 	userInfo.value.gender = gender
-	console.log('[性别选择] 值:', gender)
+	logger.debug('[性别选择] 值:', gender)
 }
 
 // 保存
@@ -285,7 +286,7 @@ const handleSave = async () => {
 			gender: userInfo.value.gender
 		})
 
-		console.log('[完善信息] 保存成功:', result)
+		logger.debug('[完善信息] 保存成功:', result)
 
 		// 更新本地缓存
 		const cachedUserInfo = uni.getStorageSync('userInfo')
@@ -322,7 +323,7 @@ const handleSave = async () => {
 			}
 		}, 1500)
 	} catch (error: any) {
-		console.error('[完善信息] 保存失败:', error)
+		logger.error('[完善信息] 保存失败:', error)
 		uni.showToast({
 			title: error.message || '保存失败',
 			icon: 'none'
@@ -348,7 +349,7 @@ const handleSkip = async () => {
 		const defaultNickname = `叨叨车友${randomNum}`
 		const defaultAvatar = '/static/logo.png' // 使用叨叨房车logo作为默认头像
 
-		console.log('[跳过完善信息] 生成默认信息:', { defaultNickname, defaultAvatar })
+		logger.debug('[跳过完善信息] 生成默认信息:', { defaultNickname, defaultAvatar })
 
 		// 调用后端API保存默认信息
 		const result = await updateUserProfile({
@@ -366,7 +367,7 @@ const handleSkip = async () => {
 		}
 		uni.setStorageSync('userInfo', updatedUserInfo)
 
-		console.log('[跳过完善信息] 保存成功，跳转首页')
+		logger.debug('[跳过完善信息] 保存成功，跳转首页')
 
 		uni.showToast({
 			title: '已使用默认信息',
@@ -381,7 +382,7 @@ const handleSkip = async () => {
 			})
 		}, 1500)
 	} catch (error: any) {
-		console.error('[跳过完善信息] 保存失败:', error)
+		logger.error('[跳过完善信息] 保存失败:', error)
 		uni.showToast({
 			title: error.message || '操作失败',
 			icon: 'none'

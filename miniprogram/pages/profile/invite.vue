@@ -87,7 +87,7 @@
 			</view>
 
 			<view v-if="inviteRecords.length === 0" class="empty-state">
-				<u-icon name="account" size="80" color="#CCCCCC"></u-icon>
+				<u-icon name="account-fill" size="80" color="#CCCCCC"></u-icon>
 				<text class="empty-text">暂无邀请记录</text>
 				<text class="empty-hint">快去邀请好友吧</text>
 			</view>
@@ -97,7 +97,7 @@
 					<view class="record-left">
 						<view class="user-avatar">
 							<image v-if="record.avatar" :src="record.avatar" mode="aspectFill"></image>
-							<u-icon v-else name="account" size="24" color="#999"></u-icon>
+							<u-icon v-else name="account-fill" size="24" color="#999"></u-icon>
 						</view>
 						<view class="user-info">
 							<text class="user-name">{{ maskUsername(record.username) }}</text>
@@ -305,7 +305,7 @@ const savePoster = () => {
 		title: '保存中...'
 	});
 
-	// TODO: 实际保存海报到相册
+	// Mock实现 - 待后端API开发
 	setTimeout(() => {
 		uni.hideLoading();
 		uni.showToast({
@@ -338,7 +338,7 @@ const shareToWechat = () => {
 // 生命周期
 onMounted(() => {
 	// 加载邀请数据
-	// TODO: 调用API加载真实数据
+	// Mock实现 - 待后端API开发
 });
 </script>
 

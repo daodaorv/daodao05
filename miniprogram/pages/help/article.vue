@@ -82,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue'
 import { mockGetHelpArticleDetail, mockGetHelpArticles, type HelpArticle } from '@/api/help'
 
@@ -136,7 +137,7 @@ const formattedContent = computed(() => {
 const markHelpful = (helpful: boolean) => {
 	isHelpful.value = helpful
 
-	// TODO: 调用API标记文章有帮助
+	// Mock实现 - 待后端API开发
 	uni.showToast({
 		title: helpful ? '感谢您的反馈' : '我们会继续改进',
 		icon: 'success'
@@ -179,7 +180,7 @@ const loadArticle = async () => {
 
 		uni.hideLoading()
 	} catch (error) {
-		console.error('加载文章失败:', error)
+		logger.error('加载文章失败:', error)
 		uni.hideLoading()
 		uni.showToast({
 			title: '加载失败',
@@ -195,7 +196,7 @@ const loadRelatedArticles = async (categoryId: string) => {
 		// 排除当前文章
 		relatedArticles.value = result.list.filter(a => a.id !== articleId.value)
 	} catch (error) {
-		console.error('加载相关文章失败:', error)
+		logger.error('加载相关文章失败:', error)
 	}
 }
 

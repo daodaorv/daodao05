@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getVehicles, getVehicleDetail, favoriteVehicle, getFavoriteVehicles } from '@/api/vehicle';
+import { logger } from '@/utils/logger';
 
 export const useVehicleStore = defineStore('vehicle', () => {
     // 状态
@@ -24,7 +25,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
             }
             return null;
         } catch (error) {
-            console.error('获取车辆列表失败:', error);
+            logger.error('获取车辆列表失败', error);
             return null;
         }
     };
@@ -39,7 +40,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
             }
             return null;
         } catch (error) {
-            console.error('获取车辆详情失败:', error);
+            logger.error('获取车辆详情失败', error);
             return null;
         }
     };
@@ -57,7 +58,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
             }
             return null;
         } catch (error) {
-            console.error('获取收藏列表失败:', error);
+            logger.error('获取收藏列表失败', error);
             return null;
         }
     };
@@ -79,7 +80,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
             }
             return false;
         } catch (error) {
-            console.error('收藏操作失败:', error);
+            logger.error('收藏操作失败', error);
             return false;
         }
     };

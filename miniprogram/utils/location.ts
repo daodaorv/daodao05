@@ -3,6 +3,8 @@
  * 提供完整的微信小程序定位功能，包括权限检查、授权引导、定位获取等
  */
 
+import { logger } from './logger'
+
 // 定位结果接口
 export interface LocationResult {
 	latitude: number;
@@ -171,11 +173,11 @@ export function requestLocationPermission(): Promise<boolean> {
 		uni.authorize({
 			scope: 'scope.userLocation',
 			success() {
-				console.log('[定位] 用户授权定位成功');
+				logger.debug('用户授权定位成功');
 				resolve(true);
 			},
 			fail(err) {
-				console.log('[定位] 用户拒绝授权定位', err);
+				logger.debug('用户拒绝授权定位', err);
 				resolve(false);
 			}
 		});
@@ -202,7 +204,7 @@ export function guideToSettingPage(): Promise<boolean> {
 					uni.openSetting({
 						success(settingRes) {
 							const authSetting = settingRes.authSetting['scope.userLocation'];
-							console.log('[定位] 用户设置页面返回，授权状态:', authSetting);
+							logger.debug('用户设置页面返回，授权状态', { authSetting });
 							resolve(authSetting === true);
 						},
 						fail() {
@@ -246,7 +248,7 @@ export async function getUserLocation(options?: {
 
 	// 1. 检查权限状态
 	const permissionStatus = await checkLocationPermission();
-	console.log('[定位] 权限状态:', permissionStatus);
+	logger.debug('定位权限状态', { permissionStatus });
 
 	// 2. 如果已拒绝，引导用户去设置
 	if (permissionStatus === 'denied') {
@@ -290,7 +292,7 @@ export async function getUserLocation(options?: {
 					uni.hideLoading();
 				}
 
-				console.log('[定位] 获取位置成功:', res);
+				logger.debug('获取位置成功', res);
 
 				resolve({
 					latitude: res.latitude,
@@ -308,7 +310,7 @@ export async function getUserLocation(options?: {
 					uni.hideLoading();
 				}
 
-				console.error('[定位] 获取位置失败:', err);
+				logger.error('获取位置失败', err);
 
 				// 解析错误类型
 				let errorType = LocationErrorType.UNKNOWN;

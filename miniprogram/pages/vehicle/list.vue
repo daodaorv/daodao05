@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import VehicleCard, { type VehicleCardData } from '@/components/business/vehicle/VehicleCard.vue'
@@ -207,7 +208,7 @@ const groupedVehicles = computed(() => {
 
 onLoad((options: any) => {
 	searchParams.value = options || {};
-	console.log('搜索参数:', searchParams.value);
+	logger.debug('搜索参数:', searchParams.value);
 	loadVehicles();
 });
 
@@ -225,7 +226,7 @@ const loadVehicles = async () => {
 		// allVehicles.value = res.data;
 
 		// 使用 Mock 数据（已在上面定义）
-		console.log('车辆数据加载成功');
+		logger.debug('车辆数据加载成功');
 	} catch (e: any) {
 		error.value = true;
 		errorMessage.value = e.message || '加载失败，请重试';

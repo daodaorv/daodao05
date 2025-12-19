@@ -28,11 +28,11 @@
           <text class="meta-text">{{ tourDetail.duration }}天{{ tourDetail.duration - 1 }}晚</text>
         </view>
         <view class="meta-item">
-          <u-icon name="account" size="16" color="#FF9F29"></u-icon>
+          <u-icon name="account-fill" size="16" color="#FF9F29"></u-icon>
           <text class="meta-text">{{ tourDetail.minPeople }}-{{ tourDetail.maxPeople }}人成团</text>
         </view>
         <view class="meta-item">
-          <u-icon name="map" size="16" color="#FF9F29"></u-icon>
+          <u-icon name="map-fill" size="16" color="#FF9F29"></u-icon>
           <text class="meta-text">{{ tourDetail.destination }}</text>
         </view>
       </view>
@@ -176,6 +176,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 
@@ -337,7 +338,7 @@ const loadTourDetail = async () => {
     tourDetail.value = mockDetail;
 
   } catch (error) {
-    console.error('加载线路详情失败:', error);
+    logger.error('加载线路详情失败:', error);
     uni.showToast({
       title: '加载失败',
       icon: 'none'

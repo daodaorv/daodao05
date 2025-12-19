@@ -94,7 +94,7 @@
 			<!-- 关注列表 -->
 			<view v-if="currentTab === 'following'" class="user-list">
 				<view class="empty-state">
-					<u-icon name="account" size="64" color="#CCCCCC" />
+					<u-icon name="account-fill" size="64" color="#CCCCCC" />
 					<text class="empty-text">暂无关注</text>
 				</view>
 			</view>
@@ -102,7 +102,7 @@
 			<!-- 粉丝列表 -->
 			<view v-if="currentTab === 'followers'" class="user-list">
 				<view class="empty-state">
-					<u-icon name="account" size="64" color="#CCCCCC" />
+					<u-icon name="account-fill" size="64" color="#CCCCCC" />
 					<text class="empty-text">暂无粉丝</text>
 				</view>
 			</view>

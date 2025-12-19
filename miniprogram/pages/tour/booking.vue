@@ -347,6 +347,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onUnmounted, watch } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { storeToRefs } from 'pinia';
@@ -674,7 +675,7 @@ const loadContacts = async () => {
     await contactStore.fetchContacts();
     tryPrefillFromContacts();
   } catch (error) {
-    console.error('加载联系人失败:', error);
+    logger.error('加载联系人失败:', error);
   } finally {
     contactLoading.value = false;
   }
@@ -752,7 +753,7 @@ const loadBookingData = async () => {
     batchInfo.value = mockBatch;
 
   } catch (error) {
-    console.error('加载预订数据失败:', error);
+    logger.error('加载预订数据失败:', error);
     uni.showToast({
       title: '加载失败',
       icon: 'none'
@@ -913,11 +914,11 @@ const navigateToPayPage = (orderNo: string, amount: number) => {
     uni.navigateTo({
       url: payUrl,
       fail: navError => {
-        console.error('收银台 navigateTo 失败:', navError);
+        logger.error('收银台 navigateTo 失败:', navError);
         uni.redirectTo({
           url: payUrl,
           fail: redirectError => {
-            console.error('收银台 redirectTo 失败:', redirectError);
+            logger.error('收银台 redirectTo 失败:', redirectError);
             uni.showToast({
               title: '跳转支付页面失败，请前往订单列表完成支付',
               icon: 'none'
@@ -1012,7 +1013,7 @@ const submitBooking = async () => {
         throw new Error(response.message || '预订失败');
       }
     } catch (apiError) {
-      console.warn('创建旅游预订接口暂不可用，使用Mock数据回退', apiError);
+      logger.warn('创建旅游预订接口暂不可用，使用Mock数据回退', apiError);
       const now = Date.now();
       bookingResult = {
         orderId: `mock-${now}`,
@@ -1031,7 +1032,7 @@ const submitBooking = async () => {
     uni.hideLoading();
     navigateToPayPage(bookingResult.orderNo, bookingResult.totalPrice);
   } catch (error) {
-    console.error('提交预订失败:', error);
+    logger.error('提交预订失败:', error);
     uni.hideLoading();
     uni.showToast({
       title: '提交失败，请重试',

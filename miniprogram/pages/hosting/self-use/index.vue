@@ -78,6 +78,7 @@
 </template>
 
 <script>
+import { logger } from '@/utils/logger';
 import dayjs from 'dayjs'
 import RentDatePicker from '@/components/business/RentDatePicker.vue'
 import { applySelfUse, getStoreList, getVehicleDetail } from '@/api/hosting'
@@ -179,7 +180,7 @@ export default {
         })
         this.cityOptions = this.buildCityOptions(this.stores)
       } catch (error) {
-        console.error('加载门店列表失败:', error)
+        logger.error('加载门店列表失败:', error)
         uni.showToast({ title: '门店加载失败', icon: 'none' })
       }
     },
@@ -195,7 +196,7 @@ export default {
           this.form.pickupStoreId = detail.defaultStoreId
         }
       } catch (error) {
-        console.error('加载车辆详情失败:', error)
+        logger.error('加载车辆详情失败:', error)
         this.blockedRanges = this.createMockBlockedRanges()
       }
     },
@@ -353,7 +354,7 @@ export default {
           success: () => uni.navigateBack()
         })
       } catch (error) {
-        console.error('提交失败:', error)
+        logger.error('提交失败:', error)
         uni.hideLoading()
         uni.showToast({ title: '提交失败，请稍后再试', icon: 'none' })
       }

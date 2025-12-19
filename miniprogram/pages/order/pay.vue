@@ -48,14 +48,14 @@
 
 			<!-- 微信支付 -->
 			<!-- #ifdef MP-WEIXIN || APP-PLUS || H5 -->
-			<view 
-				class="payment-item" 
+			<view
+				class="payment-item"
 				:class="{ disabled: isBalanceCovered }"
 				@tap="selectPayment('wxpay')"
 			>
 				<view class="payment-info">
 					<view class="icon-box wechat">
-						<u-icon name="weixin" size="24" color="#FFFFFF"></u-icon>
+						<u-icon name="weixin-circle-fill" size="24" color="#FFFFFF"></u-icon>
 					</view>
 					<view class="payment-text">
 						<text class="name">微信支付</text>
@@ -118,6 +118,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { updateOrderStatus, getOrderDetail } from '@/api/order';
@@ -260,16 +261,16 @@ const handlePaymentSuccess = async (result: any) => {
 		// 7. 延迟跳转到订单详情页
 		setTimeout(() => {
 			uni.redirectTo({
-				url: `/pages/order/detail?orderId=${result.orderNo}`
+				url: `/pages/order/detail?orderNo=${result.orderNo}`
 			});
 		}, 2000);
 
 	} catch (error) {
-		console.error('支付成功后处理失败:', error);
+		logger.error('支付成功后处理失败:', error);
 		// 即使后续处理失败，也跳转到订单详情页
 		setTimeout(() => {
 			uni.redirectTo({
-				url: `/pages/order/detail?orderId=${result.orderNo}`
+				url: `/pages/order/detail?orderNo=${result.orderNo}`
 			});
 		}, 2000);
 	}

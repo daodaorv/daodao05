@@ -13,7 +13,7 @@
 						mode="aspectFill"
 					></image>
 					<view v-if="isLogin" class="vip-tag">
-						<u-icon name="level-fill" size="10" color="#FFFFFF"></u-icon>
+						<u-icon name="star-fill" size="10" color="#FFFFFF"></u-icon>
 						<text class="vip-text">{{ userInfo.levelName }}</text>
 					</view>
 				</view>
@@ -31,7 +31,7 @@
 			<view class="vip-banner" v-if="isLogin" @tap.stop="navigateTo('/pages/membership/index')">
 				<view class="vip-content">
 					<view class="vip-left">
-						<u-icon name="crown-fill" size="18" color="#FFD700"></u-icon>
+						<u-icon name="star-fill" size="18" color="#FFD700"></u-icon>
 						<text class="vip-label">PLUS会员</text>
 					</view>
 					<view class="vip-right">
@@ -42,11 +42,11 @@
 			</view>
 		</view>
 
-		<!-- 资产宫格 (Assets Grid) -->
-		<view class="card-container assets-card">
-			<view 
-				class="asset-item" 
-				v-for="(item, index) in gridMenu" 
+		<!-- 资产宫格 (Assets Grid) - 仅登录后显示 -->
+		<view v-if="isLogin" class="card-container assets-card">
+			<view
+				class="asset-item"
+				v-for="(item, index) in gridMenu"
 				:key="index"
 				@tap="handleMenuClick(item)"
 			>
@@ -58,6 +58,15 @@
 				</view>
 				<text class="asset-label">{{ item.name }}</text>
 				<view v-if="item.badge" class="asset-badge">{{ item.badge }}</view>
+			</view>
+		</view>
+
+		<!-- 未登录提示卡片 -->
+		<view v-else class="card-container login-prompt-card">
+			<view class="login-prompt">
+				<u-icon name="lock" size="48" color="#CCCCCC"></u-icon>
+				<text class="prompt-text">登录后查看您的资产信息</text>
+				<button class="login-btn" @tap="handleLogin">立即登录</button>
 			</view>
 		</view>
 
@@ -158,17 +167,17 @@ const orderCounts = ref({
 
 // 菜单配置
 const gridMenu = ref([
-	{ name: '优惠券', icon: 'coupon', iconColor: '#FF4D4F', path: '/pages/profile/coupons', badge: '3' },
-	{ name: '积分', icon: 'integral', iconColor: '#FF9F29', path: '/pages/profile/points', amount: '2,080' },
-	{ name: '钱包', icon: 'wallet', iconColor: '#2196F3', path: '/pages/profile/wallet', amount: '¥1280' },
-	{ name: '收藏', icon: 'star', iconColor: '#FFC107', path: '/pages/profile/favorites' }
+	{ name: '优惠券', icon: 'coupon-fill', iconColor: '#FF4D4F', path: '/pages/profile/coupons', badge: '3' },
+	{ name: '积分', icon: 'integral-fill', iconColor: '#FF9F29', path: '/pages/profile/points', amount: '2,080' },
+	{ name: '钱包', icon: 'wallet-fill', iconColor: '#2196F3', path: '/pages/profile/wallet', amount: '¥1280' },
+	{ name: '收藏', icon: 'star-fill', iconColor: '#FFC107', path: '/pages/profile/favorites' }
 ]);
 
 const listMenu = ref([
-	{ name: '常用联系人', icon: 'account', path: '/pages/profile/contacts' },
-	{ name: '地址管理', icon: 'map', path: '/pages/profile/address' },
-	{ name: '联系客服', icon: 'server-fill', path: '/pages/help/index' },
-	{ name: '设置', icon: 'setting', path: '/pages/profile/settings' }
+	{ name: '常用联系人', icon: 'account-fill', path: '/pages/profile/contacts' },
+	{ name: '地址管理', icon: 'map-fill', path: '/pages/profile/address' },
+	{ name: '联系客服', icon: 'server-man', path: '/pages/help/index' },
+	{ name: '设置', icon: 'setting-fill', path: '/pages/profile/settings' }
 ]);
 
 // 页面显示时检查登录状态
@@ -414,6 +423,45 @@ const navigateTo = (url: string) => {
 	padding: 2rpx 10rpx;
 	border-radius: 20rpx;
 	border: 2rpx solid #FFFFFF;
+}
+
+/* Login Prompt Card */
+.login-prompt-card {
+	padding: 60rpx $uni-spacing-lg;
+}
+
+.login-prompt {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24rpx;
+}
+
+.prompt-text {
+	font-size: 28rpx;
+	color: $uni-text-color-secondary;
+}
+
+.login-btn {
+	margin-top: 16rpx;
+	padding: 0 64rpx;
+	height: 72rpx;
+	line-height: 72rpx;
+	background: $uni-color-primary-gradient;
+	color: #FFFFFF;
+	font-size: 28rpx;
+	font-weight: 600;
+	border-radius: 36rpx;
+	box-shadow: 0 8rpx 20rpx rgba(255, 159, 41, 0.3);
+
+	&::after {
+		border: none;
+	}
+
+	&:active {
+		transform: scale(0.98);
+		opacity: 0.9;
+	}
 }
 
 /* Order Card */

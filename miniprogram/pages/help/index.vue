@@ -134,6 +134,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, onMounted } from 'vue'
 import { mockGetHelpCategories, mockGetHelpArticles, mockGetHotArticles, type HelpCategory, type HelpArticle } from '@/api/help'
 
@@ -269,7 +270,7 @@ const loadHotArticles = async () => {
 		const articles = await mockGetHotArticles()
 		hotArticles.value = articles
 	} catch (error) {
-		console.error('加载热门问题失败:', error)
+		logger.error('加载热门问题失败:', error)
 	}
 }
 
@@ -279,7 +280,7 @@ const loadCategories = async () => {
 		const cats = await mockGetHelpCategories()
 		categories.value = cats
 	} catch (error) {
-		console.error('加载帮助分类失败:', error)
+		logger.error('加载帮助分类失败:', error)
 	}
 }
 
@@ -289,7 +290,7 @@ const loadRecentArticles = async () => {
 		const result = await mockGetHelpArticles({ page: 1, pageSize: 5 })
 		recentArticles.value = result.list
 	} catch (error) {
-		console.error('加载最近文章失败:', error)
+		logger.error('加载最近文章失败:', error)
 	}
 }
 

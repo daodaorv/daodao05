@@ -126,6 +126,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onMounted } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { getMyCoupons } from '@/api/coupon';
@@ -262,7 +263,7 @@ const loadCoupons = async () => {
 	try {
 		uni.showLoading({ title: '加载中...' });
 
-		// TODO: 调用真实API
+		// Mock实现 - 待后端API开发
 		// const response = await getMyCoupons({ status: 'unused' });
 		// allCoupons.value = response.data;
 
@@ -350,7 +351,7 @@ const loadCoupons = async () => {
 
 		uni.hideLoading();
 	} catch (error) {
-		console.error('加载优惠券失败:', error);
+		logger.error('加载优惠券失败:', error);
 		uni.hideLoading();
 		uni.showToast({
 			title: '加载失败',

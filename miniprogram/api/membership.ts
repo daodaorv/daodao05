@@ -55,13 +55,25 @@ export interface PurchaseMembershipParams {
 }
 
 /**
+ * 微信支付参数
+ */
+export interface WechatPaymentParams {
+  appId: string
+  timeStamp: string
+  nonceStr: string
+  package: string
+  signType: string
+  paySign: string
+}
+
+/**
  * 购买会员响应
  */
 export interface PurchaseMembershipResponse {
   orderId: string
   orderNo: string
   amount: number
-  paymentParams?: any
+  paymentParams?: WechatPaymentParams
 }
 
 /**

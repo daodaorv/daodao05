@@ -10,7 +10,7 @@
       </view>
       <view class="campsite-meta">
         <view class="meta-item">
-          <u-icon name="map" size="14" color="#999"></u-icon>
+          <u-icon name="map-fill" size="14" color="#999"></u-icon>
           <text class="meta-text">{{ campsiteInfo.address }}</text>
         </view>
         <view class="meta-item">
@@ -326,6 +326,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref, computed, onUnmounted, watch } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { storeToRefs } from 'pinia';
@@ -640,7 +641,7 @@ const loadContacts = async () => {
     await contactStore.fetchContacts();
     tryPrefillFromContacts();
   } catch (error) {
-    console.error('加载联系人失败:', error);
+    logger.error('加载联系人失败:', error);
   } finally {
     contactLoading.value = false;
   }
@@ -745,7 +746,7 @@ const loadBookingData = async () => {
     selectedSiteType.value = mockSiteTypes.find(t => t.id === siteTypeId.value) || mockSiteTypes[0];
 
   } catch (error) {
-    console.error('加载预订数据失败:', error);
+    logger.error('加载预订数据失败:', error);
     uni.showToast({
       title: '加载失败',
       icon: 'none'
@@ -866,6 +867,15 @@ const cacheCampsiteOrder = (bookingResult: CampsiteBookingResponse) => {
     guests: bookingForm.value.guests,
     pickupContactName: bookingForm.value.contactName,
     pickupContactPhone: bookingForm.value.contactPhone,
+    // 营地订单的费用明细
+    campsiteFeeDetails: {
+      siteFee: siteFee.value,
+      cleaningFee: cleaningFee.value,
+      insuranceFee: totalInsuranceFee.value,
+      servicesFee: servicesFee.value,
+      couponDiscount: couponDiscount.value,
+      nights: nights.value
+    },
     vehicle: {
       id: selectedSiteType.value.id || 'site',
       name: selectedSiteType.value.name,
@@ -952,7 +962,7 @@ const submitBooking = async () => {
         throw new Error(response.message || '预订失败');
       }
     } catch (apiError) {
-      console.warn('创建营地预订接口暂不可用，使用Mock数据回退', apiError);
+      logger.warn('创建营地预订接口暂不可用，使用Mock数据回退', apiError);
       const now = Date.now();
       bookingResult = {
         orderId: `mock-${now}`,
@@ -972,7 +982,7 @@ const submitBooking = async () => {
       url: `/pages/order/pay?orderNo=${bookingResult.orderNo}&amount=${bookingResult.totalPrice}`
     });
   } catch (error) {
-    console.error('提交预订失败:', error);
+    logger.error('提交预订失败:', error);
     uni.showToast({
       title: '提交失败，请重试',
       icon: 'none'

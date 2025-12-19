@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useContactStore } from '@/stores/contact'
@@ -210,7 +211,7 @@ const handleSubmit = () => {
       })
     }
   }).catch((err: any) => {
-    console.log('表单校验失败', err)
+    logger.debug('表单校验失败', err)
   })
 }
 </script>

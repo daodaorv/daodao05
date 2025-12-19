@@ -169,6 +169,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import { getCouponById, type CouponData } from '@/mock/data/coupon';
@@ -313,7 +314,7 @@ const handleAction = () => {
 };
 
 const claimCoupon = () => {
-	// TODO: 调用API领取/购买优惠券
+	// Mock实现 - 待后端API开发
 	uni.showLoading({
 		title: '处理中...'
 	});
@@ -340,9 +341,9 @@ const loadCouponDetail = (id: string) => {
 	const couponData = getCouponById(id);
 	if (couponData) {
 		coupon.value = couponData;
-		console.log('成功加载优惠券详情:', id, couponData);
+		logger.debug('成功加载优惠券详情:', id, couponData);
 	} else {
-		console.warn('未找到优惠券:', id);
+		logger.warn('未找到优惠券:', id);
 		uni.showToast({
 			title: '优惠券不存在',
 			icon: 'none'

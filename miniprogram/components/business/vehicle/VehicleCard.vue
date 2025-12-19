@@ -40,11 +40,11 @@
 					<text class="spec-text">{{ displayType }}</text>
 				</view>
 				<view class="spec-item">
-					<u-icon name="account" size="14" color="#86909C"></u-icon>
+					<u-icon name="account-fill" size="14" color="#86909C"></u-icon>
 					<text class="spec-text">{{ seatBedText }}</text>
 				</view>
 				<view class="spec-item">
-					<u-icon name="setting" size="14" color="#86909C"></u-icon>
+					<u-icon name="setting-fill" size="14" color="#86909C"></u-icon>
 					<text class="spec-text">{{ displayTransmission }}</text>
 				</view>
 			</view>

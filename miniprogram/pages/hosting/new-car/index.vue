@@ -1,13 +1,19 @@
 <template>
   <view class="new-car-hosting">
     <view class="banner">
-      <text class="title">0首付购车托管</text>
+      <text class="title">购车托管</text>
       <text class="desc">保底3500元/月 + 超额70%分成</text>
     </view>
 
     <!-- 热门车型 -->
     <view class="models-section">
-      <view class="section-title">热门车型</view>
+      <view class="section-header">
+        <view class="section-title">热门车型</view>
+        <view class="more-btn" @click="goToModelList">
+          <text>更多</text>
+          <text class="arrow">›</text>
+        </view>
+      </view>
       <view class="model-list">
         <view v-for="model in models" :key="model.id" class="model-card" @click="selectModel(model)">
           <image :src="model.image" class="model-img" mode="aspectFill"></image>
@@ -30,19 +36,38 @@
 </template>
 
 <script>
+import { logger } from '@/utils/logger';
+import { getPopularModels } from '@/api/hosting'
+
 export default {
   data() {
     return {
-      models: [
-        { id: 1, name: '上汽大通V90', image: '/static/logo.png', monthlyPayment: 4500 },
-        { id: 2, name: '览众勇士', image: '/static/logo.png', monthlyPayment: 5200 }
-      ],
+      models: [],
       form: { name: '', phone: '' }
     }
   },
+  onLoad() {
+    this.loadModels()
+  },
   methods: {
+    async loadModels() {
+      try {
+        const data = await getPopularModels()
+        this.models = data
+      } catch (error) {
+        logger.error('加载车型失败:', error)
+        uni.showToast({ title: '加载失败', icon: 'none' })
+      }
+    },
     selectModel(model) {
-      console.log('选择车型:', model)
+      uni.navigateTo({
+        url: `/pages/hosting/model-detail/index?id=${model.id}`
+      })
+    },
+    goToModelList() {
+      uni.navigateTo({
+        url: '/pages/hosting/model-list/index'
+      })
     },
     submit() {
       if (!this.form.name || !this.form.phone) {
@@ -66,7 +91,10 @@ export default {
 .banner .title { display: block; font-size: 36rpx; font-weight: 600; margin-bottom: 16rpx; }
 .banner .desc { display: block; font-size: 24rpx; opacity: 0.9; }
 .models-section, .form-section { margin: 24rpx 32rpx; background: #FFF; border-radius: 16rpx; padding: 32rpx; }
-.section-title { font-size: 32rpx; font-weight: 600; margin-bottom: 24rpx; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24rpx; }
+.section-title { font-size: 32rpx; font-weight: 600; }
+.more-btn { display: flex; align-items: center; font-size: 28rpx; color: #999; }
+.more-btn .arrow { font-size: 36rpx; margin-left: 4rpx; }
 .model-card { display: flex; margin-bottom: 24rpx; border: 1rpx solid #EEE; border-radius: 12rpx; overflow: hidden; }
 .model-img { width: 200rpx; height: 150rpx; }
 .model-info { flex: 1; padding: 24rpx; }

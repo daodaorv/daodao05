@@ -4,6 +4,7 @@
  */
 
 import { checkLoginStatus, type UserInfo } from '@/api/auth'
+import { logger } from './logger'
 
 /**
  * 检查是否已登录
@@ -26,7 +27,7 @@ export function getCurrentUser(): UserInfo | null {
 		}
 		return userInfo
 	} catch (error) {
-		console.error('[Auth] 获取用户信息失败:', error)
+		logger.error('获取用户信息失败', error)
 		return null
 	}
 }
@@ -39,7 +40,7 @@ export function getToken(): string | null {
 		const token = uni.getStorageSync('token')
 		return token || null
 	} catch (error) {
-		console.error('[Auth] 获取Token失败:', error)
+		logger.error('获取Token失败', error)
 		return null
 	}
 }
@@ -52,9 +53,9 @@ export function saveLoginInfo(token: string, refreshToken: string, userInfo: Use
 		uni.setStorageSync('token', token)
 		uni.setStorageSync('refreshToken', refreshToken)
 		uni.setStorageSync('userInfo', JSON.stringify(userInfo))
-		console.log('[Auth] 登录信息已保存')
+		logger.info('登录信息已保存')
 	} catch (error) {
-		console.error('[Auth] 保存登录信息失败:', error)
+		logger.error('保存登录信息失败', error)
 	}
 }
 
@@ -66,9 +67,9 @@ export function clearLoginInfo(): void {
 		uni.removeStorageSync('token')
 		uni.removeStorageSync('refreshToken')
 		uni.removeStorageSync('userInfo')
-		console.log('[Auth] 登录信息已清除')
+		logger.info('登录信息已清除')
 	} catch (error) {
-		console.error('[Auth] 清除登录信息失败:', error)
+		logger.error('清除登录信息失败', error)
 	}
 }
 
@@ -159,7 +160,7 @@ export async function checkAndUpdateLoginStatus(): Promise<boolean> {
 
 		return true
 	} catch (error) {
-		console.error('[Auth] 检查登录状态失败:', error)
+		logger.error('检查登录状态失败', error)
 		// 发生错误时，保持当前登录状态
 		return isLoggedIn()
 	}
@@ -174,7 +175,7 @@ export async function logout(): Promise<void> {
 		const { logout: logoutApi } = await import('@/api/auth')
 		await logoutApi()
 	} catch (error) {
-		console.error('[Auth] 退出登录API调用失败:', error)
+		logger.error('退出登录API调用失败', error)
 	} finally {
 		// 无论API调用是否成功，都清除本地登录信息
 		clearLoginInfo()

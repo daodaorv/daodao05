@@ -2,6 +2,8 @@
  * 通知相关API接口
  */
 
+import { logger } from '@/utils/logger'
+
 // ==================== 类型定义 ====================
 
 interface NotificationData {
@@ -26,7 +28,7 @@ interface StoreNotificationData {
 export function sendNotification(data: NotificationData) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log('发送通知:', data);
+      logger.debug('发送通知', data);
       resolve({
         code: 0,
         message: 'success',
@@ -46,7 +48,7 @@ export function sendNotification(data: NotificationData) {
 export function notifyStore(data: StoreNotificationData) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log('通知门店:', data);
+      logger.debug('通知门店', data);
       resolve({
         code: 0,
         message: 'success',
@@ -126,7 +128,7 @@ export function getNotifications(params?: {
 export function markNotificationRead(notificationId: string) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log('标记通知已读:', notificationId);
+      logger.debug('标记通知已读', { notificationId });
       resolve({
         code: 0,
         message: 'success',

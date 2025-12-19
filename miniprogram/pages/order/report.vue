@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { logger } from '@/utils/logger';
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 
@@ -154,7 +155,7 @@ const chooseLocation = () => {
           }
         })
 
-        console.log('逆地理编码结果:', result)
+        logger.debug('逆地理编码结果:', result)
 
         if (result.statusCode === 200 && result.data.status === 0) {
           const addressData = result.data.result
@@ -163,14 +164,14 @@ const chooseLocation = () => {
                                    `${addressData.address_component?.province || ''}${addressData.address_component?.city || ''}${addressData.address_component?.district || ''}${addressData.address_component?.street || ''}`
 
           currentAddress.value = formattedAddress
-          console.log('解析的地址:', formattedAddress)
+          logger.debug('解析的地址:', formattedAddress)
         } else {
-          console.error('地址解析失败:', result.data)
+          logger.error('地址解析失败:', result.data)
           currentAddress.value = `${res.latitude.toFixed(6)}, ${res.longitude.toFixed(6)}`
           uni.showToast({ title: '地址解析失败，请手动输入', icon: 'none' })
         }
       } catch (error) {
-        console.error('逆地理编码请求失败:', error)
+        logger.error('逆地理编码请求失败:', error)
         currentAddress.value = `${res.latitude.toFixed(6)}, ${res.longitude.toFixed(6)}`
         uni.showToast({ title: '地址解析失败，请手动输入', icon: 'none' })
       }
@@ -178,7 +179,7 @@ const chooseLocation = () => {
       finish()
     },
     fail: (err) => {
-      console.error('定位失败:', err)
+      logger.error('定位失败:', err)
       uni.showToast({ title: '定位失败，请检查定位权限或手动输入地址', icon: 'none' })
       finish()
     }
@@ -256,7 +257,7 @@ const submitReport = () => {
     }
   }
 
-  console.log('提交异常申报:', reportData)
+  logger.debug('提交异常申报:', reportData)
 
   submitting.value = true
   uni.showLoading({ title: '提交中...' })

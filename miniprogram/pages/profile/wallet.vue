@@ -21,7 +21,7 @@
 		<view class="quick-links">
 			<view class="link-item" @tap="goToPoints">
 				<view class="link-icon points">
-					<u-icon name="integral" size="24" color="#FF9F29"></u-icon>
+					<u-icon name="integral-fill" size="24" color="#FF9F29"></u-icon>
 				</view>
 				<view class="link-info">
 					<text class="link-title">积分中心</text>
