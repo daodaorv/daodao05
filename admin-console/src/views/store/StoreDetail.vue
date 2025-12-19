@@ -1,11 +1,7 @@
 <!-- @ts-nocheck -->
 <template>
   <div class="store-detail-container">
-    <PageHeader
-      :title="store?.name || '门店详情'"
-      :description="`${store?.code || 'info'} - ${store?.address || 'info'}`"
-      show-back
-    />
+    
 
     <el-card v-if="store" class="detail-card">
       <template #header>
@@ -75,6 +71,11 @@
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">
           {{ formatDate(store.createdAt) }}
+        </el-descriptions-item>
+        <el-descriptions-item label="可托管验车">
+          <el-tag :type="store.canHostingInspection ? 'success' : 'info'" size="small">
+            {{ store.canHostingInspection ? '是' : '否' }}
+          </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="门店描述" :span="3">
           {{ store.description || '-' }}
@@ -248,6 +249,16 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="可托管验车">
+          <el-switch
+            v-model="form.canHostingInspection"
+            active-text="是"
+            inactive-text="否"
+          />
+          <div style="color: #909399; font-size: 12px; margin-top: 4px;">
+            开启后，该门店将在小程序托管页面显示，用户可选择此门店进行线下车辆核验及交付
+          </div>
+        </el-form-item>
         <el-form-item label="门店描述">
           <el-input
             v-model="form.description"
@@ -274,7 +285,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { Shop, TrendCharts, User, Money } from '@element-plus/icons-vue'
-import PageHeader from '@/components/common/PageHeader.vue'
 import StatsCard from '@/components/common/StatsCard.vue'
 import type { StatItem } from '@/components/common/StatsCard.vue'
 import {
@@ -363,7 +373,8 @@ const form = reactive({
   email: '',
   businessHours: '',
   serviceScope: [] as string[],
-  description: ''
+  description: '',
+  canHostingInspection: false
 })
 
 const formRules: FormRules = {
@@ -458,6 +469,7 @@ const handleEdit = () => {
   form.businessHours = store.value.businessHours
   form.serviceScope = store.value.serviceScope
   form.description = store.value.description
+  form.canHostingInspection = store.value.canHostingInspection
   dialogVisible.value = true
 }
 
@@ -482,8 +494,8 @@ const handleSubmit = async () => {
         email: form.email,
         businessHours: form.businessHours,
         serviceScope: form.serviceScope,
-  // @ts-ignore
-        description: form.description
+        description: form.description,
+        canHostingInspection: form.canHostingInspection
       }
 
       await updateStore(store.value.id, data)

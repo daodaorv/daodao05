@@ -56,7 +56,20 @@ export const asyncRoutes: RouteRecordRaw[] = [
     component: Layout,
     redirect: '/dashboard',
     meta: { requiresAuth: true },
-    children: generateRoutes(menuConfig),
+    children: [
+      ...generateRoutes(menuConfig),
+      // 门店详情页面（不在菜单中，但需要路由）
+      {
+        path: '/store/detail/:id',
+        name: 'StoreDetail',
+        component: () => import('@/views/store/StoreDetail.vue'),
+        meta: {
+          title: '门店详情',
+          requiresAuth: true,
+          permissions: ['store:view']
+        }
+      }
+    ],
   },
   {
     path: '/:pathMatch(.*)*',

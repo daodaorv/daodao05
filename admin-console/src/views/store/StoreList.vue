@@ -1,7 +1,7 @@
 <!-- @ts-nocheck -->
 <template>
   <div class="store-list-container">
-    <PageHeader title="门店管理" description="管理直营店、加盟店和合作商户信息" />
+    
 
     <StatsCard :stats="statsConfig" />
 
@@ -179,6 +179,16 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="可托管验车">
+          <el-switch
+            v-model="form.canHostingInspection"
+            active-text="是"
+            inactive-text="否"
+          />
+          <div style="color: #909399; font-size: 12px; margin-top: 4px;">
+            开启后，该门店将在小程序托管页面显示，用户可选择此门店进行线下车辆核验及交付
+          </div>
+        </el-form-item>
         <el-form-item label="门店描述">
           <el-input
             v-model="form.description"
@@ -201,6 +211,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
@@ -211,7 +222,6 @@ import {
   User,
   Money
 } from '@element-plus/icons-vue'
-import PageHeader from '@/components/common/PageHeader.vue'
 import StatsCard from '@/components/common/StatsCard.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
@@ -236,6 +246,7 @@ import { useErrorHandler } from '@/composables'
 import { exportToCSV } from '@/utils/export'
 
 // Composables
+const router = useRouter()
 const { handleApiError } = useErrorHandler()
 
 // 门店类型选项
@@ -438,7 +449,8 @@ const form = reactive({
   managerId: undefined as number | undefined,
   businessHours: '',
   serviceScope: [] as string[],
-  description: ''
+  description: '',
+  canHostingInspection: false
 })
 
 const formRules: FormRules = {
@@ -554,14 +566,8 @@ const handleCreate = () => {
 }
 
 // 查看门店
-const handleView = async (row: Store) => {
-  try {
-    const res = await getStoreDetail(row.id) as any
-    ElMessage.success('查看门店详情功能开发中')
-    console.log('门店详情:', res.data)
-  } catch (error) {
-    handleApiError(error, '加载门店详情失败')
-  }
+const handleView = (row: Store) => {
+  router.push(`/store/detail/${row.id}`)
 }
 
 // 编辑门店
@@ -583,6 +589,7 @@ const handleEdit = (row: Store) => {
   form.businessHours = row.businessHours
   form.serviceScope = row.serviceScope
   form.description = row.description
+  form.canHostingInspection = row.canHostingInspection
   dialogVisible.value = true
 }
 
@@ -633,7 +640,8 @@ const handleSubmit = async () => {
         managerId: form.managerId!,
         businessHours: form.businessHours,
         serviceScope: form.serviceScope,
-        description: form.description
+        description: form.description,
+        canHostingInspection: form.canHostingInspection
       }
 
       if (isEdit.value) {
@@ -673,6 +681,7 @@ const handleDialogClose = () => {
   form.businessHours = ''
   form.serviceScope = []
   form.description = ''
+  form.canHostingInspection = false
 }
 
 // 分页

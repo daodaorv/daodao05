@@ -46,19 +46,34 @@ export interface Store {
 
   // 价格策略配置（新增）
   priceStrategyConfig?: StorePriceStrategyConfig
+
+  // 可托管验车（新增）
+  canHostingInspection: boolean
 }
 
 // 城市信息
 export interface City {
+  // 基础信息
   id: number
   name: string
   code: string
   provinceId: number
   provinceName: string
+
+  // 门店相关
   storeCount: number
   status: 'active' | 'inactive'
   serviceArea: string[]
+
+  // 价格策略相关（可选字段）
+  tierId?: number // 所属城市分级ID
+  tierName?: string // 所属城市分级名称
+  isHot?: boolean // 是否热门城市
+  sortOrder?: number // 排序
+
+  // 时间戳
   createdAt: string
+  updatedAt?: string // 更新时间
 }
 
 // 区域信息
@@ -118,6 +133,7 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/67C23A/FFFFFF?text=Store+2'
     ],
     description: '北京朝阳区旗舰店，提供全方位房车租赁服务',
+    canHostingInspection: true,
     createdAt: '2024-01-15T08:00:00.000Z',
     updatedAt: '2024-11-29T10:00:00.000Z'
   },
@@ -148,6 +164,7 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/E6A23C/FFFFFF?text=Store+3'
     ],
     description: '上海浦东核心商圈店，高端房车租赁首选',
+    canHostingInspection: true,
     createdAt: '2024-02-01T08:00:00.000Z',
     updatedAt: '2024-11-28T15:30:00.000Z'
   },
@@ -178,6 +195,7 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/F56C6C/FFFFFF?text=Store+4'
     ],
     description: '广州天河区加盟店，服务周到价格实惠',
+    canHostingInspection: false,
     createdAt: '2024-03-15T08:00:00.000Z',
     updatedAt: '2024-11-27T09:20:00.000Z'
   },
@@ -208,6 +226,7 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/909399/FFFFFF?text=Store+5'
     ],
     description: '深圳南山区合作商户，提供基础租赁服务',
+    canHostingInspection: false,
     createdAt: '2024-04-01T08:00:00.000Z',
     updatedAt: '2024-11-26T14:10:00.000Z'
   },
@@ -238,6 +257,7 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/409EFF/FFFFFF?text=Store+6'
     ],
     description: '成都武侯区直营店，川藏线房车租赁专家',
+    canHostingInspection: true,
     createdAt: '2024-05-10T08:00:00.000Z',
     updatedAt: '2024-11-25T11:45:00.000Z'
   },
@@ -268,13 +288,15 @@ const mockStores: Store[] = [
       'https://via.placeholder.com/800x600/67C23A/FFFFFF?text=Store+7'
     ],
     description: '杭州西湖区加盟店，暂停营业装修中',
+    canHostingInspection: false,
     createdAt: '2024-06-01T08:00:00.000Z',
     updatedAt: '2024-11-20T16:00:00.000Z'
   }
 ]
 
 // Mock 城市数据
-const mockCities: City[] = [
+export const mockCities: City[] = [
+  // 一线城市
   {
     id: 1,
     name: '北京',
@@ -284,7 +306,12 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['朝阳区', '海淀区', '东城区', '西城区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 1,
+    tierName: '一线城市',
+    isHot: true,
+    sortOrder: 1,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 2,
@@ -295,7 +322,12 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['浦东新区', '黄浦区', '徐汇区', '静安区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 1,
+    tierName: '一线城市',
+    isHot: true,
+    sortOrder: 2,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 3,
@@ -306,7 +338,12 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['天河区', '越秀区', '海珠区', '番禺区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 1,
+    tierName: '一线城市',
+    isHot: true,
+    sortOrder: 3,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 4,
@@ -317,8 +354,15 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['南山区', '福田区', '罗湖区', '宝安区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 1,
+    tierName: '一线城市',
+    isHot: true,
+    sortOrder: 4,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
+
+  // 新一线城市
   {
     id: 5,
     name: '成都',
@@ -328,7 +372,12 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['武侯区', '锦江区', '青羊区', '金牛区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 5,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 6,
@@ -339,7 +388,240 @@ const mockCities: City[] = [
     storeCount: 1,
     status: 'active',
     serviceArea: ['西湖区', '上城区', '拱墅区', '滨江区'],
-    createdAt: '2024-01-01T00:00:00.000Z'
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 6,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 7,
+    name: '重庆',
+    code: 'CQ',
+    provinceId: 6,
+    provinceName: '重庆市',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['渝中区', '江北区', '南岸区', '渝北区'],
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 7,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 8,
+    name: '西安',
+    code: 'XA',
+    provinceId: 7,
+    provinceName: '陕西省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['雁塔区', '碑林区', '莲湖区', '未央区'],
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 8,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 9,
+    name: '武汉',
+    code: 'WH',
+    provinceId: 8,
+    provinceName: '湖北省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['武昌区', '汉口区', '汉阳区', '洪山区'],
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 9,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 10,
+    name: '南京',
+    code: 'NJ',
+    provinceId: 9,
+    provinceName: '江苏省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['鼓楼区', '玄武区', '秦淮区', '建邺区'],
+    tierId: 2,
+    tierName: '新一线城市',
+    isHot: true,
+    sortOrder: 10,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+
+  // 二线城市
+  {
+    id: 11,
+    name: '苏州',
+    code: 'SZ',
+    provinceId: 9,
+    provinceName: '江苏省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['姑苏区', '工业园区', '高新区', '吴中区'],
+    tierId: 3,
+    tierName: '二线城市',
+    isHot: false,
+    sortOrder: 11,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 12,
+    name: '天津',
+    code: 'TJ',
+    provinceId: 10,
+    provinceName: '天津市',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['和平区', '河西区', '南开区', '河东区'],
+    tierId: 3,
+    tierName: '二线城市',
+    isHot: false,
+    sortOrder: 12,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 13,
+    name: '郑州',
+    code: 'ZZ',
+    provinceId: 11,
+    provinceName: '河南省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['金水区', '二七区', '中原区', '管城区'],
+    tierId: 3,
+    tierName: '二线城市',
+    isHot: false,
+    sortOrder: 13,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 14,
+    name: '长沙',
+    code: 'CS',
+    provinceId: 12,
+    provinceName: '湖南省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['岳麓区', '芙蓉区', '天心区', '开福区'],
+    tierId: 3,
+    tierName: '二线城市',
+    isHot: false,
+    sortOrder: 14,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 15,
+    name: '沈阳',
+    code: 'SY',
+    provinceId: 13,
+    provinceName: '辽宁省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['和平区', '沈河区', '皇姑区', '大东区'],
+    tierId: 3,
+    tierName: '二线城市',
+    isHot: false,
+    sortOrder: 15,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+
+  // 三线城市
+  {
+    id: 16,
+    name: '昆明',
+    code: 'KM',
+    provinceId: 14,
+    provinceName: '云南省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['五华区', '盘龙区', '官渡区', '西山区'],
+    tierId: 4,
+    tierName: '三线城市',
+    isHot: false,
+    sortOrder: 16,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 17,
+    name: '大连',
+    code: 'DL',
+    provinceId: 13,
+    provinceName: '辽宁省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['中山区', '西岗区', '沙河口区', '甘井子区'],
+    tierId: 4,
+    tierName: '三线城市',
+    isHot: false,
+    sortOrder: 17,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 18,
+    name: '厦门',
+    code: 'XM',
+    provinceId: 15,
+    provinceName: '福建省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['思明区', '湖里区', '集美区', '海沧区'],
+    tierId: 4,
+    tierName: '三线城市',
+    isHot: false,
+    sortOrder: 18,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 19,
+    name: '合肥',
+    code: 'HF',
+    provinceId: 16,
+    provinceName: '安徽省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['庐阳区', '瑶海区', '蜀山区', '包河区'],
+    tierId: 4,
+    tierName: '三线城市',
+    isHot: false,
+    sortOrder: 19,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 20,
+    name: '石家庄',
+    code: 'SJZ',
+    provinceId: 17,
+    provinceName: '河北省',
+    storeCount: 0,
+    status: 'active',
+    serviceArea: ['长安区', '桥西区', '新华区', '裕华区'],
+    tierId: 4,
+    tierName: '三线城市',
+    isHot: false,
+    sortOrder: 20,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   }
 ]
 
@@ -527,6 +809,7 @@ export const mockCreateStore = (params: CreateStoreParams) => {
         monthlyRevenue: 0,
         rating: 5.0,
         images: [],
+        canHostingInspection: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -610,14 +893,59 @@ export const mockGetStoreStats = () => {
   })
 }
 
+// 城市列表查询参数
+export interface CityListParams {
+  page?: number
+  pageSize?: number
+  keyword?: string
+  status?: 'active' | 'inactive'
+  tierId?: number // 按分级筛选
+  isHot?: boolean // 按热门筛选
+}
+
 // Mock 获取城市列表
-export const mockGetCityList = () => {
+export const mockGetCityList = (params?: CityListParams) => {
   return new Promise((resolve) => {
     setTimeout(() => {
+      let filteredCities = [...mockCities]
+
+      // 状态筛选
+      if (params?.status) {
+        filteredCities = filteredCities.filter(city => city.status === params.status)
+      }
+
+      // 分级筛选
+      if (params?.tierId) {
+        filteredCities = filteredCities.filter(city => city.tierId === params.tierId)
+      }
+
+      // 热门城市筛选
+      if (params?.isHot !== undefined) {
+        filteredCities = filteredCities.filter(city => city.isHot === params.isHot)
+      }
+
+      // 关键词搜索
+      if (params?.keyword) {
+        filteredCities = filteredCities.filter(city =>
+          city.name.includes(params.keyword!) ||
+          city.provinceName.includes(params.keyword!)
+        )
+      }
+
+      // 分页
+      const page = params?.page || 1
+      const pageSize = params?.pageSize || 20
+      const start = (page - 1) * pageSize
+      const end = start + pageSize
+      const list = filteredCities.slice(start, end)
+
       resolve({
         code: 200,
         message: '获取成功',
-        data: mockCities
+        data: list,
+        total: filteredCities.length,
+        page,
+        pageSize
       })
     }, 200)
   })
