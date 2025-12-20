@@ -32,9 +32,6 @@
 								<text>{{ vehicle.storeName }}</text>
 							</view>
 						</view>
-						<view class="share-btn">
-							<u-icon name="share" size="20" color="#333"></u-icon>
-						</view>
 					</view>
 					
 					<view class="tags-row">
@@ -156,6 +153,10 @@
 		<!-- 底部操作栏 -->
 		<view class="bottom-bar">
 			<view class="bottom-left">
+				<view class="action-item" @tap="handleShare">
+					<u-icon name="share-fill" size="22" color="#333"></u-icon>
+					<text>分享</text>
+				</view>
 				<view class="action-item">
 					<u-icon name="kefu-ermai" size="22" color="#333"></u-icon>
 					<text>客服</text>
@@ -169,13 +170,30 @@
 				<text>立即预订</text>
 			</button>
 		</view>
+
+		<!-- 分享面板 -->
+		<ShareSheet
+			v-model:show="showShareSheet"
+			@select="handleShareSelect"
+		/>
+
+		<!-- 海报预览 -->
+		<PosterPreview
+			v-model:show="showPosterPopup"
+			:poster-image="posterImage"
+			@save="savePoster"
+		/>
 	</view>
 </template>
 
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
 import { ref } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
+import { useShare } from '@/composables/useShare';
+import { ShareScene } from '@/types/share';
+import ShareSheet from '@/components/share/ShareSheet.vue';
+import PosterPreview from '@/components/share/PosterPreview.vue';
 
 const statusBarHeight = ref(0);
 
@@ -217,6 +235,27 @@ const vehicleImages = ref([
 	'/static/场景推荐2.jpg'
 ]);
 
+// 分享功能
+const {
+	showShareSheet,
+	showPosterPopup,
+	posterImage,
+	openShareSheet,
+	handleShareSelect,
+	savePoster,
+	getShareContent
+} = useShare({
+	title: `【叨叨房车】${vehicle.value.name}`,
+	desc: `日均¥${vehicle.value.price}起，${vehicle.value.type}，${vehicle.value.seats}座${vehicle.value.beds}卧`,
+	imageUrl: vehicleImages.value[0],
+	path: '/pages/vehicle/detail',
+	scene: ShareScene.VEHICLE,
+	businessId: vehicle.value.id || 'demo_vehicle',
+	query: {
+		id: vehicle.value.id || 'demo_vehicle'
+	}
+});
+
 onLoad((options: any) => {
 	const sys = uni.getSystemInfoSync();
 	statusBarHeight.value = sys.statusBarHeight || 0;
@@ -225,7 +264,26 @@ onLoad((options: any) => {
 		vehicle.value.id = options.id;
 		logger.debug('加载车辆详情:', options.id);
 	}
+
+	// 处理分享来源
+	if (options.share_from) {
+		logger.info('来自分享', {
+			scene: options.share_scene,
+			from: options.share_from,
+			businessId: options.share_id
+		});
+	}
 });
+
+// 配置微信分享
+onShareAppMessage(() => {
+	return getShareContent();
+});
+
+// 打开分享面板
+const handleShare = () => {
+	openShareSheet();
+};
 
 const goBack = () => {
 	uni.navigateBack();

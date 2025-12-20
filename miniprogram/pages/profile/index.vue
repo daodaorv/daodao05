@@ -174,6 +174,7 @@ const gridMenu = ref([
 ]);
 
 const listMenu = ref([
+	{ name: '推广中心', icon: 'share-fill', path: '/pages/profile/promotion-center' },
 	{ name: '常用联系人', icon: 'account-fill', path: '/pages/profile/contacts' },
 	{ name: '地址管理', icon: 'map-fill', path: '/pages/profile/address' },
 	{ name: '联系客服', icon: 'server-man', path: '/pages/help/index' },

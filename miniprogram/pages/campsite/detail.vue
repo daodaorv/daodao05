@@ -206,28 +206,43 @@
       </view>
       <view class="bar-actions">
         <view class="action-btn-wrapper">
-            <u-button shape="checkmark-circle" plain type="warning" icon="chat" text="咨询" @click="contactService"></u-button>
+            <u-button shape="circle" plain type="warning" icon="share-fill" @click="handleShare"></u-button>
         </view>
         <view class="action-btn-wrapper">
-            <u-button shape="checkmark-circle" type="primary" text="立即预订" @click="bookNow"></u-button>
+            <u-button shape="circle" plain type="warning" icon="chat" text="咨询" @click="contactService"></u-button>
+        </view>
+        <view class="action-btn-wrapper">
+            <u-button shape="circle" type="primary" text="立即预订" @click="bookNow"></u-button>
         </view>
       </view>
     </view>
+
+    <!-- 分享面板 -->
+    <ShareSheet
+      v-model:show="showShareSheet"
+      @select="handleShareSelect"
+    />
+
+    <!-- 海报预览 -->
+    <PosterPreview
+      v-model:show="showPosterPopup"
+      :poster-image="posterImage"
+      @save="savePoster"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
+import { useShare } from '@/composables/useShare';
+import { ShareScene } from '@/types/share';
+import ShareSheet from '@/components/share/ShareSheet.vue';
+import PosterPreview from '@/components/share/PosterPreview.vue';
 
 // 获取路由参数
 const campsiteId = ref('');
-
-onLoad((options: any) => {
-  campsiteId.value = options.id || '';
-  loadCampsiteDetail();
-});
 
 // 营地详情数据
 const campsiteDetail = ref<any>({
@@ -248,6 +263,51 @@ const campsiteDetail = ref<any>({
   cancellationPolicy: [],
   reviews: []
 });
+
+// 分享功能
+const {
+  showShareSheet,
+  showPosterPopup,
+  posterImage,
+  openShareSheet,
+  handleShareSelect,
+  savePoster,
+  getShareContent
+} = useShare({
+  title: `【叨叨房车】${campsiteDetail.value.name}`,
+  desc: `${campsiteDetail.value.address} | ¥${campsiteDetail.value.minPrice}/晚 | ${campsiteDetail.value.rating}分`,
+  imageUrl: campsiteDetail.value.images[0] || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=750&h=500&fit=crop',
+  path: '/pages/campsite/detail',
+  scene: ShareScene.CAMPSITE,
+  businessId: campsiteId.value || 'demo_campsite',
+  query: {
+    id: campsiteId.value || 'demo_campsite'
+  }
+});
+
+onLoad((options: any) => {
+  campsiteId.value = options.id || '';
+  loadCampsiteDetail();
+
+  // 处理分享来源
+  if (options.share_from) {
+    logger.info('来自分享', {
+      scene: options.share_scene,
+      from: options.share_from,
+      businessId: options.share_id
+    });
+  }
+});
+
+// 配置微信分享
+onShareAppMessage(() => {
+  return getShareContent();
+});
+
+// 打开分享面板
+const handleShare = () => {
+  openShareSheet();
+};
 
 // 加载营地详情
 const loadCampsiteDetail = async () => {

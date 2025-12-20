@@ -3,7 +3,7 @@
     <!-- 图片轮播 -->
     <swiper class="image-swiper" :indicator-dots="true" :autoplay="true" :interval="3000" :duration="500">
       <swiper-item v-for="(image, index) in tourDetail.images" :key="index">
-        <image class="swiper-image" :src="photo" mode="aspectFill"></image>
+        <image class="swiper-image" :src="image" mode="aspectFill"></image>
       </swiper-item>
     </swiper>
 
@@ -163,6 +163,9 @@
         <text class="bar-tip">/人起</text>
       </view>
       <view class="bar-actions">
+        <button class="icon-btn" @tap="handleShare">
+          <u-icon name="share-fill" size="18" color="#FF9F29"></u-icon>
+        </button>
         <button class="contact-btn" @tap="contactService">
           <u-icon name="chat" size="18" color="#FF9F29"></u-icon>
           <text>咨询</text>
@@ -172,22 +175,34 @@
         </button>
       </view>
     </view>
+
+    <!-- 分享面板 -->
+    <ShareSheet
+      v-model:show="showShareSheet"
+      @select="handleShareSelect"
+    />
+
+    <!-- 海报预览 -->
+    <PosterPreview
+      v-model:show="showPosterPopup"
+      :poster-image="posterImage"
+      @save="savePoster"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
 import { ref } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
+import { useShare } from '@/composables/useShare';
+import { ShareScene } from '@/types/share';
+import ShareSheet from '@/components/share/ShareSheet.vue';
+import PosterPreview from '@/components/share/PosterPreview.vue';
 
 // 获取路由参数
 const tourId = ref('');
 const selectedBatch = ref('');
-
-onLoad((options: any) => {
-  tourId.value = options.id || '';
-  loadTourDetail();
-});
 
 // 线路详情数据
 const tourDetail = ref<any>({
@@ -209,6 +224,51 @@ const tourDetail = ref<any>({
   bookingNotices: [],
   cancellationPolicy: []
 });
+
+// 分享功能
+const {
+  showShareSheet,
+  showPosterPopup,
+  posterImage,
+  openShareSheet,
+  handleShareSelect,
+  savePoster,
+  getShareContent
+} = useShare({
+  title: `【叨叨房车】${tourDetail.value.title}`,
+  desc: `${tourDetail.value.duration}天${tourDetail.value.duration - 1}晚 | ${tourDetail.value.destination} | ¥${tourDetail.value.pricePerPerson}/人`,
+  imageUrl: tourDetail.value.images[0] || '/static/logo.png',
+  path: '/pages/tour/detail',
+  scene: ShareScene.TOUR,
+  businessId: tourId.value || 'demo_tour',
+  query: {
+    id: tourId.value || 'demo_tour'
+  }
+});
+
+onLoad((options: any) => {
+  tourId.value = options.id || '';
+  loadTourDetail();
+
+  // 处理分享来源
+  if (options.share_from) {
+    logger.info('来自分享', {
+      scene: options.share_scene,
+      from: options.share_from,
+      businessId: options.share_id
+    });
+  }
+});
+
+// 配置微信分享
+onShareAppMessage(() => {
+  return getShareContent();
+});
+
+// 打开分享面板
+const handleShare = () => {
+  openShareSheet();
+};
 
 // 加载线路详情
 const loadTourDetail = async () => {
@@ -433,8 +493,8 @@ const bookTour = () => {
 
   .title-header {
     display: flex;
-    align-items: center;
-    gap: 16rpx;
+    align-items: flex-start;
+    justify-content: space-between;
     margin-bottom: 16rpx;
 
     .tour-title {
@@ -445,15 +505,38 @@ const bookTour = () => {
       line-height: 1.4;
     }
 
-    .hot-badge {
-      background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
-      color: #FFFFFF;
-      font-size: 22rpx;
-      padding: 6rpx 16rpx;
-      border-radius: 20rpx;
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16rpx;
 
-      .badge-text {
-        font-weight: 600;
+      .hot-badge {
+        background: linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%);
+        color: #FFFFFF;
+        font-size: 22rpx;
+        padding: 6rpx 16rpx;
+        border-radius: 20rpx;
+
+        .badge-text {
+          font-weight: 600;
+        }
+      }
+
+      .share-btn {
+        width: 56rpx;
+        height: 56rpx;
+        border-radius: 50%;
+        background-color: #F5F5F5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:active {
+          background-color: #E0E0E0;
+          transform: scale(0.95);
+        }
       }
     }
   }
@@ -844,6 +927,25 @@ const bookTour = () => {
     display: flex;
     align-items: center;
     gap: 20rpx;
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60rpx;
+      height: 60rpx;
+      background: none;
+      border: none;
+      padding: 0;
+
+      &::after {
+        border: none;
+      }
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
 
     .contact-btn {
       display: flex;

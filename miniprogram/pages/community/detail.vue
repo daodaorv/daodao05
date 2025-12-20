@@ -100,6 +100,10 @@
 				<text class="placeholder">说点什么...</text>
 			</view>
 			<view class="actions">
+				<view class="action-btn" @click="handleShare">
+					<u-icon name="share-fill" size="24" color="#333" />
+					<text class="count">分享</text>
+				</view>
 				<view class="action-btn" @click="handleLike">
 					<u-icon :name="post.isLiked ? 'heart-fill' : 'heart'" size="24" :color="post.isLiked ? '#FF4D4F' : '#333'" />
 					<text class="count">{{ post.likeCount || '点赞' }}</text>
@@ -130,11 +134,29 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 分享面板 -->
+		<ShareSheet
+			v-model:show="showShareSheet"
+			@select="handleShareSelect"
+		/>
+
+		<!-- 海报预览 -->
+		<PosterPreview
+			v-model:show="showPosterPopup"
+			:poster-image="posterImage"
+			@save="savePoster"
+		/>
 	</view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
+import { useShare } from '@/composables/useShare'
+import { ShareScene } from '@/types/share'
+import ShareSheet from '@/components/share/ShareSheet.vue'
+import PosterPreview from '@/components/share/PosterPreview.vue'
 import {
 	getPostDetail,
 	getComments,
@@ -177,6 +199,37 @@ const comments = ref<Comment[]>([])
 const commentInput = ref('')
 const isFollowing = ref(false)
 const replyTarget = ref<Comment | null>(null)
+
+// 分享功能
+const {
+  showShareSheet,
+  showPosterPopup,
+  posterImage,
+  openShareSheet,
+  handleShareSelect,
+  savePoster,
+  getShareContent
+} = useShare({
+  title: `【叨叨房车社区】${post.value.title}`,
+  desc: post.value.content.substring(0, 50) + '...',
+  imageUrl: post.value.images[0] || '/static/logo.png',
+  path: '/pages/community/detail',
+  scene: ShareScene.COMMUNITY,
+  businessId: postId.value || 'demo_post',
+  query: {
+    id: postId.value || 'demo_post'
+  }
+})
+
+// 配置微信分享
+onShareAppMessage(() => {
+  return getShareContent()
+})
+
+// 打开分享面板
+const handleShare = () => {
+  openShareSheet()
+}
 
 // 格式化内容
 const formattedContent = computed(() => {
@@ -324,6 +377,16 @@ onMounted(() => {
 	const currentPage = pages[pages.length - 1] as any
 	const options = currentPage.options || {}
 	postId.value = options.id || 'post_001'
+
+	// 处理分享来源
+	if (options.share_from) {
+		console.log('来自分享', {
+			scene: options.share_scene,
+			from: options.share_from,
+			businessId: options.share_id
+		})
+	}
+
 	loadPost()
 	loadComments()
 })
@@ -420,13 +483,38 @@ onMounted(() => {
 	padding: $uni-spacing-lg;
 }
 
+.title-section {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: $uni-spacing-md;
+}
+
 .title {
+	flex: 1;
 	font-size: 40rpx;
 	font-weight: bold;
 	color: $uni-text-color;
 	line-height: 1.4;
-	margin-bottom: $uni-spacing-md;
-	display: block;
+}
+
+.share-btn {
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background-color: #F5F5F5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	margin-left: 16rpx;
+	cursor: pointer;
+	transition: all 0.3s;
+
+	&:active {
+		background-color: #E0E0E0;
+		transform: scale(0.95);
+	}
 }
 
 .article-content {

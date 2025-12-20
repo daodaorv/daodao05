@@ -3,7 +3,7 @@
     <!-- 图片轮播 -->
     <swiper class="image-swiper" :indicator-dots="true" :autoplay="true" :interval="3000" :duration="500">
       <swiper-item v-for="(image, index) in offerDetail.vehicle.images" :key="index">
-        <image class="swiper-image" :src="photo" mode="aspectFill"></image>
+        <image class="swiper-image" :src="image" mode="aspectFill"></image>
       </swiper-item>
     </swiper>
 
@@ -168,6 +168,9 @@
         <text class="bar-tip">套餐价</text>
       </view>
       <view class="bar-actions">
+        <button class="icon-btn" @tap="handleShare">
+          <u-icon name="share-fill" size="18" color="#FF9F29"></u-icon>
+        </button>
         <button class="contact-btn" @tap="contactService">
           <u-icon name="chat" size="18" color="#FF9F29"></u-icon>
           <text>咨询</text>
@@ -177,21 +180,33 @@
         </button>
       </view>
     </view>
+
+    <!-- 分享面板 -->
+    <ShareSheet
+      v-model:show="showShareSheet"
+      @select="handleShareSelect"
+    />
+
+    <!-- 海报预览 -->
+    <PosterPreview
+      v-model:show="showPosterPopup"
+      :poster-image="posterImage"
+      @save="savePoster"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
 import { ref } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
+import { useShare } from '@/composables/useShare';
+import { ShareScene } from '@/types/share';
+import ShareSheet from '@/components/share/ShareSheet.vue';
+import PosterPreview from '@/components/share/PosterPreview.vue';
 
 // 获取路由参数
 const offerId = ref('');
-
-onLoad((options: any) => {
-  offerId.value = options.id || '';
-  loadOfferDetail();
-});
 
 // 套餐详情数据
 const offerDetail = ref<any>({
@@ -227,6 +242,51 @@ const offerDetail = ref<any>({
   bookingNotices: [],
   cancellationPolicy: []
 });
+
+// 分享功能
+const {
+  showShareSheet,
+  showPosterPopup,
+  posterImage,
+  openShareSheet,
+  handleShareSelect,
+  savePoster,
+  getShareContent
+} = useShare({
+  title: `【叨叨房车】${offerDetail.value.route.from}→${offerDetail.value.route.to} 特惠套餐`,
+  desc: `¥${offerDetail.value.packagePrice}/${offerDetail.value.rentalDays}天，仅剩${offerDetail.value.remainingQuota}个名额`,
+  imageUrl: offerDetail.value.vehicle.images[0] || '/static/logo.png',
+  path: '/pages/special-offer/detail',
+  scene: ShareScene.SPECIAL_OFFER,
+  businessId: offerId.value || 'demo_offer',
+  query: {
+    id: offerId.value || 'demo_offer'
+  }
+});
+
+onLoad((options: any) => {
+  offerId.value = options.id || '';
+  loadOfferDetail();
+
+  // 处理分享来源
+  if (options.share_from) {
+    logger.info('来自分享', {
+      scene: options.share_scene,
+      from: options.share_from,
+      businessId: options.share_id
+    });
+  }
+});
+
+// 配置微信分享
+onShareAppMessage(() => {
+  return getShareContent();
+});
+
+// 打开分享面板
+const handleShare = () => {
+  openShareSheet();
+};
 
 // 加载套餐详情
 const loadOfferDetail = async () => {
@@ -397,15 +457,38 @@ const bookOffer = () => {
       }
     }
 
-    .rental-days {
-      background-color: rgba(75, 145, 255, 0.1);
-      color: #4B91FF;
-      padding: 8rpx 16rpx;
-      border-radius: 8rpx;
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16rpx;
 
-      .days-text {
-        font-size: 24rpx;
-        font-weight: 500;
+      .rental-days {
+        background-color: rgba(75, 145, 255, 0.1);
+        color: #4B91FF;
+        padding: 8rpx 16rpx;
+        border-radius: 8rpx;
+
+        .days-text {
+          font-size: 24rpx;
+          font-weight: 500;
+        }
+      }
+
+      .share-btn {
+        width: 56rpx;
+        height: 56rpx;
+        border-radius: 50%;
+        background-color: #F5F5F5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:active {
+          background-color: #E0E0E0;
+          transform: scale(0.95);
+        }
       }
     }
   }
@@ -766,6 +849,25 @@ const bookOffer = () => {
   .bar-actions {
     display: flex;
     gap: 16rpx;
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60rpx;
+      height: 60rpx;
+      background: none;
+      border: none;
+      padding: 0;
+
+      &::after {
+        border: none;
+      }
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
 
     .contact-btn {
       display: flex;

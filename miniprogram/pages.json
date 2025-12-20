@@ -77,6 +77,20 @@
 			}
 		},
 		{
+			"path": "pages/hosting/model-detail/index",
+			"style": {
+				"navigationBarTitleText": "车型详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/hosting/model-list/index",
+			"style": {
+				"navigationBarTitleText": "购车托管车型",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
 			"path": "pages/campsite/list",
 			"style": {
 				"navigationBarTitleText": "营地预订",
@@ -275,6 +289,26 @@
 			"path": "pages/profile/invite",
 			"style": {
 				"navigationBarTitleText": "邀请中心"
+			}
+		},
+		{
+			"path": "pages/profile/promotion-center",
+			"style": {
+				"navigationBarTitleText": "推广中心",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/share/achievements",
+			"style": {
+				"navigationBarTitleText": "分享成就"
+			}
+		},
+		{
+			"path": "pages/share/invite-records",
+			"style": {
+				"navigationBarTitleText": "邀请记录",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

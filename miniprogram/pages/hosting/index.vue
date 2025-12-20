@@ -109,6 +109,12 @@
 
     <!-- 5. 主要功能区（2×2网格） -->
     <view class="feature-grid" id="features">
+      <view class="feature-item" @click="handleShare">
+        <image class="feature-icon" src="/static/images/share-icon.png" mode="aspectFit"></image>
+        <text class="feature-title">分享托管服务</text>
+        <text class="feature-subtitle">邀请好友了解</text>
+        <view class="feature-badge">推广有奖</view>
+      </view>
       <view class="feature-item" @click="goToOldCarHosting">
         <image class="feature-icon" src="/static/images/old-car-icon.png" mode="aspectFit"></image>
         <text class="feature-title">我要托管闲置房车</text>
@@ -121,159 +127,205 @@
         <text class="feature-subtitle">保底+高分成</text>
         <view class="feature-badge">保底3500元/月</view>
       </view>
+      <view class="feature-item" @click="goToAgreement">
+        <image class="feature-icon" src="/static/images/agreement-icon.png" mode="aspectFit"></image>
+        <text class="feature-title">托管协议与帮助</text>
+        <text class="feature-subtitle">了解详细政策</text>
+        <view class="feature-badge">查看详情</view>
+      </view>
     </view>
+
+    <!-- 分享面板 -->
+    <ShareSheet
+      v-model:show="showShareSheet"
+      @select="handleShareSelect"
+    />
+
+    <!-- 海报预览 -->
+    <PosterPreview
+      v-model:show="showPosterPopup"
+      :poster-image="posterImage"
+      @save="savePoster"
+    />
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
 import { logger } from '@/utils/logger';
+import { ref, computed } from 'vue';
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
+import { useShare } from '@/composables/useShare';
+import { ShareScene } from '@/types/share';
+import ShareSheet from '@/components/share/ShareSheet.vue';
+import PosterPreview from '@/components/share/PosterPreview.vue';
 
-export default {
-  data() {
-    return {
-      isLogin: false,
-      hasHostingVehicles: false,
-      notices: [
-        { id: 1, content: '托管车辆享受平台统保，车主零保险成本' },
-        { id: 2, content: '淡季补贴最高1000元/月，让您收益更稳定' },
-        { id: 3, content: '新用户托管立享首月额外10%收益加成' }
-      ],
-      incomeData: {
-        totalIncome: 0,
-        todayPending: 0,
-        monthEstimate: 0
-      },
-      vehicles: [],
-      displayVehicles: []
-    }
-  },
+// 数据定义
+const isLogin = ref(false);
+const hasHostingVehicles = ref(false);
+const notices = ref([
+  { id: 1, content: '托管车辆享受平台统保，车主零保险成本' },
+  { id: 2, content: '淡季补贴最高1000元/月，让您收益更稳定' },
+  { id: 3, content: '新用户托管立享首月额外10%收益加成' }
+]);
+const incomeData = ref({
+  totalIncome: 0,
+  todayPending: 0,
+  monthEstimate: 0
+});
+const vehicles = ref<any[]>([]);
+const displayVehicles = computed(() => vehicles.value.slice(0, 3));
 
-  onLoad() {
-    this.checkLoginStatus()
-    if (this.isLogin) {
-      this.loadHostingData()
-    }
-  },
+// 分享功能
+const {
+  showShareSheet,
+  showPosterPopup,
+  posterImage,
+  openShareSheet,
+  handleShareSelect,
+  savePoster,
+  getShareContent
+} = useShare({
+  title: '【叨叨房车】车辆托管服务',
+  desc: '专业托管，轻松赚钱，让您的房车为您创造收益',
+  imageUrl: '/static/logo.png',
+  path: '/pages/hosting/index',
+  scene: ShareScene.HOSTING,
+  businessId: 'hosting_center',
+  query: {}
+});
 
-  onPullDownRefresh() {
-    this.loadHostingData()
-    setTimeout(() => {
-      uni.stopPullDownRefresh()
-    }, 1000)
-  },
-
-  methods: {
-    // 检查登录状态
-    checkLoginStatus() {
-      // Mock数据：模拟已登录状态
-      this.isLogin = true
-      this.hasHostingVehicles = true
-    },
-
-    // 加载托管数据
-    loadHostingData() {
-      // Mock数据：托管收益
-      this.incomeData = {
-        totalIncome: 12580.50,
-        todayPending: 350.00,
-        monthEstimate: 8500.00
-      }
-
-      // Mock数据：托管车辆
-      this.vehicles = [
-        {
-          id: 1,
-          plateNumber: '京A·12345',
-          thumbnail: 'https://placehold.co/200x150/FF9F29/FFFFFF?text=%E6%88%BF%E8%BD%A61',
-          status: 'renting',
-          statusText: '出租中',
-          todayIncome: 350.00,
-          monthIncome: 5200.00
-        },
-        {
-          id: 2,
-          plateNumber: '京B·67890',
-          thumbnail: 'https://placehold.co/200x150/2196F3/FFFFFF?text=%E6%88%BF%E8%BD%A62',
-          status: 'idle',
-          statusText: '空闲',
-          todayIncome: 0,
-          monthIncome: 3300.00
-        }
-      ]
-
-      this.displayVehicles = this.vehicles.slice(0, 3)
-    },
-
-    // 平滑滚动到功能区
-    scrollToFeatures() {
-      uni.pageScrollTo({
-        selector: '#features',
-        duration: 300
-      })
-    },
-
-    // 提现
-    handleWithdraw() {
-      if (this.incomeData.totalIncome < 100) {
-        uni.showToast({
-          title: '满100元可提现',
-          icon: 'none'
-        })
-        return
-      }
-      uni.navigateTo({
-        url: '/pages/hosting/income/index?action=withdraw'
-      })
-    },
-
-    // 查看全部车辆
-    viewAllVehicles() {
-      uni.navigateTo({
-        url: '/pages/hosting/vehicle-list/index'
-      })
-    },
-
-    // 车主自用申请
-    applySelfUse(vehicle) {
-      uni.navigateTo({
-        url: `/pages/hosting/self-use/index?vehicleId=${vehicle.id}`
-      })
-    },
-
-    // 跳转到车辆详情
-    goToVehicleDetail(vehicleId) {
-      uni.navigateTo({
-        url: `/pages/hosting/vehicle-detail/index?id=${vehicleId}`
-      })
-    },
-
-    // 跳转到托管协议
-    goToAgreement() {
-      uni.navigateTo({
-        url: '/pages/hosting/agreement/index'
-      })
-    },
-
-    // 跳转到自有车托管
-    goToOldCarHosting() {
-      uni.navigateTo({
-        url: '/pages/hosting/old-car/index'
-      })
-    },
-
-    // 跳转到购车托管
-    goToNewCarHosting() {
-      uni.navigateTo({
-        url: '/pages/hosting/new-car/index'
-      })
-    },
-
-    // 公告点击
-    handleNoticeClick(notice) {
-      logger.debug('点击公告:', notice)
-    }
+onLoad((options: any) => {
+  checkLoginStatus();
+  if (isLogin.value) {
+    loadHostingData();
   }
-}
+
+  // 处理分享来源
+  if (options.share_from) {
+    logger.info('来自分享', {
+      scene: options.share_scene,
+      from: options.share_from,
+      businessId: options.share_id
+    });
+  }
+});
+
+// 配置微信分享
+onShareAppMessage(() => {
+  return getShareContent();
+});
+
+// 打开分享面板
+const handleShare = () => {
+  openShareSheet();
+};
+
+// 方法定义
+const checkLoginStatus = () => {
+  // Mock数据：模拟已登录状态
+  isLogin.value = true;
+  hasHostingVehicles.value = true;
+};
+
+const loadHostingData = () => {
+  // Mock数据：托管收益
+  incomeData.value = {
+    totalIncome: 12580.50,
+    todayPending: 350.00,
+    monthEstimate: 8500.00
+  };
+
+  // Mock数据：托管车辆
+  vehicles.value = [
+    {
+      id: 1,
+      plateNumber: '京A·12345',
+      thumbnail: 'https://placehold.co/200x150/FF9F29/FFFFFF?text=%E6%88%BF%E8%BD%A61',
+      status: 'renting',
+      statusText: '出租中',
+      todayIncome: 350.00,
+      monthIncome: 5200.00
+    },
+    {
+      id: 2,
+      plateNumber: '京B·67890',
+      thumbnail: 'https://placehold.co/200x150/2196F3/FFFFFF?text=%E6%88%BF%E8%BD%A62',
+      status: 'idle',
+      statusText: '空闲',
+      todayIncome: 0,
+      monthIncome: 3300.00
+    }
+  ];
+};
+
+// 平滑滚动到功能区
+const scrollToFeatures = () => {
+  uni.pageScrollTo({
+    selector: '#features',
+    duration: 300
+  });
+};
+
+// 提现
+const handleWithdraw = () => {
+  if (incomeData.value.totalIncome < 100) {
+    uni.showToast({
+      title: '满100元可提现',
+      icon: 'none'
+    });
+    return;
+  }
+  uni.navigateTo({
+    url: '/pages/hosting/income/index?action=withdraw'
+  });
+};
+
+// 查看全部车辆
+const viewAllVehicles = () => {
+  uni.navigateTo({
+    url: '/pages/hosting/vehicle-list/index'
+  });
+};
+
+// 车主自用申请
+const applySelfUse = (vehicle: any) => {
+  uni.navigateTo({
+    url: `/pages/hosting/self-use/index?vehicleId=${vehicle.id}`
+  });
+};
+
+// 跳转到车辆详情
+const goToVehicleDetail = (vehicleId: number) => {
+  uni.navigateTo({
+    url: `/pages/hosting/vehicle-detail/index?id=${vehicleId}`
+  });
+};
+
+// 跳转到托管协议
+const goToAgreement = () => {
+  uni.navigateTo({
+    url: '/pages/hosting/agreement/index'
+  });
+};
+
+// 跳转到自有车托管
+const goToOldCarHosting = () => {
+  uni.navigateTo({
+    url: '/pages/hosting/old-car/index'
+  });
+};
+
+// 跳转到购车托管
+const goToNewCarHosting = () => {
+  uni.navigateTo({
+    url: '/pages/hosting/new-car/index'
+  });
+};
+
+// 公告点击
+const handleNoticeClick = (notice: any) => {
+  logger.debug('点击公告:', notice);
+};
 </script>
 
 <style scoped>
@@ -281,6 +333,38 @@ export default {
   min-height: 100vh;
   background: #F5F5F5;
   padding-bottom: 40rpx;
+}
+
+/* 顶部标题栏 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx;
+  background: #FFFFFF;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.share-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background-color: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.share-btn:active {
+  background-color: #E0E0E0;
+  transform: scale(0.95);
 }
 
 /* 公告栏 */

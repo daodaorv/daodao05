@@ -59,11 +59,12 @@
         "lazyCodeLoading" : "requiredComponents",
         "permission" : {
             "scope.userLocation" : {
-                "desc" : "仅用于为您提供附近门店服务"
+                "desc" : "仅用于为您提供附近门店服务和社区位置分享"
             }
         },
         "requiredPrivateInfos" : [
-            "getLocation"
+            "getLocation",
+            "chooseLocation"
         ]
     },
     "vueVersion" : "3",
