@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { Notification } from '../types/models/notification.types';
@@ -21,7 +22,7 @@ export class NotificationDAO extends BaseDao<Notification> {
   ) {
     const offset = (page - 1) * limit;
     const conditions: string[] = ['user_id = ?'];
-    const params: unknown[] = [userId];
+    const params: any[] = [userId];
 
     if (filters.type) {
       conditions.push('type = ?');
@@ -40,7 +41,7 @@ export class NotificationDAO extends BaseDao<Notification> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );
@@ -77,7 +78,7 @@ export class NotificationDAO extends BaseDao<Notification> {
    * 获取未读通知数量
    */
   async getUnreadCount(userId: number) {
-    const result = await QueryBuilder.queryOne<unknown>(
+    const result = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as count FROM ${this.tableName} WHERE user_id = ? AND is_read = FALSE`,
       [userId]
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { CrowdfundingModelDAO } from '../../dao/crowdfunding-model.dao';
 import { CrowdfundingProjectDAO } from '../../dao/crowdfunding-project.dao';
@@ -25,7 +26,7 @@ router.get('/models', async (req: Request, res: Response) => {
       pageSize: result.limit,
       hasMore: result.page * result.limit < result.total,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -42,7 +43,7 @@ router.get('/models/:id', async (req: Request, res: Response) => {
       return res.status(404).json(errorResponse('车型不存在'));
     }
     return res.json(successResponse(model));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -53,7 +54,7 @@ router.get('/models/:id', async (req: Request, res: Response) => {
  */
 router.post('/projects', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { modelId, targetAmount, totalShares, startDate, endDate } = req.body;
 
     const projectId = await projectDAO.createProject({
@@ -66,7 +67,7 @@ router.post('/projects', authMiddleware, async (req: Request, res: Response) => 
     });
 
     return res.json(successResponse({ projectId, message: '众筹项目创建成功' }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -90,7 +91,7 @@ router.get('/projects', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -107,7 +108,7 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
       return res.status(404).json(errorResponse('项目不存在'));
     }
     return res.json(successResponse(project));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -118,7 +119,7 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
  */
 router.post('/projects/:id/participate', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const { shares, amount } = req.body;
 
@@ -130,7 +131,7 @@ router.post('/projects/:id/participate', authMiddleware, async (req: Request, re
     });
 
     return res.json(successResponse({ message: '参与成功' }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -141,7 +142,7 @@ router.post('/projects/:id/participate', authMiddleware, async (req: Request, re
  */
 router.get('/my-projects', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { page = 1, pageSize = 10 } = req.query;
 
     const result = await shareDAO.getUserProjects(userId, Number(page), Number(pageSize));
@@ -152,7 +153,7 @@ router.get('/my-projects', authMiddleware, async (req: Request, res: Response) =
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -163,7 +164,7 @@ router.get('/my-projects', authMiddleware, async (req: Request, res: Response) =
  */
 router.get('/my-shares', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { page = 1, pageSize = 10 } = req.query;
 
     const result = await shareDAO.getUserProjects(userId, Number(page), Number(pageSize));
@@ -174,7 +175,7 @@ router.get('/my-shares', authMiddleware, async (req: Request, res: Response) => 
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -185,7 +186,7 @@ router.get('/my-shares', authMiddleware, async (req: Request, res: Response) => 
  */
 router.get('/statistics', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
 
     // TODO: 实现真实的统计数据查询
     // 当前返回 Mock 数据，后续需要从数据库查询用户的实际统计
@@ -199,7 +200,7 @@ router.get('/statistics', authMiddleware, async (req: Request, res: Response) =>
     };
 
     return res.json(successResponse(stats));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -210,7 +211,7 @@ router.get('/statistics', authMiddleware, async (req: Request, res: Response) =>
  */
 router.get('/income-records', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { page = 1, pageSize = 10 } = req.query;
 
     // TODO: 实现真实的收益记录查询，使用 userId 查询用户的收益记录
@@ -224,7 +225,7 @@ router.get('/income-records', authMiddleware, async (req: Request, res: Response
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -235,7 +236,7 @@ router.get('/income-records', authMiddleware, async (req: Request, res: Response
  */
 router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { amount, bankAccount } = req.body;
 
     // TODO: 实现真实的提现逻辑
@@ -247,7 +248,7 @@ router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => 
       userId,
       bankAccount,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -271,7 +272,7 @@ router.get('/share-transactions', async (req: Request, res: Response) => {
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -282,7 +283,7 @@ router.get('/share-transactions', async (req: Request, res: Response) => {
  */
 router.post('/shares/:id/list', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const { shares, price } = req.body;
 
@@ -296,7 +297,7 @@ router.post('/shares/:id/list', authMiddleware, async (req: Request, res: Respon
       price,
       userId,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -307,7 +308,7 @@ router.post('/shares/:id/list', authMiddleware, async (req: Request, res: Respon
  */
 router.post('/share-transactions/:id/purchase', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { id } = req.params;
 
     // TODO: 实现真实的份额购买逻辑
@@ -317,7 +318,7 @@ router.post('/share-transactions/:id/purchase', authMiddleware, async (req: Requ
       transactionId: Number(id),
       userId,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -328,7 +329,7 @@ router.post('/share-transactions/:id/purchase', authMiddleware, async (req: Requ
  */
 router.delete('/share-transactions/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { id } = req.params;
 
     // TODO: 实现真实的取消转让逻辑
@@ -338,7 +339,7 @@ router.delete('/share-transactions/:id', authMiddleware, async (req: Request, re
       transactionId: Number(id),
       userId,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -363,7 +364,7 @@ router.get('/projects/:id/participants', async (req: Request, res: Response) => 
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { RowDataPacket } from 'mysql2/promise';
@@ -26,7 +27,7 @@ export class TourDAO extends BaseDao<Tour & RowDataPacket> {
       WHERE t.status = 'ACTIVE'
     `;
 
-    const queryParams: unknown[] = [];
+    const queryParams: any[] = [];
 
     // 关键词搜索
     if (keyword) {

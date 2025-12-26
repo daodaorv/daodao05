@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { CrowdfundingProject } from '../types/models/crowdfunding.types';
@@ -32,7 +33,7 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
       start_date: data.startDate as unknown,
       end_date: data.endDate as unknown,
       status: 'preparing',
-    } as unknown);
+    } as any);
 
     return result;
   }
@@ -49,7 +50,7 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = [];
-    const params: unknown[] = [];
+    const params: any[] = [];
 
     if (status) {
       conditions.push('status = ?');
@@ -63,7 +64,7 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} ${whereClause}`,
       params
     );

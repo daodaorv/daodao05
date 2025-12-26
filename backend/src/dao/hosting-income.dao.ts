@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { HostingIncomeDetail } from '../types/models/hosting.types';
@@ -27,7 +28,7 @@ export class HostingIncomeDAO extends BaseDao<HostingIncomeDetail> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = ['user_id = ?'];
-    const params: unknown[] = [userId];
+    const params: any[] = [userId];
 
     if (vehicleId) {
       conditions.push('hosting_vehicle_id = ?');
@@ -51,7 +52,7 @@ export class HostingIncomeDAO extends BaseDao<HostingIncomeDetail> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );

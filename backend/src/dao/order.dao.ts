@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { Order, OrderDetail, CreateOrderParams, OrderQueryParams, CancelOrderParams } from '../types/models/order.types';
@@ -33,7 +34,7 @@ export class OrderDAO extends BaseDao<Order> {
 
       // 获取车辆信息以计算价格
       const vehicleSql = 'SELECT daily_price, deposit FROM vehicles WHERE id = ?';
-      const vehicles = (await QueryBuilder.query(vehicleSql, [vehicle_id])) as unknown[];
+      const vehicles = (await QueryBuilder.query(vehicleSql, [vehicle_id])) as any[];
 
       if (vehicles.length === 0) {
         throw new Error('车辆不存在');
@@ -107,7 +108,7 @@ export class OrderDAO extends BaseDao<Order> {
 
       // 构建WHERE条件
       const conditions: string[] = ['1=1'];
-      const values: unknown[] = [];
+      const values: any[] = [];
 
       if (user_id) {
         conditions.push('o.user_id = ?');
@@ -237,7 +238,7 @@ export class OrderDAO extends BaseDao<Order> {
   async updateOrderStatus(orderId: number, status: string, remark?: string): Promise<boolean> {
     try {
       let sql = 'UPDATE ' + this.tableName + ' SET status = ?';
-      const values: unknown[] = [status];
+      const values: any[] = [status];
 
       if (remark) {
         sql += ', remark = ?';

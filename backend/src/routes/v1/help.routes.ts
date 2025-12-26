@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { HelpArticleDAO } from '../../dao/help.dao';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -18,7 +19,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
       { id: 4, name: '支付问题', icon: 'payment', sort_order: 4 },
     ];
     return res.json(successResponse(categories));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -50,7 +51,7 @@ router.get('/articles', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -75,7 +76,7 @@ router.get('/articles/:id', async (req: Request, res: Response) => {
     await helpDAO.incrementViewCount(Number(id));
 
     return res.json(successResponse(article));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -107,7 +108,7 @@ router.get('/search', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -131,7 +132,7 @@ router.get('/hot', async (req: Request, res: Response) => {
       total: articles.length,
       limit: Number(limit),
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -153,7 +154,7 @@ router.post('/feedback', async (req: Request, res: Response) => {
       articleId,
       helpful,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { UserPointsDAO } from '../../dao/user-points.dao';
 import { PointsTransactionDAO } from '../../dao/points-transaction.dao';
@@ -17,7 +18,7 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const points = await userPointsDAO.getUserPoints(userId);
 
@@ -34,7 +35,7 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
       availablePoints: points.available_points,
       frozenPoints: points.frozen_points
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -49,7 +50,7 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { page = 1, pageSize = 10 } = req.query;
 
@@ -65,7 +66,7 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -86,7 +87,7 @@ router.get('/rules', async (_req: Request, res: Response) => {
     ];
 
     return res.json(successResponse(rules));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -109,7 +110,7 @@ router.get('/products', async (req: Request, res: Response) => {
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -124,7 +125,7 @@ router.post('/redeem', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { productId, quantity } = req.body;
 
@@ -135,7 +136,7 @@ router.post('/redeem', authMiddleware, async (req: Request, res: Response) => {
       quantity,
       userId
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -150,7 +151,7 @@ router.get('/redemptions', authMiddleware, async (req: Request, res: Response) =
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { page = 1, pageSize = 10 } = req.query;
 
@@ -164,7 +165,7 @@ router.get('/redemptions', authMiddleware, async (req: Request, res: Response) =
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '操作失败';
     return res.status(500).json(errorResponse(message));
   }

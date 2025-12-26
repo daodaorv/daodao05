@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { HelpArticle } from '../types/models/help.types';
@@ -28,7 +29,7 @@ export class HelpArticleDAO extends BaseDao<HelpArticle> {
       [categoryId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName}
        WHERE category_id = ? AND status = 'published'`,
       [categoryId]
@@ -56,7 +57,7 @@ export class HelpArticleDAO extends BaseDao<HelpArticle> {
       [`%${keyword}%`, `%${keyword}%`, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName}
        WHERE (title LIKE ? OR content LIKE ?) AND status = 'published'`,
       [`%${keyword}%`, `%${keyword}%`]

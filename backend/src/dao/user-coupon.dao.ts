@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { UserCoupon } from '../types/models/coupon.types';
@@ -23,7 +24,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
       coupon_id: data.couponId,
       expiry_date: data.expiryDate as unknown,
       status: 'unused',
-    } as unknown);
+    } as any);
 
     return result;
   }
@@ -39,7 +40,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
   ) {
     const offset = (page - 1) * limit;
     const conditions: string[] = ['uc.user_id = ?'];
-    const params: unknown[] = [userId];
+    const params: any[] = [userId];
 
     if (status) {
       conditions.push('uc.status = ?');
@@ -48,7 +49,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
 
     const whereClause = conditions.join(' AND ');
 
-    const rows = await QueryBuilder.query<unknown>(
+    const rows = await QueryBuilder.query<any>(
       `SELECT uc.*, c.name, c.type, c.amount, c.rate, c.min_amount, c.scope
        FROM ${this.tableName} uc
        LEFT JOIN coupons c ON uc.coupon_id = c.id
@@ -58,7 +59,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} uc WHERE ${whereClause}`,
       params
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { OrderDAO } from '@dao/order.dao';
 import { successResponse, errorResponse, paginatedResponse } from '@utils/response';
@@ -26,12 +27,12 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     // 验证必填参数
     if (!params.user_id || !params.vehicle_id || !params.store_id || !params.start_date || !params.end_date) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const order = await orderDAO.createOrder(params);
     res.status(201).json(successResponse(order));
-  } catch (error: unknown) {
+  } catch (error: any) {
     logger.error('创建订单失败:', error);
     const errorMessage = error instanceof Error ? error.message : '创建订单失败';
     res.status(500).json(errorResponse(errorMessage));
@@ -63,6 +64,30 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
+ * 获取订单状态列表
+ * GET /api/v1/orders/statuses
+ * 注意：必须放在 /:id 路由之前，避免被匹配为动态参数
+ */
+router.get('/statuses', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const statuses = [
+      { value: 'pending', label: '待支付', description: '订单已创建，等待支付' },
+      { value: 'paid', label: '已支付', description: '订单已支付，等待确认' },
+      { value: 'confirmed', label: '已确认', description: '订单已确认，等待取车' },
+      { value: 'picked_up', label: '已取车', description: '车辆已取走，租赁中' },
+      { value: 'returned', label: '已还车', description: '车辆已归还，等待验收' },
+      { value: 'completed', label: '已完成', description: '订单已完成' },
+      { value: 'cancelled', label: '已取消', description: '订单已取消' },
+    ];
+
+    res.json(successResponse(statuses));
+  } catch (error) {
+    logger.error('获取订单状态列表失败:', error);
+    res.status(500).json(errorResponse('获取订单状态列表失败'));
+  }
+});
+
+/**
  * 获取订单详情
  * GET /api/v1/orders/:id
  */
@@ -73,7 +98,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
     if (!order) {
       res.status(404).json(errorResponse('订单不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(order));
@@ -94,7 +119,7 @@ router.post('/:id/cancel', async (req: Request, res: Response): Promise<void> =>
 
     if (!cancel_reason || !cancelled_by) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const params: CancelOrderParams = {
@@ -107,7 +132,7 @@ router.post('/:id/cancel', async (req: Request, res: Response): Promise<void> =>
 
     if (!success) {
       res.status(400).json(errorResponse('订单取消失败,订单可能不存在或状态不允许取消', 400));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ message: '订单已取消' }));
@@ -127,7 +152,7 @@ router.post('/calculate-price', async (req: Request, res: Response): Promise<voi
 
     if (!vehicleId || !startDate || !endDate) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     // 计算租赁天数
@@ -137,14 +162,14 @@ router.post('/calculate-price', async (req: Request, res: Response): Promise<voi
 
     if (days <= 0) {
       res.status(400).json(errorResponse('结束日期必须大于开始日期', 400));
-      return;
+      return undefined;
     }
 
     // 获取车辆价格信息
     const vehicle = await orderDAO.getVehiclePrice(vehicleId);
     if (!vehicle) {
       res.status(404).json(errorResponse('车辆不存在', 404));
-      return;
+      return undefined;
     }
 
     // 计算租金
@@ -153,7 +178,7 @@ router.post('/calculate-price', async (req: Request, res: Response): Promise<voi
     // 计算服务费
     let serviceFee = 0;
     if (services && Array.isArray(services)) {
-      serviceFee = services.reduce((sum: number, service: unknown) => {
+      serviceFee = services.reduce((sum: number, service: any) => {
         const price = (service as { price?: number }).price || 0;
         return sum + price;
       }, 0);
@@ -223,20 +248,20 @@ router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
     const order = await orderDAO.findById(orderId);
     if (!order) {
       res.status(404).json(errorResponse('订单不存在', 404));
-      return;
+      return undefined;
     }
 
     // 只允许删除已取消或已完成的订单
     if (order.status !== 'cancelled' && order.status !== 'completed') {
       res.status(400).json(errorResponse('只能删除已取消或已完成的订单', 400));
-      return;
+      return undefined;
     }
 
     // 删除订单
     const result = await orderDAO.delete(orderId);
     if (result === 0) {
       res.status(500).json(errorResponse('删除订单失败', 500));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ message: '订单已删除' }));
@@ -257,28 +282,28 @@ router.put('/:id/status', async (req: Request, res: Response): Promise<void> => 
 
     if (!status) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     // 验证状态值
     const validStatuses: OrderStatus[] = ['pending', 'paid', 'confirmed', 'picked_up', 'returned', 'completed', 'cancelled'];
     if (!validStatuses.includes(status as OrderStatus)) {
       res.status(400).json(errorResponse('无效的订单状态', 400));
-      return;
+      return undefined;
     }
 
     // 获取订单信息
     const order = await orderDAO.findById(orderId);
     if (!order) {
       res.status(404).json(errorResponse('订单不存在', 404));
-      return;
+      return undefined;
     }
 
     // 更新订单状态
     const success = await orderDAO.updateOrderStatus(orderId, status as OrderStatus, remark);
     if (!success) {
       res.status(500).json(errorResponse('更新订单状态失败', 500));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ message: '订单状态已更新', status }));

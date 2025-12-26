@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { Coupon } from '../types/models/coupon.types';
@@ -22,7 +23,7 @@ export class CouponDAO extends BaseDao<Coupon> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = ['status = ?'];
-    const params: unknown[] = ['active'];
+    const params: any[] = ['active'];
 
     if (category && category !== 'all') {
       conditions.push('type = ?');
@@ -36,7 +37,7 @@ export class CouponDAO extends BaseDao<Coupon> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );
@@ -78,6 +79,6 @@ export class CouponDAO extends BaseDao<Coupon> {
       [couponId]
     );
 
-    return (result as unknown).affectedRows > 0;
+    return (result as any).affectedRows > 0;
   }
 }

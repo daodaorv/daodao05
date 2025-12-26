@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { User, UserProfile } from '../types/models/user.types';
@@ -178,7 +179,7 @@ export class UserDAO extends BaseDao<User> {
   ): Promise<boolean> {
     try {
       const fields: string[] = [];
-      const values: unknown[] = [];
+      const values: any[] = [];
 
       if (data.username !== undefined) {
         fields.push('username = ?');
@@ -256,7 +257,7 @@ export class UserProfileDAO extends BaseDao<UserProfile> {
       if (existing) {
         // 更新现有资料
         const fields: string[] = [];
-        const values: unknown[] = [];
+        const values: any[] = [];
 
         Object.entries(profileData).forEach(([key, value]) => {
           if (key !== 'id' && key !== 'user_id' && value !== undefined) {

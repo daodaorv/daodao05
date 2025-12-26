@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { UserWalletDAO } from '../../dao/wallet.dao';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -15,7 +16,7 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const wallet = await walletDAO.getUserWallet(userId);
 
@@ -34,7 +35,7 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
       totalIncome: wallet.total_income,
       totalExpense: wallet.total_expense,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -51,7 +52,7 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { page = 1, pageSize = 10 } = req.query;
 
@@ -65,7 +66,7 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
     };
 
     return res.json(successResponse(result));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }
@@ -82,7 +83,7 @@ router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => 
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { amount, accountType, accountInfo } = req.body;
 
@@ -94,7 +95,7 @@ router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => 
       accountInfo,
       userId,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     if (error instanceof Error) {
       return res.status(500).json(errorResponse(error.message));
     }

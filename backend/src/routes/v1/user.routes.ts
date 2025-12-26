@@ -19,13 +19,13 @@ router.get('/profile', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     const user = await userDAO.findById(userId);
     if (!user) {
       res.status(404).json(errorResponse('用户不存在', 404));
-      return;
+      return undefined;
     }
 
     // 获取用户资料
@@ -74,7 +74,7 @@ router.put('/profile', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     const { nickname, avatar, gender, birthday } = req.body;
@@ -117,7 +117,7 @@ router.get('/wallet', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     // Mock钱包数据
@@ -147,29 +147,29 @@ router.post('/password/set', authMiddleware, async (req: Request, res: Response)
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (!newPassword || !confirmPassword) {
       res.status(400).json(errorResponse('新密码和确认密码不能为空', 400));
-      return;
+      return undefined;
     }
 
     if (newPassword !== confirmPassword) {
       res.status(400).json(errorResponse('两次输入的密码不一致', 400));
-      return;
+      return undefined;
     }
 
     // 密码强度验证
     if (newPassword.length < 6 || newPassword.length > 20) {
       res.status(400).json(errorResponse('密码长度必须在6-20位之间', 400));
-      return;
+      return undefined;
     }
 
     const user = await userDAO.findById(userId);
     if (!user) {
       res.status(404).json(errorResponse('用户不存在', 404));
-      return;
+      return undefined;
     }
 
     // 如果已有密码，需要验证旧密码
@@ -177,7 +177,7 @@ router.post('/password/set', authMiddleware, async (req: Request, res: Response)
       const isValid = await userDAO.verifyUserPassword(userId, oldPassword);
       if (!isValid) {
         res.status(400).json(errorResponse('原密码错误', 400));
-        return;
+        return undefined;
       }
     }
 
@@ -204,29 +204,29 @@ router.post('/payment-password/set', authMiddleware, async (req: Request, res: R
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (!password || !confirmPassword || !verifyCode) {
       res.status(400).json(errorResponse('密码和验证码不能为空', 400));
-      return;
+      return undefined;
     }
 
     if (password !== confirmPassword) {
       res.status(400).json(errorResponse('两次输入的密码不一致', 400));
-      return;
+      return undefined;
     }
 
     // 验证码验证
     if (verifyCode !== '123456') {
       res.status(400).json(errorResponse('验证码错误', 400));
-      return;
+      return undefined;
     }
 
     // 支付密码必须是6位数字
     if (!/^\d{6}$/.test(password)) {
       res.status(400).json(errorResponse('支付密码必须是6位数字', 400));
-      return;
+      return undefined;
     }
 
     // TODO: 保存支付密码到数据库
@@ -250,12 +250,12 @@ router.post('/complete-info', authMiddleware, async (req: Request, res: Response
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (!realName || !idCard || !driverLicenseNo) {
       res.status(400).json(errorResponse('真实姓名、身份证号和驾驶证号不能为空', 400));
-      return;
+      return undefined;
     }
 
     // 更新用户信息

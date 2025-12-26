@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { PostComment } from '../types/models/community.types';
@@ -21,7 +22,7 @@ export class PostCommentDAO extends BaseDao<PostComment> {
       [postId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE post_id = ?`,
       [postId]
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { RatingDAO } from '../../dao/rating.dao';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -16,7 +17,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { orderId, rating, content, images } = req.body;
 
@@ -29,7 +30,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
     } as Partial<Rating>);
 
     return res.json(successResponse({ ratingId, message: '评价成功' }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -44,7 +45,7 @@ router.get('/my', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { page = 1, pageSize = 10 } = req.query;
 
@@ -60,7 +61,7 @@ router.get('/my', authMiddleware, async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -80,7 +81,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json(successResponse(rating));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -95,7 +96,7 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { id } = req.params;
     const { rating, content, images } = req.body;
@@ -107,7 +108,7 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
     } as Partial<Rating>);
 
     return res.json(successResponse({ message: '评价更新成功', userId }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -122,14 +123,14 @@ router.delete('/:id', authMiddleware, async (req: Request, res: Response) => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const { id } = req.params;
 
     await ratingDAO.delete(Number(id));
 
     return res.json(successResponse({ message: '评价已删除', userId }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }
@@ -145,7 +146,7 @@ router.post('/upload', authMiddleware, async (_req: Request, res: Response) => {
       message: '上传成功',
       url: 'https://example.com/rating-image.jpg'
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '删除评价失败';
     return res.status(500).json(errorResponse(message));
   }

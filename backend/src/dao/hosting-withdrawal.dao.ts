@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { HostingWithdrawal } from '../types/models/hosting.types';
@@ -33,7 +34,7 @@ export class HostingWithdrawalDAO extends BaseDao<HostingWithdrawal> {
       bank_name: data.bankName,
       account_name: data.accountName,
       status: 'pending',
-    } as unknown);
+    } as any);
 
     return result;
   }
@@ -49,7 +50,7 @@ export class HostingWithdrawalDAO extends BaseDao<HostingWithdrawal> {
       [userId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<unknown>(
+    const countResult = await QueryBuilder.queryOne<any>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE user_id = ?`,
       [userId]
     );

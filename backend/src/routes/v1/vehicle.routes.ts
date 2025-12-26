@@ -64,7 +64,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
     if (!vehicle) {
       res.status(404).json(errorResponse('车辆不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(vehicle));
@@ -85,7 +85,7 @@ router.post('/:id/check-availability', async (req: Request, res: Response): Prom
 
     if (!startDate || !endDate) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const isAvailable = await vehicleDAO.checkAvailability(vehicleId, startDate, endDate);
@@ -115,14 +115,14 @@ router.post('/:id/calculate-price', async (req: Request, res: Response): Promise
 
     if (!startDate || !endDate) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     // 获取车辆信息
     const vehicle = await vehicleDAO.findById(vehicleId);
     if (!vehicle) {
       res.status(404).json(errorResponse('车辆不存在', 404));
-      return;
+      return undefined;
     }
 
     // 计算天数
@@ -132,7 +132,7 @@ router.post('/:id/calculate-price', async (req: Request, res: Response): Promise
 
     if (days <= 0) {
       res.status(400).json(errorResponse('结束日期必须大于开始日期', 400));
-      return;
+      return undefined;
     }
 
     // 计算价格

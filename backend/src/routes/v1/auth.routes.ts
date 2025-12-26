@@ -21,7 +21,7 @@ router.post('/send-code', async (req: Request, res: Response) => {
     // 验证手机号
     if (!phone || !isValidPhone(phone)) {
       res.status(400).json(errorResponse('手机号格式错误', 400));
-      return;
+      return undefined;
     }
 
     // Mock实现：开发环境返回固定验证码
@@ -56,26 +56,26 @@ router.post('/register', async (req: Request, res: Response) => {
     // 验证必填字段
     if (!phone || !code) {
       res.status(400).json(errorResponse('手机号和验证码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // 验证手机号格式
     if (!isValidPhone(phone)) {
       res.status(400).json(errorResponse('手机号格式错误', 400));
-      return;
+      return undefined;
     }
 
     // Mock验证码验证：开发环境固定验证码123456
     if (code !== '123456') {
       res.status(400).json(errorResponse('验证码错误', 400));
-      return;
+      return undefined;
     }
 
     // 检查手机号是否已注册
     const existingUser = await userDAO.findByPhone(phone);
     if (existingUser) {
       res.status(400).json(errorResponse('该手机号已注册', 400));
-      return;
+      return undefined;
     }
 
     // 创建用户
@@ -90,7 +90,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const user = await userDAO.findById(userId);
     if (!user) {
       res.status(500).json(errorResponse('用户创建失败', 500));
-      return;
+      return undefined;
     }
 
     // 生成Token
@@ -141,38 +141,38 @@ router.post('/login', async (req: Request, res: Response) => {
     // 验证必填字段
     if (!phone || !password) {
       res.status(400).json(errorResponse('手机号和密码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // 验证手机号格式
     if (!isValidPhone(phone)) {
       res.status(400).json(errorResponse('手机号格式错误', 400));
-      return;
+      return undefined;
     }
 
     // 查找用户
     const user = await userDAO.findByPhone(phone);
     if (!user) {
       res.status(401).json(errorResponse('手机号或密码错误', 401));
-      return;
+      return undefined;
     }
 
     // 验证密码
     if (!user.password_hash) {
       res.status(401).json(errorResponse('该账号未设置密码，请使用验证码登录', 401));
-      return;
+      return undefined;
     }
 
     const isPasswordValid = await verifyPassword(password, user.password_hash);
     if (!isPasswordValid) {
       res.status(401).json(errorResponse('手机号或密码错误', 401));
-      return;
+      return undefined;
     }
 
     // 检查用户状态
     if (user.status !== 'active') {
       res.status(403).json(errorResponse('账号已被禁用', 403));
-      return;
+      return undefined;
     }
 
     // 生成Token
@@ -222,18 +222,18 @@ router.post('/login-with-code', async (req: Request, res: Response) => {
 
     if (!phone || !code) {
       res.status(400).json(errorResponse('手机号和验证码不能为空', 400));
-      return;
+      return undefined;
     }
 
     if (!isValidPhone(phone)) {
       res.status(400).json(errorResponse('手机号格式错误', 400));
-      return;
+      return undefined;
     }
 
     // Mock验证码验证
     if (code !== '123456') {
       res.status(400).json(errorResponse('验证码错误', 400));
-      return;
+      return undefined;
     }
 
     // 查找或创建用户
@@ -250,12 +250,12 @@ router.post('/login-with-code', async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
-      return;
+      return undefined;
     }
 
     if (user.status !== 'active') {
       res.status(403).json(errorResponse('账号已被禁用', 403));
-      return;
+      return undefined;
     }
 
     const token = generateToken({
@@ -303,7 +303,7 @@ router.post('/wechat-login', async (req: Request, res: Response) => {
 
     if (!code) {
       res.status(400).json(errorResponse('微信授权码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // Mock微信登录：返回Mock用户信息
@@ -326,7 +326,7 @@ router.post('/wechat-login', async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
-      return;
+      return undefined;
     }
 
     const token = generateToken({
@@ -372,19 +372,19 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
 
     if (!refreshToken) {
       res.status(400).json(errorResponse('刷新令牌不能为空', 400));
-      return;
+      return undefined;
     }
 
     const payload = verifyRefreshToken(refreshToken);
     if (!payload) {
       res.status(401).json(errorResponse('刷新令牌无效或已过期', 401));
-      return;
+      return undefined;
     }
 
     const user = await userDAO.findById(payload.userId);
     if (!user || user.status !== 'active') {
       res.status(401).json(errorResponse('用户不存在或已被禁用', 401));
-      return;
+      return undefined;
     }
 
     const newToken = generateToken({
@@ -422,28 +422,28 @@ router.post('/bind-phone', authMiddleware, async (req: Request, res: Response) =
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (!phone || !code) {
       res.status(400).json(errorResponse('手机号和验证码不能为空', 400));
-      return;
+      return undefined;
     }
 
     if (!isValidPhone(phone)) {
       res.status(400).json(errorResponse('手机号格式错误', 400));
-      return;
+      return undefined;
     }
 
     if (code !== '123456') {
       res.status(400).json(errorResponse('验证码错误', 400));
-      return;
+      return undefined;
     }
 
     const existingUser = await userDAO.findByPhone(phone);
     if (existingUser && existingUser.id !== userId) {
       res.status(400).json(errorResponse('该手机号已被其他账号绑定', 400));
-      return;
+      return undefined;
     }
 
     await userDAO.updateUserInfo(userId, { username: phone });
@@ -465,7 +465,7 @@ router.post('/alipay-login', async (req: Request, res: Response) => {
 
     if (!code) {
       res.status(400).json(errorResponse('支付宝授权码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // Mock支付宝登录
@@ -486,7 +486,7 @@ router.post('/alipay-login', async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
-      return;
+      return undefined;
     }
 
     const token = generateToken({
@@ -532,7 +532,7 @@ router.post('/douyin-login', async (req: Request, res: Response) => {
 
     if (!code) {
       res.status(400).json(errorResponse('抖音授权码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // Mock抖音登录
@@ -553,7 +553,7 @@ router.post('/douyin-login', async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
-      return;
+      return undefined;
     }
 
     const token = generateToken({
@@ -599,7 +599,7 @@ router.post('/login-with-username', async (req: Request, res: Response) => {
 
     if (!username || !password) {
       res.status(400).json(errorResponse('用户名和密码不能为空', 400));
-      return;
+      return undefined;
     }
 
     // 尝试通过用户名或邮箱查找用户
@@ -610,23 +610,23 @@ router.post('/login-with-username', async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(401).json(errorResponse('用户名或密码错误', 401));
-      return;
+      return undefined;
     }
 
     if (!user.password_hash) {
       res.status(401).json(errorResponse('该账号未设置密码', 401));
-      return;
+      return undefined;
     }
 
     const isPasswordValid = await verifyPassword(password, user.password_hash);
     if (!isPasswordValid) {
       res.status(401).json(errorResponse('用户名或密码错误', 401));
-      return;
+      return undefined;
     }
 
     if (user.status !== 'active') {
       res.status(403).json(errorResponse('账号已被禁用', 403));
-      return;
+      return undefined;
     }
 
     const token = generateToken({

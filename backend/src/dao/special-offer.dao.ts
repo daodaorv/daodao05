@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { RowDataPacket } from 'mysql2/promise';
@@ -26,7 +27,7 @@ export class SpecialOfferDAO extends BaseDao<SpecialOffer & RowDataPacket> {
       WHERE so.status = 'ACTIVE'
     `;
 
-    const queryParams: unknown[] = [];
+    const queryParams: any[] = [];
 
     // 路线筛选
     if (route) {

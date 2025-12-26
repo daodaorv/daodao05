@@ -16,14 +16,14 @@ router.get('/rental', async (req: Request, res: Response) => {
 
     if (!productType || (productType !== 'vehicle' && productType !== 'special-offer')) {
       res.status(400).json(errorResponse('无效的产品类型', 400));
-      return;
+      return undefined;
     }
 
     const rule = await rentalRuleDAO.findByProductType(productType as 'vehicle' | 'special-offer');
 
     if (!rule) {
       res.status(404).json(errorResponse('租车须知不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(rule.content));

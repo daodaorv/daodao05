@@ -33,7 +33,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (!cityId) {
       res.status(400).json(errorResponse('城市ID不能为空', 400));
-      return;
+      return undefined;
     }
 
     // 根据cityId获取城市名称
@@ -79,13 +79,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     const storeId = parseInt(id.replace('store_', ''));
     if (isNaN(storeId)) {
       res.status(400).json(errorResponse('门店ID格式错误', 400));
-      return;
+      return undefined;
     }
 
     const store = await storeDAO.findById(storeId);
     if (!store) {
       res.status(404).json(errorResponse('门店不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(

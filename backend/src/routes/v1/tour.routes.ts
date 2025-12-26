@@ -43,7 +43,7 @@ router.post('/calculate-price', async (req: Request, res: Response): Promise<voi
 
     if (!tourId || !batchId || !adults) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const adultFee = 4980 * adults;
@@ -78,7 +78,7 @@ router.post('/check-availability', async (req: Request, res: Response): Promise<
 
     if (!tourId || !batchId || !people) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({
@@ -102,7 +102,7 @@ router.post('/bookings', async (req: Request, res: Response): Promise<void> => {
 
     if (!tourId || !batchId || !adults || !contactName || !contactPhone || !idCard || !emergencyContact || !emergencyPhone) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const orderNo = `TR${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;
@@ -154,7 +154,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
     if (!tour) {
       res.status(404).json(errorResponse('旅游线路不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(tour));

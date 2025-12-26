@@ -43,7 +43,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
     if (!offer) {
       res.status(404).json(errorResponse('特惠套餐不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(offer));
@@ -63,14 +63,14 @@ router.post('/calculate-price', async (req: Request, res: Response): Promise<voi
 
     if (!offerId || !pickupDate || !insuranceType) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     // 获取套餐信息
     const offer = await specialOfferDAO.findById(Number(offerId));
     if (!offer) {
       res.status(404).json(errorResponse('特惠套餐不存在', 404));
-      return;
+      return undefined;
     }
 
     // 计算价格
@@ -136,7 +136,7 @@ router.get('/:id/availability', async (req: Request, res: Response): Promise<voi
 
     if (!pickupDate) {
       res.status(400).json(errorResponse('缺少取车日期参数', 400));
-      return;
+      return undefined;
     }
 
     const isAvailable = await specialOfferDAO.checkAvailability(id, pickupDate);
@@ -165,14 +165,14 @@ router.post('/orders', async (req: Request, res: Response): Promise<void> => {
 
     if (!offerId || !pickupDate || !insuranceType || !contactInfo) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     // 检查套餐可用性
     const isAvailable = await specialOfferDAO.checkAvailability(Number(offerId), pickupDate);
     if (!isAvailable) {
       res.status(400).json(errorResponse('该套餐在所选日期不可用', 400));
-      return;
+      return undefined;
     }
 
     // TODO: 创建订单逻辑（需要订单DAO）

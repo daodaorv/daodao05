@@ -17,7 +17,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     const contacts = await contactDAO.findByUserId(userId);
@@ -39,18 +39,18 @@ router.get('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (isNaN(contactId)) {
       res.status(400).json(errorResponse('无效的联系人ID', 400));
-      return;
+      return undefined;
     }
 
     const contact = await contactDAO.findById(contactId, userId);
     if (!contact) {
       res.status(404).json(errorResponse('联系人不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(contact));
@@ -70,7 +70,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     const { name, phone, idCard, driverLicenseNo, driverLicenseFront, driverLicenseBack, isDefault } = req.body;
@@ -78,7 +78,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
     // 验证必填字段
     if (!name || !phone || !idCard || !driverLicenseNo || !driverLicenseFront || !driverLicenseBack) {
       res.status(400).json(errorResponse('缺少必填字段', 400));
-      return;
+      return undefined;
     }
 
     const contactId = await contactDAO.create({
@@ -110,12 +110,12 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (isNaN(contactId)) {
       res.status(400).json(errorResponse('无效的联系人ID', 400));
-      return;
+      return undefined;
     }
 
     const { name, phone, idCard, driverLicenseNo, driverLicenseFront, driverLicenseBack, isDefault } = req.body;
@@ -132,7 +132,7 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     if (!updated) {
       res.status(404).json(errorResponse('联系人不存在或无更新内容', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ success: true }));
@@ -153,18 +153,18 @@ router.delete('/:id', authMiddleware, async (req: Request, res: Response) => {
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
 
     if (isNaN(contactId)) {
       res.status(400).json(errorResponse('无效的联系人ID', 400));
-      return;
+      return undefined;
     }
 
     const deleted = await contactDAO.delete(contactId, userId);
     if (!deleted) {
       res.status(404).json(errorResponse('联系人不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ success: true }));

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { NotificationDAO } from '../../dao/notification.dao';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -21,13 +22,13 @@ router.post('/send', authMiddleware, async (req: Request, res: Response) => {
       content,
       link,
       is_read: false,
-    } as unknown);
+    } as any);
 
     return res.json(successResponse({
       notificationId,
       message: '通知发送成功'
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -49,7 +50,7 @@ router.post('/notify-store', authMiddleware, async (req: Request, res: Response)
       title,
       content, // 包含 content 以避免未使用变量警告
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -60,10 +61,10 @@ router.post('/notify-store', authMiddleware, async (req: Request, res: Response)
  */
 router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { type, isRead, page = 1, pageSize = 10 } = req.query;
 
-    const filters: unknown = {};
+    const filters: any = {};
     if (type) filters.type = type as string;
     if (isRead !== undefined) filters.isRead = isRead === 'true';
 
@@ -80,7 +81,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -95,7 +96,7 @@ router.put('/:id/read', authMiddleware, async (req: Request, res: Response) => {
     await notificationDAO.markAsRead(Number(id));
 
     return res.json(successResponse({ message: '已标记为已读' }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -109,12 +110,12 @@ router.get('/unread-count', authMiddleware, async (req: Request, res: Response) 
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));
-      return;
+      return undefined;
     }
     const count = await notificationDAO.getUnreadCount(userId);
 
     return res.json(successResponse({ count }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : '获取未读数量失败';
     return res.status(500).json(errorResponse(message));
   }

@@ -18,7 +18,7 @@ router.get('/nearby', async (req: Request, res: Response): Promise<void> => {
 
     if (!latitude || !longitude) {
       res.status(400).json(errorResponse('缺少经纬度参数', 400));
-      return;
+      return undefined;
     }
 
     // Mock附近营地数据
@@ -53,7 +53,7 @@ router.post('/check-availability', async (req: Request, res: Response): Promise<
 
     if (!campsiteId || !siteTypeId || !checkInDate || !checkOutDate) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     res.json(successResponse({ available: true, remainingCount: 8, message: '该时间段可预订' }));
@@ -73,7 +73,7 @@ router.post('/bookings', async (req: Request, res: Response): Promise<void> => {
 
     if (!campsiteId || !siteTypeId || !checkInDate || !checkOutDate || !guests || !contactName || !contactPhone) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const orderNo = `CS${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;
@@ -127,7 +127,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
     if (!campsite) {
       res.status(404).json(errorResponse('营地不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(campsite));

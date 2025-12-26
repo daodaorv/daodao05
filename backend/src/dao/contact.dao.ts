@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QueryBuilder } from '@db/query-builder';
 import { Contact, CreateContactPayload, UpdateContactPayload } from '../types/models/contact.types';
 import { logger } from '@utils/logger';
@@ -87,7 +88,7 @@ export class ContactDAO {
       }
 
       const fields: string[] = [];
-      const values: unknown[] = [];
+      const values: any[] = [];
 
       if (data.name !== undefined) {
         fields.push('name = ?');
@@ -168,7 +169,7 @@ export class ContactDAO {
         SET is_default = false
         WHERE user_id = ?
       `;
-      const params: unknown[] = [userId];
+      const params: any[] = [userId];
 
       if (excludeId) {
         sql += ' AND id != ?';

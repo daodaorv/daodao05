@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { UserMembershipDAO } from '../../dao/user-membership.dao';
 import { successResponse, errorResponse } from '../../utils/response';
@@ -12,7 +13,7 @@ const membershipDAO = new UserMembershipDAO();
  */
 router.get('/info', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const membership = await membershipDAO.getUserMembership(userId);
 
     if (!membership) {
@@ -30,7 +31,7 @@ router.get('/info', authMiddleware, async (req: Request, res: Response) => {
       autoRenew: membership.auto_renew,
       status: membership.status
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -47,7 +48,7 @@ router.get('/packages', async (_req: Request, res: Response) => {
       { id: 3, level: 'platinum', name: '白金会员', price: 999, duration: 365, benefits: [] },
     ];
     return res.json(successResponse(packages));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -64,7 +65,7 @@ router.get('/benefits', async (_req: Request, res: Response) => {
       { id: 3, name: '折扣优惠', description: '享受会员专属折扣' },
     ];
     return res.json(successResponse(benefits));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -75,7 +76,7 @@ router.get('/benefits', async (_req: Request, res: Response) => {
  */
 router.post('/purchase', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { packageId } = req.body;
 
     return res.json(successResponse({
@@ -83,7 +84,7 @@ router.post('/purchase', authMiddleware, async (req: Request, res: Response) => 
       packageId,
       userId
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -94,7 +95,7 @@ router.post('/purchase', authMiddleware, async (req: Request, res: Response) => 
  */
 router.post('/renew', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
     const { packageId } = req.body;
 
     return res.json(successResponse({
@@ -102,7 +103,7 @@ router.post('/renew', authMiddleware, async (req: Request, res: Response) => {
       packageId,
       userId
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -113,13 +114,13 @@ router.post('/renew', authMiddleware, async (req: Request, res: Response) => {
  */
 router.post('/cancel-auto-renew', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
 
     return res.json(successResponse({
       message: '已取消自动续费',
       userId
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -130,13 +131,13 @@ router.post('/cancel-auto-renew', authMiddleware, async (req: Request, res: Resp
  */
 router.post('/enable-auto-renew', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as unknown).user.id;
+    const userId = (req as any).user.id;
 
     return res.json(successResponse({
       message: '已开启自动续费',
       userId
     }));
-  } catch (error: unknown) {
+  } catch (error: any) {
     return res.status(500).json(errorResponse(error.message));
   }
 });

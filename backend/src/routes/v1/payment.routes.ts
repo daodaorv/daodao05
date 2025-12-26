@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Router, Request, Response } from 'express';
 import { PaymentDAO } from '@dao/payment.dao';
 import { successResponse, errorResponse } from '@utils/response';
@@ -25,12 +26,12 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     // 验证必填参数
     if (!params.order_id || !params.user_id || !params.amount || !params.method) {
       res.status(400).json(errorResponse('缺少必要参数', 400));
-      return;
+      return undefined;
     }
 
     const payment = await paymentDAO.createPayment(params);
     res.status(201).json(successResponse(payment));
-  } catch (error: unknown) {
+  } catch (error: any) {
     logger.error('创建支付失败:', error);
     const errorMessage = error instanceof Error ? error.message : '创建支付失败';
     res.status(500).json(errorResponse(errorMessage));
@@ -48,7 +49,7 @@ router.get('/order/:orderId', async (req: Request, res: Response): Promise<void>
 
     if (!payment) {
       res.status(404).json(errorResponse('支付记录不存在', 404));
-      return;
+      return undefined;
     }
 
     res.json(successResponse(payment));

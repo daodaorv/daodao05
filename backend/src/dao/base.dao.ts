@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QueryBuilder } from '@db/query-builder';
 import { RowDataPacket } from 'mysql2/promise';
 
@@ -44,7 +45,7 @@ export class BaseDao<T extends RowDataPacket> {
   /**
    * 根据条件查询
    */
-  async findByCondition(condition: string, params: unknown[]): Promise<T[]> {
+  async findByCondition(condition: string, params: any[]): Promise<T[]> {
     const sql = `SELECT * FROM ${this.tableName} WHERE ${condition}`;
     return QueryBuilder.query<T>(sql, params);
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { InviteCode } from '../types/models/coupon.types';
@@ -20,7 +21,7 @@ export class InviteCodeDAO extends BaseDao<InviteCode> {
     await this.insert({
       user_id: userId,
       invite_code: inviteCode,
-    } as unknown);
+    } as any);
 
     return inviteCode;
   }

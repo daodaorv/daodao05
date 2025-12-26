@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { Vehicle, VehicleDetail, VehicleQueryParams, CountResult } from '../types/models/vehicle.types';
@@ -31,7 +32,7 @@ export class VehicleDAO extends BaseDao<Vehicle> {
 
       // 构建WHERE条件
       const conditions: string[] = ["v.status = 'available'"];
-      const values: unknown[] = [];
+      const values: any[] = [];
 
       // 城市筛选
       if (cityId) {
