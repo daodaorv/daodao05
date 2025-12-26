@@ -71,10 +71,10 @@
 
       <el-form-item label="优先级调整" prop="priority">
         <el-radio-group v-model="form.priority">
-          <el-radio label="low">低</el-radio>
-          <el-radio label="medium">中</el-radio>
-          <el-radio label="high">高</el-radio>
-          <el-radio label="critical">紧急</el-radio>
+          <el-radio value="low">低</el-radio>
+          <el-radio value="medium">中</el-radio>
+          <el-radio value="high">高</el-radio>
+          <el-radio value="critical">紧急</el-radio>
         </el-radio-group>
         <div class="field-tip">
           当前优先级：{{ getPriorityLabel(exceptionInfo?.priority) }}

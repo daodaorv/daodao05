@@ -127,33 +127,64 @@
       </view>
     </view>
 
-    <!-- 预订须知 -->
+    <!-- 旅游政策 -->
     <view class="section-card">
       <view class="section-title">
-        <text class="title-text">预订须知</text>
+        <text class="title-text">旅游政策</text>
       </view>
-      <view class="notice-list">
-        <view class="notice-item" v-for="(notice, index) in tourDetail.bookingNotices" :key="index">
-          <text class="notice-number">{{ index + 1 }}.</text>
-          <text class="notice-text">{{ notice }}</text>
-        </view>
-      </view>
-    </view>
+      <TextExpandable
+        :content="tourPolicyText"
+        title="旅游政策"
+      >
+        <template #collapsed>
+          <view class="policy-content-collapsed">
+            <!-- 预订须知 -->
+            <view class="policy-section">
+              <text class="policy-section-title">预订须知</text>
+              <view class="notice-item" v-for="(notice, index) in tourDetail.bookingNotices" :key="index">
+                <text class="notice-number">{{ index + 1 }}.</text>
+                <text class="notice-text">{{ notice }}</text>
+              </view>
+            </view>
 
-    <!-- 取消政策 -->
-    <view class="section-card">
-      <view class="section-title">
-        <text class="title-text">取消政策</text>
-      </view>
-      <view class="policy-list">
-        <view class="policy-item" v-for="policy in tourDetail.cancellationPolicy" :key="policy.condition">
-          <view class="policy-condition">
-            <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
-            <text class="condition-text">{{ policy.condition }}</text>
+            <!-- 取消政策 -->
+            <view class="policy-section">
+              <text class="policy-section-title">取消政策</text>
+              <view class="policy-item" v-for="policy in tourDetail.cancellationPolicy" :key="policy.condition">
+                <view class="policy-condition">
+                  <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
+                  <text class="condition-text">{{ policy.condition }}</text>
+                </view>
+                <text class="policy-result">{{ policy.result }}</text>
+              </view>
+            </view>
           </view>
-          <text class="policy-result">{{ policy.result }}</text>
-        </view>
-      </view>
+        </template>
+        <template #full>
+          <view class="policy-content-full">
+            <!-- 预订须知 -->
+            <view class="policy-section">
+              <text class="policy-section-title">预订须知</text>
+              <view class="notice-item" v-for="(notice, index) in tourDetail.bookingNotices" :key="index">
+                <text class="notice-number">{{ index + 1 }}.</text>
+                <text class="notice-text">{{ notice }}</text>
+              </view>
+            </view>
+
+            <!-- 取消政策 -->
+            <view class="policy-section">
+              <text class="policy-section-title">取消政策</text>
+              <view class="policy-item" v-for="policy in tourDetail.cancellationPolicy" :key="policy.condition">
+                <view class="policy-condition">
+                  <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
+                  <text class="condition-text">{{ policy.condition }}</text>
+                </view>
+                <text class="policy-result">{{ policy.result }}</text>
+              </view>
+            </view>
+          </view>
+        </template>
+      </TextExpandable>
     </view>
 
     <!-- 底部操作栏 -->
@@ -196,13 +227,14 @@
 
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
 import { useShare } from '@/composables/useShare';
 import { ShareScene } from '@/types/share';
 import ShareSheet from '@/components/share/ShareSheet.vue';
 import PosterPreview from '@/components/share/PosterPreview.vue';
 import AnnouncementBar from '@/components/common/AnnouncementBar.vue';
+import TextExpandable from '@/components/common/TextExpandable.vue';
 
 // 获取路由参数
 const tourId = ref('');
@@ -274,6 +306,19 @@ onShareAppMessage(() => {
 const handleShare = () => {
   openShareSheet();
 };
+
+// 旅游政策文本（合并预订须知和取消政策）
+const tourPolicyText = computed(() => {
+  const notices = (tourDetail.value.bookingNotices || [])
+    .map((notice: string, index: number) => `${index + 1}. ${notice}`)
+    .join('\n');
+
+  const policies = (tourDetail.value.cancellationPolicy || [])
+    .map((policy: any) => `${policy.condition}\n${policy.result}`)
+    .join('\n\n');
+
+  return `预订须知\n${notices}\n\n取消政策\n${policies}`;
+});
 
 // 加载线路详情
 const loadTourDetail = async () => {
@@ -839,62 +884,92 @@ const bookTour = () => {
   }
 }
 
-// 预订须知
-.notice-list {
-  .notice-item {
-    display: flex;
-    gap: $uni-spacing-md;
-    margin-bottom: $uni-spacing-lg;
-    line-height: 1.6;
+// 旅游政策（合并预订须知和取消政策）
+.policy-content-collapsed,
+.policy-content-full {
+  .policy-section {
+    margin-bottom: $uni-spacing-xl;
 
     &:last-child {
       margin-bottom: 0;
     }
 
-    .notice-number {
-      font-size: $uni-font-size-base;
-      color: $uni-color-primary;
+    .policy-section-title {
+      display: block;
+      font-size: $uni-font-size-lg;
       font-weight: 600;
-      flex-shrink: 0;
+      color: $uni-text-color;
+      margin-bottom: $uni-spacing-lg;
     }
 
-    .notice-text {
-      flex: 1;
-      font-size: $uni-font-size-base;
-      color: $uni-text-color-secondary;
-    }
-  }
-}
-
-// 取消政策
-.policy-list {
-  .policy-item {
-    padding: $uni-spacing-lg;
-    background-color: $uni-bg-color-grey;
-    border-radius: $uni-radius-lg;
-    margin-bottom: $uni-spacing-lg;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .policy-condition {
+    // 预订须知样式
+    .notice-item {
       display: flex;
-      align-items: center;
-      gap: $uni-spacing-sm;
-      margin-bottom: $uni-spacing-md;
+      gap: $uni-spacing-md;
+      margin-bottom: $uni-spacing-lg;
+      line-height: 1.6;
+      width: 100%;
 
-      .condition-text {
-        font-size: $uni-font-size-lg;
-        color: $uni-text-color;
-        font-weight: 500;
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .notice-number {
+        font-size: $uni-font-size-base;
+        color: $uni-color-primary;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .notice-text {
+        flex: 1;
+        font-size: $uni-font-size-base;
+        color: $uni-text-color-secondary;
+        word-wrap: break-word;
+        word-break: break-word;
+        min-width: 0;
       }
     }
 
-    .policy-result {
-      font-size: $uni-font-size-base;
-      color: $uni-text-color-secondary;
-      padding-left: 26rpx;
+    // 取消政策样式
+    .policy-item {
+      padding: $uni-spacing-lg;
+      background-color: $uni-bg-color-grey;
+      border-radius: $uni-radius-lg;
+      margin-bottom: $uni-spacing-lg;
+      width: 100%;
+      box-sizing: border-box;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .policy-condition {
+        display: flex;
+        align-items: center;
+        gap: $uni-spacing-sm;
+        margin-bottom: $uni-spacing-md;
+        width: 100%;
+
+        .condition-text {
+          flex: 1;
+          font-size: $uni-font-size-lg;
+          color: $uni-text-color;
+          font-weight: 500;
+          word-wrap: break-word;
+          word-break: break-word;
+          min-width: 0;
+        }
+      }
+
+      .policy-result {
+        font-size: $uni-font-size-base;
+        color: $uni-text-color-secondary;
+        padding-left: 26rpx;
+        word-wrap: break-word;
+        word-break: break-word;
+        display: block;
+      }
     }
   }
 }

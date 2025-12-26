@@ -27,8 +27,8 @@
 
       <el-form-item label="调整类型" prop="adjustmentType">
         <el-radio-group v-model="formData.adjustmentType">
-          <el-radio label="percentage">百分比调整</el-radio>
-          <el-radio label="fixed">固定金额调整</el-radio>
+          <el-radio value="percentage">百分比调整</el-radio>
+          <el-radio value="fixed">固定金额调整</el-radio>
         </el-radio-group>
       </el-form-item>
 

@@ -9,6 +9,7 @@
       :limit="limit"
       :accept="accept"
       :before-upload="handleBeforeUpload"
+      :http-request="isDev ? mockUploadRequest : undefined"
       :on-success="handleSuccess"
       :on-error="handleError"
       :on-exceed="handleExceed"
@@ -45,7 +46,8 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import type { UploadProps, UploadUserFile, UploadFile } from 'element-plus'
+import type { UploadProps, UploadUserFile, UploadFile, UploadRequestOptions } from 'element-plus'
+import { readAsDataUrl } from '@/utils/file'
 
 // Props 定义
 interface Props {
@@ -64,7 +66,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
-  uploadUrl: '/api/upload/image',
+  uploadUrl: '/api/v1/upload/image',
   headers: () => ({}),
   data: () => ({}),
   multiple: true,
@@ -107,6 +109,18 @@ const uploadHeaders = computed(() => {
 })
 
 const uploadData = computed(() => props.data)
+
+const isDev = import.meta.env.DEV
+
+const mockUploadRequest = async (options: UploadRequestOptions) => {
+  try {
+    const file = options.file as File
+    const url = await readAsDataUrl(file)
+    options.onSuccess?.({ data: { url } })
+  } catch (error) {
+    options.onError?.(error as any)
+  }
+}
 
 // 监听 modelValue 变化，同步到 fileList
 watch(

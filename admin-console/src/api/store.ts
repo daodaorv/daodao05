@@ -10,6 +10,7 @@ import {
   mockGetStoreStats,
   mockGetCityList,
   mockGetRegionList,
+  mockGetCityTierList,
   mockGetStoreSpecialServices,
   mockCreateStoreSpecialService,
   mockUpdateStoreSpecialService,
@@ -21,6 +22,7 @@ import {
   type StoreStats,
   type City,
   type Region,
+  type CityTier,
   type CityListParams,
   type StoreSpecialService
 } from '@/mock/stores'
@@ -34,6 +36,7 @@ export type {
   StoreStats,
   City,
   Region,
+  CityTier,
   CityListParams,
   StoreSpecialService
 }
@@ -100,6 +103,14 @@ export const getCityList = (params?: CityListParams) => {
 export const getRegionList = () => {
   // return request.get('/regions')
   return mockGetRegionList()
+}
+
+/**
+ * 获取城市分级列表
+ */
+export const getCityTierList = () => {
+  // return request.get('/city-tiers')
+  return mockGetCityTierList()
 }
 
 // ==================== 门店特色服务 ====================

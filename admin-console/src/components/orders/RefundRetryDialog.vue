@@ -47,8 +47,8 @@
       <!-- 重试选项 -->
       <el-form-item label="重试方式" prop="retryMethod">
         <el-radio-group v-model="form.retryMethod">
-          <el-radio label="auto">自动重试（使用原退款方式）</el-radio>
-          <el-radio label="manual">手动重试（可调整参数）</el-radio>
+          <el-radio value="auto">自动重试（使用原退款方式）</el-radio>
+          <el-radio value="manual">手动重试（可调整参数）</el-radio>
         </el-radio-group>
       </el-form-item>
 

@@ -10,8 +10,7 @@
 
 		<!-- 业务入口 (沉浸式卡片) -->
 		<view class="business-grid">
-			<view class="biz-card" @click="navigateTo('/pages/campsite/list')">
-				<image class="card-bg" src="/static/campsite-bg.png" mode="aspectFill"></image>
+			<view class="biz-card campsite-card" @click="navigateTo('/pages/campsite/list')">
 				<view class="card-overlay"></view>
 				<view class="biz-content">
 					<view class="biz-header">
@@ -21,8 +20,7 @@
 					<text class="biz-desc">精选全国 200+ 优质营地</text>
 				</view>
 			</view>
-			<view class="biz-card" @click="navigateTo('/pages/tour/list')">
-				<image class="card-bg" src="/static/tour-bg.png" mode="aspectFill"></image>
+			<view class="biz-card tour-card" @click="navigateTo('/pages/tour/list')">
 				<view class="card-overlay"></view>
 				<view class="biz-content">
 					<view class="biz-header">
@@ -287,6 +285,16 @@ const navigateTo = (url: string) => {
 	transition: transform 0.2s ease;
 
 	&:active { transform: scale(0.98); }
+
+	// 营地预订卡片渐变背景
+	&.campsite-card {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	// 房车旅游卡片渐变背景
+	&.tour-card {
+		background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	}
 }
 
 .card-bg {

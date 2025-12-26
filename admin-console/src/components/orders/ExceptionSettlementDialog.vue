@@ -110,9 +110,9 @@
 
         <el-form-item label="扣款方式" prop="settlementMethod">
           <el-radio-group v-model="form.settlementMethod">
-            <el-radio label="deposit">从押金扣除</el-radio>
-            <el-radio label="additional">向用户追加收费</el-radio>
-            <el-radio label="compensation">平台承担赔偿</el-radio>
+            <el-radio value="deposit">从押金扣除</el-radio>
+            <el-radio value="additional">向用户追加收费</el-radio>
+            <el-radio value="compensation">平台承担赔偿</el-radio>
           </el-radio-group>
         </el-form-item>
 

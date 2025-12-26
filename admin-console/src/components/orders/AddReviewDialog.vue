@@ -127,9 +127,9 @@
       <!-- 评价来源 -->
       <el-form-item label="评价来源" prop="source">
         <el-radio-group v-model="form.source">
-          <el-radio label="admin_offline">线下补录</el-radio>
-          <el-radio label="admin_test">测试数据</el-radio>
-          <el-radio label="user">用户评价</el-radio>
+          <el-radio value="admin_offline">线下补录</el-radio>
+          <el-radio value="admin_test">测试数据</el-radio>
+          <el-radio value="user">用户评价</el-radio>
         </el-radio-group>
       </el-form-item>
 

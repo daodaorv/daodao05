@@ -334,6 +334,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, reactive, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
@@ -380,6 +381,9 @@ import { createPriceHistory, batchCreatePriceHistory } from '@/api/vehiclePriceH
 // Composables
 const { handleApiError } = useErrorHandler()
 const { getVehicleStatusLabel } = useEnumLabel()
+
+// 获取路由参数
+const route = useRoute()
 
 // 搜索表单
 const searchForm = reactive({
@@ -965,6 +969,17 @@ const getPriceSourceTagType = (source: string) => {
 
 // 页面加载
 onMounted(() => {
+  // 检查URL参数,如果有门店ID则自动筛选
+  const storeIdParam = route.query.storeId
+  if (storeIdParam) {
+    searchForm.storeId = Number(storeIdParam)
+    // 如果有门店名称,可以显示提示信息
+    const storeName = route.query.storeName
+    if (storeName) {
+      ElMessage.success(`已自动筛选门店: ${storeName}`)
+    }
+  }
+
   loadVehicleModels()
   loadVehicles()
 })

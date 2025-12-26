@@ -1,10 +1,10 @@
 <!-- @ts-nocheck -->
 <template>
-  <div class="region-management-container">
-    
+  <div class="city-tier-management-container">
+
 
     <DataTable
-      :data="regionList"
+      :data="cityTierList"
       :columns="tableColumns"
       :loading="loading"
       :actions="tableActions"
@@ -16,26 +16,18 @@
           {{ row.status === 'active' ? '启用' : '停用' }}
         </el-tag>
       </template>
-      <template #cityNames="{ row }">
-        <el-tag
-          v-for="city in row.cityNames.slice(0, 3)"
-          :key="city"
-          size="small"
-          style="margin-right: 4px"
-        >
-          {{ city }}
-        </el-tag>
-        <el-tag v-if="row.cityNames.length > 3" size="small" type="info">
-          +{{ row.cityNames.length - 3 }}
+      <template #level="{ row }">
+        <el-tag :type="getLevelTagType(row.level)" size="small">
+          {{ row.name }}
         </el-tag>
       </template>
     </DataTable>
 
-    <!-- 编辑区域对话框 -->
+    <!-- 编辑城市分级对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="700px"
+      width="600px"
       @close="handleDialogClose"
     >
       <el-form
@@ -44,49 +36,33 @@
         :rules="formRules"
         label-width="120px"
       >
-        <el-form-item label="区域名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入区域名称" />
+        <el-form-item label="分级名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入分级名称" />
         </el-form-item>
-        <el-form-item label="区域编码" prop="code">
-          <el-input v-model="form.code" placeholder="请输入区域编码" />
+        <el-form-item label="分级编码" prop="code">
+          <el-input v-model="form.code" placeholder="请输入分级编码" />
         </el-form-item>
-        <el-form-item label="区域经理" prop="managerId">
-          <el-select v-model="form.managerId" placeholder="请选择区域经理" style="width: 100%">
-            <el-option
-              v-for="manager in MANAGER_OPTIONS"
-              :key="manager.value"
-              :label="manager.label"
-              :value="manager.value"
-            />
+        <el-form-item label="分级等级" prop="level">
+          <el-select v-model="form.level" placeholder="请选择分级等级" style="width: 100%">
+            <el-option label="1级（一线城市）" :value="1" />
+            <el-option label="2级（新一线城市）" :value="2" />
+            <el-option label="3级（二线城市）" :value="3" />
+            <el-option label="4级（三线城市）" :value="4" />
+            <el-option label="5级（四线城市）" :value="5" />
           </el-select>
         </el-form-item>
-        <el-form-item label="管辖城市" prop="cityIds">
-          <el-select
-            v-model="form.cityIds"
-            multiple
-            placeholder="请选择管辖城市"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="city in cityList"
-              :key="city.id"
-              :label="city.name"
-              :value="city.id"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="区域状态" prop="status">
+        <el-form-item label="分级状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="active">启用</el-radio>
-            <el-radio label="inactive">停用</el-radio>
+            <el-radio value="active">启用</el-radio>
+            <el-radio value="inactive">停用</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="区域描述">
+        <el-form-item label="分级描述">
           <el-input
             v-model="form.description"
             type="textarea"
             :rows="3"
-            placeholder="请输入区域描述"
+            placeholder="请输入分级描述（包含的城市列表）"
           />
         </el-form-item>
       </el-form>
@@ -108,37 +84,40 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import DataTable from '@/components/common/DataTable.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
-import { getRegionList, getCityList, type Region, type City } from '@/api/store'
+import { getCityTierList, type CityTier } from '@/api/store'
 import { useErrorHandler } from '@/composables'
 
 // Composables
 const { handleApiError } = useErrorHandler()
 
-// 区域经理选项 (Mock数据)
-const MANAGER_OPTIONS = [
-  { label: '李四', value: 2 },
-  { label: '钱十一', value: 9 },
-  { label: '孙十二', value: 10 },
-  { label: '李十三', value: 11 }
-]
+// 获取分级标签类型
+const getLevelTagType = (level: number) => {
+  const typeMap: Record<number, 'primary' | 'success' | 'info' | 'warning' | 'danger'> = {
+    1: 'danger',
+    2: 'warning',
+    3: 'success',
+    4: 'info',
+    5: 'primary'
+  }
+  return typeMap[level] || 'info'
+}
 
 // 表格列配置
 const tableColumns: TableColumn[] = [
   { prop: 'id', label: 'ID', width: 80 },
-  { prop: 'name', label: '区域名称', width: 120 },
-  { prop: 'code', label: '区域编码', width: 100 },
-  { prop: 'managerName', label: '区域经理', width: 120 },
+  { prop: 'level', label: '分级等级', width: 150, slot: 'level' },
+  { prop: 'code', label: '分级编码', width: 120 },
+  { prop: 'cityCount', label: '城市数量', width: 120 },
+  { prop: 'storeCount', label: '门店数量', width: 120 },
   { prop: 'status', label: '状态', width: 100, slot: 'status' },
-  { prop: 'storeCount', label: '门店数量', width: 100 },
-  { prop: 'cityNames', label: '管辖城市', minWidth: 300, slot: 'cityNames' },
-  { prop: 'description', label: '区域描述', minWidth: 200 },
+  { prop: 'description', label: '包含城市', minWidth: 300 },
   { prop: 'createdAt', label: '创建时间', width: 180 }
 ]
 
 // 工具栏按钮配置
 const toolbarButtons: ToolbarButton[] = [
   {
-    label: '新增区域',
+    label: '新增分级',
     type: 'primary',
     icon: Plus,
     onClick: () => handleCreate()
@@ -152,25 +131,24 @@ const tableActions: TableAction[] = [
   // @ts-ignore
     type: 'primary',
     icon: Edit,
-    onClick: (row: Region) => handleEdit(row)
+    onClick: (row: CityTier) => handleEdit(row)
   },
   {
     label: '删除',
   // @ts-ignore
     type: 'danger',
     icon: Delete,
-    onClick: (row: Region) => handleDelete(row)
+    onClick: (row: CityTier) => handleDelete(row)
   }
 ]
 
-// 区域列表
-const regionList = ref<Region[]>([])
-const cityList = ref<City[]>([])
+// 城市分级列表
+const cityTierList = ref<CityTier[]>([])
 const loading = ref(false)
 
 // 对话框
 const dialogVisible = ref(false)
-const dialogTitle = ref('新增区域')
+const dialogTitle = ref('新增分级')
 const isEdit = ref(false)
 const submitLoading = ref(false)
 const formRef = ref<FormInstance>()
@@ -179,79 +157,64 @@ const form = reactive({
   id: 0,
   name: '',
   code: '',
-  managerId: undefined as number | undefined,
-  cityIds: [] as number[],
+  level: 1,
   status: 'active' as 'active' | 'inactive',
   description: ''
 })
 
 const formRules: FormRules = {
   name: [
-    { required: true, message: '请输入区域名称', trigger: 'blur' }
+    { required: true, message: '请输入分级名称', trigger: 'blur' }
   ],
   code: [
-    { required: true, message: '请输入区域编码', trigger: 'blur' }
+    { required: true, message: '请输入分级编码', trigger: 'blur' }
   ],
-  managerId: [
-    { required: true, message: '请选择区域经理', trigger: 'change' }
-  ],
-  cityIds: [
-    { required: true, message: '请选择管辖城市', trigger: 'change', type: 'array', min: 1 }
+  level: [
+    { required: true, message: '请选择分级等级', trigger: 'change' }
   ],
   status: [
-    { required: true, message: '请选择区域状态', trigger: 'change' }
+    { required: true, message: '请选择分级状态', trigger: 'change' }
   ]
 }
 
-// 加载区域列表
-const loadRegionList = async () => {
+// 加载城市分级列表
+const loadCityTierList = async () => {
   loading.value = true
   try {
-    const res = await getRegionList() as any
-    regionList.value = res.data
+    const res = await getCityTierList() as any
+    cityTierList.value = res.data
   } catch (error) {
-    handleApiError(error, '加载区域列表失败')
+    handleApiError(error, '加载城市分级列表失败')
   } finally {
     loading.value = false
   }
 }
 
-// 加载城市列表
-const loadCityList = async () => {
-  try {
-    const res = await getCityList() as any
-    cityList.value = res.data
-  } catch (error) {
-    handleApiError(error, '加载城市列表失败')
-  }
-}
-
-// 新增区域
+// 新增分级
 const handleCreate = () => {
-  dialogTitle.value = '新增区域'
+  dialogTitle.value = '新增分级'
   isEdit.value = false
   dialogVisible.value = true
 }
 
-// 编辑区域
-const handleEdit = (row: Region) => {
-  dialogTitle.value = '编辑区域'
+// 编辑分级
+const handleEdit = (row: CityTier) => {
+  dialogTitle.value = '编辑分级'
   isEdit.value = true
   form.id = row.id
   form.name = row.name
   form.code = row.code
-  form.managerId = row.managerId
-  form.cityIds = [...row.cityIds]
+  form.level = row.level
   form.status = row.status
   form.description = row.description
   dialogVisible.value = true
 }
 
-// 删除区域
-const handleDelete = async (row: Region) => {
+// 删除分级
+const handleDelete = async (row: CityTier) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除区域 "${row.name}" 吗？删除后该区域下的所有门店将无法访问。`,
+      `确定要删除分级 "${row.name}" 吗？`,
       '删除确认',
       {
         confirmButtonText: '确定',
@@ -261,7 +224,7 @@ const handleDelete = async (row: Region) => {
     )
 
     ElMessage.success('删除成功')
-    loadRegionList()
+    loadCityTierList()
   } catch (error) {
     if (error !== 'cancel') {
       handleApiError(error, '删除失败')
@@ -278,12 +241,12 @@ const handleSubmit = async () => {
 
     submitLoading.value = true
     try {
-      // 这里应该调用创建/更新区域的API
+      // 这里应该调用创建/更新城市分级的API
       await new Promise(resolve => setTimeout(resolve, 500))
 
       ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
       dialogVisible.value = false
-      loadRegionList()
+      loadCityTierList()
     } catch (error) {
       handleApiError(error, isEdit.value ? '更新失败' : '创建失败')
     } finally {
@@ -298,21 +261,19 @@ const handleDialogClose = () => {
   form.id = 0
   form.name = ''
   form.code = ''
-  form.managerId = undefined
-  form.cityIds = []
+  form.level = 1
   form.status = 'active'
   form.description = ''
 }
 
 // 页面加载
 onMounted(() => {
-  loadCityList()
-  loadRegionList()
+  loadCityTierList()
 })
 </script>
 
 <style scoped lang="scss">
-.region-management-container {
+.city-tier-management-container {
   padding: 20px;
 }
 </style>

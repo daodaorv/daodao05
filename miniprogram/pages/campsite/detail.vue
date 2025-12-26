@@ -139,37 +139,72 @@
         <text class="title-text">营地介绍</text>
       </view>
       <u-read-more :toggle="true" show-height="200">
-          <text class="description-text">{{ campsiteDetail.description }}</text>
+          <!-- 使用 rich-text 组件支持富文本内容 -->
+          <rich-text
+            class="description-text"
+            :nodes="campsiteDetail.descriptionHtml || campsiteDetail.description"
+          ></rich-text>
       </u-read-more>
     </view>
 
-    <!-- 入住须知 -->
+    <!-- 营地政策 -->
     <view class="section-card">
       <view class="section-title">
-        <text class="title-text">入住须知</text>
+        <text class="title-text">营地政策</text>
       </view>
-      <view class="notice-list">
-        <view class="notice-item" v-for="(notice, index) in (campsiteDetail.checkInNotices || [])" :key="index">
-          <text class="notice-number">{{ index + 1 }}.</text>
-          <text class="notice-text">{{ notice }}</text>
-        </view>
-      </view>
-    </view>
+      <TextExpandable
+        :content="campsitePolicyText"
+        title="营地政策"
+      >
+        <template #collapsed>
+          <view class="policy-content-collapsed">
+            <!-- 入住须知 -->
+            <view class="policy-section">
+              <text class="policy-section-title">入住须知</text>
+              <view class="notice-item" v-for="(notice, index) in (campsiteDetail.checkInNotices || [])" :key="index">
+                <text class="notice-number">{{ index + 1 }}.</text>
+                <text class="notice-text">{{ notice }}</text>
+              </view>
+            </view>
 
-    <!-- 取消政策 -->
-    <view class="section-card">
-      <view class="section-title">
-        <text class="title-text">取消政策</text>
-      </view>
-      <view class="policy-list">
-        <view class="policy-item" v-for="policy in (campsiteDetail.cancellationPolicy || [])" :key="policy.condition">
-          <view class="policy-condition">
-            <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
-            <text class="condition-text">{{ policy.condition }}</text>
+            <!-- 取消政策 -->
+            <view class="policy-section">
+              <text class="policy-section-title">取消政策</text>
+              <view class="policy-item" v-for="policy in (campsiteDetail.cancellationPolicy || [])" :key="policy.condition">
+                <view class="policy-condition">
+                  <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
+                  <text class="condition-text">{{ policy.condition }}</text>
+                </view>
+                <text class="policy-result">{{ policy.result }}</text>
+              </view>
+            </view>
           </view>
-          <text class="policy-result">{{ policy.result }}</text>
-        </view>
-      </view>
+        </template>
+        <template #full>
+          <view class="policy-content-full">
+            <!-- 入住须知 -->
+            <view class="policy-section">
+              <text class="policy-section-title">入住须知</text>
+              <view class="notice-item" v-for="(notice, index) in (campsiteDetail.checkInNotices || [])" :key="index">
+                <text class="notice-number">{{ index + 1 }}.</text>
+                <text class="notice-text">{{ notice }}</text>
+              </view>
+            </view>
+
+            <!-- 取消政策 -->
+            <view class="policy-section">
+              <text class="policy-section-title">取消政策</text>
+              <view class="policy-item" v-for="policy in (campsiteDetail.cancellationPolicy || [])" :key="policy.condition">
+                <view class="policy-condition">
+                  <u-icon name="info-circle-fill" size="16" color="#FF9F29"></u-icon>
+                  <text class="condition-text">{{ policy.condition }}</text>
+                </view>
+                <text class="policy-result">{{ policy.result }}</text>
+              </view>
+            </view>
+          </view>
+        </template>
+      </TextExpandable>
     </view>
 
     <!-- 用户评价 -->
@@ -241,9 +276,11 @@ import { ref, computed } from 'vue';
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app';
 import { useShare } from '@/composables/useShare';
 import { ShareScene } from '@/types/share';
+import { getCampsiteDetail } from '@/api/campsite';
 import ShareSheet from '@/components/share/ShareSheet.vue';
 import PosterPreview from '@/components/share/PosterPreview.vue';
 import AnnouncementBar from '@/components/common/AnnouncementBar.vue';
+import TextExpandable from '@/components/common/TextExpandable.vue';
 
 // 获取路由参数
 const campsiteId = ref('');
@@ -281,7 +318,7 @@ const {
 } = useShare({
   title: `【叨叨房车】${campsiteDetail.value.name}`,
   desc: `${campsiteDetail.value.address} | ¥${campsiteDetail.value.minPrice}/晚 | ${campsiteDetail.value.rating}分`,
-  imageUrl: campsiteDetail.value.images[0] || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=750&h=500&fit=crop',
+  imageUrl: campsiteDetail.value.images[0] || 'https://picsum.photos/750/500?random=1',
   path: '/pages/campsite/detail',
   scene: ShareScene.CAMPSITE,
   businessId: campsiteId.value || 'demo_campsite',
@@ -319,15 +356,41 @@ const loadCampsiteDetail = async () => {
   try {
     uni.showLoading({ title: '加载中...' });
 
-    // Mock数据
+    // 尝试从后端 API 获取数据
+    try {
+      const response = await getCampsiteDetail(campsiteId.value);
+
+      if (response.code === 200 && response.data) {
+        logger.info('成功从后端获取营地详情', { campsiteId: campsiteId.value });
+        campsiteDetail.value = response.data;
+
+        // 自动选择第一个可用的营位类型
+        const firstAvailable = response.data.siteTypes.find((t: any) => t.available > 0);
+        selectedSiteTypeId.value = firstAvailable ? firstAvailable.id : '';
+
+        uni.hideLoading();
+        return;
+      }
+    } catch (apiError) {
+      // API 调用失败，记录错误并使用 Mock 数据降级
+      logger.warn('后端 API 调用失败，使用 Mock 数据', {
+        error: apiError,
+        campsiteId: campsiteId.value
+      });
+    }
+
+    // Mock数据（降级方案：当后端 API 不可用时使用）
+    // 注意：announcement、checkInNotices、cancellationPolicy 应从后端 API 获取
+    logger.info('使用 Mock 数据加载营地详情', { campsiteId: campsiteId.value });
     const mockDetail = {
       id: campsiteId.value,
       name: '千岛湖房车营地',
       images: [
-        'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=750&h=500&fit=crop',
-        'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=750&h=500&fit=crop',
-        'https://images.unsplash.com/photo-1445308394109-4ec2920981b1?w=750&h=500&fit=crop',
-        'https://images.unsplash.com/photo-1537565732299-5b5e9cdf2f87?w=750&h=500&fit=crop'
+        // 使用占位图片，实际项目中应替换为真实的营地图片
+        'https://picsum.photos/750/500?random=1',
+        'https://picsum.photos/750/500?random=2',
+        'https://picsum.photos/750/500?random=3',
+        'https://picsum.photos/750/500?random=4'
       ],
       rating: 4.8,
       reviewCount: 156,
@@ -377,6 +440,38 @@ const loadCampsiteDetail = async () => {
         }
       ],
       description: '千岛湖房车营地位于风景秀丽的千岛湖畔，占地面积约50亩，是华东地区首屈一指的高端房车营地。营地依山傍水，环境优美，设施完善，为房车爱好者提供了一个理想的休闲度假场所。\n\n营地配备了现代化的水电设施、24小时热水淋浴、独立卫生间、洗衣房等基础设施。同时还设有烧烤区、儿童游乐场、湖边观景台等休闲娱乐设施。营地全区域覆盖WiFi，让您在享受大自然的同时也能保持与外界的联系。',
+      // 富文本内容（支持HTML标签）
+      descriptionHtml: `
+        <div style="line-height: 1.8; color: #666;">
+          <p style="margin-bottom: 16px;">
+            <strong style="color: #333; font-size: 16px;">千岛湖房车营地</strong>位于风景秀丽的千岛湖畔，占地面积约<span style="color: #FF9F29;">50亩</span>，是华东地区首屈一指的高端房车营地。
+          </p>
+
+          <p style="margin-bottom: 16px;">
+            营地<strong>依山傍水</strong>，环境优美，设施完善，为房车爱好者提供了一个理想的休闲度假场所。
+          </p>
+
+          <h3 style="color: #333; font-size: 15px; margin: 20px 0 12px 0;">🏕️ 基础设施</h3>
+          <ul style="padding-left: 20px; margin-bottom: 16px;">
+            <li style="margin-bottom: 8px;">现代化水电设施，满足各类房车需求</li>
+            <li style="margin-bottom: 8px;">24小时热水淋浴，舒适便捷</li>
+            <li style="margin-bottom: 8px;">独立卫生间，干净卫生</li>
+            <li style="margin-bottom: 8px;">洗衣房配备，长途旅行无忧</li>
+          </ul>
+
+          <h3 style="color: #333; font-size: 15px; margin: 20px 0 12px 0;">🎉 休闲娱乐</h3>
+          <ul style="padding-left: 20px; margin-bottom: 16px;">
+            <li style="margin-bottom: 8px;">烧烤区：与家人朋友享受户外烧烤乐趣</li>
+            <li style="margin-bottom: 8px;">儿童游乐场：孩子们的欢乐天地</li>
+            <li style="margin-bottom: 8px;">湖边观景台：欣赏千岛湖美景的最佳位置</li>
+            <li style="margin-bottom: 8px;">全区域WiFi覆盖：保持与外界的联系</li>
+          </ul>
+
+          <p style="margin-top: 20px; padding: 12px; background-color: #FFF7E6; border-left: 3px solid #FF9F29; border-radius: 4px;">
+            <strong style="color: #FF9F29;">温馨提示：</strong>营地周末及节假日营位紧张，建议提前3-5天预订，以确保您的出行计划顺利进行。
+          </p>
+        </div>
+      `,
       checkInNotices: [
         '入住时间：14:00后，退房时间：12:00前',
         '请携带有效身份证件办理入住手续',
@@ -395,19 +490,19 @@ const loadCampsiteDetail = async () => {
         {
           id: '1',
           userName: '房车旅行家',
-          userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
+          userAvatar: 'https://picsum.photos/100/100?random=10',
           rating: 5,
           content: '营地环境非常好，设施齐全，工作人员服务态度很好。湖景位置视野开阔，晚上可以看星星。强烈推荐！',
           images: [
-            'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=200&h=150&fit=crop',
-            'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=200&h=150&fit=crop'
+            'https://picsum.photos/200/150?random=11',
+            'https://picsum.photos/200/150?random=12'
           ],
           createdAt: '2025-11-25'
         },
         {
           id: '2',
           userName: '自驾游爱好者',
-          userAvatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop',
+          userAvatar: 'https://picsum.photos/100/100?random=13',
           rating: 4,
           content: '整体不错，就是周末人比较多。建议工作日来会更安静一些。',
           images: [],
@@ -450,6 +545,19 @@ const contactService = () => {
 const selectedSiteTypeId = ref('');
 const selectedSiteType = computed(() => {
   return (campsiteDetail.value.siteTypes || []).find((t: any) => t.id === selectedSiteTypeId.value);
+});
+
+// 营地政策文本（合并入住须知和取消政策）
+const campsitePolicyText = computed(() => {
+  const notices = (campsiteDetail.value.checkInNotices || [])
+    .map((notice: string, index: number) => `${index + 1}. ${notice}`)
+    .join('\n');
+
+  const policies = (campsiteDetail.value.cancellationPolicy || [])
+    .map((policy: any) => `${policy.condition}\n${policy.result}`)
+    .join('\n\n');
+
+  return `入住须知\n${notices}\n\n取消政策\n${policies}`;
 });
 
 const selectSiteType = (siteType: any) => {
@@ -796,64 +904,120 @@ const bookNow = () => {
   color: $uni-text-color-secondary;
   line-height: 1.8;
   white-space: pre-line;
-}
 
-// 入住须知
-.notice-list {
-  .notice-item {
-    display: flex;
-    gap: $uni-spacing-md;
-    margin-bottom: $uni-spacing-lg;
-    line-height: 1.6;
+  // 富文本样式支持
+  :deep(p) {
+    margin-bottom: 16rpx;
+  }
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+  :deep(strong) {
+    font-weight: 600;
+    color: $uni-text-color;
+  }
 
-    .notice-number {
-      font-size: $uni-font-size-base;
-      color: $uni-color-primary;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
+  :deep(ul) {
+    padding-left: 40rpx;
+    margin-bottom: 16rpx;
+  }
 
-    .notice-text {
-      flex: 1;
-      font-size: $uni-font-size-base;
-      color: $uni-text-color-secondary;
-    }
+  :deep(li) {
+    margin-bottom: 8rpx;
+  }
+
+  :deep(h3) {
+    color: $uni-text-color;
+    font-size: $uni-font-size-lg;
+    font-weight: 600;
+    margin: 20rpx 0 12rpx 0;
   }
 }
 
-// 取消政策
-.policy-list {
-  .policy-item {
-    padding: $uni-spacing-lg;
-    background-color: $uni-bg-color-grey;
-    border-radius: $uni-radius-lg;
-    margin-bottom: $uni-spacing-lg;
+// 营地政策（合并入住须知和取消政策）
+.policy-content-collapsed,
+.policy-content-full {
+  .policy-section {
+    margin-bottom: $uni-spacing-xl;
 
     &:last-child {
       margin-bottom: 0;
     }
 
-    .policy-condition {
-      display: flex;
-      align-items: center;
-      gap: $uni-spacing-sm;
-      margin-bottom: $uni-spacing-md;
+    .policy-section-title {
+      display: block;
+      font-size: $uni-font-size-lg;
+      font-weight: 600;
+      color: $uni-text-color;
+      margin-bottom: $uni-spacing-lg;
+    }
 
-      .condition-text {
-        font-size: $uni-font-size-lg;
-        color: $uni-text-color;
-        font-weight: 500;
+    // 入住须知样式
+    .notice-item {
+      display: flex;
+      gap: $uni-spacing-md;
+      margin-bottom: $uni-spacing-lg;
+      line-height: 1.6;
+      width: 100%;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .notice-number {
+        font-size: $uni-font-size-base;
+        color: $uni-color-primary;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .notice-text {
+        flex: 1;
+        font-size: $uni-font-size-base;
+        color: $uni-text-color-secondary;
+        word-wrap: break-word;
+        word-break: break-word;
+        min-width: 0;
       }
     }
 
-    .policy-result {
-      font-size: $uni-font-size-base;
-      color: $uni-text-color-secondary;
-      padding-left: 26rpx;
+    // 取消政策样式
+    .policy-item {
+      padding: $uni-spacing-lg;
+      background-color: $uni-bg-color-grey;
+      border-radius: $uni-radius-lg;
+      margin-bottom: $uni-spacing-lg;
+      width: 100%;
+      box-sizing: border-box;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .policy-condition {
+        display: flex;
+        align-items: center;
+        gap: $uni-spacing-sm;
+        margin-bottom: $uni-spacing-md;
+        width: 100%;
+
+        .condition-text {
+          flex: 1;
+          font-size: $uni-font-size-lg;
+          color: $uni-text-color;
+          font-weight: 500;
+          word-wrap: break-word;
+          word-break: break-word;
+          min-width: 0;
+        }
+      }
+
+      .policy-result {
+        font-size: $uni-font-size-base;
+        color: $uni-text-color-secondary;
+        padding-left: 26rpx;
+        word-wrap: break-word;
+        word-break: break-word;
+        display: block;
+      }
     }
   }
 }

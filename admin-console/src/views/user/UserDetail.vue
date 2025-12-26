@@ -178,9 +178,9 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="userForm.status">
-            <el-radio label="active">正常</el-radio>
-            <el-radio label="inactive">禁用</el-radio>
-            <el-radio label="banned">封禁</el-radio>
+            <el-radio value="active">正常</el-radio>
+            <el-radio value="inactive">禁用</el-radio>
+            <el-radio value="banned">封禁</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

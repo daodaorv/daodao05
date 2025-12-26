@@ -2,6 +2,7 @@
  * 认证相关API接口
  */
 
+import { get, post, put } from '@/utils/request'
 import { logger } from '@/utils/logger'
 
 // 类型定义
@@ -101,39 +102,23 @@ const mockRefreshToken = 'mock_refresh_token_' + Date.now()
  * 发送验证码
  */
 export function sendCode(phone: string, type: 'login' | 'register' | 'bind' = 'login') {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('发送验证码', { phone, type })
-			resolve({
-				code: 0,
-				message: '验证码已发送',
-				data: {
-					phone,
-					expiresIn: 300 // 5分钟有效期
-				}
-			})
-		}, 500)
-	})
+	logger.debug('发送验证码', { phone, type })
+	return post('/auth/send-code', { phone, type })
 }
 
 /**
  * 用户注册
  */
 export function register(data: RegisterParams): Promise<LoginResponse> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('用户注册', data)
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					phone: data.phone,
-					nickname: data.nickname || mockUser.nickname,
-					avatar: data.avatar || mockUser.avatar
-				}
-			})
-		}, 800)
+	logger.debug('用户注册', data)
+	return post('/auth/register', data).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -141,26 +126,15 @@ export function register(data: RegisterParams): Promise<LoginResponse> {
  * 密码登录
  */
 export function login(params: LoginParams): Promise<LoginResponse> {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			logger.debug('密码登录', params)
-			// 模拟密码验证
-			if (params.password.length < 6) {
-				reject({
-					code: 400,
-					message: '密码错误'
-				})
-				return
-			}
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					phone: params.phone
-				}
-			})
-		}, 800)
+	logger.debug('密码登录', params)
+	return post('/auth/login', params).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -168,26 +142,15 @@ export function login(params: LoginParams): Promise<LoginResponse> {
  * 验证码登录
  */
 export function loginWithCode(phone: string, code: string): Promise<LoginResponse> {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			logger.debug('验证码登录', { phone, code })
-			// 模拟验证码验证
-			if (code.length !== 6) {
-				reject({
-					code: 400,
-					message: '验证码错误'
-				})
-				return
-			}
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					phone
-				}
-			})
-		}, 800)
+	logger.debug('验证码登录', { phone, code })
+	return post('/auth/login-with-code', { phone, code }).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -347,11 +310,9 @@ export function refreshToken(refreshToken: string): Promise<{ token: string; ref
  * 获取用户信息
  */
 export function getUserProfile(): Promise<UserInfo> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('获取用户信息')
-			resolve(mockUser)
-		}, 500)
+	logger.debug('获取用户信息')
+	return get('/users/profile').then((response: any) => {
+		return response.data
 	})
 }
 
@@ -359,14 +320,27 @@ export function getUserProfile(): Promise<UserInfo> {
  * 更新用户资料
  */
 export function updateUserProfile(data: Partial<UserInfo>): Promise<UserInfo> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('更新用户资料', data)
-			resolve({
-				...mockUser,
-				...data
-			})
-		}, 800)
+	logger.debug('更新用户资料', data)
+	return put('/users/profile', data).then((response: any) => {
+		// 更新本地存储的用户信息
+		try {
+			const userInfo = uni.getStorageSync('userInfo')
+			if (userInfo) {
+				// 安全解析 userInfo，防止 JSON.parse 失败或返回 null
+				const parsedUserInfo = typeof userInfo === 'string'
+					? JSON.parse(userInfo)
+					: userInfo
+
+				// 确保 parsedUserInfo 和 response.data 都是有效对象
+				if (parsedUserInfo && typeof parsedUserInfo === 'object' && response.data) {
+					const updatedUser = { ...parsedUserInfo, ...response.data }
+					uni.setStorageSync('userInfo', JSON.stringify(updatedUser))
+				}
+			}
+		} catch (error) {
+			logger.error('更新本地用户信息失败', error)
+		}
+		return response.data
 	})
 }
 

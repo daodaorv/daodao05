@@ -6,7 +6,7 @@
 import { logger } from './logger'
 
 // 是否使用Mock数据
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // API基础URL
 const BASE_URL = USE_MOCK ? '' : 'http://localhost:3001/api/v1';

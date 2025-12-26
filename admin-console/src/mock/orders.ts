@@ -17,7 +17,7 @@ export type OrderStatus =
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunding' | 'refunded'
 
 // 订单类型
-export type OrderType = 'hosting' | 'cooperative' | 'tour'
+export type OrderType = 'hosting' | 'cooperative' | 'tour' | 'plus_member'
 
 // 费用分配规则（从 marketing.ts 导入类型）
 export interface FeeAllocationRule {
@@ -63,9 +63,9 @@ export interface Order {
   userId: number
   userName: string
   userPhone: string
-  vehicleId: number
-  vehicleName: string
-  vehicleNumber: string
+  vehicleId?: number
+  vehicleName?: string
+  vehicleNumber?: string
   storeId: number
   storeName: string
   storeType?: 'direct' | 'franchise' | 'cooperative' // 门店类型
@@ -85,18 +85,18 @@ export interface Order {
   refundAmount: number
 
   // 取车还车门店信息（扩展）
-  pickupStoreId: number               // 取车门店ID（新增）
-  pickupStore: string                 // 取车门店名称
-  returnStoreId: number               // 还车门店ID（新增）
-  returnStore: string                 // 还车门店名称
+  pickupStoreId?: number               // 取车门店ID（新增）
+  pickupStore?: string                 // 取车门店名称
+  returnStoreId?: number               // 还车门店ID（新增）
+  returnStore?: string                 // 还车门店名称
 
-  pickupTime: string
-  returnTime: string
-  driverName: string
-  driverPhone: string
-  driverLicense: string
-  emergencyContact: string
-  emergencyPhone: string
+  pickupTime?: string
+  returnTime?: string
+  driverName?: string
+  driverPhone?: string
+  driverLicense?: string
+  emergencyContact?: string
+  emergencyPhone?: string
   remark: string
   cancelReason: string
   refundReason: string
@@ -114,6 +114,14 @@ export interface Order {
   // 新增字段：增值费用
   extraFees: OrderExtraFee[]          // 增值费用明细列表
   extraFeesAmount: number             // 增值费用总额
+  
+  // 会员信息（仅当订单类型为 plus_member 时使用）
+  memberInfo?: {
+    type: 'regular' | 'plus'
+    discountRate: number
+    benefits: string[]
+    expiryDate?: string
+  }
 }
 
 // 订单统计
@@ -471,6 +479,46 @@ const mockOrders: Order[] = [
     priceDifference: 730, // 3530 - 2800 = 730
     extraFees: [],
     extraFeesAmount: 0
+  },
+  {
+    id: 1001,
+    orderNo: 'ORD202412250001',
+    type: 'plus_member',
+    userId: 1,
+    userName: '张三',
+    userPhone: '13800138000',
+    storeId: 1,
+    storeName: '总部',
+    status: 'completed',
+    paymentStatus: 'paid',
+    startDate: '2024-12-25',
+    endDate: '2025-12-25',
+    days: 365,
+    dailyPrice: 0,
+    totalAmount: 99,
+    depositAmount: 0,
+    insuranceAmount: 0,
+    serviceAmount: 0,
+    discountAmount: 0,
+    actualAmount: 99,
+    paidAmount: 99,
+    refundAmount: 0,
+    remark: 'PLUS会员年卡购买',
+    cancelReason: '',
+    refundReason: '',
+    createdAt: '2024-12-25T10:00:00.000Z',
+    updatedAt: '2024-12-25T10:05:00.000Z',
+    confirmedAt: '2024-12-25T10:05:00.000Z',
+    completedAt: '2024-12-25T10:05:00.000Z',
+    cancelledAt: '',
+    extraFees: [],
+    extraFeesAmount: 0,
+    memberInfo: {
+      type: 'plus',
+      discountRate: 0.95,
+      benefits: ['双倍积分', '95折优惠', '专属优惠券', '优先服务', '免费保险'],
+      expiryDate: '2025-12-25'
+    }
   }
 ]
 

@@ -16,19 +16,6 @@
           {{ row.status === 'active' ? '已开通' : '未开通' }}
         </el-tag>
       </template>
-      <template #serviceArea="{ row }">
-        <el-tag
-          v-for="area in row.serviceArea.slice(0, 3)"
-          :key="area"
-          size="small"
-          style="margin-right: 4px"
-        >
-          {{ area }}
-        </el-tag>
-        <el-tag v-if="row.serviceArea.length > 3" size="small" type="info">
-          +{{ row.serviceArea.length - 3 }}
-        </el-tag>
-      </template>
     </DataTable>
 
     <!-- 编辑城市对话框 -->
@@ -55,27 +42,9 @@
         </el-form-item>
         <el-form-item label="服务状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="active">已开通</el-radio>
-            <el-radio label="inactive">未开通</el-radio>
+            <el-radio value="active">已开通</el-radio>
+            <el-radio value="inactive">未开通</el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="服务区域" prop="serviceArea">
-          <el-select
-            v-model="form.serviceArea"
-            multiple
-            filterable
-            allow-create
-            placeholder="请输入或选择服务区域"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="area in commonAreas"
-              :key="area"
-              :label="area"
-              :value="area"
-            />
-          </el-select>
-          <div class="form-tip">可以输入新的区域名称并按回车添加</div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -102,16 +71,6 @@ import { useErrorHandler } from '@/composables'
 // Composables
 const { handleApiError } = useErrorHandler()
 
-// 常用区域列表
-const commonAreas = [
-  '朝阳区', '海淀区', '东城区', '西城区', '丰台区', '石景山区',
-  '浦东新区', '黄浦区', '徐汇区', '静安区', '长宁区', '普陀区',
-  '天河区', '越秀区', '海珠区', '番禺区', '白云区', '荔湾区',
-  '南山区', '福田区', '罗湖区', '宝安区', '龙岗区', '龙华区',
-  '武侯区', '锦江区', '青羊区', '金牛区', '成华区', '高新区',
-  '西湖区', '上城区', '拱墅区', '滨江区', '余杭区', '萧山区'
-]
-
 // 表格列配置
 const tableColumns: TableColumn[] = [
   { prop: 'id', label: 'ID', width: 80 },
@@ -120,7 +79,6 @@ const tableColumns: TableColumn[] = [
   { prop: 'provinceName', label: '所属省份', width: 120 },
   { prop: 'status', label: '服务状态', width: 100, slot: 'status' },
   { prop: 'storeCount', label: '门店数量', width: 100 },
-  { prop: 'serviceArea', label: '服务区域', minWidth: 300, slot: 'serviceArea' },
   { prop: 'createdAt', label: '创建时间', width: 180 }
 ]
 
@@ -168,8 +126,7 @@ const form = reactive({
   name: '',
   code: '',
   provinceName: '',
-  status: 'active' as 'active' | 'inactive',
-  serviceArea: [] as string[]
+  status: 'active' as 'active' | 'inactive'
 })
 
 const formRules: FormRules = {
@@ -184,9 +141,6 @@ const formRules: FormRules = {
   ],
   status: [
     { required: true, message: '请选择服务状态', trigger: 'change' }
-  ],
-  serviceArea: [
-    { required: true, message: '请选择服务区域', trigger: 'change', type: 'array', min: 1 }
   ]
 }
 
@@ -219,7 +173,6 @@ const handleEdit = (row: City) => {
   form.code = row.code
   form.provinceName = row.provinceName
   form.status = row.status
-  form.serviceArea = [...row.serviceArea]
   dialogVisible.value = true
 }
 
@@ -276,7 +229,6 @@ const handleDialogClose = () => {
   form.code = ''
   form.provinceName = ''
   form.status = 'active'
-  form.serviceArea = []
 }
 
 // 页面加载

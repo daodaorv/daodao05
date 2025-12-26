@@ -82,13 +82,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="所属区域" prop="regionId">
-              <el-select v-model="form.regionId" placeholder="请选择区域" style="width: 100%">
+            <el-form-item label="门店状态" prop="status">
+              <el-select v-model="form.status" placeholder="请选择状态" style="width: 100%">
                 <el-option
-                  v-for="region in regionList"
-                  :key="region.id"
-                  :label="region.name"
-                  :value="region.id"
+                  v-for="option in STORE_STATUS_OPTIONS"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
                 />
               </el-select>
             </el-form-item>
@@ -114,7 +114,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="所属城市" prop="cityId">
-              <el-select v-model="form.cityId" placeholder="请选择城市" style="width: 100%">
+              <el-select
+                v-model="form.cityId"
+                placeholder="请选择城市"
+                style="width: 100%"
+                @change="handleCityChange"
+              >
                 <el-option
                   v-for="city in cityList"
                   :key="city.id"
@@ -124,6 +129,25 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="所属区域" prop="regionId">
+              <el-select
+                v-model="form.regionId"
+                placeholder="请选择区域"
+                style="width: 100%"
+                :disabled="!form.cityId"
+              >
+                <el-option
+                  v-for="region in filteredRegionList"
+                  :key="region.id"
+                  :label="region.name"
+                  :value="region.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="门店经理" prop="managerId">
               <el-select v-model="form.managerId" placeholder="请选择门店经理" style="width: 100%">
@@ -138,7 +162,11 @@
           </el-col>
         </el-row>
         <el-form-item label="门店地址" prop="address">
-          <el-input v-model="form.address" placeholder="请输入门店地址" />
+          <el-input v-model="form.address" placeholder="请输入门店地址">
+            <template #append>
+              <el-button @click="handleGeocodeAddress">获取经纬度</el-button>
+            </template>
+          </el-input>
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
@@ -176,21 +204,27 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="经度" prop="longitude">
-              <el-input-number
-                v-model="form.longitude"
-                :precision="6"
-                :step="0.000001"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
             <el-form-item label="纬度" prop="latitude">
               <el-input-number
                 v-model="form.latitude"
                 :precision="6"
                 :step="0.000001"
+                :min="-90"
+                :max="90"
+                placeholder="请输入纬度"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="经度" prop="longitude">
+              <el-input-number
+                v-model="form.longitude"
+                :precision="6"
+                :step="0.000001"
+                :min="-180"
+                :max="180"
+                placeholder="请输入经度"
                 style="width: 100%"
               />
             </el-form-item>
@@ -205,6 +239,13 @@
           <div style="color: #909399; font-size: 12px; margin-top: 4px;">
             开启后，该门店将在小程序托管页面显示，用户可选择此门店进行线下车辆核验及交付
           </div>
+        </el-form-item>
+        <el-form-item label="门店图片">
+          <ImageUploader
+            v-model="form.images"
+            :limit="12"
+            :max-size="5"
+          />
         </el-form-item>
         <el-form-item label="门店描述">
           <el-input
@@ -242,6 +283,7 @@ import {
 import StatsCard from '@/components/common/StatsCard.vue'
 import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
+import ImageUploader from '@/components/common/ImageUploader.vue'
 import type { StatItem } from '@/components/common/StatsCard.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, TableAction, ToolbarButton } from '@/components/common/DataTable.vue'
@@ -344,6 +386,12 @@ const assistStoreOptions = computed(() => {
   return storeList.value.filter(store =>
     store.type === 'direct' || store.type === 'franchise'
   )
+})
+
+// 根据选择的城市筛选区域
+const filteredRegionList = computed(() => {
+  if (!form.cityId) return []
+  return regionList.value.filter(region => region.cityIds.includes(form.cityId!))
 })
 
 // 搜索字段配置
@@ -463,11 +511,12 @@ const form = reactive({
   name: '',
   code: '',
   type: 'direct' as 'direct' | 'franchise' | 'cooperative',
+  status: 'active' as 'active' | 'inactive' | 'suspended',
   cityId: undefined as number | undefined,
   regionId: undefined as number | undefined,
   address: '',
-  latitude: 0,
-  longitude: 0,
+  latitude: undefined as number | undefined,
+  longitude: undefined as number | undefined,
   phone: '',
   email: '',
   managerId: undefined as number | undefined,
@@ -475,7 +524,8 @@ const form = reactive({
   serviceScope: [] as string[],
   description: '',
   canHostingInspection: false,
-  assistStoreId: undefined as number | undefined
+  assistStoreId: undefined as number | undefined,
+  images: [] as string[]
 })
 
 const formRules: FormRules = {
@@ -488,6 +538,9 @@ const formRules: FormRules = {
   type: [
     { required: true, message: '请选择门店类型', trigger: 'change' }
   ],
+  status: [
+    { required: true, message: '请选择门店状态', trigger: 'change' }
+  ],
   regionId: [
     { required: true, message: '请选择所属区域', trigger: 'change' }
   ],
@@ -499,11 +552,28 @@ const formRules: FormRules = {
   ],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    {
+      pattern: /^(1[3-9]\d{9}|0\d{2,3}-?\d{7,8})$/,
+      message: '请输入正确的手机号码或座机号码',
+      trigger: 'blur'
+    }
   ],
   email: [
-    { required: true, message: '请输入电子邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback()
+          return
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(value)) {
+          callback(new Error('请输入正确的邮箱地址'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   managerId: [
     { required: true, message: '请选择门店经理', trigger: 'change' }
@@ -615,6 +685,7 @@ const handleEdit = (row: Store) => {
   form.name = row.name
   form.code = row.code
   form.type = row.type
+  form.status = row.status
   form.cityId = row.cityId
   form.regionId = row.regionId
   form.address = row.address
@@ -628,6 +699,7 @@ const handleEdit = (row: Store) => {
   form.description = row.description
   form.canHostingInspection = row.canHostingInspection
   form.assistStoreId = row.assistStoreId
+  form.images = row.images || []
   dialogVisible.value = true
 }
 
@@ -668,6 +740,7 @@ const handleSubmit = async () => {
         name: form.name,
         code: form.code,
         type: form.type,
+        status: form.status,
         cityId: form.cityId!,
         regionId: form.regionId!,
         address: form.address,
@@ -679,7 +752,8 @@ const handleSubmit = async () => {
         businessHours: form.businessHours,
         serviceScope: form.serviceScope,
         description: form.description,
-        canHostingInspection: form.canHostingInspection
+        canHostingInspection: form.canHostingInspection,
+        images: form.images
       }
 
       // 如果是合作商门店，添加协助门店信息
@@ -706,6 +780,56 @@ const handleSubmit = async () => {
   })
 }
 
+// 城市变更时自动筛选区域
+const handleCityChange = () => {
+  // 如果当前选择的区域不在筛选后的区域列表中,则清空区域选择
+  if (form.regionId) {
+    const isRegionValid = filteredRegionList.value.some(r => r.id === form.regionId)
+    if (!isRegionValid) {
+      form.regionId = undefined
+    }
+  }
+  // 如果只有一个区域选项,自动选择
+  if (filteredRegionList.value.length === 1) {
+    form.regionId = filteredRegionList.value[0].id
+  }
+}
+
+// 根据地址获取经纬度(模拟地理编码)
+const handleGeocodeAddress = () => {
+  if (!form.address) {
+    ElMessage.warning('请先输入门店地址')
+    return
+  }
+
+  // 模拟地理编码 - 实际项目中应调用高德地图或百度地图API
+  // 这里根据城市名称提供一些模拟的经纬度
+  const cityCoordinates: Record<string, { lat: number; lng: number }> = {
+    '北京': { lat: 39.9042, lng: 116.4074 },
+    '上海': { lat: 31.2304, lng: 121.4737 },
+    '广州': { lat: 23.1291, lng: 113.2644 },
+    '深圳': { lat: 22.5431, lng: 114.0579 },
+    '成都': { lat: 30.5728, lng: 104.0668 },
+    '杭州': { lat: 30.2741, lng: 120.1551 }
+  }
+
+  // 从地址中提取城市名称
+  let cityFound = false
+  for (const [cityName, coords] of Object.entries(cityCoordinates)) {
+    if (form.address.includes(cityName)) {
+      form.latitude = coords.lat
+      form.longitude = coords.lng
+      cityFound = true
+      ElMessage.success(`已自动获取${cityName}的经纬度`)
+      break
+    }
+  }
+
+  if (!cityFound) {
+    ElMessage.info('未能自动识别城市,请手动输入经纬度。实际项目中可接入地图API进行精确定位')
+  }
+}
+
 // 对话框关闭
 const handleDialogClose = () => {
   formRef.value?.resetFields()
@@ -713,11 +837,12 @@ const handleDialogClose = () => {
   form.name = ''
   form.code = ''
   form.type = 'direct'
+  form.status = 'active'
   form.cityId = undefined
   form.regionId = undefined
   form.address = ''
-  form.latitude = 0
-  form.longitude = 0
+  form.latitude = undefined
+  form.longitude = undefined
   form.phone = ''
   form.email = ''
   form.managerId = undefined
@@ -726,6 +851,7 @@ const handleDialogClose = () => {
   form.description = ''
   form.canHostingInspection = false
   form.assistStoreId = undefined
+  form.images = []
 }
 
 // 分页

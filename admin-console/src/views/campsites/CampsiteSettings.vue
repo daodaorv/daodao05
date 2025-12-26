@@ -42,9 +42,9 @@
 
         <el-form-item label="运营状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="active">运营中</el-radio>
-            <el-radio label="inactive">已停业</el-radio>
-            <el-radio label="maintenance">维护中</el-radio>
+            <el-radio value="active">运营中</el-radio>
+            <el-radio value="inactive">已停业</el-radio>
+            <el-radio value="maintenance">维护中</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -383,8 +383,8 @@
       <el-form label-width="80px">
         <el-form-item label="视频类型">
           <el-radio-group v-model="videoType">
-            <el-radio label="url">视频URL</el-radio>
-            <el-radio label="embed">嵌入代码</el-radio>
+            <el-radio value="url">视频URL</el-radio>
+            <el-radio value="embed">嵌入代码</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="videoType === 'url'" label="视频URL">
@@ -421,8 +421,8 @@
         </el-form-item>
         <el-form-item label="链接类型">
           <el-radio-group v-model="linkType">
-            <el-radio label="normal">普通链接</el-radio>
-            <el-radio label="wechat">微信公众号文章</el-radio>
+            <el-radio value="normal">普通链接</el-radio>
+            <el-radio value="wechat">微信公众号文章</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

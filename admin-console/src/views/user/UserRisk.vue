@@ -34,7 +34,6 @@
         </div>
       </template>
 
-      // @ts-ignore
       <template #riskLevel="{ row }">
         <el-tag :type="getRiskLevelTag(row.riskLevel)">
           {{ getRiskLevelLabel(row.riskLevel) }}
@@ -57,7 +56,6 @@
         {{ formatDateTime(row.detectedAt) }}
       </template>
 
-      // @ts-ignore
       <template #status="{ row }">
         <el-tag :type="getRiskStatusTag(row.status)">
           {{ getRiskStatusLabel(row.status) }}
@@ -101,9 +99,7 @@
         <div style="margin-bottom: 16px;">
           <div style="margin-bottom: 8px;">
             <strong>用户信息：</strong>{{ currentRisk?.username }} ({{ currentRisk?.phone }})
-        // @ts-ignore
           </div>
-      // @ts-ignore
           <div>
             <strong>风险等级：</strong>
             <el-tag :type="getRiskLevelTag(currentRisk?.riskLevel)">
@@ -113,6 +109,64 @@
         </div>
       </template>
     </FormDialog>
+
+    <!-- 详情查看对话框 -->
+    <el-dialog
+      v-model="detailDialogVisible"
+      title="风险用户详情"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <div v-if="currentRisk" class="risk-detail">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="用户ID">
+            {{ currentRisk.id }}
+          </el-descriptions-item>
+          <el-descriptions-item label="用户名">
+            {{ currentRisk.username }}
+          </el-descriptions-item>
+          <el-descriptions-item label="手机号">
+            {{ currentRisk.phone }}
+          </el-descriptions-item>
+          <el-descriptions-item label="风险等级">
+            <el-tag :type="getRiskLevelTag(currentRisk.riskLevel)">
+              {{ getRiskLevelLabel(currentRisk.riskLevel) }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="风险类型">
+            <el-tag type="info">
+              {{ getRiskTypeLabel(currentRisk.riskType) }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="风险评分">
+            <span :class="getRiskScoreClass(currentRisk.riskScore)">
+              {{ currentRisk.riskScore }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="检测时间" :span="2">
+            {{ formatDateTime(currentRisk.detectedAt) }}
+          </el-descriptions-item>
+          <el-descriptions-item label="处理状态">
+            <el-tag :type="getRiskStatusTag(currentRisk.status)">
+              {{ getRiskStatusLabel(currentRisk.status) }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="风险原因" :span="2">
+            {{ currentRisk.riskReason }}
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+      <template #footer>
+        <el-button @click="detailDialogVisible = false">关闭</el-button>
+        <el-button
+          v-if="currentRisk?.status === 'pending'"
+          type="primary"
+          @click="handleProcessFromDetail"
+        >
+          立即处理
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -292,6 +346,7 @@ const tableActions: TableAction[] = []
 
 // 对话框
 const dialogVisible = ref(false)
+const detailDialogVisible = ref(false)
 const submitLoading = ref(false)
 const currentRisk = ref<RiskUser | null>(null)
 
@@ -346,8 +401,9 @@ function handleReset() {
 }
 
 // 查看详情
-function handleView(_row: RiskUser) {
-  ElMessage.info('查看风险用户详情功能开发中...')
+function handleView(row: RiskUser) {
+  currentRisk.value = row
+  detailDialogVisible.value = true
 }
 
 // 处理风险
@@ -374,6 +430,17 @@ async function handleSubmit() {
   } finally {
     submitLoading.value = false
   }
+}
+
+// 从详情对话框跳转到处理对话框
+function handleProcessFromDetail() {
+  detailDialogVisible.value = false
+  // 延迟打开处理对话框，避免动画冲突
+  setTimeout(() => {
+    if (currentRisk.value) {
+      handleProcess(currentRisk.value)
+    }
+  }, 300)
 }
 
 // 加入黑名单
@@ -464,6 +531,15 @@ function getRiskStatusTag(status: string) {
 
   .risk-score-low {
     color: #909399;
+  }
+
+  .risk-detail {
+    :deep(.el-descriptions) {
+      .el-descriptions__label {
+        width: 120px;
+        font-weight: 600;
+      }
+    }
   }
 }
 </style>

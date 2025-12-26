@@ -117,8 +117,8 @@
 
 <script setup lang="ts">
 // @ts-nocheck
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Download, Upload } from '@element-plus/icons-vue'
 import SearchForm from '@/components/common/SearchForm.vue'
@@ -132,6 +132,7 @@ import { VEHICLE_STATUS_OPTIONS } from '@/constants'
 import { exportToCSV, downloadImportTemplate } from '@/utils/export'
 
 const router = useRouter()
+const route = useRoute()
 
 // Composables
 const { handleApiError } = useErrorHandler()
@@ -154,7 +155,7 @@ interface Employee {
 }
 
 // Mock 数据 - 只显示门店级别员工(门店经理和门店员工)
-const list = ref<Employee[]>([
+const allEmployees = ref<Employee[]>([
   {
     id: 3,
     realName: '王五',
@@ -255,6 +256,33 @@ const searchForm = reactive({
   storeId: null as number | null,
   roleId: null as number | null,
   status: '',
+})
+
+// 筛选后的员工列表
+const list = computed(() => {
+  let filtered = allEmployees.value
+
+  // 根据门店ID筛选
+  if (searchForm.storeId) {
+    filtered = filtered.filter(emp => emp.storeId === searchForm.storeId)
+  }
+
+  // 根据关键词筛选
+  if (searchForm.keyword) {
+    const keyword = searchForm.keyword.toLowerCase()
+    filtered = filtered.filter(emp =>
+      emp.realName.toLowerCase().includes(keyword) ||
+      emp.jobNumber.toLowerCase().includes(keyword) ||
+      emp.phone.includes(keyword)
+    )
+  }
+
+  // 根据状态筛选
+  if (searchForm.status) {
+    filtered = filtered.filter(emp => emp.status === searchForm.status)
+  }
+
+  return filtered
 })
 
 // 分页
@@ -526,6 +554,18 @@ function handleReset() {
   searchForm.status = ''
   pagination.page = 1
 }
+
+// 页面加载时检查URL参数
+onMounted(() => {
+  const storeIdParam = route.query.storeId
+  if (storeIdParam) {
+    searchForm.storeId = Number(storeIdParam)
+    const storeName = route.query.storeName
+    if (storeName) {
+      ElMessage.success(`已自动筛选门店: ${storeName}`)
+    }
+  }
+})
 
 // 新增员工
 function handleCreate() {

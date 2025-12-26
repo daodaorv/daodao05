@@ -198,9 +198,9 @@
       >
         <el-form-item label="调价方式" prop="adjustType">
           <el-radio-group v-model="batchPriceFormData.adjustType">
-            <el-radio label="percentage">百分比调整</el-radio>
-            <el-radio label="fixed">固定金额调整</el-radio>
-            <el-radio label="unified">统一设置价格</el-radio>
+            <el-radio value="percentage">百分比调整</el-radio>
+            <el-radio value="fixed">固定金额调整</el-radio>
+            <el-radio value="unified">统一设置价格</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="调整值" prop="adjustValue">

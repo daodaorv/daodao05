@@ -5,27 +5,27 @@
 
 // 标签类型枚举
 export enum TagType {
-  SYSTEM = 'system',      // 系统标签（如PLUS会员、VIP用户）
-  CUSTOM = 'custom'       // 自定义标签（运营手动创建）
+  SYSTEM = 'system',
+  CUSTOM = 'custom'
 }
 
 // 标签分类枚举
 export enum TagCategory {
-  USER_ATTRIBUTE = 'user_attribute',    // 用户属性（新用户、企业用户）
-  BEHAVIOR = 'behavior',                // 行为特征（活跃用户、沉睡用户）
-  VALUE_LEVEL = 'value_level',          // 价值等级（VIP用户、优质客户）
-  RISK_CONTROL = 'risk_control',        // 风险控制（高风险用户）
-  MEMBERSHIP = 'membership',            // 会员类型（PLUS会员）
-  HOSTING = 'hosting'                   // 托管类型（自有车托管、购车托管）
+  USER_ATTRIBUTE = 'user_attribute',
+  BEHAVIOR = 'behavior',
+  VALUE_LEVEL = 'value_level',
+  RISK_CONTROL = 'risk_control',
+  MEMBERSHIP = 'membership',
+  HOSTING = 'hosting'
 }
 
 // 自动规则触发条件类型
 export type AutoRuleConditionType =
-  | 'register_days'      // 注册天数
-  | 'order_count'        // 订单数量
-  | 'total_amount'       // 消费金额
-  | 'last_login_days'    // 最后登录天数
-  | 'violation_count'    // 违规次数
+  | 'register_days'
+  | 'order_count'
+  | 'total_amount'
+  | 'last_login_days'
+  | 'violation_count'
 
 // 自动规则运算符
 export type AutoRuleOperator = 'gt' | 'lt' | 'eq' | 'gte' | 'lte'
@@ -39,44 +39,171 @@ export interface AutoRuleCondition {
 
 // 标签触发类型枚举
 export enum TagTriggerType {
-  MANUAL = 'manual',           // 手动添加（管理员操作）
-  RULE_BASED = 'rule_based',   // 规则触发（基于用户数据）
-  API_DRIVEN = 'api_driven'    // API驱动（业务系统调用）
+  MANUAL = 'manual',
+  RULE_BASED = 'rule_based',
+  API_DRIVEN = 'api_driven'
 }
 
 // 自动规则配置
 export interface AutoRule {
-  enabled: boolean                      // 是否启用
-  conditions: AutoRuleCondition[]       // 触发条件（AND关系）
-  logic?: 'AND' | 'OR'                  // 条件逻辑（默认AND）
-  triggerMode: 'realtime' | 'manual'    // 触发模式：实时触发/手动触发
-  description: string                   // 规则描述
+  enabled: boolean
+  conditions: AutoRuleCondition[]
+  logic?: 'AND' | 'OR'
+  triggerMode: 'realtime' | 'manual'
+  description: string
 }
 
 // API触发配置
 export interface ApiTrigger {
-  apiEndpoint: string          // 触发API端点
-  sourceSystem: string         // 来源系统：order_system, hosting_system
-  description: string          // 触发说明
-  autoRemove?: boolean         // 是否支持自动移除
-  removeConditions?: string[]  // 移除条件说明
+  apiEndpoint: string
+  sourceSystem: string
+  description: string
+  autoRemove?: boolean
+  removeConditions?: string[]
+}
+
+// ==================== 多触发器架构 ====================
+
+// 触发器基础接口
+export interface TagTrigger {
+  id: string
+  type: TagTriggerType
+  enabled: boolean
+  priority: number
+  name: string
+  description: string
+}
+
+// 手动触发器
+export interface ManualTrigger extends TagTrigger {
+  type: TagTriggerType.MANUAL
+}
+
+// 规则触发器
+export interface RuleTrigger extends TagTrigger {
+  type: TagTriggerType.RULE_BASED
+  conditions: AutoRuleCondition[]
+  logic: 'AND' | 'OR'
+  triggerMode: 'realtime' | 'manual'
+}
+
+// API触发器配置
+export interface ApiTriggerConfig extends TagTrigger {
+  type: TagTriggerType.API_DRIVEN
+  sourceId: string
+  autoRemove: boolean
+  removeSourceId?: string
+}
+
+// API触发源定义
+export interface ApiTriggerSource {
+  id: string
+  name: string
+  description: string
+  sourceSystem: string
+  apiEndpoint: string
+  httpMethod: 'POST' | 'PUT'
+  requestSchema: Record<string, any>
+  enabled: boolean
+  createdAt: string
+}
+
+// 预定义的API触发源列表
+export const API_TRIGGER_SOURCES: ApiTriggerSource[] = [
+  {
+    id: 'order_plus_member_purchase',
+    name: 'PLUS会员购买',
+    description: '用户购买PLUS会员商品（99元）时触发',
+    sourceSystem: 'order_system',
+    apiEndpoint: '/api/tags/add-to-user',
+    httpMethod: 'POST',
+    requestSchema: { userId: 'number', tagId: 'number', expiresAt: 'string' },
+    enabled: true,
+    createdAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'order_high_value_purchase',
+    name: '高额消费触发',
+    description: '单次消费满1万元时触发',
+    sourceSystem: 'order_system',
+    apiEndpoint: '/api/tags/add-to-user',
+    httpMethod: 'POST',
+    requestSchema: { userId: 'number', tagId: 'number', expiresAt: 'string', orderId: 'number' },
+    enabled: true,
+    createdAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'hosting_owner_approved',
+    name: '托管审核通过',
+    description: '托管审核通过且车辆上线时触发',
+    sourceSystem: 'hosting_system',
+    apiEndpoint: '/api/tags/add-to-user',
+    httpMethod: 'POST',
+    requestSchema: { userId: 'number', tagId: 'number', vehicleId: 'number' },
+    enabled: true,
+    createdAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'hosting_cancelled',
+    name: '托管取消',
+    description: '托管取消或车辆下线时触发移除',
+    sourceSystem: 'hosting_system',
+    apiEndpoint: '/api/tags/remove-from-user',
+    httpMethod: 'POST',
+    requestSchema: { userId: 'number', tagId: 'number', reason: 'string' },
+    enabled: true,
+    createdAt: '2024-01-01T00:00:00Z'
+  }
+]
+
+// ==================== 通用权益系统 ====================
+
+// 权益类型枚举
+export enum BenefitType {
+  DISCOUNT = 'discount',
+  POINTS_MULTIPLIER = 'points_multiplier',
+  COUPON = 'coupon',
+  SERVICE = 'service',
+  INSURANCE = 'insurance',
+  PRIORITY = 'priority',
+  PROFIT_SHARING = 'profit_sharing',
+  CUSTOM = 'custom'
+}
+
+// 通用权益配置
+export interface TagBenefit {
+  id: string
+  type: BenefitType
+  name: string
+  description: string
+  icon: string
+  value: string | number
+  priority: number
+  applicableScenes: string[]
+  status: 'active' | 'inactive'
+  expiresAt?: string
+}
+
+// 标签权益配置
+export interface TagBenefitsConfig {
+  benefits: TagBenefit[]
 }
 
 // 业务关联配置
 export interface BusinessAssociation {
-  coupons: number[]              // 关联的优惠券ID
-  pricingStrategies: number[]    // 关联的价格策略ID
-  activities: number[]           // 关联的营销活动ID
-  profitConfigs: number[]        // 关联的分润配置ID
+  coupons: number[]
+  pricingStrategies: number[]
+  activities: number[]
+  profitConfigs: number[]
 }
 
-// 会员权益配置（仅PLUS会员等会员标签使用）
+// 会员权益配置
 export interface MemberBenefits {
-  pointsMultiplier: number      // 积分倍率（如2表示双倍积分）
-  priceDiscount: number         // 价格折扣（如0.95表示95折）
-  exclusiveCoupons: number[]    // 专属优惠券ID列表
-  priorityService: boolean      // 优先服务
-  freeInsurance: boolean        // 免费保险
+  pointsMultiplier: number
+  priceDiscount: number
+  exclusiveCoupons: number[]
+  priorityService: boolean
+  freeInsurance: boolean
 }
 
 // 扩展后的标签接口
@@ -87,21 +214,21 @@ export interface Tag {
   description: string
   userCount: number
 
-  // 基本字段
-  type: TagType                           // 标签类型
-  category: TagCategory                   // 标签分类
-  priority: number                        // 优先级（1-10，数字越小优先级越高）
-  status: 'active' | 'inactive'           // 标签状态
+  type: TagType
+  category: TagCategory
+  priority: number
+  status: 'active' | 'inactive'
 
-  // 触发方式配置
-  triggerType: TagTriggerType             // 触发类型
-  autoRule?: AutoRule                     // 规则触发配置
-  apiTrigger?: ApiTrigger                 // API触发配置
+  // 多触发器配置（新增）
+  triggers?: (ManualTrigger | RuleTrigger | ApiTriggerConfig)[]
 
-  // 业务配置
-  businessAssociation?: BusinessAssociation  // 业务关联
-  expiresAt?: string                      // 到期时间（如PLUS会员到期）
-  benefits?: MemberBenefits               // 会员权益（仅会员标签）
+
+  businessAssociation?: BusinessAssociation
+  expiresAt?: string
+
+  // 通用权益配置（新增）
+  benefitsConfig?: TagBenefitsConfig
+
 
   createdAt: string
   updatedAt?: string

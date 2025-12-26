@@ -102,11 +102,11 @@
 
       <el-form-item label="删除类型" prop="deleteType">
         <el-radio-group v-model="form.deleteType">
-          <el-radio label="inappropriate">不当内容</el-radio>
-          <el-radio label="duplicate">重复评价</el-radio>
-          <el-radio label="spam">垃圾信息</el-radio>
-          <el-radio label="user_request">用户要求</el-radio>
-          <el-radio label="other">其他原因</el-radio>
+          <el-radio value="inappropriate">不当内容</el-radio>
+          <el-radio value="duplicate">重复评价</el-radio>
+          <el-radio value="spam">垃圾信息</el-radio>
+          <el-radio value="user_request">用户要求</el-radio>
+          <el-radio value="other">其他原因</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>

@@ -3,6 +3,11 @@
  * 车辆管理模块 Mock 数据
  */
 
+import { createPlaceholderDataUrl } from '@/utils/placeholder'
+
+const placeholder = (text: string, width = 300, height = 200) =>
+  createPlaceholderDataUrl(text, { width, height })
+
 // 车型数据类型
 export interface VehicleModel {
   id: number
@@ -51,7 +56,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 80,
     dailyPrice: 800,
     vehicleCount: 15,
-    image: 'https://via.placeholder.com/300x200?text=RV80+C型',
+    image: placeholder('RV80 C型'),
     description: '大通RV80 C型房车，空间宽敞，配置齐全，适合家庭出游',
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能'],
     status: 'active',
@@ -72,7 +77,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 70,
     dailyPrice: 600,
     vehicleCount: 10,
-    image: 'https://via.placeholder.com/300x200?text=全顺+B型',
+    image: placeholder('全顺 B型'),
     description: '福特全顺B型房车，灵活便捷，适合城市出行和短途旅游',
     features: ['空调', '冰箱', '倒车影像', '发电机'],
     status: 'active',
@@ -93,7 +98,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 0,
     dailyPrice: 500,
     vehicleCount: 8,
-    image: 'https://via.placeholder.com/300x200?text=欧胜+拖挂',
+    image: placeholder('欧胜 拖挂'),
     description: '依维柯欧胜拖挂房车，经济实惠，适合长途旅行',
     features: ['空调', '冰箱', '卫生间', '淋浴'],
     status: 'active',
@@ -114,7 +119,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 75,
     dailyPrice: 1200,
     vehicleCount: 5,
-    image: 'https://via.placeholder.com/300x200?text=Sprinter+豪华',
+    image: placeholder('Sprinter 豪华'),
     description: '奔驰Sprinter豪华B型房车，高端配置，舒适体验',
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能', '发电机', '倒车影像'],
     status: 'active',
@@ -135,7 +140,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 65,
     dailyPrice: 650,
     vehicleCount: 12,
-    image: 'https://via.placeholder.com/300x200?text=特顺+C型',
+    image: placeholder('特顺 C型'),
     description: '江铃特顺C型房车，性价比高，适合中短途旅行',
     features: ['空调', '冰箱', '卫生间', '倒车影像'],
     status: 'active',
@@ -156,7 +161,7 @@ export const mockVehicleModels: VehicleModel[] = [
     fuelCapacity: 60,
     dailyPrice: 550,
     vehicleCount: 0,
-    image: 'https://via.placeholder.com/300x200?text=V90+B型',
+    image: placeholder('V90 B型'),
     description: '大通V90 B型房车，紧凑灵活，适合城市周边游',
     features: ['空调', '冰箱'],
     status: 'inactive',
@@ -445,7 +450,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-01-15',
     annualInspectionDate: '2025-01-15',
     location: '北京市朝阳区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+1'],
+    images: [placeholder('Vehicle 1', 800, 600)],
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能'],
     conditionGrade: 'B', // 购买于2024-01-15,已11个月,接近B级
     dailyPrice: 800,
@@ -477,7 +482,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-01-20',
     annualInspectionDate: '2025-01-20',
     location: '北京市海淀区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+2'],
+    images: [placeholder('Vehicle 2', 800, 600)],
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能'],
     dailyPrice: 800,
     remark: '当前已租出',
@@ -504,7 +509,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-02-10',
     annualInspectionDate: '2025-02-10',
     location: '上海市浦东新区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+3'],
+    images: [placeholder('Vehicle 3', 800, 600)],
     features: ['空调', '冰箱', '倒车影像'],
     dailyPrice: 600,
     remark: '适合城市出行',
@@ -533,7 +538,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-02-15',
     annualInspectionDate: '2025-02-15',
     location: '上海市浦东新区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+4'],
+    images: [placeholder('Vehicle 4', 800, 600)],
     features: ['空调', '冰箱', '倒车影像'],
     dailyPrice: 600,
     remark: '正在进行定期保养',
@@ -563,7 +568,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-03-05',
     annualInspectionDate: '2025-03-05',
     location: '深圳市南山区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+5'],
+    images: [placeholder('Vehicle 5', 800, 600)],
     features: ['空调', '冰箱', '卫生间'],
     dailyPrice: 500,
     remark: '经济实惠型',
@@ -590,7 +595,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-04-20',
     annualInspectionDate: '2025-04-20',
     location: '北京市朝阳区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+6'],
+    images: [placeholder('Vehicle 6', 800, 600)],
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能', '发电机', '倒车影像'],
     dailyPrice: 1200,
     remark: '豪华配置，高端体验',
@@ -619,7 +624,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-05-10',
     annualInspectionDate: '2025-05-10',
     location: '成都市武侯区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+7'],
+    images: [placeholder('Vehicle 7', 800, 600)],
     features: ['空调', '冰箱', '卫生间', '倒车影像'],
     dailyPrice: 650,
     remark: '正在维修中',
@@ -646,7 +651,7 @@ export const mockVehicles: Vehicle[] = [
     insuranceExpireDate: '2025-06-01',
     annualInspectionDate: '2025-06-01',
     location: '北京市朝阳区',
-    images: ['https://via.placeholder.com/800x600?text=Vehicle+8'],
+    images: [placeholder('Vehicle 8', 800, 600)],
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能'],
     dailyPrice: 800,
     remark: '新车，车况极佳',

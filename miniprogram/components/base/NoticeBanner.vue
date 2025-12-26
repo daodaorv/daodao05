@@ -1,5 +1,5 @@
 <template>
-	<view v-if="notices.length > 0" class="notice-banner">
+	<view v-if="noticeList.length > 0" class="notice-banner">
 		<view class="icon-box">
 			<u-icon name="volume-fill" size="16" :color="primaryColor"></u-icon>
 		</view>
@@ -12,7 +12,7 @@
 				:circular="true"
 				:duration="500"
 			>
-				<swiper-item v-for="(notice, index) in notices" :key="index">
+				<swiper-item v-for="(notice, index) in noticeList" :key="index">
 					<view class="notice-text" @tap="handleNoticeClick(notice)">
 						{{ notice.content }}
 					</view>
@@ -24,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 // 主题色常量（与 uni.scss 中 $uni-color-primary 保持一致）
 const primaryColor = '#FF9F29';
 
@@ -34,12 +36,12 @@ interface Notice {
 }
 
 interface Props {
-	notices: Notice[];
+	notices?: Notice[];
 	autoplay?: boolean;
 	interval?: number;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
 	notices: () => [],
 	autoplay: true,
 	interval: 3000
@@ -48,6 +50,11 @@ withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
 	(e: 'click', notice: Notice): void;
 }>();
+
+// 使用计算属性确保 noticeList 始终是数组
+const noticeList = computed(() => {
+	return Array.isArray(props.notices) ? props.notices : [];
+});
 
 const handleNoticeClick = (notice: Notice) => {
 	emit('click', notice);

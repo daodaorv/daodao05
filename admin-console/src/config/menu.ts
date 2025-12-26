@@ -53,12 +53,6 @@ export const menuConfig: MenuItem[] = [
         component: () => import('@/views/user/RuleExecutionLogs.vue'),
       },
       {
-        path: '/users/plus-membership',
-        name: 'PlusMembership',
-        meta: { title: 'PLUS会员管理', description: '管理PLUS会员权益和订阅' },
-        component: () => import('@/views/user/PlusMembership.vue'),
-      },
-      {
         path: '/users/membership-migration',
         name: 'MembershipMigration',
         meta: { title: '数据迁移', description: '迁移历史会员数据', roles: [UserRole.PLATFORM_ADMIN] },

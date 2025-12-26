@@ -180,7 +180,9 @@ export async function logout(): Promise<void> {
 	try {
 		// 调用退出登录API
 		const authApi = await import('@/api/auth')
-		await authApi.logout()
+		if (authApi && typeof authApi.logout === 'function') {
+			await authApi.logout()
+		}
 	} catch (error) {
 		logger.error('退出登录API调用失败', error)
 	} finally {

@@ -347,13 +347,13 @@
           v-if="totalAdditionalFees > 0"
         >
           <el-radio-group v-model="form.paymentMethod">
-            <el-radio label="deposit_deduction">
+            <el-radio value="deposit_deduction">
               <div class="payment-option">
                 <span class="option-title">押金扣取</span>
                 <span class="option-desc">从押金中直接扣除费用，退款时自动减扣</span>
               </div>
             </el-radio>
-            <el-radio label="user_payment">
+            <el-radio value="user_payment">
               <div class="payment-option">
                 <span class="option-title">用户支付</span>
                 <span class="option-desc">发起支付让用户在小程序端完成，或生成收款码扫码支付</span>
@@ -369,13 +369,13 @@
           v-if="form.paymentMethod === 'user_payment' && totalAdditionalFees > 0"
         >
           <el-radio-group v-model="form.userPaymentType">
-            <el-radio label="miniprogram">
+            <el-radio value="miniprogram">
               <div class="payment-option">
                 <span class="option-title">小程序支付</span>
                 <span class="option-desc">发起支付订单，用户在小程序端完成支付</span>
               </div>
             </el-radio>
-            <el-radio label="qrcode">
+            <el-radio value="qrcode">
               <div class="payment-option">
                 <span class="option-title">扫码支付</span>
                 <span class="option-desc">生成收款二维码，用户扫码完成支付</span>

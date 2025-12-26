@@ -190,6 +190,7 @@
             :show-file-list="false"
             :on-success="handleImageUploadSuccess"
             :before-upload="beforeImageUpload"
+            :http-request="isDev ? mockImageUploadRequest : undefined"
             accept="image/*"
             drag
           >
@@ -239,6 +240,8 @@ import {
   Delete,
   Upload,
 } from '@element-plus/icons-vue'
+import type { UploadRequestOptions } from 'element-plus'
+import { readAsDataUrl } from '@/utils/file'
 
 // Props 定义
 interface Props {
@@ -260,7 +263,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   maxLength: 0,
   showWordCount: true,
-  uploadUrl: '/api/upload/image',
+  uploadUrl: '/api/v1/upload/image',
 })
 
 // Emits 定义
@@ -299,6 +302,18 @@ const uploadHeaders = computed(() => {
     Authorization: token ? `Bearer ${token}` : '',
   }
 })
+
+const isDev = import.meta.env.DEV
+
+const mockImageUploadRequest = async (options: UploadRequestOptions) => {
+  try {
+    const file = options.file as File
+    const url = await readAsDataUrl(file)
+    options.onSuccess?.({ data: { url } })
+  } catch (error) {
+    options.onError?.(error as any)
+  }
+}
 
 // 执行编辑命令
 const execCommand = (command: string, value?: string) => {

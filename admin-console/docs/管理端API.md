@@ -24,6 +24,7 @@
 - **接口**: `POST /api/v1/auth/login`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "phone": "string",
@@ -31,6 +32,7 @@
   }
   ```
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -74,6 +76,7 @@
   - `userType`: 用户类型 (customer/mobile_admin/pc_admin)
   - `status`: 用户状态 (active/inactive/banned)
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -95,6 +98,7 @@
 - **接口**: `POST /api/v1/users`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "username": "string",
@@ -110,6 +114,7 @@
 - **接口**: `PUT /api/v1/users/:id`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "username": "string",
@@ -128,6 +133,7 @@
 - **接口**: `PUT /api/v1/users/:id/status`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "status": "active|inactive|banned"
@@ -140,6 +146,7 @@
 - **接口**: `GET /api/v1/user-tags`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -161,6 +168,7 @@
 - **接口**: `POST /api/v1/user-tags`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "name": "string",
@@ -173,6 +181,7 @@
 - **接口**: `PUT /api/v1/user-tags/:id`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "name": "string",
@@ -193,6 +202,7 @@
   - `pageSize`: 每页数量
   - `keyword`: 搜索关键词（手机号/用户名）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -219,6 +229,7 @@
 - **接口**: `POST /api/v1/users/:id/tags`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "tagIds": [1, 2, 3]
@@ -233,6 +244,7 @@
 - **接口**: `POST /api/v1/user-tags/:id/users/batch`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "userIds": [1, 2, 3]
@@ -243,6 +255,7 @@
 - **接口**: `DELETE /api/v1/user-tags/:id/users/batch`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "userIds": [1, 2, 3]
@@ -261,6 +274,7 @@
   - `riskLevel`: 风险等级（high/medium/low）
   - `riskType`: 风险类型（login/behavior/payment/credit）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -291,6 +305,7 @@
 - **接口**: `GET /api/v1/users/risk/stats`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -308,6 +323,7 @@
 - **接口**: `POST /api/v1/users/:id/risk/process`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "action": "ignore|warning|restrict|blacklist",
@@ -319,6 +335,7 @@
 - **接口**: `POST /api/v1/users/:id/blacklist`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "reason": "fraud|complaint|violation|other",
@@ -337,6 +354,7 @@
   - `keyword`: 搜索关键词（手机号/用户名）
   - `reason`: 加入原因（fraud/complaint/violation/other）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -368,6 +386,7 @@
 - **接口**: `POST /api/v1/users/blacklist`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "userId": 1,
@@ -380,6 +399,7 @@
 - **接口**: `DELETE /api/v1/users/blacklist/:id`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "removeReason": "string"
@@ -407,6 +427,7 @@
   - `vehicleType`: 车辆类型（c_type/b_type/trailer）
   - `status`: 状态（active/inactive）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -450,6 +471,7 @@
 - **接口**: `POST /api/v1/vehicles/models`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "brandId": 1,
@@ -480,6 +502,7 @@
 - **接口**: `PUT /api/v1/vehicles/models/:id/status`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "status": "active|inactive"
@@ -490,6 +513,7 @@
 - **接口**: `GET /api/v1/vehicles/brands`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -520,6 +544,7 @@
   - `ownershipType`: 所有权类型（crowdfunding/cooperative）
   - `crowdfundingProjectId`: 众筹项目ID
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -571,6 +596,7 @@
 - **接口**: `POST /api/v1/vehicles`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "vehicleNumber": "string",
@@ -606,6 +632,7 @@
 - **接口**: `PUT /api/v1/vehicles/:id/status`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "status": "available|rented|maintenance|repair|retired"
@@ -618,6 +645,7 @@
 - **接口**: `GET /api/v1/vehicles/status/stats`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -636,6 +664,7 @@
 - **接口**: `GET /api/v1/vehicles/:vehicleId/status/history`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -662,6 +691,7 @@
 - **接口**: `POST /api/v1/vehicles/:vehicleId/status/history`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "vehicleId": 1,
@@ -771,6 +801,7 @@
   - `keyword`: 角色名称搜索
   - `status`: 角色状态（active/inactive）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -801,6 +832,7 @@
 - **接口**: `POST /api/v1/roles`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "name": "string",
@@ -824,6 +856,7 @@
 - **接口**: `PUT /api/v1/roles/:id/permissions`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "menuPermissions": ["/dashboard", "/users", "/users/list"],
@@ -849,6 +882,7 @@
   - `startDate`: 开始日期
   - `endDate`: 结束日期
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -890,6 +924,7 @@
 - **接口**: `DELETE /api/v1/operation-logs/clean`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "beforeDate": "2024-01-01"
@@ -911,6 +946,7 @@
   - `roleId`: 角色ID
   - `status`: 员工状态（active/inactive）
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -947,6 +983,7 @@
 - **接口**: `POST /api/v1/employees`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "realName": "string",
@@ -968,6 +1005,7 @@
 - **接口**: `PUT /api/v1/employees/:id/status`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "status": "active|inactive"
@@ -978,6 +1016,7 @@
 - **接口**: `POST /api/v1/employees/:id/roles`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "roleIds": [1, 2, 3]
@@ -1002,6 +1041,7 @@
 - **接口**: `GET /api/v1/system/config`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -1021,6 +1061,7 @@
 - **接口**: `PUT /api/v1/system/config`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "platformName": "string",
@@ -1046,6 +1087,7 @@
 - **接口**: `POST /api/v1/system/params`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "name": "string",
@@ -1109,6 +1151,7 @@
 - **接口**: `GET /api/v1/system/monitor/status`
 - **状态**: 🟡 已开发
 - **响应数据**:
+
   ```json
   {
     "code": 200,
@@ -1168,6 +1211,7 @@
 - **接口**: `DELETE /api/v1/system/audit-logs/clean`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "strategy": "date",
@@ -1190,6 +1234,7 @@
 - **接口**: `POST /api/v1/system/backups`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "name": "string",
@@ -1224,6 +1269,7 @@
 - **接口**: `PUT /api/v1/system/backups/auto-settings`
 - **状态**: 🟡 已开发
 - **请求参数**:
+
   ```json
   {
     "enabled": true,

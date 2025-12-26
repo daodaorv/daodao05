@@ -66,16 +66,16 @@
 				<!-- 门店列表 -->
 				<block v-else>
 					<view class="store-list">
-						<view 
-							v-for="store in data" 
-							:key="store.id" 
+						<view
+							v-for="store in safeData"
+							:key="store.id"
 							class="list-item"
 							@tap="selectItem(store)"
 						>
 							<text class="item-name">{{ store.name }}</text>
 							<u-icon v-if="selectedId === store.id" name="checkbox-mark" size="20" color="#FF9F29"></u-icon>
 						</view>
-						<view v-if="data.length === 0" class="empty-tip">
+						<view v-if="safeData.length === 0" class="empty-tip">
 							该城市暂无门店
 						</view>
 					</view>
@@ -97,7 +97,7 @@ interface Item {
 const props = defineProps<{
 	type: 'city' | 'store';
 	title: string;
-	data: Item[];
+	data?: Item[];
 	selectedId?: string;
 }>();
 
@@ -105,14 +105,19 @@ const emit = defineEmits(['confirm']);
 const show = ref(false);
 const searchText = ref('');
 
+// 确保 data 始终是数组
+const safeData = computed(() => {
+	return Array.isArray(props.data) ? props.data : [];
+});
+
 // 模拟热门城市 (实际应从props或配置获取)
 const hotCities = computed(() => {
-	return props.data.filter(city => ['北京', '上海', '成都', '深圳', '广州', '杭州', '三亚', '西安', '重庆'].includes(city.name));
+	return safeData.value.filter(city => ['北京', '上海', '成都', '深圳', '广州', '杭州', '三亚', '西安', '重庆'].includes(city.name));
 });
 
 const filteredCities = computed(() => {
-	if (!searchText.value) return props.data;
-	return props.data.filter(city => city.name.includes(searchText.value));
+	if (!searchText.value) return safeData.value;
+	return safeData.value.filter(city => city.name.includes(searchText.value));
 });
 
 const selectItem = (item: Item) => {

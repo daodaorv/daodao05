@@ -2,6 +2,11 @@
  * 门店管理 Mock 数据
  */
 
+import { createPlaceholderDataUrl } from '@/utils/placeholder'
+
+const storePlaceholder = (text: string, background: string) =>
+  createPlaceholderDataUrl(text, { width: 800, height: 600, background, color: '#ffffff' })
+
 // 门店类型
 export type StoreType = 'direct' | 'franchise' | 'cooperative'
 
@@ -99,7 +104,7 @@ export interface City {
   updatedAt?: string // 更新时间
 }
 
-// 区域信息
+// 区域信息（已废弃，改为城市分级）
 export interface Region {
   id: number
   name: string
@@ -108,6 +113,19 @@ export interface Region {
   managerName: string
   cityIds: number[]
   cityNames: string[]
+  storeCount: number
+  status: 'active' | 'inactive'
+  description: string
+  createdAt: string
+}
+
+// 城市分级信息
+export interface CityTier {
+  id: number
+  name: string // 一线城市、新一线城市、二线城市、三线城市、四线城市
+  code: string
+  level: number // 1-5
+  cityCount: number
   storeCount: number
   status: 'active' | 'inactive'
   description: string
@@ -152,8 +170,8 @@ const mockStores: Store[] = [
     monthlyRevenue: 450000,
     rating: 4.8,
     images: [
-      'https://via.placeholder.com/800x600/409EFF/FFFFFF?text=Store+1',
-      'https://via.placeholder.com/800x600/67C23A/FFFFFF?text=Store+2'
+      storePlaceholder('Store 1', '#409EFF'),
+      storePlaceholder('Store 2', '#67C23A'),
     ],
     description: '北京朝阳区旗舰店，提供全方位房车租赁服务',
     canHostingInspection: true,
@@ -184,7 +202,7 @@ const mockStores: Store[] = [
     monthlyRevenue: 520000,
     rating: 4.9,
     images: [
-      'https://via.placeholder.com/800x600/E6A23C/FFFFFF?text=Store+3'
+      storePlaceholder('Store 3', '#E6A23C'),
     ],
     description: '上海浦东核心商圈店，高端房车租赁首选',
     canHostingInspection: true,
@@ -215,7 +233,7 @@ const mockStores: Store[] = [
     monthlyRevenue: 320000,
     rating: 4.6,
     images: [
-      'https://via.placeholder.com/800x600/F56C6C/FFFFFF?text=Store+4'
+      storePlaceholder('Store 4', '#F56C6C'),
     ],
     description: '广州天河区加盟店，服务周到价格实惠',
     canHostingInspection: false,
@@ -246,7 +264,7 @@ const mockStores: Store[] = [
     monthlyRevenue: 180000,
     rating: 4.3,
     images: [
-      'https://via.placeholder.com/800x600/909399/FFFFFF?text=Store+5'
+      storePlaceholder('Store 5', '#909399'),
     ],
     description: '深圳南山区合作商户，提供基础租赁服务',
     canHostingInspection: false,
@@ -279,7 +297,7 @@ const mockStores: Store[] = [
     monthlyRevenue: 380000,
     rating: 4.7,
     images: [
-      'https://via.placeholder.com/800x600/409EFF/FFFFFF?text=Store+6'
+      storePlaceholder('Store 6', '#409EFF'),
     ],
     description: '成都武侯区直营店，川藏线房车租赁专家',
     canHostingInspection: true,
@@ -310,7 +328,7 @@ const mockStores: Store[] = [
     monthlyRevenue: 0,
     rating: 4.4,
     images: [
-      'https://via.placeholder.com/800x600/67C23A/FFFFFF?text=Store+7'
+      storePlaceholder('Store 7', '#67C23A'),
     ],
     description: '杭州西湖区加盟店，暂停营业装修中',
     canHostingInspection: false,
@@ -650,58 +668,130 @@ export const mockCities: City[] = [
   }
 ]
 
-// Mock 区域数据
+// Mock 区域数据 - 按城市分级划分
 const mockRegions: Region[] = [
   {
     id: 1,
-    name: '华北区',
-    code: 'HB',
+    name: '一线城市',
+    code: 'T1',
     managerId: 2,
     managerName: '李四',
-    cityIds: [1],
-    cityNames: ['北京'],
-    storeCount: 1,
+    cityIds: [1, 2, 3, 4],
+    cityNames: ['北京', '上海', '广州', '深圳'],
+    storeCount: 6,
     status: 'active',
-    description: '负责华北地区业务运营',
+    description: '一线城市：北京、上海、广州、深圳',
     createdAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 2,
-    name: '华东区',
-    code: 'HD',
+    name: '新一线城市',
+    code: 'T2',
     managerId: 9,
     managerName: '钱十一',
-    cityIds: [2, 6],
-    cityNames: ['上海', '杭州'],
-    storeCount: 2,
+    cityIds: [5, 6, 7, 8, 9, 10],
+    cityNames: ['成都', '杭州', '重庆', '西安', '武汉', '南京'],
+    storeCount: 6,
     status: 'active',
-    description: '负责华东地区业务运营',
+    description: '新一线城市：成都、杭州、重庆、西安、武汉、南京',
     createdAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 3,
-    name: '华南区',
-    code: 'HN',
+    name: '二线城市',
+    code: 'T3',
     managerId: 10,
     managerName: '孙十二',
-    cityIds: [3, 4],
-    cityNames: ['广州', '深圳'],
-    storeCount: 2,
+    cityIds: [11, 12, 13, 14, 15],
+    cityNames: ['苏州', '天津', '郑州', '长沙', '沈阳'],
+    storeCount: 5,
     status: 'active',
-    description: '负责华南地区业务运营',
+    description: '二线城市：苏州、天津、郑州、长沙、沈阳',
     createdAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 4,
-    name: '西南区',
-    code: 'XN',
+    name: '三线城市',
+    code: 'T4',
     managerId: 11,
     managerName: '李十三',
-    cityIds: [5],
-    cityNames: ['成都'],
+    cityIds: [16, 17, 18, 19],
+    cityNames: ['昆明', '大连', '福州', '哈尔滨'],
+    storeCount: 4,
+    status: 'active',
+    description: '三线城市：昆明、大连、福州、哈尔滨',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 5,
+    name: '四线城市',
+    code: 'T5',
+    managerId: 12,
+    managerName: '周十四',
+    cityIds: [20],
+    cityNames: ['其他城市'],
     storeCount: 1,
     status: 'active',
-    description: '负责西南地区业务运营',
+    description: '四线城市及其他城市',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  }
+]
+
+// Mock 城市分级数据
+const mockCityTiers: CityTier[] = [
+  {
+    id: 1,
+    name: '一线城市',
+    code: 'T1',
+    level: 1,
+    cityCount: 4,
+    storeCount: 6,
+    status: 'active',
+    description: '北京、上海、广州、深圳',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 2,
+    name: '新一线城市',
+    code: 'T2',
+    level: 2,
+    cityCount: 6,
+    storeCount: 0,
+    status: 'active',
+    description: '成都、杭州、重庆、西安、武汉、南京',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 3,
+    name: '二线城市',
+    code: 'T3',
+    level: 3,
+    cityCount: 5,
+    storeCount: 0,
+    status: 'active',
+    description: '苏州、天津、郑州、长沙、沈阳',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 4,
+    name: '三线城市',
+    code: 'T4',
+    level: 4,
+    cityCount: 4,
+    storeCount: 0,
+    status: 'active',
+    description: '昆明、大连、福州、哈尔滨',
+    createdAt: '2024-01-01T00:00:00.000Z'
+  },
+  {
+    id: 5,
+    name: '四线城市',
+    code: 'T5',
+    level: 5,
+    cityCount: 1,
+    storeCount: 0,
+    status: 'active',
+    description: '其他城市',
     createdAt: '2024-01-01T00:00:00.000Z'
   }
 ]
@@ -984,6 +1074,21 @@ export const mockGetRegionList = () => {
         code: 200,
         message: '获取成功',
         data: mockRegions
+      })
+    }, 200)
+  })
+}
+
+/**
+ * 获取城市分级列表
+ */
+export const mockGetCityTierList = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        code: 200,
+        message: '获取成功',
+        data: mockCityTiers
       })
     }, 200)
   })

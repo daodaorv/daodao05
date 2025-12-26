@@ -190,10 +190,13 @@ import DataTable from '@/components/common/DataTable.vue'
 import type { SearchField } from '@/components/common/SearchForm.vue'
 import type { TableColumn, ToolbarButton } from '@/components/common/DataTable.vue'
 import { useErrorHandler } from '@/composables'
+import { createPlaceholderDataUrl } from '@/utils/placeholder'
 
 // Composables
 const router = useRouter()
 const { handleApiError } = useErrorHandler()
+
+const placeholder = (text: string) => createPlaceholderDataUrl(text, { width: 300, height: 200 })
 
 // 搜索表单
 const searchForm = reactive({
@@ -345,7 +348,7 @@ const loadCrowdfundingModels = async () => {
         id: 1,
         modelName: '上汽大通RG10 生活家V90',
         brandName: '上汽大通',
-        image: 'https://via.placeholder.com/300x200',
+        image: placeholder('上汽大通RG10'),
         purchasePrice: 500000,
         suggestedShares: 10,
         estimatedMonthlyIncome: 8500,
@@ -359,7 +362,7 @@ const loadCrowdfundingModels = async () => {
         id: 2,
         modelName: '依维柯欧胜C型房车',
         brandName: '依维柯',
-        image: 'https://via.placeholder.com/300x200',
+        image: placeholder('依维柯欧胜C型'),
         purchasePrice: 450000,
         suggestedShares: 10,
         estimatedMonthlyIncome: 7500,
@@ -373,7 +376,7 @@ const loadCrowdfundingModels = async () => {
         id: 3,
         modelName: '福特全顺B型房车',
         brandName: '福特',
-        image: 'https://via.placeholder.com/300x200',
+        image: placeholder('福特全顺B型'),
         purchasePrice: 380000,
         suggestedShares: 10,
         estimatedMonthlyIncome: 6500,

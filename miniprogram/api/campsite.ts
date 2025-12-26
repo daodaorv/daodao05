@@ -60,12 +60,14 @@ export interface CampsiteDetail {
   distance: number;
   minPrice: number;
   isHot: boolean;
+  announcement: string; // 营地公告（从后端获取）
   features: string[];
   facilities: Facility[];
   siteTypes: SiteType[];
   description: string;
-  checkInNotices: string[];
-  cancellationPolicy: CancellationPolicy[];
+  descriptionHtml?: string; // 富文本描述（可选）
+  checkInNotices: string[]; // 入住须知列表（从后端获取）
+  cancellationPolicy: CancellationPolicy[]; // 取消政策列表（从后端获取）
   reviews: Review[];
 }
 

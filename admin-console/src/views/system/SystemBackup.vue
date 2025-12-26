@@ -228,9 +228,9 @@
         </el-form-item>
         <el-form-item label="备份类型" prop="type">
           <el-radio-group v-model="backupForm.type">
-            <el-radio label="full">全量备份</el-radio>
-            <el-radio label="incremental">增量备份</el-radio>
-            <el-radio label="differential">差异备份</el-radio>
+            <el-radio value="full">全量备份</el-radio>
+            <el-radio value="incremental">增量备份</el-radio>
+            <el-radio value="differential">差异备份</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="压缩备份" prop="compress">
@@ -321,8 +321,8 @@
             v-model="autoBackupForm.type"
             :disabled="!autoBackupForm.enabled"
           >
-            <el-radio label="full">全量备份</el-radio>
-            <el-radio label="incremental">增量备份</el-radio>
+            <el-radio value="full">全量备份</el-radio>
+            <el-radio value="incremental">增量备份</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

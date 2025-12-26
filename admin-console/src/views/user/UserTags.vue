@@ -40,7 +40,7 @@
                     系统
                   </el-tag>
                   <!-- 自动化状态徽章 -->
-                  <el-icon v-if="tag.autoRule?.enabled" class="auto-icon" color="#67c23a" title="自动规则已启用">
+                  <el-icon v-if="hasEnabledTriggers(tag)" class="auto-icon" color="#67c23a" title="自动规则已启用">
                     <CircleCheck />
                   </el-icon>
                 </div>
@@ -51,7 +51,7 @@
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                    <el-dropdown-item v-if="tag.autoRule?.enabled" command="execute" divided>
+                    <el-dropdown-item v-if="hasRuleTrigger(tag)" command="execute" divided>
                       立即执行规则
                     </el-dropdown-item>
                     <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
@@ -210,8 +210,8 @@
             </el-form-item>
             <el-form-item label="标签类型" prop="type">
               <el-radio-group v-model="tagForm.type">
-                <el-radio label="custom">自定义标签</el-radio>
-                <el-radio label="system">系统标签</el-radio>
+                <el-radio value="custom">自定义标签</el-radio>
+                <el-radio value="system">系统标签</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="标签分类" prop="category">
@@ -224,11 +224,11 @@
             </el-form-item>
             <el-form-item label="标签颜色" prop="color">
               <el-radio-group v-model="tagForm.color">
-                <el-radio label="primary">蓝色</el-radio>
-                <el-radio label="success">绿色</el-radio>
-                <el-radio label="warning">橙色</el-radio>
-                <el-radio label="danger">红色</el-radio>
-                <el-radio label="info">灰色</el-radio>
+                <el-radio value="primary">蓝色</el-radio>
+                <el-radio value="success">绿色</el-radio>
+                <el-radio value="warning">橙色</el-radio>
+                <el-radio value="danger">红色</el-radio>
+                <el-radio value="info">灰色</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="优先级" prop="priority">
@@ -239,8 +239,8 @@
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="tagForm.status">
-                <el-radio label="active">启用</el-radio>
-                <el-radio label="inactive">禁用</el-radio>
+                <el-radio value="active">启用</el-radio>
+                <el-radio value="inactive">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="过期时间" prop="expiresAt">
@@ -262,133 +262,40 @@
           </el-form>
         </el-tab-pane>
 
-        <!-- 自动规则标签页 -->
-        <el-tab-pane label="自动规则" name="autoRule">
-          <el-form :model="tagForm" label-width="100px">
-            <el-form-item label="启用规则">
-              <el-switch v-model="tagForm.autoRule.enabled" />
-              <span style="margin-left: 10px; color: #909399; font-size: 12px;">
-                启用后将自动为符合条件的用户添加此标签
-              </span>
-            </el-form-item>
-            <el-form-item label="触发模式" v-if="tagForm.autoRule.enabled">
-              <el-radio-group v-model="tagForm.autoRule.triggerMode">
-                <el-radio label="realtime">实时触发</el-radio>
-                <el-radio label="manual">手动触发</el-radio>
-              </el-radio-group>
-              <div style="margin-top: 8px; color: #909399; font-size: 12px;">
-                实时触发：用户行为发生时自动检查并添加标签<br>
-                手动触发：需要管理员手动执行规则
-              </div>
-            </el-form-item>
-
-            <!-- 规则条件配置 -->
-            <el-form-item label="规则条件" v-if="tagForm.autoRule.enabled">
-              <div class="rule-conditions">
-                <div
-                  v-for="(condition, index) in tagForm.autoRule.conditions"
-                  :key="index"
-                  class="condition-item"
-                >
-                  <el-select
-                    v-model="condition.field"
-                    placeholder="选择字段"
-                    style="width: 180px"
-                  >
-                    <el-option label="注册天数" value="register_days" />
-                    <el-option label="订单数量" value="order_count" />
-                    <el-option label="消费总额" value="total_amount" />
-                    <el-option label="最后登录天数" value="last_login_days" />
-                    <el-option label="违规次数" value="violation_count" />
-                  </el-select>
-
-                  <el-select
-                    v-model="condition.operator"
-                    placeholder="选择操作符"
-                    style="width: 120px; margin-left: 10px"
-                  >
-                    <el-option label="大于" value="gt" />
-                    <el-option label="小于" value="lt" />
-                    <el-option label="等于" value="eq" />
-                    <el-option label="大于等于" value="gte" />
-                    <el-option label="小于等于" value="lte" />
-                  </el-select>
-
-                  <el-input-number
-                    v-model="condition.value"
-                    :min="0"
-                    :precision="0"
-                    style="width: 150px; margin-left: 10px"
-                    placeholder="输入值"
-                  />
-
-                  <el-button
-                    type="danger"
-                    :icon="Delete"
-                    circle
-                    size="small"
-                    style="margin-left: 10px"
-                    @click="removeCondition(index)"
-                  />
+        <!-- 触发配置标签页 -->
+        <el-tab-pane label="触发配置" name="triggers">
+          <div class="triggers-container">
+            <div class="triggers-header">
+              <span>已配置触发器</span>
+              <el-button type="primary" size="small" :icon="Plus" @click="handleAddTrigger">
+                添加触发器
+              </el-button>
+            </div>
+            
+            <el-empty v-if="!tagForm.triggers || tagForm.triggers.length === 0" description="暂无触发器配置" />
+            
+            <div v-else class="triggers-list">
+              <div v-for="(trigger, index) in tagForm.triggers" :key="trigger.id" class="trigger-item">
+                <div class="trigger-info">
+                  <el-tag :type="getTriggerTypeTag(trigger.type)" size="large">
+                    {{ getTriggerTypeName(trigger.type) }}
+                  </el-tag>
+                  <span class="trigger-name">{{ trigger.name }}</span>
+                  <el-switch v-model="trigger.enabled" size="small" />
                 </div>
-
-                <el-button
-                  type="primary"
-                  :icon="Plus"
-                  size="small"
-                  style="margin-top: 10px"
-                  @click="addCondition"
-                >
-                  添加条件
-                </el-button>
-
-                <div v-if="tagForm.autoRule.conditions.length > 1" style="margin-top: 10px">
-                  <el-radio-group v-model="tagForm.autoRule.logic">
-                    <el-radio label="AND">满足所有条件</el-radio>
-                    <el-radio label="OR">满足任一条件</el-radio>
-                  </el-radio-group>
+                <div class="trigger-actions">
+                  <el-button link type="primary" size="small" @click="handleEditTrigger(index)">
+                    编辑
+                  </el-button>
+                  <el-button link type="danger" size="small" @click="handleDeleteTrigger(index)">
+                    删除
+                  </el-button>
                 </div>
               </div>
-            </el-form-item>
-
-            <el-form-item label="规则描述" v-if="tagForm.autoRule.enabled">
-              <el-input
-                v-model="tagForm.autoRule.description"
-                type="textarea"
-                :rows="3"
-                placeholder="请描述自动规则的触发条件"
-              />
-            </el-form-item>
-
-            <el-alert
-              v-if="!tagForm.autoRule.enabled"
-              title="自动规则未启用"
-              type="info"
-              :closable="false"
-              show-icon
-            >
-              启用自动规则后,系统将根据设定的条件自动为用户添加标签
-            </el-alert>
-            <el-alert
-              v-else-if="tagForm.autoRule.conditions.length === 0"
-              title="请添加规则条件"
-              type="warning"
-              :closable="false"
-              show-icon
-            >
-              至少需要添加一个规则条件才能启用自动规则
-            </el-alert>
-            <el-alert
-              v-else
-              title="自动规则已配置"
-              type="success"
-              :closable="false"
-              show-icon
-            >
-              规则将根据设定的条件自动为用户添加标签
-            </el-alert>
-          </el-form>
+            </div>
+          </div>
         </el-tab-pane>
+
 
         <!-- 业务关联标签页 -->
         <el-tab-pane label="业务关联" name="business">
@@ -455,14 +362,6 @@
         <!-- 会员权益标签页 (仅PLUS会员) -->
         <el-tab-pane label="会员权益" name="benefits">
           <el-form :model="tagForm" label-width="120px">
-            <el-alert
-              v-if="tagForm.name !== 'PLUS会员'"
-              title="仅PLUS会员标签可配置会员权益"
-              type="warning"
-              :closable="false"
-              show-icon
-              style="margin-bottom: 20px"
-            />
             <el-form-item label="积分倍数">
               <el-input-number
                 v-model="tagForm.benefits.pointsMultiplier"
@@ -481,7 +380,7 @@
                 :min="0.1"
                 :max="1"
                 :step="0.01"
-                :disabled="tagForm.name !== 'PLUS会员'"
+                
               />
               <span style="margin-left: 10px; color: #909399; font-size: 12px;">
                 例如: 0.95 表示95折
@@ -493,7 +392,7 @@
                 multiple
                 placeholder="选择专属优惠券"
                 style="width: 100%"
-                :disabled="tagForm.name !== 'PLUS会员'"
+                
               >
                 <el-option label="新用户专享券" :value="1" />
                 <el-option label="春节特惠券" :value="2" />
@@ -509,7 +408,7 @@
             <el-form-item label="免费保险">
               <el-switch
                 v-model="tagForm.benefits.freeInsurance"
-                :disabled="tagForm.name !== 'PLUS会员'"
+                :disabled="false"
               />
             </el-form-item>
           </el-form>
@@ -599,6 +498,44 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <!-- 触发器配置对话框 -->
+    <el-dialog
+      v-model="triggerDialogVisible"
+      :title="triggerDialogTitle"
+      width="600px"
+    >
+      <el-form label-width="100px">
+        <el-form-item label="触发器类型">
+          <el-radio-group v-model="triggerForm.type">
+            <el-radio value="manual">手动触发</el-radio>
+            <el-radio value="rule_based">规则触发</el-radio>
+            <el-radio value="api_driven">API触发</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="触发器名称">
+          <el-input v-model="triggerForm.name" placeholder="请输入触发器名称" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input
+            v-model="triggerForm.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入描述"
+          />
+        </el-form-item>
+        <el-form-item label="优先级">
+          <el-input-number v-model="triggerForm.priority" :min="1" :max="100" />
+        </el-form-item>
+        <el-form-item label="启用状态">
+          <el-switch v-model="triggerForm.enabled" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="triggerDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleTriggerSubmit">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -616,7 +553,8 @@ import {
   MoreFilled,
   CircleCheck,
 } from '@element-plus/icons-vue'
-import type { Tag,  TagCategory } from '@/api/user'
+import type { Tag, TagCategory, TagTriggerType } from '@/api/user'
+import { API_TRIGGER_SOURCES } from '@/types/tag'
 import { mockTags } from '@/mock/tags'
 
 const router = useRouter()
@@ -655,11 +593,24 @@ const groupedTags = computed(() => {
   return groups
 })
 
+// 检查标签是否有启用的触发器
+const hasEnabledTriggers = (tag: Tag) => {
+  if (tag.triggers && tag.triggers.length > 0) {
+    return tag.triggers.some(t => t.enabled)
+  }
+}
+
+// 检查标签是否有规则触发器
+const hasRuleTrigger = (tag: Tag) => {
+  if (tag.triggers && tag.triggers.length > 0) {
+    return tag.triggers.some(t => t.type === 'rule_based' && t.enabled)
+  }
+  return false
+}
+
 // 分类名称映射
 const categoryNames: Record<string, string> = {
   value_level: '价值等级',
-  behavior: '行为特征',
-  user_attribute: '用户属性',
   risk_control: '风险控制'
 }
 
@@ -705,14 +656,8 @@ const tagDialogTitle = ref('新增标签')
 const isEditTag = ref(false)
 const submitLoading = ref(false)
 const tagFormRef = ref<FormInstance>()
-const activeTab = ref('basic') // 当前激活的标签页: basic, autoRule, business, benefits
+const activeTab = ref('basic') // 当前激活的标签页: basic, business, benefits
 
-// 规则条件接口
-interface RuleCondition {
-  field: 'register_days' | 'order_count' | 'total_amount' | 'last_login_days' | 'violation_count' | ''
-  operator: 'gt' | 'lt' | 'eq' | 'gte' | 'lte' | ''
-  value: number
-}
 
 const tagForm = reactive({
   id: 0,
@@ -724,14 +669,8 @@ const tagForm = reactive({
   priority: 1,
   status: 'active' as 'active' | 'inactive',
   expiresAt: '',
-  // 自动规则
-  autoRule: {
-    enabled: false,
-    conditions: [] as RuleCondition[],
-    logic: 'AND' as 'AND' | 'OR',
-    triggerMode: 'realtime' as 'realtime' | 'manual',
-    description: ''
-  },
+  // 多触发器配置
+  triggers: [] as any[],
   // 业务关联
   businessAssociation: {
     coupons: [] as number[],
@@ -766,7 +705,20 @@ const selectedTagIds = ref<number[]>([])
 
 // 批量添加对话框
 const batchAddDialogVisible = ref(false)
+const triggerDialogVisible = ref(false)
+const triggerDialogTitle = ref("添加触发器")
+const isEditTrigger = ref(false)
+const currentTriggerIndex = ref(-1)
 const batchSelectedUserIds = ref<number[]>([])
+
+// 触发器表单数据
+const triggerForm = reactive({
+  type: "manual" as "manual" | "rule_based" | "api_driven",
+  name: "",
+  description: "",
+  enabled: true,
+  priority: 1
+})
 
 // 可用标签（排除用户已有的标签）
 const availableTags = computed(() => {
@@ -774,6 +726,26 @@ const availableTags = computed(() => {
   const userTagIds = currentUser.value.tags.map(t => t.id)
   return tagList.value.filter(t => !userTagIds.includes(t.id))
 })
+// 获取触发器类型标签颜色
+const getTriggerTypeTag = (type: string) => {
+  const map: Record<string, string> = {
+    manual: "info",
+    rule_based: "success",
+    api_driven: "warning"
+  }
+  return map[type] || "info"
+}
+
+// 获取触发器类型名称
+const getTriggerTypeName = (type: string) => {
+  const map: Record<string, string> = {
+    manual: "手动触发",
+    rule_based: "规则触发",
+    api_driven: "API触发"
+  }
+  return map[type] || "未知类型"
+}
+
 
 // 选择标签
 const handleSelectTag = (tag: Tag) => {
@@ -815,116 +787,7 @@ const handleTagAction = (tag: Tag, command: string) => {
 }
 
 // 立即执行自动规则
-const handleExecuteAutoRule = async (tag: Tag) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要立即执行标签 "${tag.name}" 的自动规则吗？`,
-      '执行确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'info',
-      }
-    )
 
-    // 执行规则引擎
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在执行规则...',
-      background: 'rgba(0, 0, 0, 0.7)',
-    })
-
-    try {
-      // 模拟规则执行
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // 导入规则引擎
-      const { evaluateUsers, generateUserData, generateRuleDescription } = await import('@/utils/ruleEngine')
-
-      // 生成所有用户的评估数据
-      const usersData = allUserList.value.map(user => generateUserData(user.id))
-
-      // 评估规则
-      const matchedUserIds = evaluateUsers(
-        {
-          enabled: tag.autoRule?.enabled || false,
-          conditions: tag.autoRule?.conditions || [],
-          logic: (tag.autoRule as any)?.logic || 'AND',
-          triggerMode: tag.autoRule?.triggerMode || 'manual',
-          description: tag.autoRule?.description || 'info'
-        },
-        usersData
-      )
-
-      // 为匹配的用户添加标签
-      matchedUserIds.forEach(userId => {
-        const user = allUserList.value.find(u => u.id === userId)
-        if (user && !user.tags.some(t => t.id === tag.id)) {
-          user.tags.push(tag)
-        }
-      })
-
-      loading.close()
-
-      // 生成规则描述
-      const ruleDesc = generateRuleDescription({
-        enabled: tag.autoRule?.enabled || false,
-        conditions: tag.autoRule?.conditions || [],
-        logic: (tag.autoRule as any)?.logic || 'AND',
-        triggerMode: tag.autoRule?.triggerMode || 'manual',
-        description: tag.autoRule?.description || 'info'
-      })
-
-      // 记录执行日志
-      const { mockAddRuleExecutionLog } = await import('@/mock/ruleExecutionLogs')
-      await mockAddRuleExecutionLog({
-        tagId: tag.id,
-        tagName: tag.name,
-        executionTime: new Date().toISOString(),
-        triggerMode: 'manual',
-        ruleConditions: ruleDesc,
-        matchedUserCount: matchedUserIds.length,
-        matchedUserIds: matchedUserIds,
-        executedBy: '管理员-当前用户',
-        status: 'success',
-        duration: 1500
-      })
-
-      ElMessage.success({
-        message: `规则执行成功！匹配 ${matchedUserIds.length} 个用户\n规则条件：${ruleDesc}`,
-        duration: 5000,
-        showClose: true
-      })
-
-      // 如果当前正在查看该标签，刷新用户列表
-      if (currentTag.value?.id === tag.id) {
-        loadTagUsers(tag.id)
-      }
-    } catch (error) {
-      loading.close()
-      console.error('规则执行失败:', error)
-      ElMessage.error('规则执行失败，请检查规则配置')
-    }
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('执行失败')
-    }
-  }
-}
-
-// 添加规则条件
-const addCondition = () => {
-  tagForm.autoRule.conditions.push({
-    field: '',
-    operator: '',
-    value: 0
-  })
-}
-
-// 移除规则条件
-const removeCondition = (index: number) => {
-  tagForm.autoRule.conditions.splice(index, 1)
-}
 
 // 编辑标签
 const handleEditTag = (tag: Tag) => {
@@ -943,16 +806,9 @@ const handleEditTag = (tag: Tag) => {
   tagForm.status = tag.status || 'active'
   tagForm.expiresAt = tag.expiresAt || 'info'
 
-  // 自动规则
-  if (tag.autoRule) {
-    tagForm.autoRule = {
-      enabled: tag.autoRule.enabled,
-      conditions: tag.autoRule.conditions || [],
-      logic: (tag.autoRule as any).logic || 'AND',
-      triggerMode: tag.autoRule.triggerMode,
-      description: tag.autoRule.description
-    }
-  }
+
+  // 多触发器配置
+  tagForm.triggers = tag.triggers ? [...tag.triggers] : []
 
   // 业务关联
   if (tag.businessAssociation) {
@@ -1006,6 +862,73 @@ const handleDeleteTag = async (tag: Tag) => {
   }
 }
 
+// 添加触发器
+const handleAddTrigger = () => {
+  triggerDialogTitle.value = "添加触发器"
+  isEditTrigger.value = false
+  currentTriggerIndex.value = -1
+
+  // 重置表单
+  triggerForm.type = "manual"
+  triggerForm.name = ""
+  triggerForm.description = ""
+  triggerForm.enabled = true
+  triggerForm.priority = tagForm.triggers.length + 1
+
+  triggerDialogVisible.value = true
+}
+
+// 编辑触发器
+const handleEditTrigger = (index: number) => {
+  const trigger = tagForm.triggers[index]
+
+  triggerDialogTitle.value = "编辑触发器"
+  isEditTrigger.value = true
+  currentTriggerIndex.value = index
+
+  // 加载触发器数据
+  triggerForm.type = trigger.type
+  triggerForm.name = trigger.name
+  triggerForm.description = trigger.description || ""
+  triggerForm.enabled = trigger.enabled
+  triggerForm.priority = trigger.priority
+
+  triggerDialogVisible.value = true
+}
+
+// 删除触发器
+const handleDeleteTrigger = (index: number) => {
+  tagForm.triggers.splice(index, 1)
+  ElMessage.success("删除成功")
+}
+
+// 提交触发器表单
+const handleTriggerSubmit = () => {
+  if (!triggerForm.name) {
+    ElMessage.warning("请输入触发器名称")
+    return
+  }
+
+  const newTrigger = {
+    id: `trigger_${Date.now()}`,
+    type: triggerForm.type,
+    name: triggerForm.name,
+    description: triggerForm.description,
+    enabled: triggerForm.enabled,
+    priority: triggerForm.priority
+  }
+
+  if (isEditTrigger.value && currentTriggerIndex.value >= 0) {
+    tagForm.triggers[currentTriggerIndex.value] = newTrigger
+    ElMessage.success("更新成功")
+  } else {
+    tagForm.triggers.push(newTrigger)
+    ElMessage.success("添加成功")
+  }
+
+  triggerDialogVisible.value = false
+}
+
 // 提交标签表单
 const handleTagSubmit = async () => {
   if (!tagFormRef.value) return
@@ -1029,9 +952,6 @@ const handleTagSubmit = async () => {
       } else {
         const newTag: Tag = {
           id: tagList.value.length + 1,
-          name: tagForm.name,
-          color: tagForm.color,
-          description: tagForm.description,
           userCount: 0,
           createdAt: new Date().toISOString(),
         }
@@ -1063,16 +983,8 @@ const handleTagDialogClose = () => {
   tagForm.status = 'active'
   tagForm.expiresAt = ''
 
-  // 重置自动规则
-  tagForm.autoRule = {
-    enabled: false,
-    conditions: [],
-    logic: 'AND',
-    triggerMode: 'realtime',
-    description: ''
-  }
-
-  // 重置业务关联
+  // 重置触发器配置
+  tagForm.triggers = []
   tagForm.businessAssociation = {
     coupons: [],
     pricingStrategies: [],
@@ -1391,6 +1303,52 @@ onMounted(() => {
 
     &:hover {
       background: #ecf5ff;
+    }
+  }
+}
+
+// 触发器管理样式
+.triggers-container {
+  .triggers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .triggers-list {
+    .trigger-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #f5f7fa;
+      border-radius: 8px;
+      transition: all 0.3s;
+
+      &:hover {
+        background: #ecf5ff;
+      }
+
+      .trigger-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+
+        .trigger-name {
+          font-weight: 500;
+          color: #303133;
+        }
+      }
+
+      .trigger-actions {
+        display: flex;
+        gap: 8px;
+      }
     }
   }
 }

@@ -397,12 +397,21 @@ interface Brand {
 const brandsList = ref<Brand[]>([])
 
 // 富文本编辑器图片上传地址
-const uploadUrl = ref('/api/upload/image')
+const uploadUrl = ref('/api/v1/upload/image')
 
 // 图片接口
 interface ImageItem {
   uid: string
   url: string
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object'
+
+const normalizeImageUrl = (value: unknown): string | null => {
+  if (typeof value === 'string') return value
+  if (isRecord(value) && typeof value.url === 'string') return value.url
+  return null
 }
 
 // 表单数据
@@ -584,7 +593,7 @@ const loadVehicleModel = async (id: number) => {
     form.fuelCapacity = model.fuelCapacity
     form.dailyPrice = model.dailyPrice
     form.description = model.description
-    form.features = [...model.features]
+    form.features = Array.isArray(model.features) ? [...model.features] : []
 
     // 加载众筹配置数据
     form.supportCrowdfunding = model.supportCrowdfunding || false
@@ -595,20 +604,25 @@ const loadVehicleModel = async (id: number) => {
     form.crowdfundingDisplayOrder = model.crowdfundingDisplayOrder || 0
     form.crowdfundingDescription = model.crowdfundingDescription || ''
 
-    // 处理图片数据
-    if (model.image) {
-      // 如果是单张图片字符串，转换为数组
-      if (typeof model.image === 'string') {
-        form.images = [{ uid: `${Date.now()}`, url: model.image }]
+    // 处理图片数据（兼容 image: string / images: string[] / images: {url:string}[]）
+    const urls: string[] = []
+
+    if (Array.isArray(model.images)) {
+      for (const item of model.images) {
+        const url = normalizeImageUrl(item)
+        if (url) urls.push(url)
       }
     }
-    // 如果有 images 数组字段
-    if (model.images && Array.isArray(model.images)) {
-      form.images = model.images.map((url: string, index: number) => ({
-        uid: `${Date.now()}-${index}`,
-        url,
-      }))
+
+    if (urls.length === 0) {
+      const url = normalizeImageUrl(model.image)
+      if (url) urls.push(url)
     }
+
+    form.images = urls.map((url, index) => ({
+      uid: `${Date.now()}-${index}`,
+      url,
+    }))
   } catch (error) {
     handleApiError(error, '加载车型详情失败')
     router.back()

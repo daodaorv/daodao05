@@ -357,7 +357,7 @@ const handleCurrentChange = (page) => {
 
 **Props**:
 - `modelValue` (string[], optional): v-model 绑定的图片 URL 数组
-- `uploadUrl` (string, optional, default: '/api/upload/image'): 上传接口地址
+- `uploadUrl` (string, optional, default: '/api/v1/upload/image'): 上传接口地址
 - `multiple` (boolean, optional, default: true): 是否支持多选
 - `limit` (number, optional, default: 12): 最大上传数量
 - `maxSize` (number, optional, default: 5): 单个文件最大大小（MB）
@@ -845,7 +845,7 @@ npm install echarts
 - `disabled` (boolean, optional): 是否禁用
 - `maxLength` (number, optional, default: 0): 最大字数限制（0表示不限制）
 - `showWordCount` (boolean, optional, default: true): 是否显示字数统计
-- `uploadUrl` (string, optional, default: '/api/upload/image'): 图片上传地址
+- `uploadUrl` (string, optional, default: '/api/v1/upload/image'): 图片上传地址
 
 **Events**:
 - `update:modelValue`: 内容更新

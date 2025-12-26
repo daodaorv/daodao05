@@ -139,8 +139,8 @@
       <el-form :model="cleanForm" label-width="120px">
         <el-form-item label="清理策略">
           <el-radio-group v-model="cleanForm.strategy">
-            <el-radio label="date">按日期清理</el-radio>
-            <el-radio label="count">按数量清理</el-radio>
+            <el-radio value="date">按日期清理</el-radio>
+            <el-radio value="count">按数量清理</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="cleanForm.strategy === 'date'" label="保留天数">

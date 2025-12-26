@@ -1,6 +1,6 @@
 // @ts-nocheck
 import type { Tag } from '@/api/user'
-import { TagType, TagCategory, TagTriggerType } from '@/types/tag'
+import { TagType, TagCategory, TagTriggerType, BenefitType } from '@/types/tag'
 
 // 标签 Mock 数据（重构版：包含完整的业务字段）
 export const mockTags: Tag[] = [
@@ -10,35 +10,149 @@ export const mockTags: Tag[] = [
     name: 'PLUS会员',
     color: 'warning',
     type: TagType.SYSTEM,
-    category: TagCategory.MEMBERSHIP,  // 改为会员类型
+    category: TagCategory.MEMBERSHIP,
     priority: 1,
     status: 'active',
-    triggerType: TagTriggerType.API_DRIVEN,  // API驱动
     description: 'PLUS会员，享受专属权益：双倍积分、95折优惠、专属优惠券',
     userCount: 15,
-    apiTrigger: {
-      apiEndpoint: '/api/tags/add-to-user',
-      sourceSystem: 'order_system',
-      description: '用户购买PLUS会员商品（99元）或单次消费满1万元时自动添加',
-      autoRemove: false
-    },
-    businessAssociation: {
-      coupons: [1, 2],           // 关联新用户专享券、春节特惠券
-      pricingStrategies: [],
-      activities: [1],           // 关联春节房车自驾游活动
-      profitConfigs: []
-    },
-    benefits: {
-      pointsMultiplier: 2.0,     // 双倍积分
-      priceDiscount: 0.95,       // 95折优惠
-      exclusiveCoupons: [1, 2],  // 专属优惠券
-      priorityService: true,     // 优先服务
-      freeInsurance: true        // 免费保险
-    },
+
+    // 多触发器配置（新增）
+    triggers: [
+      {
+        id: 'trigger_1',
+        type: TagTriggerType.API_DRIVEN,
+        enabled: true,
+        priority: 1,
+        name: 'PLUS会员购买',
+        description: '用户购买PLUS会员商品（99元）',
+        sourceId: 'order_plus_member_purchase',
+        autoRemove: false
+      },
+      {
+        id: 'trigger_2',
+        type: TagTriggerType.RULE_BASED,
+        enabled: true,
+        priority: 2,
+        name: '高额消费自动升级',
+        description: '单次消费满1万元自动升级',
+        conditions: [
+          { type: 'total_amount', operator: 'gte', value: 10000 }
+        ],
+        logic: 'AND',
+        triggerMode: 'realtime'
+      }
+    ],
+
     createdAt: '2024-01-01T00:00:00.000Z',
     updatedAt: '2024-01-01T00:00:00.000Z'
   },
 
+  // ==================== 系统标签：托管车主 ====================
+  {
+    id: 200,
+    name: '自有车托管车主',
+    color: 'success',
+    type: TagType.SYSTEM,
+    category: TagCategory.HOSTING,
+    priority: 2,
+    status: 'active',
+    description: '自有车托管车主，享受70%分润比例',
+    userCount: 8,
+
+    triggers: [
+      {
+        id: 'trigger_1',
+        type: TagTriggerType.API_DRIVEN,
+        enabled: true,
+        priority: 1,
+        name: '托管审核通过',
+        description: '自有车托管审核通过且车辆上线',
+        sourceId: 'hosting_owner_approved',
+        autoRemove: true,
+        removeSourceId: 'hosting_cancelled'
+      }
+    ],
+
+
+    benefitsConfig: {
+      benefits: [
+        {
+          id: 'benefit_1',
+          type: BenefitType.PROFIT_SHARING,
+          name: '分润比例',
+          description: '订单分润70%',
+          icon: 'money',
+          value: 0.7,
+          priority: 1,
+          applicableScenes: ['order_settlement'],
+          status: 'active'
+        }
+      ]
+    },
+
+    businessAssociation: {
+      coupons: [],
+      pricingStrategies: [],
+      activities: [],
+      profitConfigs: [1]
+    },
+
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+
+  {
+    id: 201,
+    name: '购车托管车主',
+    color: 'success',
+    type: TagType.SYSTEM,
+    category: TagCategory.HOSTING,
+    priority: 2,
+    status: 'active',
+    description: '购车托管车主，享受60%分润比例',
+    userCount: 5,
+
+    triggers: [
+      {
+        id: 'trigger_1',
+        type: TagTriggerType.API_DRIVEN,
+        enabled: true,
+        priority: 1,
+        name: '托管审核通过',
+        description: '购车托管审核通过且车辆上线',
+        sourceId: 'hosting_owner_approved',
+        autoRemove: true,
+        removeSourceId: 'hosting_cancelled'
+      }
+    ],
+
+
+    benefitsConfig: {
+      benefits: [
+        {
+          id: 'benefit_1',
+          type: BenefitType.PROFIT_SHARING,
+          name: '分润比例',
+          description: '订单分润60%',
+          icon: 'money',
+          value: 0.6,
+          priority: 1,
+          applicableScenes: ['order_settlement'],
+          status: 'active'
+        }
+      ]
+    },
+
+    businessAssociation: {
+      coupons: [],
+      pricingStrategies: [],
+      activities: [],
+      profitConfigs: [2]
+    },
+
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
   // ==================== 价值等级类标签 ====================
   {
     id: 1,
@@ -48,18 +162,8 @@ export const mockTags: Tag[] = [
     category: TagCategory.VALUE_LEVEL,
     priority: 2,
     status: 'active',
-    triggerType: TagTriggerType.RULE_BASED,  // 规则触发
     description: '高价值用户，消费金额超过10000元',
     userCount: 15,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'total_amount', operator: 'gte', value: 10000 }
-      ],
-      logic: 'AND',
-      triggerMode: 'realtime',
-      description: '消费金额达到10000元自动获得VIP标签'
-    },
     businessAssociation: {
       coupons: [3],              // 关联VIP专属优惠券
       pricingStrategies: [1],    // 关联VIP价格策略
@@ -79,15 +183,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '信用良好，无违约记录',
     userCount: 32,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'violation_count', operator: 'eq', value: 0 },
-        { type: 'order_count', operator: 'gte', value: 3 }
-      ],
-      triggerMode: 'realtime',
-      description: '无违规记录且订单数≥3的用户自动获得'
-    },
     businessAssociation: {
       coupons: [],
       pricingStrategies: [],
@@ -109,15 +204,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '近30天有订单记录',
     userCount: 48,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'last_login_days', operator: 'lte', value: 30 },
-        { type: 'order_count', operator: 'gte', value: 1 }
-      ],
-      triggerMode: 'realtime',
-      description: '30天内登录且有订单的用户自动获得'
-    },
     businessAssociation: {
       coupons: [],
       pricingStrategies: [],
@@ -137,14 +223,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '超过90天未登录',
     userCount: 12,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'last_login_days', operator: 'gt', value: 90 }
-      ],
-      triggerMode: 'realtime',
-      description: '超过90天未登录的用户自动获得'
-    },
     businessAssociation: {
       coupons: [4],              // 关联唤醒优惠券
       pricingStrategies: [],
@@ -166,14 +244,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '注册时间少于30天',
     userCount: 23,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'register_days', operator: 'lt', value: 30 }
-      ],
-      triggerMode: 'realtime',
-      description: '注册30天内的用户自动获得'
-    },
     businessAssociation: {
       coupons: [1],              // 关联新用户专享券
       pricingStrategies: [],
@@ -193,12 +263,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '企业客户',
     userCount: 8,
-    autoRule: {
-      enabled: false,  // 企业用户需要人工审核，不自动打标签
-      conditions: [],
-      triggerMode: 'manual',
-      description: '企业认证通过后手动添加'
-    },
     businessAssociation: {
       coupons: [],
       pricingStrategies: [2],    // 关联企业客户价格策略
@@ -220,14 +284,6 @@ export const mockTags: Tag[] = [
     status: 'active',
     description: '存在违规行为或风险记录',
     userCount: 5,
-    autoRule: {
-      enabled: true,
-      conditions: [
-        { type: 'violation_count', operator: 'gte', value: 3 }
-      ],
-      triggerMode: 'realtime',
-      description: '违规次数≥3次的用户自动获得'
-    },
     businessAssociation: {
       coupons: [],
       pricingStrategies: [],
@@ -261,10 +317,8 @@ export function mockCreateTag(data: Partial<Tag>): Promise<Tag> {
         status: data.status || 'active',
         description: data.description || '',
         userCount: 0,
-        autoRule: data.autoRule,
         businessAssociation: data.businessAssociation,
         expiresAt: data.expiresAt,
-        benefits: data.benefits,
         createdAt: new Date().toISOString()
       }
       mockTags.push(newTag)
