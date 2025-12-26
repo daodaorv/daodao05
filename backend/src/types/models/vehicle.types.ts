@@ -41,7 +41,7 @@ export interface VehicleModel {
   transmission: TransmissionType;
   engine_displacement?: number;
   features?: string[];
-  specifications?: Record<string, any>;
+  specifications?: Record<string, unknown>;
   images?: string[];
   description?: string;
   status: 'active' | 'inactive';

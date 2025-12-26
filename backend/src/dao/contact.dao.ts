@@ -87,7 +87,7 @@ export class ContactDAO {
       }
 
       const fields: string[] = [];
-      const values: any[] = [];
+      const values: unknown[] = [];
 
       if (data.name !== undefined) {
         fields.push('name = ?');
@@ -168,7 +168,7 @@ export class ContactDAO {
         SET is_default = false
         WHERE user_id = ?
       `;
-      const params: any[] = [userId];
+      const params: unknown[] = [userId];
 
       if (excludeId) {
         sql += ' AND id != ?';

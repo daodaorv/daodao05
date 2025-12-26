@@ -22,7 +22,7 @@ export class CouponDAO extends BaseDao<Coupon> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = ['status = ?'];
-    const params: any[] = ['active'];
+    const params: unknown[] = ['active'];
 
     if (category && category !== 'all') {
       conditions.push('type = ?');
@@ -36,7 +36,7 @@ export class CouponDAO extends BaseDao<Coupon> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );
@@ -78,6 +78,6 @@ export class CouponDAO extends BaseDao<Coupon> {
       [couponId]
     );
 
-    return (result as any).affectedRows > 0;
+    return (result as unknown).affectedRows > 0;
   }
 }

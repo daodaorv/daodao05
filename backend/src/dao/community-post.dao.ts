@@ -16,7 +16,7 @@ export class CommunityPostDAO extends BaseDao<CommunityPost> {
   async getPosts(filters: { status?: string }, page: number = 1, limit: number = 10) {
     const offset = (page - 1) * limit;
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (filters.status) {
       conditions.push('status = ?');
@@ -33,7 +33,7 @@ export class CommunityPostDAO extends BaseDao<CommunityPost> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );

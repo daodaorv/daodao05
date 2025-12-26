@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="owner-usage-fee-config-container">
     <!-- 统计卡片 -->
@@ -93,7 +92,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -102,6 +100,12 @@ import SearchForm from '@/components/common/SearchForm.vue'
 import DataTable from '@/components/common/DataTable.vue'
 import FormDialog from '@/components/common/FormDialog.vue'
 import { useErrorHandler } from '@/composables'
+import {
+  getOwnerUsageFeeConfigList,
+  createOwnerUsageFeeConfig,
+  updateOwnerUsageFeeConfig,
+  deleteOwnerUsageFeeConfig,
+} from '@/api/hosting'
 
 const { handleApiError } = useErrorHandler()
 
@@ -230,9 +234,24 @@ const formRules = {
 const loadConfigList = async () => {
   loading.value = true
   try {
-    // TODO: 调用API接口
-    configList.value = []
-    pagination.total = 0
+    const response = await getOwnerUsageFeeConfigList({
+      keyword: searchForm.keyword,
+      enabled: searchForm.enabled,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+    })
+    configList.value = response.data.list
+    pagination.total = response.data.total
+
+    // 更新统计数据
+    stats.value.totalCount = response.data.total
+    stats.value.enabledCount = response.data.list.filter((c: any) => c.enabled).length
+    stats.value.effectiveCount = response.data.list.filter((c: any) => {
+      const now = new Date()
+      const effectiveDate = new Date(c.effectiveDate)
+      const expiryDate = c.expiryDate ? new Date(c.expiryDate) : null
+      return c.enabled && effectiveDate <= now && (!expiryDate || expiryDate >= now)
+    }).length
   } catch (error) {
     handleApiError(error, '加载配置列表失败')
   } finally {
@@ -275,8 +294,13 @@ const handleEdit = (row: any) => {
 const handleSubmit = async (data: any) => {
   submitLoading.value = true
   try {
-    // TODO: 调用API接口
-    ElMessage.success(isEdit.value ? '编辑成功' : '创建成功')
+    if (isEdit.value && currentConfigId.value) {
+      await updateOwnerUsageFeeConfig(currentConfigId.value, data)
+      ElMessage.success('编辑成功')
+    } else {
+      await createOwnerUsageFeeConfig(data)
+      ElMessage.success('创建成功')
+    }
     dialogVisible.value = false
     loadConfigList()
   } catch (error) {
@@ -292,7 +316,7 @@ const handleDelete = async (row: any) => {
     await ElMessageBox.confirm(`确定要删除配置"${row.configName}"吗？`, '删除确认', {
       type: 'warning',
     })
-    // TODO: 调用API接口
+    await deleteOwnerUsageFeeConfig(row.id)
     ElMessage.success('删除成功')
     loadConfigList()
   } catch (error) {
@@ -303,9 +327,15 @@ const handleDelete = async (row: any) => {
 }
 
 // 启用/禁用切换
-const handleToggleEnabled = (row: any) => {
-  const statusText = row.enabled ? '启用' : '禁用'
-  ElMessage.success(`已${statusText}配置: ${row.configName}`)
+const handleToggleEnabled = async (row: any) => {
+  try {
+    await updateOwnerUsageFeeConfig(row.id, { enabled: row.enabled })
+    const statusText = row.enabled ? '启用' : '禁用'
+    ElMessage.success(`已${statusText}配置: ${row.configName}`)
+  } catch (error) {
+    row.enabled = !row.enabled // 恢复原状态
+    handleApiError(error, '状态切换失败')
+  }
 }
 
 // 分页变化

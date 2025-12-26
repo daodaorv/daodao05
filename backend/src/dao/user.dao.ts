@@ -178,7 +178,7 @@ export class UserDAO extends BaseDao<User> {
   ): Promise<boolean> {
     try {
       const fields: string[] = [];
-      const values: any[] = [];
+      const values: unknown[] = [];
 
       if (data.username !== undefined) {
         fields.push('username = ?');
@@ -256,7 +256,7 @@ export class UserProfileDAO extends BaseDao<UserProfile> {
       if (existing) {
         // 更新现有资料
         const fields: string[] = [];
-        const values: any[] = [];
+        const values: unknown[] = [];
 
         Object.entries(profileData).forEach(([key, value]) => {
           if (key !== 'id' && key !== 'user_id' && value !== undefined) {

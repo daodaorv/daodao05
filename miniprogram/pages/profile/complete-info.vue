@@ -355,7 +355,7 @@ const handleSkip = async () => {
 		const result = await updateUserProfile({
 			nickname: defaultNickname,
 			avatar: defaultAvatar,
-			gender: 0 // 未知
+			gender: 0
 		})
 
 		// 更新本地缓存

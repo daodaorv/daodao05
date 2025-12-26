@@ -18,10 +18,10 @@ const withdrawalDAO = new HostingWithdrawalDAO();
  */
 router.get('/income', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const stats = await hostingDAO.getIncomeStats(userId);
     res.json(successResponse(stats));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -32,7 +32,7 @@ router.get('/income', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/vehicles', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { status, page = 1, limit = 10 } = req.query;
 
     const result = await hostingDAO.getUserVehicles(
@@ -51,7 +51,7 @@ router.get('/vehicles', authMiddleware, async (req: Request, res: Response) => {
         totalPages: Math.ceil(result.total / result.limit),
       },
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -62,7 +62,7 @@ router.get('/vehicles', authMiddleware, async (req: Request, res: Response) => {
  */
 router.post('/old-car/apply', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { vehicleInfo, photos, ownerInfo, storeId } = req.body;
 
     const result = await applicationDAO.createApplication({
@@ -79,7 +79,7 @@ router.post('/old-car/apply', authMiddleware, async (req: Request, res: Response
       status: 'pending',
       estimatedReviewTime: '1-3个工作日',
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -90,7 +90,7 @@ router.post('/old-car/apply', authMiddleware, async (req: Request, res: Response
  */
 router.post('/new-car/apply', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { modelId, installmentPeriod, applicantInfo } = req.body;
 
     const result = await applicationDAO.createApplication({
@@ -105,7 +105,7 @@ router.post('/new-car/apply', authMiddleware, async (req: Request, res: Response
       status: 'pending',
       estimatedReviewTime: '3-5个工作日',
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -116,7 +116,7 @@ router.post('/new-car/apply', authMiddleware, async (req: Request, res: Response
  */
 router.post('/self-use/apply', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { vehicleId, pickupStoreId, returnStoreId, pickupTime, returnTime, additionalServices } = req.body;
 
     const result = await applicationDAO.createApplication({
@@ -135,7 +135,7 @@ router.post('/self-use/apply', authMiddleware, async (req: Request, res: Respons
       serviceFee: 300.00,
       crossCityFee: 200.00,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -146,7 +146,7 @@ router.post('/self-use/apply', authMiddleware, async (req: Request, res: Respons
  */
 router.get('/income/detail', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { vehicleId, startDate, endDate, page = 1, limit = 20 } = req.query;
 
     const result = await incomeDAO.getIncomeDetails(userId, {
@@ -166,7 +166,7 @@ router.get('/income/detail', authMiddleware, async (req: Request, res: Response)
         totalPages: Math.ceil(result.total / result.limit),
       },
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -177,7 +177,7 @@ router.get('/income/detail', authMiddleware, async (req: Request, res: Response)
  */
 router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { amount, bankAccount, bankName, accountName } = req.body;
 
     // 计算手续费（示例：1%）
@@ -201,7 +201,7 @@ router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => 
       fee,
       actualAmount,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -212,7 +212,7 @@ router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => 
  */
 router.get('/withdraw/records', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { page = 1, limit = 20 } = req.query;
 
     const result = await withdrawalDAO.getWithdrawals(userId, Number(page), Number(limit));
@@ -226,7 +226,7 @@ router.get('/withdraw/records', authMiddleware, async (req: Request, res: Respon
         totalPages: Math.ceil(result.total / result.limit),
       },
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -250,7 +250,7 @@ router.get('/agreement', authMiddleware, async (_req: Request, res: Response) =>
     };
 
     res.json(successResponse(agreement));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -261,7 +261,7 @@ router.get('/agreement', authMiddleware, async (_req: Request, res: Response) =>
  */
 router.get('/statistics', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
 
     // 获取托管车辆数量
     const vehicles = await hostingDAO.getUserVehicles(userId, undefined, 1, 1000);
@@ -271,12 +271,12 @@ router.get('/statistics', authMiddleware, async (req: Request, res: Response) =>
 
     res.json(successResponse({
       totalVehicles: vehicles.total,
-      operatingVehicles: vehicles.list.filter((v: any) => v.status === 'operating').length,
+      operatingVehicles: vehicles.list.filter((v: unknown) => v.status === 'operating').length,
       totalIncome: incomeStats.totalIncome,
       monthIncome: incomeStats.monthIncome,
       availableBalance: incomeStats.availableBalance,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });

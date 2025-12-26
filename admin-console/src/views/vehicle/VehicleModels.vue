@@ -62,6 +62,12 @@
         </el-tag>
       </template>
 
+      <template #purchaseHostingStatus="{ row }">
+        <el-tag :type="row.supportPurchaseHosting ? 'success' : 'info'" size="small">
+          {{ row.supportPurchaseHosting ? '支持' : '不支持' }}
+        </el-tag>
+      </template>
+
       <template #status="{ row }">
         <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
           {{ row.status === 'active' ? '启用' : '禁用' }}
@@ -86,6 +92,9 @@
         </el-button>
         <el-button link type="warning" size="small" @click="handleCrowdfundingConfig(row)">
           众筹配置
+        </el-button>
+        <el-button link type="warning" size="small" @click="handlePurchaseHostingConfig(row)">
+          购车托管配置
         </el-button>
         <el-button
           link
@@ -458,6 +467,7 @@ const tableColumns: TableColumn[] = [
   { prop: 'dailyPrice', label: '日租金', width: 120, slot: 'dailyPrice' },
   { prop: 'vehicleCount', label: '车辆数量', width: 100 },
   { prop: 'supportCrowdfunding', label: '众筹状态', width: 120, slot: 'crowdfundingStatus' },
+  { prop: 'supportPurchaseHosting', label: '购车托管', width: 120, slot: 'purchaseHostingStatus' },
   { prop: 'status', label: '状态', width: 100, slot: 'status' },
   { prop: 'createdAt', label: '创建时间', width: 180 },
 ]
@@ -1007,6 +1017,12 @@ const handleCrowdfundingConfig = (row: VehicleModel) => {
     params: { id: row.id },
     query: { tab: 'crowdfunding' }
   })
+}
+
+// 购车托管配置
+const handlePurchaseHostingConfig = (row: VehicleModel) => {
+  ElMessage.info(`配置车型"${row.modelName}"的购车托管参数`)
+  // TODO: 打开购车托管配置对话框或跳转到配置页面
 }
 
 // 导出数据

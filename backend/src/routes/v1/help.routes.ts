@@ -124,7 +124,7 @@ router.get('/hot', async (req: Request, res: Response) => {
     const { limit = 10 } = req.query;
 
     // TODO: 实现热门文章查询
-    const articles: any[] = [];
+    const articles: unknown[] = [];
 
     return res.json(successResponse({
       list: articles,

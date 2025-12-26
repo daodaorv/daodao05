@@ -29,10 +29,10 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
       initiator_id: data.initiatorId,
       target_amount: data.targetAmount,
       total_shares: data.totalShares,
-      start_date: data.startDate as any,
-      end_date: data.endDate as any,
+      start_date: data.startDate as unknown,
+      end_date: data.endDate as unknown,
       status: 'preparing',
-    } as any);
+    } as unknown);
 
     return result;
   }
@@ -49,7 +49,7 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (status) {
       conditions.push('status = ?');
@@ -63,7 +63,7 @@ export class CrowdfundingProjectDAO extends BaseDao<CrowdfundingProject> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} ${whereClause}`,
       params
     );

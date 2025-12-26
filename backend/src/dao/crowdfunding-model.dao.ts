@@ -21,7 +21,7 @@ export class CrowdfundingModelDAO extends BaseDao<CrowdfundingModel> {
       [limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE status = 'active'`,
       []
     );

@@ -27,7 +27,7 @@ export class HostingIncomeDAO extends BaseDao<HostingIncomeDetail> {
     const offset = (page - 1) * limit;
 
     const conditions: string[] = ['user_id = ?'];
-    const params: any[] = [userId];
+    const params: unknown[] = [userId];
 
     if (vehicleId) {
       conditions.push('hosting_vehicle_id = ?');
@@ -51,7 +51,7 @@ export class HostingIncomeDAO extends BaseDao<HostingIncomeDetail> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );

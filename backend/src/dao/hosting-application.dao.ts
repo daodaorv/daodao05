@@ -16,26 +16,26 @@ export class HostingApplicationDAO extends BaseDao<HostingApplication> {
   async createApplication(data: {
     userId: number;
     applicationType: string;
-    vehicleInfo?: any;
-    ownerInfo?: any;
-    photos?: any;
+    vehicleInfo?: unknown;
+    ownerInfo?: unknown;
+    photos?: unknown;
     storeId?: number;
     pickupTime?: string;
     returnTime?: string;
-    additionalServices?: any;
+    additionalServices?: unknown;
   }) {
     const result = await this.insert({
       user_id: data.userId,
-      application_type: data.applicationType as any,
+      application_type: data.applicationType as unknown,
       vehicle_info: data.vehicleInfo ? JSON.stringify(data.vehicleInfo) : null,
       owner_info: data.ownerInfo ? JSON.stringify(data.ownerInfo) : null,
       photos: data.photos ? JSON.stringify(data.photos) : null,
       store_id: data.storeId,
-      pickup_time: data.pickupTime as any,
-      return_time: data.returnTime as any,
+      pickup_time: data.pickupTime as unknown,
+      return_time: data.returnTime as unknown,
       additional_services: data.additionalServices ? JSON.stringify(data.additionalServices) : null,
       status: 'pending',
-    } as any);
+    } as unknown);
 
     return result;
   }
@@ -51,7 +51,7 @@ export class HostingApplicationDAO extends BaseDao<HostingApplication> {
       [userId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE user_id = ?`,
       [userId]
     );

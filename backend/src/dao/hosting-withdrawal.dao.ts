@@ -33,7 +33,7 @@ export class HostingWithdrawalDAO extends BaseDao<HostingWithdrawal> {
       bank_name: data.bankName,
       account_name: data.accountName,
       status: 'pending',
-    } as any);
+    } as unknown);
 
     return result;
   }
@@ -49,7 +49,7 @@ export class HostingWithdrawalDAO extends BaseDao<HostingWithdrawal> {
       [userId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE user_id = ?`,
       [userId]
     );

@@ -17,43 +17,16 @@
       @select="handleMenuSelect"
     >
       <template v-for="menuItem in menuRoutes" :key="menuItem.path">
-        <el-sub-menu
-          v-if="menuItem.children && menuItem.children.length > 0"
-          :index="menuItem.path"
-        >
-          <template #title>
-            <el-icon v-if="menuItem.meta?.icon">
-              <component :is="menuItem.meta.icon" />
-            </el-icon>
-            <span>{{ menuItem.meta?.title }}</span>
-          </template>
-
-          <el-menu-item
-            v-for="child in menuItem.children"
-            :key="child.path"
-            :index="child.path"
-          >
-            <el-icon v-if="child.meta?.icon">
-              <component :is="child.meta.icon" />
-            </el-icon>
-            <template #title>{{ child.meta?.title }}</template>
-          </el-menu-item>
-        </el-sub-menu>
-
-        <el-menu-item v-else :index="menuItem.path">
-          <el-icon v-if="menuItem.meta?.icon">
-            <component :is="menuItem.meta.icon" />
-          </el-icon>
-          <template #title>{{ menuItem.meta?.title }}</template>
-        </el-menu-item>
+        <MenuItemComponent :menu-item="menuItem" />
       </template>
     </el-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineComponent, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElSubMenu, ElMenuItem, ElIcon } from 'element-plus'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { menuConfig } from '@/config/menu'
@@ -77,6 +50,62 @@ const activeMenu = computed(() => {
 const menuRoutes = computed<MenuItem[]>(() => {
   const user = userStore.user
   return filterMenuByPermission(menuConfig, user)
+})
+
+// 递归菜单组件
+const MenuItemComponent = defineComponent({
+  name: 'MenuItemComponent',
+  props: {
+    menuItem: {
+      type: Object as () => MenuItem,
+      required: true,
+    },
+  },
+  setup(props) {
+    const hasChildren = computed(() => {
+      return props.menuItem.children && props.menuItem.children.length > 0
+    })
+
+    return () => {
+      if (hasChildren.value) {
+        // 有子菜单，渲染 el-sub-menu
+        return h(
+          ElSubMenu,
+          { index: props.menuItem.path },
+          {
+            title: () => [
+              props.menuItem.meta?.icon
+                ? h(ElIcon, null, {
+                    default: () => h(props.menuItem.meta!.icon as any),
+                  })
+                : null,
+              h('span', null, props.menuItem.meta?.title),
+            ],
+            default: () =>
+              props.menuItem.children!.map((child) =>
+                h(MenuItemComponent, { key: child.path, menuItem: child })
+              ),
+          }
+        )
+      } else {
+        // 没有子菜单，渲染 el-menu-item
+        return h(
+          ElMenuItem,
+          { index: props.menuItem.path },
+          {
+            default: () => [
+              props.menuItem.meta?.icon
+                ? h(ElIcon, null, {
+                    default: () => h(props.menuItem.meta!.icon as any),
+                  })
+                : null,
+              h('template', { slot: 'title' }, props.menuItem.meta?.title),
+            ],
+          }
+        )
+      }
+    }
+  },
 })
 
 // 处理菜单选择

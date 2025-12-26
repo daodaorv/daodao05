@@ -12,7 +12,11 @@ const walletDAO = new UserWalletDAO();
  */
 router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const wallet = await walletDAO.getUserWallet(userId);
 
     if (!wallet) {
@@ -44,7 +48,11 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/transactions', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const { page = 1, pageSize = 10 } = req.query;
 
     // TODO: 实现交易记录查询
@@ -71,7 +79,11 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
  */
 router.post('/withdraw', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const { amount, accountType, accountInfo } = req.body;
 
     // TODO: 实现提现逻辑

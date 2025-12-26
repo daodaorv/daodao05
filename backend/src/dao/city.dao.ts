@@ -2,12 +2,13 @@ import { BaseDao } from './base.dao';
 import { QueryBuilder } from '@db/query-builder';
 import { City } from '../types/models/store.types';
 import { logger } from '@utils/logger';
+import { RowDataPacket } from 'mysql2';
 
 /**
  * 城市数据访问对象
  * 注意: 城市数据从门店表聚合而来,不是独立表
  */
-export class CityDAO extends BaseDao<any> {
+export class CityDAO extends BaseDao<RowDataPacket> {
   constructor() {
     super('stores'); // 使用门店表
   }

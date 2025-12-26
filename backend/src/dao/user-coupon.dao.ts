@@ -21,9 +21,9 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
     const result = await this.insert({
       user_id: data.userId,
       coupon_id: data.couponId,
-      expiry_date: data.expiryDate as any,
+      expiry_date: data.expiryDate as unknown,
       status: 'unused',
-    } as any);
+    } as unknown);
 
     return result;
   }
@@ -39,7 +39,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
   ) {
     const offset = (page - 1) * limit;
     const conditions: string[] = ['uc.user_id = ?'];
-    const params: any[] = [userId];
+    const params: unknown[] = [userId];
 
     if (status) {
       conditions.push('uc.status = ?');
@@ -48,7 +48,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
 
     const whereClause = conditions.join(' AND ');
 
-    const rows = await QueryBuilder.query<any>(
+    const rows = await QueryBuilder.query<unknown>(
       `SELECT uc.*, c.name, c.type, c.amount, c.rate, c.min_amount, c.scope
        FROM ${this.tableName} uc
        LEFT JOIN coupons c ON uc.coupon_id = c.id
@@ -58,7 +58,7 @@ export class UserCouponDAO extends BaseDao<UserCoupon> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} uc WHERE ${whereClause}`,
       params
     );

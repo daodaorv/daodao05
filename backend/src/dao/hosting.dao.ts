@@ -21,7 +21,7 @@ export class HostingDAO extends BaseDao<HostingVehicle> {
   ) {
     const offset = (page - 1) * limit;
     const conditions: string[] = ['user_id = ?'];
-    const params: any[] = [userId];
+    const params: unknown[] = [userId];
 
     if (status) {
       conditions.push('status = ?');
@@ -35,7 +35,7 @@ export class HostingDAO extends BaseDao<HostingVehicle> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );
@@ -52,7 +52,7 @@ export class HostingDAO extends BaseDao<HostingVehicle> {
    * 获取托管收益统计
    */
   async getIncomeStats(userId: number) {
-    const statsResult = await QueryBuilder.queryOne<any>(
+    const statsResult = await QueryBuilder.queryOne<unknown>(
       `SELECT
         SUM(total_income) as totalIncome,
         SUM(available_balance) as availableBalance,
@@ -62,14 +62,14 @@ export class HostingDAO extends BaseDao<HostingVehicle> {
       [userId]
     );
 
-    const todayResult = await QueryBuilder.queryOne<any>(
+    const todayResult = await QueryBuilder.queryOne<unknown>(
       `SELECT SUM(amount) as todayIncome
       FROM hosting_income_details
       WHERE user_id = ? AND DATE(income_date) = CURDATE()`,
       [userId]
     );
 
-    const monthResult = await QueryBuilder.queryOne<any>(
+    const monthResult = await QueryBuilder.queryOne<unknown>(
       `SELECT SUM(amount) as monthIncome
       FROM hosting_income_details
       WHERE user_id = ? AND YEAR(income_date) = YEAR(CURDATE()) AND MONTH(income_date) = MONTH(CURDATE())`,

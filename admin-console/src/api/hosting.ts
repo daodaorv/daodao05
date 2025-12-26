@@ -28,6 +28,8 @@ import {
   mockGetCrowdfundingIncomeList,
   mockGetCrowdfundingIncomeStats,
   mockDistributeCrowdfundingIncome,
+  mockOwnerUsageFeeConfigs,
+  type OwnerUsageFeeConfig,
   type OldCarHostingApplication,
   type OldCarApplicationListParams,
   type NewCarHostingApplication,
@@ -520,69 +522,6 @@ export const distributeCrowdfundingIncome = (data: {
   // 🔵 后端联调时使用真实 API(待后端开发)
   // return request.post('/api/hosting/crowdfunding/income/distribute', data)
 }
-
-// ==================== 车主自用费用配置 ====================
-
-/**
- * 获取车主自用费用配置列表
- */
-export const getOwnerUsageFeeConfigList = (params: any) => {
-  // 🟡 使用 Mock 数据(前端独立开发阶段)
-  return Promise.resolve({
-    data: {
-      list: [],
-      total: 0
-    }
-  })
-
-  // 🔵 后端联调时使用真实 API(待后端开发)
-  // return request.get('/api/hosting/owner-usage-fee-config', { params })
-}
-
-/**
- * 创建车主自用费用配置
- */
-export const createOwnerUsageFeeConfig = (data: any) => {
-  // 🟡 使用 Mock 数据(前端独立开发阶段)
-  return Promise.resolve({ data: { id: Date.now() } })
-
-  // 🔵 后端联调时使用真实 API(待后端开发)
-  // return request.post('/api/hosting/owner-usage-fee-config', data)
-}
-
-/**
- * 更新车主自用费用配置
- */
-export const updateOwnerUsageFeeConfig = (id: number, data: any) => {
-  // 🟡 使用 Mock 数据(前端独立开发阶段)
-  return Promise.resolve({ data: { success: true } })
-
-  // 🔵 后端联调时使用真实 API(待后端开发)
-  // return request.put(`/api/hosting/owner-usage-fee-config/${id}`, data)
-}
-
-/**
- * 删除车主自用费用配置
- */
-export const deleteOwnerUsageFeeConfig = (id: number) => {
-  // 🟡 使用 Mock 数据(前端独立开发阶段)
-  return Promise.resolve({ data: { success: true } })
-
-  // 🔵 后端联调时使用真实 API(待后端开发)
-  // return request.delete(`/api/hosting/owner-usage-fee-config/${id}`)
-}
-
-/**
- * 获取车主自用费用配置历史记录
- */
-export const getOwnerUsageFeeConfigHistory = (configId: number) => {
-  // 🟡 使用 Mock 数据(前端独立开发阶段)
-  return Promise.resolve({ data: [] })
-
-  // 🔵 后端联调时使用真实 API(待后端开发)
-  // return request.get(`/api/hosting/owner-usage-fee-config/${configId}/history`)
-}
-
 // ==================== 淡季补贴配置 ====================
 
 /**
@@ -643,4 +582,128 @@ export const getSeasonalSubsidyConfigHistory = (configId: number) => {
 
   // 🔵 后端联调时使用真实 API(待后端开发)
   // return request.get(`/api/hosting/seasonal-subsidy-config/${configId}/history`)
+}
+
+// ==================== 车主自用费用配置 API ====================
+
+/**
+ * 获取车主自用费用配置列表
+ */
+export const getOwnerUsageFeeConfigList = (params: any) => {
+  // 🟡 使用 Mock 数据(前端独立开发阶段)
+  let filteredConfigs = [...mockOwnerUsageFeeConfigs]
+
+  // 搜索过滤
+  if (params.keyword) {
+    filteredConfigs = filteredConfigs.filter(
+      (config) =>
+        config.configName.includes(params.keyword) ||
+        config.description?.includes(params.keyword)
+    )
+  }
+
+  // 状态过滤
+  if (params.enabled !== undefined) {
+    filteredConfigs = filteredConfigs.filter((config) => config.enabled === params.enabled)
+  }
+
+  // 分页
+  const page = params.page || 1
+  const pageSize = params.pageSize || 10
+  const start = (page - 1) * pageSize
+  const end = start + pageSize
+  const list = filteredConfigs.slice(start, end)
+
+  return Promise.resolve({
+    data: {
+      list,
+      total: filteredConfigs.length,
+      page,
+      pageSize,
+    },
+  })
+
+  // 🔵 后端联调时使用真实 API(待后端开发)
+  // return request.get('/api/hosting/owner-usage-fee-config', { params })
+}
+
+/**
+ * 创建车主自用费用配置
+ */
+export const createOwnerUsageFeeConfig = (data: Partial<OwnerUsageFeeConfig>) => {
+  // 🟡 使用 Mock 数据(前端独立开发阶段)
+  const newConfig: OwnerUsageFeeConfig = {
+    id: Date.now(),
+    configName: data.configName || '',
+    serviceFeeMin: data.serviceFeeMin || 0,
+    serviceFeeMax: data.serviceFeeMax || 0,
+    serviceFeeDefault: data.serviceFeeDefault || 0,
+    relocationFee: data.relocationFee || 0,
+    relocationFreeCount: data.relocationFreeCount || 0,
+    maxUsageDaysPerMonth: data.maxUsageDaysPerMonth || 0,
+    advanceNoticeDays: data.advanceNoticeDays || 0,
+    enabled: data.enabled !== undefined ? data.enabled : true,
+    effectiveDate: data.effectiveDate || '',
+    expiryDate: data.expiryDate,
+    description: data.description,
+    createdBy: '当前用户',
+    createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  }
+
+  mockOwnerUsageFeeConfigs.push(newConfig)
+
+  return Promise.resolve({
+    data: { success: true, config: newConfig },
+  })
+
+  // 🔵 后端联调时使用真实 API(待后端开发)
+  // return request.post('/api/hosting/owner-usage-fee-config', data)
+}
+
+/**
+ * 更新车主自用费用配置
+ */
+export const updateOwnerUsageFeeConfig = (id: number, data: Partial<OwnerUsageFeeConfig>) => {
+  // 🟡 使用 Mock 数据(前端独立开发阶段)
+  const index = mockOwnerUsageFeeConfigs.findIndex((config) => config.id === id)
+  if (index !== -1) {
+    mockOwnerUsageFeeConfigs[index] = {
+      ...mockOwnerUsageFeeConfigs[index],
+      ...data,
+      updatedBy: '当前用户',
+      updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    }
+  }
+
+  return Promise.resolve({ data: { success: true } })
+
+  // 🔵 后端联调时使用真实 API(待后端开发)
+  // return request.put(`/api/hosting/owner-usage-fee-config/${id}`, data)
+}
+
+/**
+ * 删除车主自用费用配置
+ */
+export const deleteOwnerUsageFeeConfig = (id: number) => {
+  // 🟡 使用 Mock 数据(前端独立开发阶段)
+  const index = mockOwnerUsageFeeConfigs.findIndex((config) => config.id === id)
+  if (index !== -1) {
+    mockOwnerUsageFeeConfigs.splice(index, 1)
+  }
+
+  return Promise.resolve({ data: { success: true } })
+
+  // 🔵 后端联调时使用真实 API(待后端开发)
+  // return request.delete(`/api/hosting/owner-usage-fee-config/${id}`)
+}
+
+/**
+ * 获取车主自用费用配置历史记录
+ */
+export const getOwnerUsageFeeConfigHistory = (configId: number) => {
+  // 🟡 使用 Mock 数据(前端独立开发阶段)
+  return Promise.resolve({ data: [] })
+
+  // 🔵 后端联调时使用真实 API(待后端开发)
+  // return request.get(`/api/hosting/owner-usage-fee-config/${configId}/history`)
 }

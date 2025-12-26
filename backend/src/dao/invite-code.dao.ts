@@ -20,7 +20,7 @@ export class InviteCodeDAO extends BaseDao<InviteCode> {
     await this.insert({
       user_id: userId,
       invite_code: inviteCode,
-    } as any);
+    } as unknown);
 
     return inviteCode;
   }

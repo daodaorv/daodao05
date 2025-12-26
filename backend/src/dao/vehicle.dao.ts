@@ -31,7 +31,7 @@ export class VehicleDAO extends BaseDao<Vehicle> {
 
       // 构建WHERE条件
       const conditions: string[] = ["v.status = 'available'"];
-      const values: any[] = [];
+      const values: unknown[] = [];
 
       // 城市筛选
       if (cityId) {

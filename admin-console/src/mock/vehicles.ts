@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 车辆管理模块 Mock 数据
  */
@@ -7,6 +6,14 @@ import { createPlaceholderDataUrl } from '@/utils/placeholder'
 
 const placeholder = (text: string, width = 300, height = 200) =>
   createPlaceholderDataUrl(text, { width, height })
+
+// 购车托管配置类型
+export interface PurchaseHostingConfig {
+  minDownPaymentRatio: number // 最低首付比例 (%)
+  maxLoanTerm: number // 最长贷款期限 (月)
+  guaranteedMonthlyIncome: number // 保底月收益 (元)
+  estimatedAnnualReturn: number // 预估年化收益率 (%)
+}
 
 // 车型数据类型
 export interface VehicleModel {
@@ -27,6 +34,9 @@ export interface VehicleModel {
   description: string
   features: string[]
   status: 'active' | 'inactive'
+  supportCrowdfunding?: boolean // 支持众筹
+  supportPurchaseHosting?: boolean // 支持购车托管
+  purchaseHostingConfig?: PurchaseHostingConfig // 购车托管配置
   createdAt: string
   updatedAt: string
 }
@@ -60,6 +70,14 @@ export const mockVehicleModels: VehicleModel[] = [
     description: '大通RV80 C型房车，空间宽敞，配置齐全，适合家庭出游',
     features: ['空调', '冰箱', '微波炉', '卫生间', '淋浴', '太阳能'],
     status: 'active',
+    supportCrowdfunding: true,
+    supportPurchaseHosting: true,
+    purchaseHostingConfig: {
+      minDownPaymentRatio: 30,
+      maxLoanTerm: 60,
+      guaranteedMonthlyIncome: 5000,
+      estimatedAnnualReturn: 8.5,
+    },
     createdAt: '2024-01-15 10:00:00',
     updatedAt: '2024-11-20 14:30:00',
   },
@@ -81,6 +99,14 @@ export const mockVehicleModels: VehicleModel[] = [
     description: '福特全顺B型房车，灵活便捷，适合城市出行和短途旅游',
     features: ['空调', '冰箱', '倒车影像', '发电机'],
     status: 'active',
+    supportCrowdfunding: false,
+    supportPurchaseHosting: true,
+    purchaseHostingConfig: {
+      minDownPaymentRatio: 30,
+      maxLoanTerm: 48,
+      guaranteedMonthlyIncome: 4000,
+      estimatedAnnualReturn: 7.8,
+    },
     createdAt: '2024-02-10 14:30:00',
     updatedAt: '2024-11-18 09:15:00',
   },

@@ -32,13 +32,13 @@ export interface HostingApplication extends RowDataPacket {
   user_id: number;
   application_type: 'own_car' | 'new_car' | 'self_use';
   hosting_vehicle_id?: number;
-  vehicle_info?: any;
-  owner_info?: any;
-  photos?: any;
+  vehicle_info?: unknown;
+  owner_info?: unknown;
+  photos?: unknown;
   store_id?: number;
   pickup_time?: Date;
   return_time?: Date;
-  additional_services?: any;
+  additional_services?: unknown;
   status: 'pending' | 'approved' | 'rejected';
   reject_reason?: string;
   reviewed_by?: number;

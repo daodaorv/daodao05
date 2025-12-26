@@ -21,7 +21,7 @@ export class NotificationDAO extends BaseDao<Notification> {
   ) {
     const offset = (page - 1) * limit;
     const conditions: string[] = ['user_id = ?'];
-    const params: any[] = [userId];
+    const params: unknown[] = [userId];
 
     if (filters.type) {
       conditions.push('type = ?');
@@ -40,7 +40,7 @@ export class NotificationDAO extends BaseDao<Notification> {
       [...params, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE ${whereClause}`,
       params
     );
@@ -77,7 +77,7 @@ export class NotificationDAO extends BaseDao<Notification> {
    * 获取未读通知数量
    */
   async getUnreadCount(userId: number) {
-    const result = await QueryBuilder.queryOne<any>(
+    const result = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as count FROM ${this.tableName} WHERE user_id = ? AND is_read = FALSE`,
       [userId]
     );

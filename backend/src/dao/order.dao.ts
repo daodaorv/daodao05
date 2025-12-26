@@ -33,15 +33,15 @@ export class OrderDAO extends BaseDao<Order> {
 
       // 获取车辆信息以计算价格
       const vehicleSql = 'SELECT daily_price, deposit FROM vehicles WHERE id = ?';
-      const vehicles = (await QueryBuilder.query(vehicleSql, [vehicle_id])) as any[];
+      const vehicles = (await QueryBuilder.query(vehicleSql, [vehicle_id])) as unknown[];
 
       if (vehicles.length === 0) {
         throw new Error('车辆不存在');
       }
 
-      const vehicle = vehicles[0];
-      const dailyPrice = parseFloat(vehicle.daily_price);
-      const deposit = parseFloat(vehicle.deposit);
+      const vehicle = vehicles[0] as { daily_price: number; deposit: number };
+      const dailyPrice = parseFloat(String(vehicle.daily_price));
+      const deposit = parseFloat(String(vehicle.deposit));
 
       // 计算租赁天数
       const startDate = new Date(start_date);
@@ -107,7 +107,7 @@ export class OrderDAO extends BaseDao<Order> {
 
       // 构建WHERE条件
       const conditions: string[] = ['1=1'];
-      const values: any[] = [];
+      const values: unknown[] = [];
 
       if (user_id) {
         conditions.push('o.user_id = ?');
@@ -234,13 +234,37 @@ export class OrderDAO extends BaseDao<Order> {
   /**
    * 更新订单状态
    */
-  async updateOrderStatus(orderId: number, status: string): Promise<boolean> {
+  async updateOrderStatus(orderId: number, status: string, remark?: string): Promise<boolean> {
     try {
-      const sql = 'UPDATE ' + this.tableName + ' SET status = ? WHERE id = ?';
-      const result = await QueryBuilder.update(sql, [status, orderId]);
+      let sql = 'UPDATE ' + this.tableName + ' SET status = ?';
+      const values: unknown[] = [status];
+
+      if (remark) {
+        sql += ', remark = ?';
+        values.push(remark);
+      }
+
+      sql += ' WHERE id = ?';
+      values.push(orderId);
+
+      const result = await QueryBuilder.update(sql, values);
       return result > 0;
     } catch (error) {
       logger.error('更新订单状态失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取车辆价格信息
+   */
+  async getVehiclePrice(vehicleId: number): Promise<{ daily_price: number; deposit: number } | null> {
+    try {
+      const sql = 'SELECT daily_price, deposit FROM vehicles WHERE id = ?';
+      const result = (await QueryBuilder.queryOne(sql, [vehicleId])) as { daily_price: number; deposit: number } | null;
+      return result;
+    } catch (error) {
+      logger.error('获取车辆价格失败:', error);
       throw error;
     }
   }

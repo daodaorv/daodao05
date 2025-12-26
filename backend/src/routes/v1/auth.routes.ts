@@ -51,7 +51,7 @@ router.post('/send-code', async (req: Request, res: Response) => {
  */
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { phone, code, password, nickname, avatar: _avatar, inviteCode: _inviteCode } = req.body;
+    const { phone, code, password, nickname } = req.body;
 
     // 验证必填字段
     if (!phone || !code) {
@@ -461,7 +461,7 @@ router.post('/bind-phone', authMiddleware, async (req: Request, res: Response) =
  */
 router.post('/alipay-login', async (req: Request, res: Response) => {
   try {
-    const { code, authCode: _authCode } = req.body;
+    const { code } = req.body;
 
     if (!code) {
       res.status(400).json(errorResponse('支付宝授权码不能为空', 400));
@@ -528,7 +528,7 @@ router.post('/alipay-login', async (req: Request, res: Response) => {
  */
 router.post('/douyin-login', async (req: Request, res: Response) => {
   try {
-    const { code, anonymousCode: _anonymousCode } = req.body;
+    const { code } = req.body;
 
     if (!code) {
       res.status(400).json(errorResponse('抖音授权码不能为空', 400));

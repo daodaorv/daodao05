@@ -5,7 +5,11 @@
 /**
  * 成功响应
  */
-export function successResponse<T>(data: T, message = 'success') {
+export function successResponse<T>(data: T, message = 'success'): {
+  code: number;
+  message: string;
+  data: T;
+} {
   return {
     code: 0,
     message,
@@ -16,7 +20,11 @@ export function successResponse<T>(data: T, message = 'success') {
 /**
  * 错误响应
  */
-export function errorResponse(message: string, code = 500, details?: unknown) {
+export function errorResponse(message: string, code = 500, details?: unknown): {
+  code: number;
+  message: string;
+  data: unknown;
+} {
   return {
     code,
     message,
@@ -32,7 +40,17 @@ export function paginatedResponse<T>(
   total: number,
   page: number,
   pageSize: number
-) {
+): {
+  code: number;
+  message: string;
+  data: {
+    list: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  };
+} {
   return {
     code: 0,
     message: 'success',

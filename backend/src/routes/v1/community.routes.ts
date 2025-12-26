@@ -16,7 +16,7 @@ const likeDAO = new PostLikeDAO();
  */
 router.post('/posts', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { title, content, images, location, tags } = req.body;
 
     const postId = await postDAO.insert({
@@ -27,10 +27,10 @@ router.post('/posts', authMiddleware, async (req: Request, res: Response) => {
       location,
       tags: tags ? JSON.stringify(tags) : null,
       status: 'published',
-    } as any);
+    } as unknown);
 
     return res.json(successResponse({ postId, message: '发布成功' }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -52,7 +52,7 @@ router.get('/posts/:id', async (req: Request, res: Response) => {
     await postDAO.incrementViewCount(Number(id));
 
     return res.json(successResponse(post));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -63,7 +63,7 @@ router.get('/posts/:id', async (req: Request, res: Response) => {
  */
 router.post('/posts/:id/like', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { id } = req.params;
     const postId = Number(id);
 
@@ -74,11 +74,11 @@ router.post('/posts/:id/like', authMiddleware, async (req: Request, res: Respons
       await postDAO.decrementLikeCount(postId);
       return res.json(successResponse({ message: '已取消点赞', liked: false }));
     } else {
-      await likeDAO.insert({ post_id: postId, user_id: userId } as any);
+      await likeDAO.insert({ post_id: postId, user_id: userId } as unknown);
       await postDAO.incrementLikeCount(postId);
       return res.json(successResponse({ message: '点赞成功', liked: true }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -89,7 +89,7 @@ router.post('/posts/:id/like', authMiddleware, async (req: Request, res: Respons
  */
 router.post('/posts/:id/comments', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { id } = req.params;
     const { content, parentId } = req.body;
 
@@ -98,10 +98,10 @@ router.post('/posts/:id/comments', authMiddleware, async (req: Request, res: Res
       user_id: userId,
       parent_id: parentId || null,
       content,
-    } as any);
+    } as unknown);
 
     return res.json(successResponse({ commentId, message: '评论成功' }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -127,7 +127,7 @@ router.get('/posts/:id/comments', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -138,7 +138,7 @@ router.get('/posts/:id/comments', async (req: Request, res: Response) => {
  */
 router.post('/posts/:id/favorite', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { id } = req.params;
 
     // TODO: 实现收藏逻辑
@@ -147,7 +147,7 @@ router.post('/posts/:id/favorite', authMiddleware, async (req: Request, res: Res
       postId: Number(id),
       userId
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -167,7 +167,7 @@ router.get('/users/:id', async (req: Request, res: Response) => {
       followers: 0,
       following: 0
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -178,7 +178,7 @@ router.get('/users/:id', async (req: Request, res: Response) => {
  */
 router.post('/users/:id/follow', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { id } = req.params;
 
     // TODO: 实现关注逻辑
@@ -187,7 +187,7 @@ router.post('/users/:id/follow', authMiddleware, async (req: Request, res: Respo
       targetUserId: Number(id),
       userId
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -203,7 +203,7 @@ router.post('/upload', authMiddleware, async (_req: Request, res: Response) => {
       message: '上传成功',
       url: 'https://example.com/image.jpg'
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -228,7 +228,7 @@ router.get('/posts', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });

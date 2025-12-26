@@ -25,7 +25,7 @@ export class CrowdfundingShareDAO extends BaseDao<CrowdfundingShare> {
       shares: data.shares,
       amount: data.amount,
       status: 'active',
-    } as any);
+    } as unknown);
 
     return result;
   }
@@ -36,7 +36,7 @@ export class CrowdfundingShareDAO extends BaseDao<CrowdfundingShare> {
   async getUserProjects(userId: number, page: number = 1, limit: number = 10) {
     const offset = (page - 1) * limit;
 
-    const rows = await QueryBuilder.query<any>(
+    const rows = await QueryBuilder.query<unknown>(
       `SELECT cs.*, cp.project_no, cp.status as project_status
        FROM ${this.tableName} cs
        LEFT JOIN crowdfunding_projects cp ON cs.project_id = cp.id
@@ -46,7 +46,7 @@ export class CrowdfundingShareDAO extends BaseDao<CrowdfundingShare> {
       [userId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE user_id = ?`,
       [userId]
     );

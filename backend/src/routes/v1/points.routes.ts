@@ -14,7 +14,11 @@ const transactionDAO = new PointsTransactionDAO();
  */
 router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const points = await userPointsDAO.getUserPoints(userId);
 
     if (!points) {
@@ -30,8 +34,9 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
       availablePoints: points.available_points,
       frozenPoints: points.frozen_points
     }));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 
@@ -41,7 +46,11 @@ router.get('/balance', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/transactions', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const { page = 1, pageSize = 10 } = req.query;
 
     const result = await transactionDAO.getUserTransactions(
@@ -56,8 +65,9 @@ router.get('/transactions', authMiddleware, async (req: Request, res: Response) 
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 
@@ -76,8 +86,9 @@ router.get('/rules', async (_req: Request, res: Response) => {
     ];
 
     return res.json(successResponse(rules));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 
@@ -98,8 +109,9 @@ router.get('/products', async (req: Request, res: Response) => {
     };
 
     return res.json(successResponse(result));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 
@@ -109,7 +121,11 @@ router.get('/products', async (req: Request, res: Response) => {
  */
 router.post('/redeem', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const { productId, quantity } = req.body;
 
     // TODO: 实现兑换逻辑
@@ -119,8 +135,9 @@ router.post('/redeem', authMiddleware, async (req: Request, res: Response) => {
       quantity,
       userId
     }));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 
@@ -130,7 +147,11 @@ router.post('/redeem', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/redemptions', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json(errorResponse('未授权', 401));
+      return;
+    }
     const { page = 1, pageSize = 10 } = req.query;
 
     // TODO: 实现兑换记录查询
@@ -143,8 +164,9 @@ router.get('/redemptions', authMiddleware, async (req: Request, res: Response) =
     };
 
     return res.json(successResponse(result));
-  } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败';
+    return res.status(500).json(errorResponse(message));
   }
 });
 

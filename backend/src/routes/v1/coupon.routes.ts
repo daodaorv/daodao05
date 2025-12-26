@@ -32,7 +32,7 @@ router.get('/', async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -51,7 +51,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     return res.json(successResponse(coupon));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -59,9 +59,9 @@ router.get('/:id', async (req: Request, res: Response) => {
  * 3. 领取优惠券
  * POST /api/v1/coupons/:id/claim
  */
-router.post('/:id/claim', authMiddleware, async (req: Request, res: Response): Promise<any> => {
+router.post('/:id/claim', authMiddleware, async (req: Request, res: Response): Promise<unknown> => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { id } = req.params;
     const couponId = Number(id);
 
@@ -87,7 +87,7 @@ router.post('/:id/claim', authMiddleware, async (req: Request, res: Response): P
     await couponDAO.decreaseStock(couponId);
 
     return res.json(successResponse({ message: '领取成功' }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json(errorResponse(error.message));
   }
 });
@@ -98,7 +98,7 @@ router.post('/:id/claim', authMiddleware, async (req: Request, res: Response): P
  */
 router.get('/my', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { status, page = 1, pageSize = 10 } = req.query;
 
     const result = await userCouponDAO.getUserCoupons(
@@ -114,7 +114,7 @@ router.get('/my', authMiddleware, async (req: Request, res: Response) => {
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -125,12 +125,12 @@ router.get('/my', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/available', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
 
     const result = await userCouponDAO.getUserCoupons(userId, 'unused', 1, 100);
 
     res.json(successResponse(result.list));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -145,7 +145,7 @@ router.post('/:id/share', authMiddleware, async (req: Request, res: Response) =>
     const shareUrl = `https://example.com/coupon/${id}`;
     const shareCode = `SHARE${id}`;
     res.json(successResponse({ shareUrl, shareCode }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -165,7 +165,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
       { id: 'special', name: '特殊券种' },
     ];
     res.json(successResponse(categories));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -179,7 +179,7 @@ router.post('/check-availability', authMiddleware, async (_req: Request, res: Re
     const available = true;
     const reason = '';
     res.json(successResponse({ available, reason }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -190,8 +190,8 @@ router.post('/check-availability', authMiddleware, async (_req: Request, res: Re
  */
 router.post('/invite/generate-code', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
-    let inviteCode = await inviteCodeDAO.getUserInviteCode(userId);
+    const userId = (req as unknown).user.id;
+    const inviteCode = await inviteCodeDAO.getUserInviteCode(userId);
 
     if (!inviteCode) {
       const code = await inviteCodeDAO.generateInviteCode(userId);
@@ -201,7 +201,7 @@ router.post('/invite/generate-code', authMiddleware, async (req: Request, res: R
       const inviteUrl = `https://example.com/invite/${inviteCode.invite_code}`;
       res.json(successResponse({ inviteCode: inviteCode.invite_code, inviteUrl }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -212,10 +212,10 @@ router.post('/invite/generate-code', authMiddleware, async (req: Request, res: R
  */
 router.get('/invite/stats', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const stats = await inviteCodeDAO.getInviteStats(userId);
     res.json(successResponse(stats));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });
@@ -226,7 +226,7 @@ router.get('/invite/stats', authMiddleware, async (req: Request, res: Response) 
  */
 router.get('/invite/records', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = (req as unknown).user.id;
     const { page = 1, pageSize = 10 } = req.query;
 
     const result = await inviteRecordDAO.getInviteRecords(
@@ -241,7 +241,7 @@ router.get('/invite/records', authMiddleware, async (req: Request, res: Response
       page: result.page,
       pageSize: result.limit,
     }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json(errorResponse(error.message));
   }
 });

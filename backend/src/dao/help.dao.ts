@@ -28,7 +28,7 @@ export class HelpArticleDAO extends BaseDao<HelpArticle> {
       [categoryId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName}
        WHERE category_id = ? AND status = 'published'`,
       [categoryId]
@@ -56,7 +56,7 @@ export class HelpArticleDAO extends BaseDao<HelpArticle> {
       [`%${keyword}%`, `%${keyword}%`, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName}
        WHERE (title LIKE ? OR content LIKE ?) AND status = 'published'`,
       [`%${keyword}%`, `%${keyword}%`]

@@ -14,7 +14,7 @@ export class PostLikeDAO extends BaseDao<PostLike> {
    * 检查用户是否已点赞
    */
   async hasLiked(postId: number, userId: number): Promise<boolean> {
-    const result = await QueryBuilder.queryOne<any>(
+    const result = await QueryBuilder.queryOne<unknown>(
       `SELECT id FROM ${this.tableName} WHERE post_id = ? AND user_id = ?`,
       [postId, userId]
     );

@@ -25,7 +25,7 @@ export class InviteRecordDAO extends BaseDao<InviteRecord> {
       [inviterId, limit, offset]
     );
 
-    const countResult = await QueryBuilder.queryOne<any>(
+    const countResult = await QueryBuilder.queryOne<unknown>(
       `SELECT COUNT(*) as total FROM ${this.tableName} WHERE inviter_id = ?`,
       [inviterId]
     );

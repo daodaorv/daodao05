@@ -30,9 +30,10 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 
     const payment = await paymentDAO.createPayment(params);
     res.status(201).json(successResponse(payment));
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('创建支付失败:', error);
-    res.status(500).json(errorResponse(error.message || '创建支付失败'));
+    const errorMessage = error instanceof Error ? error.message : '创建支付失败';
+    res.status(500).json(errorResponse(errorMessage));
   }
 });
 

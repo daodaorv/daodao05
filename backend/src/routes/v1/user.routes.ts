@@ -77,7 +77,7 @@ router.put('/profile', authMiddleware, async (req: Request, res: Response) => {
       return;
     }
 
-    const { nickname, avatar, gender, birthday, bio: _bio } = req.body;
+    const { nickname, avatar, gender, birthday } = req.body;
 
     // 更新用户基本信息
     if (nickname !== undefined || avatar !== undefined) {
@@ -246,7 +246,7 @@ router.post('/payment-password/set', authMiddleware, async (req: Request, res: R
 router.post('/complete-info', authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
-    const { realName, idCard, driverLicenseNo, driverLicenseFront: _driverLicenseFront, driverLicenseBack: _driverLicenseBack } = req.body;
+    const { realName, idCard, driverLicenseNo } = req.body;
 
     if (!userId) {
       res.status(401).json(errorResponse('未授权', 401));

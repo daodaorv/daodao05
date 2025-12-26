@@ -7,6 +7,7 @@ import { logger } from '@utils/logger';
  * 扩展Express Request类型，添加user属性
  */
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: JwtPayload;

@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '@config/index';
 
 /**
@@ -15,20 +15,18 @@ export interface JwtPayload {
  * 生成访问令牌
  */
 export function generateToken(payload: JwtPayload): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return jwt.sign(payload as any, config.jwt.secret, {
+  return jwt.sign(payload, config.jwt.secret, {
     expiresIn: config.jwt.expiresIn,
-  } as any);
+  } as SignOptions);
 }
 
 /**
  * 生成刷新令牌
  */
 export function generateRefreshToken(payload: JwtPayload): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return jwt.sign(payload as any, config.jwt.refreshSecret, {
+  return jwt.sign(payload, config.jwt.refreshSecret, {
     expiresIn: config.jwt.refreshExpiresIn,
-  } as any);
+  } as SignOptions);
 }
 
 /**

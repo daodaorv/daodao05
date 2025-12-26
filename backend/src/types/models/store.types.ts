@@ -31,9 +31,9 @@ export interface Store extends RowDataPacket {
   address: string;
   location_lat: number | null;
   location_lng: number | null;
-  business_hours: any | null; // JSON类型
-  services: any | null; // JSON类型
-  images: any | null; // JSON类型
+  business_hours: unknown | null; // JSON类型
+  services: unknown | null; // JSON类型
+  images: unknown | null; // JSON类型
   description: string | null;
   status: StoreStatus;
   sort_order: number;

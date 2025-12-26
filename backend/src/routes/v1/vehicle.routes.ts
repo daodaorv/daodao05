@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { VehicleDAO } from '@dao/vehicle.dao';
 import { successResponse, errorResponse, paginatedResponse } from '@utils/response';
 import { logger } from '@utils/logger';
-import { VehicleQueryParams } from '../../types/models/vehicle.types';
+import { VehicleQueryParams, VehicleType } from '../../types/models/vehicle.types';
 
 const router = Router();
 const vehicleDAO = new VehicleDAO();
@@ -18,7 +18,7 @@ router.get('/', async (req: Request, res: Response) => {
       storeId: req.query.storeId ? Number(req.query.storeId) : undefined,
       startDate: req.query.startDate as string,
       endDate: req.query.endDate as string,
-      vehicleType: req.query.vehicleType as any,
+      vehicleType: req.query.vehicleType as VehicleType | undefined,
       minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
       maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
       seats: req.query.seats ? Number(req.query.seats) : undefined,
@@ -138,7 +138,7 @@ router.post('/:id/calculate-price', async (req: Request, res: Response): Promise
     // 计算价格
     const dailyPrice = vehicle.daily_price;
     const subtotal = dailyPrice * days;
-    let discountAmount = 0;
+    const discountAmount = 0;
 
     // TODO: 如果有优惠券,计算优惠金额
     if (couponCode) {

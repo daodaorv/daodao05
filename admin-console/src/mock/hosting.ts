@@ -2615,28 +2615,6 @@ export const mockDistributeCrowdfundingIncome = (data: {
 
 // ==================== 车主自用费用配置 Mock 数据 ====================
 
-/**
- * Mock: 车主自用费用配置列表数据
- */
-export const mockOwnerUsageFeeConfigs = [
-  {
-    id: 1,
-    configName: '标准自用费用配置',
-    serviceFeeMin: 200,
-    serviceFeeMax: 500,
-    serviceFeeDefault: 300,
-    relocationFee: 500,
-    relocationFreeCount: 1,
-    maxUsageDaysPerMonth: 7,
-    advanceNoticeDays: 3,
-    enabled: true,
-    effectiveDate: '2025-01-01',
-    description: '适用于所有托管车辆的标准自用费用配置',
-    createdBy: '系统管理员',
-    createdAt: '2025-01-01 10:00:00',
-  },
-]
-
 // ==================== 淡季补贴配置 Mock 数据 ====================
 
 /**
@@ -2656,5 +2634,85 @@ export const mockSeasonalSubsidyConfigs = [
     description: '2025年冬季淡季补贴配置',
     createdBy: '系统管理员',
     createdAt: '2025-01-01 10:00:00',
+  },
+]
+
+// ==================== 车主自用费用配置 Mock 数据 ====================
+
+/**
+ * 车主自用费用配置接口
+ */
+export interface OwnerUsageFeeConfig {
+  id: number
+  configName: string
+  serviceFeeMin: number
+  serviceFeeMax: number
+  serviceFeeDefault: number
+  relocationFee: number
+  relocationFreeCount: number
+  maxUsageDaysPerMonth: number
+  advanceNoticeDays: number
+  enabled: boolean
+  effectiveDate: string
+  expiryDate?: string
+  description?: string
+  createdBy: string
+  createdAt: string
+  updatedBy?: string
+  updatedAt?: string
+}
+
+/**
+ * Mock: 车主自用费用配置列表数据
+ */
+export const mockOwnerUsageFeeConfigs: OwnerUsageFeeConfig[] = [
+  {
+    id: 1,
+    configName: '标准自用费用配置',
+    serviceFeeMin: 200,
+    serviceFeeMax: 500,
+    serviceFeeDefault: 300,
+    relocationFee: 500,
+    relocationFreeCount: 1,
+    maxUsageDaysPerMonth: 7,
+    advanceNoticeDays: 3,
+    enabled: true,
+    effectiveDate: '2025-01-01',
+    description: '适用于所有托管车辆的标准自用费用配置',
+    createdBy: '系统管理员',
+    createdAt: '2025-01-01 00:00:00',
+  },
+  {
+    id: 2,
+    configName: 'VIP车主优惠配置',
+    serviceFeeMin: 150,
+    serviceFeeMax: 400,
+    serviceFeeDefault: 250,
+    relocationFee: 300,
+    relocationFreeCount: 2,
+    maxUsageDaysPerMonth: 10,
+    advanceNoticeDays: 2,
+    enabled: true,
+    effectiveDate: '2025-01-01',
+    description: '适用于VIP车主的优惠自用费用配置',
+    createdBy: '系统管理员',
+    createdAt: '2025-01-01 00:00:00',
+  },
+  {
+    id: 3,
+    configName: '旺季自用费用配置',
+    serviceFeeMin: 300,
+    serviceFeeMax: 600,
+    serviceFeeDefault: 400,
+    relocationFee: 600,
+    relocationFreeCount: 0,
+    maxUsageDaysPerMonth: 5,
+    advanceNoticeDays: 5,
+    enabled: false,
+    effectiveDate: '2025-05-01',
+    expiryDate: '2025-10-31',
+    description: '旺季期间的自用费用配置，限制自用天数',
+    createdBy: '系统管理员',
+    createdAt: '2025-01-01 00:00:00',
   },
 ]
