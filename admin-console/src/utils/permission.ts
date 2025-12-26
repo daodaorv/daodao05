@@ -35,8 +35,28 @@ export function hasPermission(user: User | null, permissions?: PermissionCode[])
     return false
   }
 
+  // 检查是否有通配符权限
+  if (user.permissions.includes('*')) {
+    return true
+  }
+
   // 检查用户是否拥有所需权限中的任意一个
-  return permissions.some((permission) => user.permissions?.includes(permission))
+  return permissions.some((permission) => {
+    // 直接匹配
+    if (user.permissions?.includes(permission)) {
+      return true
+    }
+
+    // 通配符匹配（例如：vehicle:* 可以匹配 vehicle:edit）
+    const permissionPrefix = permission.split(':')[0]
+    return user.permissions?.some((userPerm) => {
+      if (userPerm.endsWith(':*')) {
+        const userPermPrefix = userPerm.split(':')[0]
+        return userPermPrefix === permissionPrefix
+      }
+      return false
+    })
+  })
 }
 
 /**
