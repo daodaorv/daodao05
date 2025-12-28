@@ -265,9 +265,35 @@ onLoad((options: any) => {
 	const sys = uni.getSystemInfoSync();
 	statusBarHeight.value = sys.statusBarHeight || 0;
 
-	if (options.id) {
+	// 从本地存储读取完整的车辆数据
+	const selectedVehicle = uni.getStorageSync('selected_vehicle');
+
+	if (selectedVehicle) {
+		// 使用列表页传递的完整数据
+		vehicle.value = {
+			...vehicle.value,
+			id: selectedVehicle.id,
+			name: selectedVehicle.name,
+			type: selectedVehicle.type,
+			seats: selectedVehicle.seats,
+			beds: selectedVehicle.beds,
+			transmission: selectedVehicle.transmission,
+			price: selectedVehicle.price,
+			tags: selectedVehicle.tags || [],
+			storeName: selectedVehicle.storeName,
+			storeId: selectedVehicle.storeId,
+			brand: selectedVehicle.brand
+		};
+
+		logger.debug('加载车辆详情(从存储):', {
+			id: vehicle.value.id,
+			name: vehicle.value.name,
+			storeName: vehicle.value.storeName
+		});
+	} else if (options.id) {
+		// 兼容直接传递ID的情况
 		vehicle.value.id = options.id;
-		logger.debug('加载车辆详情:', options.id);
+		logger.debug('加载车辆详情(仅ID):', options.id);
 	}
 
 	// 处理分享来源
@@ -295,6 +321,22 @@ const goBack = () => {
 };
 
 const handleBook = () => {
+	// 从存储中获取搜索参数
+	const selectedVehicle = uni.getStorageSync('selected_vehicle');
+	const searchParams = selectedVehicle?.searchParams || {};
+
+	// 将车辆信息和搜索参数存储，供订单确认页使用
+	uni.setStorageSync('order_booking_data', {
+		vehicle: vehicle.value,
+		searchParams: searchParams
+	});
+
+	logger.debug('跳转到订单确认页', {
+		vehicleId: vehicle.value.id,
+		storeName: vehicle.value.storeName,
+		searchParams
+	});
+
 	uni.navigateTo({
 		url: `/pages/order/confirm?vehicleId=${vehicle.value.id}`
 	});

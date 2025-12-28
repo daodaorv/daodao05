@@ -223,8 +223,8 @@ const handlePaymentSuccess = async (result: any) => {
 			duration: 2000
 		});
 
-		// 2. 更新订单状态（待支付 → 待确认）
-		await updateOrderStatus(result.orderNo, 'pending_confirmation');
+		// 2. 更新订单状态（待支付 → 已支付）
+		await updateOrderStatus(result.orderNo, 'paid');
 
 		// 3. 获取订单详情用于后续操作
 		const orderResponse: any = await getOrderDetail(result.orderNo);

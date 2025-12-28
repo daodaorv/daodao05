@@ -176,11 +176,13 @@
 <script setup lang="ts">
 import { logger } from '@/utils/logger';
 import { ref, computed } from 'vue';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShow } from '@dcloudio/uni-app';
 import dayjs from 'dayjs';
 import { getOrderDetail } from '@/api/order';
 
 const statusBarHeight = ref(0);
+const currentOrderId = ref(''); // 保存当前订单ID，用于刷新
+
 const order = ref<any>({
 	id: '1',
 	orderNo: 'ORD20241206001',
@@ -207,6 +209,7 @@ onLoad(async (options: any) => {
 
 	// 支持通过 id 或 orderNo 参数加载订单详情
 	const orderId = options.id || options.orderNo;
+	currentOrderId.value = orderId; // 保存订单ID用于后续刷新
 
 	if (orderId) {
 		// 从 Mock 数据加载订单详情
@@ -273,9 +276,72 @@ onLoad(async (options: any) => {
 	}
 });
 
+// 页面显示时刷新订单状态（支付完成后返回会触发）
+onShow(async () => {
+	if (currentOrderId.value) {
+		try {
+			const res: any = await getOrderDetail(currentOrderId.value);
+			if (res.code === 0 && res.data) {
+				// 只更新订单状态，不重新加载整个页面
+				order.value.status = res.data.status.code;
+				logger.debug('刷新订单状态', {
+					orderNo: currentOrderId.value,
+					status: res.data.status.code
+				});
+			}
+		} catch (error) {
+			logger.error('刷新订单状态失败:', error);
+		}
+	}
+});
+
 // Computed Properties
 const statusMeta = computed(() => {
 	const map: any = {
+		// 后端状态映射
+		pending: {
+			title: '待支付',
+			desc: '请在 29:59 内完成支付，超时将自动取消',
+			icon: 'clock',
+			bgGradient: 'linear-gradient(135deg, #FF9F29 0%, #FFB84D 100%)'
+		},
+		paid: {
+			title: '已支付',
+			desc: '订单已支付，等待商家确认',
+			icon: 'hourglass',
+			bgGradient: 'linear-gradient(135deg, #FFB84D 0%, #FFC966 100%)'
+		},
+		confirmed: {
+			title: '已确认',
+			desc: '订单已确认，请按时到店取车',
+			icon: 'calendar',
+			bgGradient: 'linear-gradient(135deg, #52C41A 0%, #73D13D 100%)'
+		},
+		picked_up: {
+			title: '租赁中',
+			desc: '祝您旅途愉快，注意行车安全',
+			icon: 'car-fill',
+			bgGradient: 'linear-gradient(135deg, #00B578 0%, #4CAF50 100%)'
+		},
+		returned: {
+			title: '已还车',
+			desc: '车辆已归还，等待验收',
+			icon: 'map',
+			bgGradient: 'linear-gradient(135deg, #1890FF 0%, #40A9FF 100%)'
+		},
+		completed: {
+			title: '已完成',
+			desc: '订单已完成，期待下次为您服务',
+			icon: 'checkmark-circle-fill',
+			bgGradient: 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
+		},
+		cancelled: {
+			title: '已取消',
+			desc: '订单已取消',
+			icon: 'close-circle-fill',
+			bgGradient: 'linear-gradient(135deg, #999999 0%, #BBBBBB 100%)'
+		},
+		// 兼容旧的前端状态码（逐步废弃）
 		pending_payment: {
 			title: '待支付',
 			desc: '请在 29:59 内完成支付，超时将自动取消',
@@ -305,21 +371,9 @@ const statusMeta = computed(() => {
 			desc: '请按时到店还车，感谢您的使用',
 			icon: 'map',
 			bgGradient: 'linear-gradient(135deg, #1890FF 0%, #40A9FF 100%)'
-		},
-		completed: {
-			title: '已完成',
-			desc: '订单已完成，期待下次为您服务',
-			icon: 'checkmark-circle-fill',
-			bgGradient: 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
-		},
-		cancelled: {
-			title: '已取消',
-			desc: '订单已取消',
-			icon: 'close-circle-fill',
-			bgGradient: 'linear-gradient(135deg, #999999 0%, #BBBBBB 100%)'
 		}
 	};
-	return map[order.value.status] || map.pending_payment;
+	return map[order.value.status] || map.pending;
 });
 
 const duration = computed(() => {

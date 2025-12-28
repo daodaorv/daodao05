@@ -471,23 +471,20 @@ const handleWechatPhoneNumber = async (e: any) => {
 							throw new Error('获取微信登录code失败')
 						}
 
-						// 调用后端API进行登录，同时传递手机号授权code
+						// 调用后端API进行登录，传递登录code和手机号code
+						// 注意：从基础库2.21.2开始，使用code方式获取手机号
 						const result = await wechatLogin({
 							code: loginRes.code,
-							// 传递手机号加密数据给后端解密
-							encryptedData: e.detail.encryptedData,
-							iv: e.detail.iv
+							phoneCode: e.detail.code // 手机号授权code（5分钟有效）
 						})
 
 						// 保存登录信息
 						saveLoginInfo(result.token, result.refreshToken, result.user)
 
-						// 检查用户信息是否完整（头像和昵称）
-						const needCompleteInfo = !result.user.nickname || !result.user.avatar
-
-						if (needCompleteInfo) {
-							// 需要完善信息，跳转到完善信息页面
-							logger.debug('[微信登录] 需要完善用户信息')
+						// 检查是否为新用户，新用户需要完善信息
+						if (result.isNewUser) {
+							// 新用户，跳转到完善信息页面
+							logger.debug('[微信登录] 新用户，需要完善用户信息')
 							uni.showToast({
 								title: '登录成功',
 								icon: 'success',
@@ -500,7 +497,8 @@ const handleWechatPhoneNumber = async (e: any) => {
 								})
 							}, 1500)
 						} else {
-							// 信息完整，直接跳转首页
+							// 老用户，直接跳转首页
+							logger.debug('[微信登录] 老用户，直接跳转首页')
 							uni.showToast({
 								title: '登录成功',
 								icon: 'success'
@@ -590,15 +588,31 @@ const handleOneClickLogin = () => {
 					// 保存登录信息
 					saveLoginInfo(result.token, result.refreshToken, result.user)
 
-					uni.showToast({
-						title: '登录成功',
-						icon: 'success'
-					})
+					// 检查是否为新用户，新用户需要完善信息
+					if (result.isNewUser) {
+						logger.debug('[支付宝登录] 新用户，需要完善用户信息')
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success',
+							duration: 1500
+						})
 
-					// 延迟跳转
-					setTimeout(() => {
-						handleLoginSuccess()
-					}, 1500)
+						setTimeout(() => {
+							uni.redirectTo({
+								url: '/pages/profile/complete-info?from=login'
+							})
+						}, 1500)
+					} else {
+						logger.debug('[支付宝登录] 老用户，直接跳转首页')
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success'
+						})
+
+						setTimeout(() => {
+							handleLoginSuccess()
+						}, 1500)
+					}
 				} catch (error: any) {
 					logger.error('[支付宝登录] 登录失败:', error)
 					uni.showToast({
@@ -649,15 +663,31 @@ const handleOneClickLogin = () => {
 					// 保存登录信息
 					saveLoginInfo(result.token, result.refreshToken, result.user)
 
-					uni.showToast({
-						title: '登录成功',
-						icon: 'success'
-					})
+					// 检查是否为新用户，新用户需要完善信息
+					if (result.isNewUser) {
+						logger.debug('[抖音登录] 新用户，需要完善用户信息')
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success',
+							duration: 1500
+						})
 
-					// 延迟跳转
-					setTimeout(() => {
-						handleLoginSuccess()
-					}, 1500)
+						setTimeout(() => {
+							uni.redirectTo({
+								url: '/pages/profile/complete-info?from=login'
+							})
+						}, 1500)
+					} else {
+						logger.debug('[抖音登录] 老用户，直接跳转首页')
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success'
+						})
+
+						setTimeout(() => {
+							handleLoginSuccess()
+						}, 1500)
+					}
 				} catch (error: any) {
 					logger.error('[抖音登录] 登录失败:', error)
 					uni.showToast({

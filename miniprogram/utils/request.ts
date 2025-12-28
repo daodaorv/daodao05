@@ -6,8 +6,8 @@
 import { logger } from './logger'
 
 // 是否使用Mock数据
-// 前端独立开发阶段使用Mock数据，后端联调时改为false
-const USE_MOCK = true;
+// 当前小程序端正在与后端联调，使用真实API
+const USE_MOCK = false;
 
 // API基础URL
 const BASE_URL = USE_MOCK ? '' : 'http://localhost:3001/api/v1';

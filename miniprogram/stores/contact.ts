@@ -17,12 +17,15 @@ export const useContactStore = defineStore('contact', () => {
         try {
             const res = await getContacts();
             if (res.code === 0) {
-                contactList.value = res.data;
+                // 空值检查：确保 res.data 是数组
+                contactList.value = Array.isArray(res.data) ? res.data : [];
                 return res.data;
             }
             return null;
         } catch (error) {
             logger.error('获取联系人列表失败', error);
+            // 发生错误时，保持 contactList 为空数组，避免 null 导致迭代错误
+            contactList.value = [];
             return null;
         }
     };

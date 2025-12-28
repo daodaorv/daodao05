@@ -412,7 +412,7 @@
 						<u-loading-icon mode="circle" size="24" color="#FF9F29"></u-loading-icon>
 						<text class="loading-text">正在加载须知...</text>
 					</view>
-					<view v-else-if="rentalNotice.sections.length" class="notice-list">
+					<view v-else-if="rentalNotice.sections?.length" class="notice-list">
 						<view class="notice-block" v-for="section in rentalNotice.sections" :key="section.id">
 							<view class="notice-block-header">
 								<text class="notice-block-title">{{ section.title }}</text>
@@ -478,8 +478,9 @@ import { ref, computed, watch, onUnmounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { storeToRefs } from 'pinia';
 import { requireLogin, isLoggedIn, buildRedirectUrl } from '@/utils/auth';
-import { registerMockOrder } from '@/api/order';
+import { registerMockOrder, createOrder } from '@/api/order';
 import { useContactStore } from '@/stores/contact';
+import { useUserStore } from '@/stores/user';
 import { getRentalRules } from '@/api/rules';
 import type { RentalRuleResponse } from '@/api/rules';
 import { uploadDriverLicenseImage } from '@/api/upload';
@@ -526,6 +527,8 @@ const orderData = ref({
 
 const contactStore = useContactStore();
 const { contactList } = storeToRefs(contactStore);
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
 type LicenseSide = 'front' | 'back';
 
 const renterForm = ref({
@@ -867,7 +870,8 @@ const uploadLicenseFile = async (type: LicenseSide, localPath: string) => {
 		} else {
 			renterForm.value.driverLicenseBack = url;
 		}
-		licensePreview.value[type] = url;
+		// 保留本地临时路径作为缩略图（Mock 环境下 CDN URL 不存在）
+		// licensePreview.value[type] = url;
 		if (selectedContactId.value) {
 			selectedContactId.value = '';
 		}
@@ -931,17 +935,59 @@ const validateRenterForm = () => {
 };
 
 const persistContactIfNeeded = async () => {
+	// 如果已选择联系人，检查是否需要更新信息
 	if (selectedContactId.value) {
+		const selectedContact = contactList.value.find((item: any) => item.id === selectedContactId.value);
+		if (selectedContact) {
+			// 检查是否有新增或更新的信息
+			const needsUpdate =
+				(renterForm.value.driverLicenseNo && renterForm.value.driverLicenseNo !== selectedContact.driverLicenseNo) ||
+				(renterForm.value.driverLicenseFront && renterForm.value.driverLicenseFront !== selectedContact.driverLicenseFront) ||
+				(renterForm.value.driverLicenseBack && renterForm.value.driverLicenseBack !== selectedContact.driverLicenseBack);
+
+			if (needsUpdate) {
+				// 更新联系人信息
+				const updatePayload = {
+					id: selectedContactId.value,
+					name: renterForm.value.name.trim(),
+					phone: renterForm.value.phone.trim(),
+					idCard: selectedContact.idCard || '',
+					driverLicenseNo: renterForm.value.driverLicenseNo.trim() || selectedContact.driverLicenseNo,
+					driverLicenseFront: renterForm.value.driverLicenseFront || selectedContact.driverLicenseFront,
+					driverLicenseBack: renterForm.value.driverLicenseBack || selectedContact.driverLicenseBack,
+					isDefault: selectedContact.isDefault
+				};
+				await contactStore.editContact(selectedContactId.value, updatePayload);
+				logger.debug('更新联系人信息', updatePayload);
+			}
+		}
 		return selectedContactId.value;
 	}
-	const existing = contactList.value.find(
-		(item: any) =>
-			item.phone === renterForm.value.phone && item.driverLicenseNo === renterForm.value.driverLicenseNo
+
+	// 查找已存在的联系人（优先匹配手机号）
+	const existingByPhone = contactList.value.find(
+		(item: any) => item.phone === renterForm.value.phone.trim()
 	);
-	if (existing) {
-		selectedContactId.value = existing.id;
-		return existing.id;
+
+	if (existingByPhone) {
+		// 找到同手机号的联系人，合并更新信息
+		const updatePayload = {
+			id: existingByPhone.id,
+			name: renterForm.value.name.trim() || existingByPhone.name,
+			phone: renterForm.value.phone.trim(),
+			idCard: existingByPhone.idCard || '',
+			driverLicenseNo: renterForm.value.driverLicenseNo.trim() || existingByPhone.driverLicenseNo,
+			driverLicenseFront: renterForm.value.driverLicenseFront || existingByPhone.driverLicenseFront,
+			driverLicenseBack: renterForm.value.driverLicenseBack || existingByPhone.driverLicenseBack,
+			isDefault: existingByPhone.isDefault
+		};
+		await contactStore.editContact(existingByPhone.id, updatePayload);
+		selectedContactId.value = existingByPhone.id;
+		logger.debug('合并更新联系人信息', updatePayload);
+		return existingByPhone.id;
 	}
+
+	// 没有找到已存在的联系人，创建新记录
 	const payload = {
 		name: renterForm.value.name.trim(),
 		phone: renterForm.value.phone.trim(),
@@ -954,11 +1000,11 @@ const persistContactIfNeeded = async () => {
 	const success = await contactStore.addContact(payload);
 	if (success) {
 		const latest = contactList.value.find(
-			(item: any) =>
-				item.phone === renterForm.value.phone && item.driverLicenseNo === renterForm.value.driverLicenseNo
+			(item: any) => item.phone === renterForm.value.phone.trim()
 		);
 		if (latest) {
 			selectedContactId.value = latest.id;
+			logger.debug('创建新联系人', payload);
 			return latest.id;
 		}
 	}
@@ -975,8 +1021,18 @@ const loadRentalNotices = async () => {
 		const res = await getRentalRules({
 			productType: isSpecialOffer.value ? 'special-offer' : 'vehicle'
 		});
-		rentalNotice.value = res.data;
-		noticeAgreed.value = false;
+		// 空值检查：确保 res.data 存在且有效
+		if (res.data && res.data.sections) {
+			rentalNotice.value = res.data;
+			noticeAgreed.value = false;
+		} else {
+			// 如果返回数据为空，使用默认值
+			rentalNotice.value = {
+				productType: isSpecialOffer.value ? 'special-offer' : 'vehicle',
+				version: '',
+				sections: []
+			};
+		}
 	} catch (error) {
 		logger.error('加载租车须知失败', error);
 		uni.showToast({ title: '租车须知加载失败', icon: 'none' });
@@ -1105,8 +1161,40 @@ const setupOrderPage = (options: any) => {
 	} else if (options.vehicleId) {
 		orderType.value = 'normal';
 		orderData.value.vehicleId = options.vehicleId;
-		// Mock实现 - 待后端API开发
-		logger.debug('加载常规订单确认页:', options.vehicleId);
+
+		// 从本地存储读取完整的预订数据
+		const bookingData = uni.getStorageSync('order_booking_data');
+
+		if (bookingData && bookingData.vehicle && bookingData.searchParams) {
+			const { vehicle, searchParams } = bookingData;
+
+			// 更新车辆信息
+			orderData.value.vehicleName = vehicle.name;
+			orderData.value.vehicleType = vehicle.type;
+			orderData.value.vehicleImage = vehicle.image || '/static/场景推荐2.jpg';
+			orderData.value.seats = vehicle.seats;
+			orderData.value.beds = vehicle.beds;
+			orderData.value.dailyPrice = vehicle.price;
+
+			// 更新取还车信息（使用搜索参数中的真实数据）
+			orderData.value.pickupLocation = `${searchParams.pickupStore} - ${searchParams.pickupCity}`;
+			orderData.value.returnLocation = `${searchParams.returnStore} - ${searchParams.returnCity}`;
+			orderData.value.pickupDate = searchParams.pickupDate;
+			orderData.value.pickupTime = searchParams.pickupTime;
+			orderData.value.returnDate = searchParams.returnDate;
+			orderData.value.returnTime = searchParams.returnTime;
+
+			logger.debug('加载常规订单确认页(从存储):', {
+				vehicleId: options.vehicleId,
+				vehicleName: vehicle.name,
+				storeName: vehicle.storeName,
+				pickupLocation: orderData.value.pickupLocation,
+				returnLocation: orderData.value.returnLocation
+			});
+		} else {
+			// 兼容旧版本：没有存储数据时使用 Mock
+			logger.debug('加载常规订单确认页(Mock):', options.vehicleId);
+		}
 	}
 
 	if (!couponListener) {
@@ -1237,46 +1325,47 @@ const handleSubmit = async () => {
 		driverLicenseBack: renterForm.value.driverLicenseBack
 	};
 
-	// 模拟生成订单号
-	const now = Date.now();
-	const orderNo = 'DD' + now;
-	const mockOrder = {
-		orderId: `mock-${now}`,
-		orderNo,
-		statusId: 1,
-		status: { code: 'pending_payment', name: '待支付' },
-		orderType: isSpecialOffer.value ? 'special-offer' : 'vehicle',
-		pickupTime: `${orderData.value.pickupDate}T${orderData.value.pickupTime}:00`,
-		returnTime: `${orderData.value.returnDate}T${orderData.value.returnTime}:00`,
-		pickupStore: { name: orderData.value.pickupLocation },
-		returnStore: { name: orderData.value.returnLocation },
-		totalAmount: totalPrice.value,
-		actualAmount: totalPrice.value,
-		vehicle: {
-			id: orderData.value.vehicleId,
-			name: orderData.value.vehicleName,
-			model: orderData.value.vehicleType,
-			images: [orderData.value.vehicleImage]
-		},
-		contactInfo: renterInfo,
-		agreements: {
-			rentalNoticeVersion: rentalNotice.value.version,
-			rentalNoticeAcceptedAt: new Date().toISOString()
-		}
-	};
-	registerMockOrder(mockOrder);
-
+	// 调用真实的创建订单 API
 	uni.showLoading({ title: '提交中...' });
 
-	setTimeout(() => {
+	try {
+		// 构建订单数据
+		const orderParams = {
+			user_id: userInfo.value?.id ? parseInt(userInfo.value.id) : 1, // 从用户 store 获取用户 ID
+			vehicle_id: parseInt(orderData.value.vehicleId) || 1,
+			store_id: 1, // TODO: 从门店数据获取真实的 store_id
+			return_store_id: 1, // TODO: 从门店数据获取真实的 return_store_id
+			start_date: `${orderData.value.pickupDate} ${orderData.value.pickupTime}:00`,
+			end_date: `${orderData.value.returnDate} ${orderData.value.returnTime}:00`,
+			remark: `租车人：${renterInfo.name}，电话：${renterInfo.phone}`
+		};
+
+		logger.debug('创建订单参数', orderParams);
+
+		// 调用创建订单 API
+		const createdOrder = await createOrder(orderParams);
+
+		logger.debug('订单创建成功', createdOrder);
+
 		uni.hideLoading();
 		isSubmitting.value = false;
 
-		// 跳转到支付页面
+		// 跳转到支付页面，使用前端计算的总价（不包含押金）
+		// 押金在取车时支付，不在线上支付
 		uni.navigateTo({
-			url: `/pages/order/pay?orderNo=${orderNo}&amount=${totalPrice.value}`
+			url: `/pages/order/pay?orderNo=${createdOrder.order_no}&amount=${totalPrice.value}`
 		});
-	}, 1000);
+	} catch (error) {
+		logger.error('创建订单失败', error);
+		uni.hideLoading();
+		isSubmitting.value = false;
+
+		uni.showToast({
+			title: '订单创建失败，请重试',
+			icon: 'none',
+			duration: 2000
+		});
+	}
 };
 </script>
 

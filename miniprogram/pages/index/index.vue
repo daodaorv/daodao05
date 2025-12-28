@@ -324,8 +324,17 @@ const handleNoticeClick = (notice: Notice) => {
 	logger.debug('点击公告:', notice);
 };
 
-const handleSearch = (_params: Record<string, unknown>) => {
-	uni.navigateTo({ url: '/pages/vehicle/list' });
+const handleSearch = (params: Record<string, unknown>) => {
+	// 将搜索参数序列化为 URL 查询字符串
+	const queryString = Object.entries(params)
+		.map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+		.join('&');
+
+	logger.debug('[首页] 跳转到车辆列表页', { params });
+
+	uni.navigateTo({
+		url: `/pages/vehicle/list?${queryString}`
+	});
 };
 
 const handleOpenDatePicker = (data: DatePickerData) => {

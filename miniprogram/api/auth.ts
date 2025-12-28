@@ -10,6 +10,7 @@ export interface LoginResponse {
 	token: string
 	refreshToken: string
 	user: UserInfo
+	isNewUser?: boolean // 新增：标识是否为新用户（用于判断是否需要完善信息）
 }
 
 export interface UserInfo {
@@ -41,8 +42,9 @@ export interface LoginParams {
 
 export interface WechatLoginParams {
 	code: string
-	encryptedData?: string
-	iv?: string
+	phoneCode?: string // 手机号授权code（基础库2.21.2+）
+	encryptedData?: string // 已废弃，保留用于兼容旧版本
+	iv?: string // 已废弃，保留用于兼容旧版本
 }
 
 export interface AlipayLoginParams {
@@ -158,27 +160,15 @@ export function loginWithCode(phone: string, code: string): Promise<LoginRespons
  * 微信授权登录
  */
 export function wechatLogin(params: WechatLoginParams): Promise<LoginResponse> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('微信授权登录', params)
-
-			// 模拟首次登录：返回空的昵称和头像，触发完善信息流程
-			// 如果有 encryptedData，说明获取了手机号，但首次登录用户信息为空
-			const isFirstLogin = !!params.encryptedData
-
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					// 首次登录返回空昵称和头像，需要用户完善信息
-					nickname: isFirstLogin ? '' : '微信用户',
-					avatar: isFirstLogin ? '' : '/static/default-avatar.png',
-					// 如果有 encryptedData，模拟后端解密后获取的手机号
-					phone: params.encryptedData ? '13800138000' : mockUser.phone
-				}
-			})
-		}, 1000)
+	logger.debug('微信授权登录', params)
+	return post('/auth/wechat-login', params).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -186,19 +176,15 @@ export function wechatLogin(params: WechatLoginParams): Promise<LoginResponse> {
  * 支付宝授权登录
  */
 export function alipayLogin(params: AlipayLoginParams): Promise<LoginResponse> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('支付宝授权登录', params)
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					nickname: '支付宝用户',
-					avatar: '/static/default-avatar.png'
-				}
-			})
-		}, 1000)
+	logger.debug('支付宝授权登录', params)
+	return post('/auth/alipay-login', params).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -206,19 +192,15 @@ export function alipayLogin(params: AlipayLoginParams): Promise<LoginResponse> {
  * 抖音授权登录
  */
 export function douyinLogin(params: DouyinLoginParams): Promise<LoginResponse> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('抖音授权登录', params)
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					nickname: '抖音用户',
-					avatar: '/static/default-avatar.png'
-				}
-			})
-		}, 1000)
+	logger.debug('抖音授权登录', params)
+	return post('/auth/douyin-login', params).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -226,26 +208,15 @@ export function douyinLogin(params: DouyinLoginParams): Promise<LoginResponse> {
  * 用户名密码登录
  */
 export function loginWithUsername(params: UsernameLoginParams): Promise<LoginResponse> {
-	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-			logger.debug('用户名密码登录', params)
-			// 模拟密码验证
-			if (params.password.length < 6) {
-				reject({
-					code: 400,
-					message: '密码错误'
-				})
-				return
-			}
-			resolve({
-				token: mockToken,
-				refreshToken: mockRefreshToken,
-				user: {
-					...mockUser,
-					nickname: params.username
-				}
-			})
-		}, 800)
+	logger.debug('用户名密码登录', params)
+	return post('/auth/username-login', params).then((response: any) => {
+		// 保存token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+			uni.setStorageSync('userInfo', JSON.stringify(response.data.user))
+		}
+		return response.data
 	})
 }
 
@@ -281,13 +252,9 @@ export function supportOneClickLogin(): boolean {
  * 绑定手机号
  */
 export function bindPhone(params: BindPhoneParams): Promise<{ success: boolean }> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('绑定手机号', params)
-			resolve({
-				success: true
-			})
-		}, 800)
+	logger.debug('绑定手机号', params)
+	return post('/auth/bind-phone', params).then((response: any) => {
+		return response.data
 	})
 }
 
@@ -295,14 +262,14 @@ export function bindPhone(params: BindPhoneParams): Promise<{ success: boolean }
  * 刷新Token
  */
 export function refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('刷新Token', { refreshToken })
-			resolve({
-				token: 'new_mock_token_' + Date.now(),
-				refreshToken: 'new_mock_refresh_token_' + Date.now()
-			})
-		}, 500)
+	logger.debug('刷新Token', { refreshToken })
+	return post('/auth/refresh-token', { refreshToken }).then((response: any) => {
+		// 保存新的token到本地存储
+		if (response.data?.token) {
+			uni.setStorageSync('token', response.data.token)
+			uni.setStorageSync('refreshToken', response.data.refreshToken)
+		}
+		return response.data
 	})
 }
 
@@ -348,17 +315,13 @@ export function updateUserProfile(data: Partial<UserInfo>): Promise<UserInfo> {
  * 退出登录
  */
 export function logout(): Promise<{ success: boolean }> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			logger.debug('退出登录')
-			// 清除本地存储的token
-			uni.removeStorageSync('token')
-			uni.removeStorageSync('refreshToken')
-			uni.removeStorageSync('userInfo')
-			resolve({
-				success: true
-			})
-		}, 500)
+	logger.debug('退出登录')
+	return post('/auth/logout').then((response: any) => {
+		// 清除本地存储的token
+		uni.removeStorageSync('token')
+		uni.removeStorageSync('refreshToken')
+		uni.removeStorageSync('userInfo')
+		return response.data
 	})
 }
 
@@ -366,23 +329,32 @@ export function logout(): Promise<{ success: boolean }> {
  * 检查登录状态
  */
 export function checkLoginStatus(): Promise<{ isLoggedIn: boolean; user?: UserInfo }> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			const token = uni.getStorageSync('token')
-			const storedUser = uni.getStorageSync('userInfo')
-			let parsedUser = storedUser
-			if (typeof storedUser === 'string') {
-				try {
-					parsedUser = JSON.parse(storedUser)
-				} catch (error) {
-					parsedUser = undefined
-				}
-			}
-			logger.debug('检查登录状态', { hasToken: !!token, hasUserInfo: !!parsedUser })
-			resolve({
-				isLoggedIn: !!token,
-				user: parsedUser || undefined
-			})
-		}, 300)
+	const token = uni.getStorageSync('token')
+	const storedUser = uni.getStorageSync('userInfo')
+
+	// 如果没有 token，直接返回未登录
+	if (!token) {
+		logger.debug('检查登录状态', { hasToken: false })
+		return Promise.resolve({
+			isLoggedIn: false
+		})
+	}
+
+	// 解析本地用户信息
+	let parsedUser = storedUser
+	if (typeof storedUser === 'string') {
+		try {
+			parsedUser = JSON.parse(storedUser)
+		} catch (error) {
+			parsedUser = undefined
+		}
+	}
+
+	logger.debug('检查登录状态', { hasToken: true, hasUserInfo: !!parsedUser })
+
+	// 返回本地登录状态（后端联调时可以调用 /auth/check 接口验证 token）
+	return Promise.resolve({
+		isLoggedIn: true,
+		user: parsedUser || undefined
 	})
 }

@@ -75,16 +75,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
+import { useUserStore } from '@/stores/user';
+import { updateUserProfile } from '@/api/auth';
+import { logger } from '@/utils/logger';
 
+const userStore = useUserStore();
 const saving = ref(false);
 const genderOptions = ['男', '女', '保密'];
 
 const userInfo = ref({
-	avatar: '/static/avatar.png',
-	nickname: '房车旅行家',
-	gender: '男',
-	mobile: '138****8888',
-	birthday: '1990-01-01'
+	avatar: '',
+	nickname: '',
+	gender: '',
+	mobile: '',
+	birthday: ''
 });
 
 const genderIndex = computed(() => {
@@ -117,25 +121,56 @@ const onBirthdayChange = (e: any) => {
 	userInfo.value.birthday = e.detail.value;
 };
 
-const handleSave = () => {
+const handleSave = async () => {
 	if (!userInfo.value.nickname.trim()) {
 		uni.showToast({ title: '请输入昵称', icon: 'none' });
 		return;
 	}
-	
-	saving.value = true;
-	// 模拟保存接口
-	setTimeout(() => {
-		saving.value = false;
+
+	try {
+		saving.value = true;
+
+		// 调用更新用户资料接口
+		await updateUserProfile({
+			nickname: userInfo.value.nickname,
+			avatar: userInfo.value.avatar,
+			gender: genderOptions.indexOf(userInfo.value.gender),
+			birthday: userInfo.value.birthday
+		});
+
+		// 更新本地用户信息
+		userStore.updateUserInfo({
+			nickname: userInfo.value.nickname,
+			avatar: userInfo.value.avatar
+		});
+
 		uni.showToast({ title: '保存成功', icon: 'success' });
 		setTimeout(() => {
 			uni.navigateBack();
 		}, 1500);
-	}, 1000);
+	} catch (error: any) {
+		logger.error('[编辑资料] 保存失败:', error);
+		uni.showToast({
+			title: error.message || '保存失败',
+			icon: 'none'
+		});
+	} finally {
+		saving.value = false;
+	}
 };
 
 onLoad(() => {
-	// Mock实现 - 待后端API开发
+	// 从 userStore 加载用户信息
+	if (userStore.userInfo) {
+		userInfo.value = {
+			avatar: userStore.userInfo.avatar || '/static/default-avatar.png',
+			nickname: userStore.userInfo.nickname || '',
+			gender: userStore.userInfo.gender ? genderOptions[userStore.userInfo.gender] : '',
+			mobile: userStore.userInfo.phone || '',
+			birthday: userStore.userInfo.birthday || ''
+		};
+		logger.debug('[编辑资料] 加载用户信息:', userInfo.value);
+	}
 });
 </script>
 
