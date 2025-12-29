@@ -2,6 +2,7 @@ import { Router } from 'express';
 import healthRoutes from './v1/health.routes';
 import authRoutes from './v1/auth.routes';
 import userRoutes from './v1/user.routes';
+import roleRoutes from './v1/role.routes';
 // 暂时注释以下路由，待修复类型错误后再启用
 // import storeRoutes from './v1/store.routes';
 import vehicleRoutes from './v1/vehicle.routes';
@@ -29,6 +30,7 @@ const router = Router();
 router.use('/v1/health', healthRoutes);
 router.use('/v1/auth', authRoutes);
 router.use('/v1/users', userRoutes);
+router.use('/v1/roles', roleRoutes);
 // router.use('/v1/stores', storeRoutes);
 router.use('/v1/vehicles', vehicleRoutes);
 router.use('/v1/orders', orderRoutes);

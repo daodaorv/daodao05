@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { UserDAO } from '@dao/user.dao';
+import { RoleDAO } from '@dao/role.dao';
+import { UserRoleDAO } from '@dao/user-role.dao';
+import { PermissionDAO } from '@dao/permission.dao';
 import { successResponse, errorResponse } from '@utils/response';
 import { generateToken, generateRefreshToken, verifyRefreshToken } from '@utils/jwt';
 import { verifyPassword } from '@utils/bcrypt';
@@ -9,6 +12,57 @@ import { authMiddleware } from '../../middleware/auth.middleware';
 
 const router = Router();
 const userDAO = new UserDAO();
+const roleDAO = new RoleDAO();
+const userRoleDAO = new UserRoleDAO();
+const permissionDAO = new PermissionDAO();
+
+/**
+ * 辅助函数：为新用户分配默认角色
+ */
+async function assignDefaultRole(userId: number, userType: 'customer' | 'admin'): Promise<void> {
+  try {
+    // C端用户分配 customer_normal 角色
+    // B端用户分配 admin_store_staff 角色
+    const defaultRoleCode = userType === 'customer' ? 'customer_normal' : 'admin_store_staff';
+    const role = await roleDAO.findByCode(defaultRoleCode);
+
+    if (role) {
+      await userRoleDAO.assignRole({
+        user_id: userId,
+        role_id: role.id,
+      });
+      logger.info(`为用户 ${userId} 分配默认角色: ${defaultRoleCode}`);
+    } else {
+      logger.warn(`默认角色 ${defaultRoleCode} 不存在`);
+    }
+  } catch (error) {
+    logger.error('分配默认角色失败:', error);
+    // 不抛出错误，避免影响注册流程
+  }
+}
+
+/**
+ * 辅助函数：获取用户的角色和权限信息
+ */
+async function getUserRolesAndPermissions(userId: number) {
+  try {
+    const userRoles = await userRoleDAO.findByUserIdWithDetails(userId);
+    const permissions = await permissionDAO.findByUserId(userId);
+
+    return {
+      roles: userRoles.map(ur => ({
+        id: ur.role.id,
+        code: ur.role.code,
+        name: ur.role.name,
+        type: ur.role.type,
+      })),
+      permissions: permissions.map(p => p.code),
+    };
+  } catch (error) {
+    logger.error('获取用户角色权限失败:', error);
+    return { roles: [], permissions: [] };
+  }
+}
 
 /**
  * 1. 发送验证码
@@ -93,6 +147,12 @@ router.post('/register', async (req: Request, res: Response) => {
       return undefined;
     }
 
+    // 为新用户分配默认角色
+    await assignDefaultRole(userId, user.user_type);
+
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(userId);
+
     // 生成Token
     const token = generateToken({
       userId: user.id,
@@ -121,6 +181,8 @@ router.post('/register', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -175,6 +237,9 @@ router.post('/login', async (req: Request, res: Response) => {
       return undefined;
     }
 
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
+
     // 生成Token
     const token = generateToken({
       userId: user.id,
@@ -203,6 +268,8 @@ router.post('/login', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -246,6 +313,11 @@ router.post('/login-with-code', async (req: Request, res: Response) => {
         user_type: 'customer',
       });
       user = await userDAO.findById(userId);
+
+      // 为新用户分配默认角色
+      if (user) {
+        await assignDefaultRole(userId, user.user_type);
+      }
     }
 
     if (!user) {
@@ -257,6 +329,9 @@ router.post('/login-with-code', async (req: Request, res: Response) => {
       res.status(403).json(errorResponse('账号已被禁用', 403));
       return undefined;
     }
+
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
 
     const token = generateToken({
       userId: user.id,
@@ -284,6 +359,8 @@ router.post('/login-with-code', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -331,12 +408,20 @@ router.post('/wechat-login', async (req: Request, res: Response) => {
         user_type: 'customer',
       });
       user = await userDAO.findById(userId);
+
+      // 为新用户分配默认角色
+      if (user) {
+        await assignDefaultRole(userId, user.user_type);
+      }
     }
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
       return undefined;
     }
+
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
 
     const token = generateToken({
       userId: user.id,
@@ -363,6 +448,8 @@ router.post('/wechat-login', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -494,12 +581,20 @@ router.post('/alipay-login', async (req: Request, res: Response) => {
         user_type: 'customer',
       });
       user = await userDAO.findById(userId);
+
+      // 为新用户分配默认角色
+      if (user) {
+        await assignDefaultRole(userId, user.user_type);
+      }
     }
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
       return undefined;
     }
+
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
 
     const token = generateToken({
       userId: user.id,
@@ -526,6 +621,8 @@ router.post('/alipay-login', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -564,12 +661,20 @@ router.post('/douyin-login', async (req: Request, res: Response) => {
         user_type: 'customer',
       });
       user = await userDAO.findById(userId);
+
+      // 为新用户分配默认角色
+      if (user) {
+        await assignDefaultRole(userId, user.user_type);
+      }
     }
 
     if (!user) {
       res.status(500).json(errorResponse('登录失败', 500));
       return undefined;
     }
+
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
 
     const token = generateToken({
       userId: user.id,
@@ -596,6 +701,8 @@ router.post('/douyin-login', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );
@@ -645,6 +752,9 @@ router.post('/login-with-username', async (req: Request, res: Response) => {
       return undefined;
     }
 
+    // 获取用户的角色和权限信息
+    const { roles, permissions } = await getUserRolesAndPermissions(user.id);
+
     const token = generateToken({
       userId: user.id,
       username: user.username || '',
@@ -671,6 +781,8 @@ router.post('/login-with-username', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          roles,
+          permissions,
         },
       })
     );

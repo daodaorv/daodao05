@@ -3,12 +3,14 @@ import { VehicleDAO } from '@dao/vehicle.dao';
 import { successResponse, errorResponse, paginatedResponse } from '@utils/response';
 import { logger } from '@utils/logger';
 import { VehicleQueryParams, VehicleType } from '../../types/models/vehicle.types';
+import { authMiddleware } from '../../middleware/auth.middleware';
+import { requirePermission } from '../../middleware/permission.middleware';
 
 const router = Router();
 const vehicleDAO = new VehicleDAO();
 
 /**
- * 获取车辆列表
+ * 获取车辆列表（公开接口，无需认证）
  * GET /api/v1/vehicles
  */
 router.get('/', async (req: Request, res: Response) => {
@@ -38,7 +40,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
- * 获取推荐车辆
+ * 获取推荐车辆（公开接口，无需认证）
  * GET /api/v1/vehicles/recommended
  */
 router.get('/recommended', async (req: Request, res: Response) => {
@@ -54,7 +56,7 @@ router.get('/recommended', async (req: Request, res: Response) => {
 });
 
 /**
- * 获取车辆详情
+ * 获取车辆详情（公开接口，无需认证）
  * GET /api/v1/vehicles/:id
  */
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
@@ -75,7 +77,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 检查车辆可用性
+ * 检查车辆可用性（公开接口，无需认证）
  * POST /api/v1/vehicles/:id/check-availability
  */
 router.post('/:id/check-availability', async (req: Request, res: Response): Promise<void> => {
@@ -105,7 +107,7 @@ router.post('/:id/check-availability', async (req: Request, res: Response): Prom
 });
 
 /**
- * 计算车辆租赁价格
+ * 计算车辆租赁价格（公开接口，无需认证）
  * POST /api/v1/vehicles/:id/calculate-price
  */
 router.post('/:id/calculate-price', async (req: Request, res: Response): Promise<void> => {

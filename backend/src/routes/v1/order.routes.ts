@@ -4,15 +4,17 @@ import { OrderDAO } from '@dao/order.dao';
 import { successResponse, errorResponse, paginatedResponse } from '@utils/response';
 import { logger } from '@utils/logger';
 import { OrderQueryParams, CreateOrderParams, CancelOrderParams, OrderStatus, PaymentStatus } from '../../types/models/order.types';
+import { authMiddleware } from '../../middleware/auth.middleware';
+import { requirePermission } from '../../middleware/permission.middleware';
 
 const router = Router();
 const orderDAO = new OrderDAO();
 
 /**
- * 创建订单
+ * 创建订单（需要认证）
  * POST /api/v1/orders
  */
-router.post('/', async (req: Request, res: Response): Promise<void> => {
+router.post('/', authMiddleware, requirePermission('order:create'), async (req: Request, res: Response): Promise<void> => {
   try {
     const params: CreateOrderParams = {
       user_id: req.body.user_id,
@@ -40,10 +42,10 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 获取订单列表
+ * 获取订单列表（需要认证）
  * GET /api/v1/orders
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', authMiddleware, requirePermission('order:view'), async (req: Request, res: Response) => {
   try {
     const params: OrderQueryParams = {
       user_id: req.query.user_id ? Number(req.query.user_id) : undefined,
@@ -88,11 +90,11 @@ router.get('/statuses', async (_req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 获取订单详情
+ * 获取订单详情（需要认证）
  * GET /api/v1/orders/:id
  * 支持通过订单ID（数字）或订单号（字符串）查询
  */
-router.get('/:id', async (req: Request, res: Response): Promise<void> => {
+router.get('/:id', authMiddleware, requirePermission('order:view'), async (req: Request, res: Response): Promise<void> => {
   try {
     const idParam = req.params.id;
     let order = null;
@@ -120,10 +122,10 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 取消订单
+ * 取消订单（需要认证）
  * POST /api/v1/orders/:id/cancel
  */
-router.post('/:id/cancel', async (req: Request, res: Response): Promise<void> => {
+router.post('/:id/cancel', authMiddleware, requirePermission('order:cancel'), async (req: Request, res: Response): Promise<void> => {
   try {
     const orderId = Number(req.params.id);
     const { cancel_reason, cancelled_by } = req.body;
@@ -248,10 +250,10 @@ router.get('/statuses', async (_req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 删除订单
+ * 删除订单（需要管理员权限）
  * DELETE /api/v1/orders/:id
  */
-router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
+router.delete('/:id', authMiddleware, requirePermission('order:delete'), async (req: Request, res: Response): Promise<void> => {
   try {
     const orderId = Number(req.params.id);
 
@@ -283,11 +285,11 @@ router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 更新订单状态
+ * 更新订单状态（需要管理员权限）
  * PUT /api/v1/orders/:id/status
  * 支持通过订单ID（数字）或订单号（字符串）更新
  */
-router.put('/:id/status', async (req: Request, res: Response): Promise<void> => {
+router.put('/:id/status', authMiddleware, requirePermission('order:update'), async (req: Request, res: Response): Promise<void> => {
   try {
     const idParam = req.params.id;
     const { status, remark } = req.body;
