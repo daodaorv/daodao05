@@ -14,7 +14,7 @@ import type {
 
 // ==================== 轮播图 Mock 数据 ====================
 
-let mockBanners: Banner[] = [
+const mockBanners: Banner[] = [
   {
     id: 1,
     type: 'home',
@@ -131,7 +131,7 @@ export const mockDeleteBanner = async (id: number) => {
 
 // ==================== 推广卡片 Mock 数据 ====================
 
-let mockPromoCards: PromoCard[] = [
+const mockPromoCards: PromoCard[] = [
   {
     id: 1,
     title: '特惠租车',
@@ -228,7 +228,7 @@ export const mockDeletePromoCard = async (id: number) => {
 
 // ==================== 公告 Mock 数据 ====================
 
-let mockNotices: Notice[] = [
+const mockNotices: Notice[] = [
   {
     id: 1,
     content: '春节期间部分门店营业时间调整，请提前咨询客服',

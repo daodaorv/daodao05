@@ -574,8 +574,8 @@ export const mockGetOrderList = (params: OrderListParams) => {
             order.orderNo.includes(params.keyword!) ||
             order.userName.includes(params.keyword!) ||
             order.userPhone.includes(params.keyword!) ||
-            order.vehicleName.includes(params.keyword!) ||
-            order.vehicleNumber.includes(params.keyword!)
+            order.vehicleName?.includes(params.keyword!) ||
+            order.vehicleNumber?.includes(params.keyword!)
         )
       }
 
@@ -1720,9 +1720,9 @@ export const mockPickupOrder = (orderId: number, params: PickupOrderParams) => {
           id: mockPickupRecords.length + 1,
           orderId,
           orderNo: order.orderNo,
-          vehicleId: order.vehicleId,
-          vehicleName: order.vehicleName,
-          vehicleNumber: order.vehicleNumber,
+          vehicleId: order.vehicleId!,
+          vehicleName: order.vehicleName!,
+          vehicleNumber: order.vehicleNumber!,
           pickupTime: params.pickupTime,
           pickupLocation: params.pickupLocation,
           pickupStaff: '门店员工',
@@ -1771,9 +1771,9 @@ export const mockReturnOrder = (orderId: number, params: ReturnOrderParams) => {
           id: 1,
           orderId,
           orderNo: order.orderNo,
-          vehicleId: order.vehicleId,
-          vehicleName: order.vehicleName,
-          vehicleNumber: order.vehicleNumber,
+          vehicleId: order.vehicleId!,
+          vehicleName: order.vehicleName!,
+          vehicleNumber: order.vehicleNumber!,
           returnTime: params.returnTime,
           returnLocation: params.returnLocation,
           returnStaff: '门店员工',

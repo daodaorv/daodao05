@@ -66,6 +66,26 @@ export enum PromotionLevel {
   LEVEL_2 = 2, // 二级推广
 }
 
+/**
+ * 风险等级
+ */
+export enum RiskLevel {
+  LOW = 'low', // 低风险
+  MEDIUM = 'medium', // 中风险
+  HIGH = 'high', // 高风险
+  CRITICAL = 'critical', // 严重风险
+}
+
+/**
+ * 风控动作
+ */
+export enum RiskAction {
+  PASS = 'pass', // 通过
+  REVIEW = 'review', // 人工审核
+  FREEZE = 'freeze', // 冻结分润
+  REJECT = 'reject', // 拒绝订单
+}
+
 // ==================== 推广分润相关 ====================
 
 /**
@@ -79,6 +99,7 @@ export interface PromotionRelation {
   level1PromoterUserName?: string // 一级推广者名称
   level2PromoterUserId?: string // 二级推广者ID
   level2PromoterUserName?: string // 二级推广者名称
+  profitAmount?: number // 分润金额
   createdAt: string // 建立时间
 }
 
@@ -434,6 +455,17 @@ export interface RiskControlRecord {
 }
 
 /**
+ * 风险评估结果
+ */
+export interface RiskAssessment {
+  riskLevel: RiskLevel // 风险等级
+  action: RiskAction // 建议动作
+  reasons: string[] // 风险原因列表
+  score: number // 风险评分 (0-100)
+  triggeredRules: string[] // 触发的规则ID列表
+}
+
+/**
  * 分润统计
  */
 export interface ProfitStatistics {
@@ -443,6 +475,10 @@ export interface ProfitStatistics {
   tourProfit: number // 旅游分润
   promotionProfit: number // 推广分润
   platformProfit: number // 平台利润
+  platformAmount: number // 平台金额
+  ownerAmount: number // 车主金额
+  promoterAmount: number // 推广者金额
+  storeAmount: number // 门店金额
   period: string // 统计周期
 }
 

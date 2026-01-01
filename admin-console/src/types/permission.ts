@@ -26,7 +26,6 @@ export type PermissionCode = string
 
 // 路由元信息
 export interface RouteMeta {
-  [key: string]: any
   title?: string // 页面标题
   description?: string // 页面描述
   hidePageHeader?: boolean // 是否隐藏页面标题（用于Dashboard等特殊页面）
@@ -37,6 +36,7 @@ export interface RouteMeta {
   noCache?: boolean // 是否不缓存
   affix?: boolean // 是否固定在标签栏
   breadcrumb?: boolean // 是否显示在面包屑
+  requiresAuth?: boolean // 是否需要认证
 }
 
 // 菜单项
