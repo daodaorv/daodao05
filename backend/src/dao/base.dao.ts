@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { QueryBuilder } from '@db/query-builder';
+import { QueryBuilder } from '../db/query-builder';
 import { RowDataPacket } from 'mysql2/promise';
 
 /**

@@ -19,11 +19,18 @@ const permissionDAO = new PermissionDAO();
 /**
  * 辅助函数：为新用户分配默认角色
  */
-async function assignDefaultRole(userId: number, userType: 'customer' | 'admin'): Promise<void> {
+async function assignDefaultRole(userId: number, userType: 'customer' | 'mobile_admin' | 'pc_admin'): Promise<void> {
   try {
     // C端用户分配 customer_normal 角色
     // B端用户分配 admin_store_staff 角色
-    const defaultRoleCode = userType === 'customer' ? 'customer_normal' : 'admin_store_staff';
+    let defaultRoleCode: string;
+    if (userType === 'customer') {
+      defaultRoleCode = 'customer_normal';
+    } else {
+      // mobile_admin 和 pc_admin 都分配 admin_store_staff 角色
+      defaultRoleCode = 'admin_store_staff';
+    }
+
     const role = await roleDAO.findByCode(defaultRoleCode);
 
     if (role) {
@@ -62,6 +69,24 @@ async function getUserRolesAndPermissions(userId: number) {
     logger.error('获取用户角色权限失败:', error);
     return { roles: [], permissions: [] };
   }
+}
+
+/**
+ * 辅助函数：映射角色代码到前端 UserRole 枚举
+ */
+function mapRoleToFrontend(roleCode: string): string {
+  const roleMapping: Record<string, string> = {
+    'admin_super': 'PLATFORM_ADMIN',           // 超级管理员 -> 平台管理员
+    'admin_platform': 'PLATFORM_ADMIN',        // 平台管理员 -> 平台管理员
+    'admin_regional': 'REGIONAL_MANAGER',      // 区域经理 -> 区域经理
+    'admin_finance': 'PLATFORM_ADMIN',         // 财务人员 -> 平台管理员
+    'admin_service': 'STORE_STAFF',            // 客服人员 -> 门店员工
+    'admin_store_manager': 'STORE_MANAGER',    // 门店经理 -> 门店经理
+    'admin_store_staff': 'STORE_STAFF',        // 门店员工 -> 门店员工
+    'admin_preparation': 'STORE_STAFF',        // 整备员工 -> 门店员工
+    'admin_driver': 'STORE_STAFF',             // 司机 -> 门店员工
+  };
+  return roleMapping[roleCode] || 'STORE_STAFF';
 }
 
 /**
@@ -240,6 +265,15 @@ router.post('/login', async (req: Request, res: Response) => {
     // 获取用户的角色和权限信息
     const { roles, permissions } = await getUserRolesAndPermissions(user.id);
 
+    // 映射主要角色到前端枚举（优先选择管理员角色）
+    let primaryRoleCode = 'admin_store_staff'; // 默认角色
+    if (roles.length > 0) {
+      // 优先选择管理员角色（admin_开头的角色）
+      const adminRole = roles.find(r => r.code.startsWith('admin_'));
+      primaryRoleCode = adminRole ? adminRole.code : roles[0].code;
+    }
+    const primaryRole = mapRoleToFrontend(primaryRoleCode);
+
     // 生成Token
     const token = generateToken({
       userId: user.id,
@@ -256,7 +290,7 @@ router.post('/login', async (req: Request, res: Response) => {
     // 更新最后登录时间
     await userDAO.updateLastLogin(user.id);
 
-    logger.info(`用户登录成功: userId=${user.id}, phone=${phone}`);
+    logger.info(`用户登录成功: userId=${user.id}, phone=${phone}, role=${primaryRole}`);
 
     res.json(
       successResponse({
@@ -268,6 +302,7 @@ router.post('/login', async (req: Request, res: Response) => {
           nickname: user.username || '',
           avatar: user.avatar_url || '/static/default-avatar.png',
           userType: user.user_type.toUpperCase(),
+          role: primaryRole, // 添加单个角色字段用于前端权限验证
           roles,
           permissions,
         },
@@ -859,3 +894,4 @@ router.get('/check-login', authMiddleware, async (req: Request, res: Response) =
 });
 
 export default router;
+

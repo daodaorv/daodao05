@@ -1,6 +1,6 @@
-import { ResultSetHeader } from 'mysql2';
 import { BaseDao } from './base.dao';
 import { Role, RoleType, RoleStatus, DataScope } from '../types/models/role.types';
+import { QueryBuilder } from '../db/query-builder';
 
 /**
  * 角色数据访问对象
@@ -15,8 +15,7 @@ export class RoleDAO extends BaseDao<Role> {
    */
   async findById(roleId: number): Promise<Role | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE id = ?`;
-    const [rows] = await this.pool.execute<Role[]>(query, [roleId]);
-    return rows[0] || null;
+    return QueryBuilder.queryOne<Role>(query, [roleId]);
   }
 
   /**
@@ -24,8 +23,7 @@ export class RoleDAO extends BaseDao<Role> {
    */
   async findByCode(code: string): Promise<Role | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE code = ?`;
-    const [rows] = await this.pool.execute<Role[]>(query, [code]);
-    return rows[0] || null;
+    return QueryBuilder.queryOne<Role>(query, [code]);
   }
 
   /**
@@ -33,8 +31,7 @@ export class RoleDAO extends BaseDao<Role> {
    */
   async findByType(type: RoleType): Promise<Role[]> {
     const query = `SELECT * FROM ${this.tableName} WHERE type = ? AND status = 'active' ORDER BY id`;
-    const [rows] = await this.pool.execute<Role[]>(query, [type]);
-    return rows;
+    return QueryBuilder.query<Role>(query, [type]);
   }
 
   /**
@@ -42,8 +39,7 @@ export class RoleDAO extends BaseDao<Role> {
    */
   async findAllActive(): Promise<Role[]> {
     const query = `SELECT * FROM ${this.tableName} WHERE status = 'active' ORDER BY type, id`;
-    const [rows] = await this.pool.execute<Role[]>(query);
-    return rows;
+    return QueryBuilder.query<Role>(query);
   }
 
   /**
@@ -60,7 +56,7 @@ export class RoleDAO extends BaseDao<Role> {
       INSERT INTO ${this.tableName} (name, code, type, data_scope, description)
       VALUES (?, ?, ?, ?, ?)
     `;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [
+    const result = await QueryBuilder.insert(query, [
       data.name,
       data.code,
       data.type,
@@ -108,8 +104,8 @@ export class RoleDAO extends BaseDao<Role> {
 
     values.push(roleId);
     const query = `UPDATE ${this.tableName} SET ${updates.join(', ')} WHERE id = ?`;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, values);
-    return result.affectedRows > 0;
+    const affectedRows = await QueryBuilder.update(query, values);
+    return affectedRows > 0;
   }
 
   /**
@@ -117,7 +113,25 @@ export class RoleDAO extends BaseDao<Role> {
    */
   async deleteRole(roleId: number): Promise<boolean> {
     const query = `DELETE FROM ${this.tableName} WHERE id = ?`;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [roleId]);
-    return result.affectedRows > 0;
+    const affectedRows = await QueryBuilder.delete(query, [roleId]);
+    return affectedRows > 0;
+  }
+
+  /**
+   * 删除角色的所有权限
+   */
+  async deleteRolePermissions(roleId: number): Promise<void> {
+    const query = 'DELETE FROM role_permissions WHERE role_id = ?';
+    await QueryBuilder.execute(query, [roleId]);
+  }
+
+  /**
+   * 为角色分配权限
+   */
+  async assignPermissions(roleId: number, permissionIds: number[]): Promise<void> {
+    for (const permissionId of permissionIds) {
+      const query = 'INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)';
+      await QueryBuilder.execute(query, [roleId, permissionId]);
+    }
   }
 }

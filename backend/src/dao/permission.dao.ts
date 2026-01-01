@@ -1,6 +1,6 @@
-import { ResultSetHeader } from 'mysql2';
 import { BaseDao } from './base.dao';
 import { Permission } from '../types/models/role.types';
+import { QueryBuilder } from '../db/query-builder';
 
 /**
  * 权限数据访问对象
@@ -15,8 +15,7 @@ export class PermissionDAO extends BaseDao<Permission> {
    */
   async findById(permissionId: number): Promise<Permission | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE id = ?`;
-    const [rows] = await this.pool.execute<Permission[]>(query, [permissionId]);
-    return rows[0] || null;
+    return QueryBuilder.queryOne<Permission>(query, [permissionId]);
   }
 
   /**
@@ -24,8 +23,7 @@ export class PermissionDAO extends BaseDao<Permission> {
    */
   async findByCode(code: string): Promise<Permission | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE code = ?`;
-    const [rows] = await this.pool.execute<Permission[]>(query, [code]);
-    return rows[0] || null;
+    return QueryBuilder.queryOne<Permission>(query, [code]);
   }
 
   /**
@@ -33,8 +31,7 @@ export class PermissionDAO extends BaseDao<Permission> {
    */
   async findByResource(resource: string): Promise<Permission[]> {
     const query = `SELECT * FROM ${this.tableName} WHERE resource = ? ORDER BY action`;
-    const [rows] = await this.pool.execute<Permission[]>(query, [resource]);
-    return rows;
+    return QueryBuilder.query<Permission>(query, [resource]);
   }
 
   /**
@@ -42,8 +39,7 @@ export class PermissionDAO extends BaseDao<Permission> {
    */
   async findAll(): Promise<Permission[]> {
     const query = `SELECT * FROM ${this.tableName} ORDER BY resource, action`;
-    const [rows] = await this.pool.execute<Permission[]>(query);
-    return rows;
+    return QueryBuilder.query<Permission>(query);
   }
 
   /**
@@ -57,8 +53,7 @@ export class PermissionDAO extends BaseDao<Permission> {
       WHERE rp.role_id = ?
       ORDER BY p.resource, p.action
     `;
-    const [rows] = await this.pool.execute<Permission[]>(query, [roleId]);
-    return rows;
+    return QueryBuilder.query<Permission>(query, [roleId]);
   }
 
   /**
@@ -73,8 +68,7 @@ export class PermissionDAO extends BaseDao<Permission> {
       WHERE ur.user_id = ?
       ORDER BY p.resource, p.action
     `;
-    const [rows] = await this.pool.execute<Permission[]>(query, [userId]);
-    return rows;
+    return QueryBuilder.query<Permission>(query, [userId]);
   }
 
   /**
@@ -91,7 +85,7 @@ export class PermissionDAO extends BaseDao<Permission> {
       INSERT INTO ${this.tableName} (code, name, resource, action, description)
       VALUES (?, ?, ?, ?, ?)
     `;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [
+    const result = await QueryBuilder.insert(query, [
       data.code,
       data.name,
       data.resource,
@@ -106,7 +100,7 @@ export class PermissionDAO extends BaseDao<Permission> {
    */
   async deletePermission(permissionId: number): Promise<boolean> {
     const query = `DELETE FROM ${this.tableName} WHERE id = ?`;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [permissionId]);
-    return result.affectedRows > 0;
+    const affectedRows = await QueryBuilder.delete(query, [permissionId]);
+    return affectedRows > 0;
   }
 }

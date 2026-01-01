@@ -3,8 +3,8 @@ import { VehicleDAO } from '@dao/vehicle.dao';
 import { successResponse, errorResponse, paginatedResponse } from '@utils/response';
 import { logger } from '@utils/logger';
 import { VehicleQueryParams, VehicleType } from '../../types/models/vehicle.types';
-import { authMiddleware } from '../../middleware/auth.middleware';
-import { requirePermission } from '../../middleware/permission.middleware';
+// import { authMiddleware } from '../../middleware/auth.middleware';
+// import { requirePermission } from '../../middleware/permission.middleware';
 
 const router = Router();
 const vehicleDAO = new VehicleDAO();

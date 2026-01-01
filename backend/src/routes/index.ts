@@ -2,6 +2,8 @@ import { Router } from 'express';
 import healthRoutes from './v1/health.routes';
 import authRoutes from './v1/auth.routes';
 import userRoutes from './v1/user.routes';
+import userAdminRoutes from './v1/user-admin.routes';
+import employeeRoutes from './v1/employee.routes';
 import roleRoutes from './v1/role.routes';
 // 暂时注释以下路由，待修复类型错误后再启用
 // import storeRoutes from './v1/store.routes';
@@ -23,13 +25,17 @@ import orderRoutes from './v1/order.routes';
 // import walletRoutes from './v1/wallet.routes';
 import contactRoutes from './v1/contact.routes';
 import rulesRoutes from './v1/rules.routes';
+import operationLogRoutes from './v1/operation-log.routes';
 
 const router = Router();
+
 
 // 挂载v1版本路由 - 仅保留核心用户相关路由用于联调
 router.use('/v1/health', healthRoutes);
 router.use('/v1/auth', authRoutes);
 router.use('/v1/users', userRoutes);
+router.use('/v1/admin/users', userAdminRoutes);
+router.use('/v1/admin/employees', employeeRoutes);
 router.use('/v1/roles', roleRoutes);
 // router.use('/v1/stores', storeRoutes);
 router.use('/v1/vehicles', vehicleRoutes);
@@ -50,5 +56,6 @@ router.use('/v1/orders', orderRoutes);
 // router.use('/v1/wallet', walletRoutes);
 router.use('/v1/contacts', contactRoutes);
 router.use('/v1/rules', rulesRoutes);
+router.use('/v1/operation-logs', operationLogRoutes);
 
 export default router;

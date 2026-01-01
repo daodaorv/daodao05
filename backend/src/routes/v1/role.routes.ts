@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { RoleController } from '../controllers/role.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
-import { requirePermission } from '../middleware/permission.middleware';
+import { RoleController } from '../../controllers/role.controller';
+import { authMiddleware } from '../../middleware/auth.middleware';
+import { requirePermission } from '../../middleware/permission.middleware';
 
 const router = Router();
 const roleController = new RoleController();
@@ -41,6 +41,38 @@ router.get(
   authMiddleware,
   requirePermission('user:view'),
   roleController.getUserRoles.bind(roleController)
+);
+
+// 创建角色
+router.post(
+  '/',
+  authMiddleware,
+  requirePermission('user:assign_role'),
+  roleController.createRole.bind(roleController)
+);
+
+// 更新角色
+router.put(
+  '/:id',
+  authMiddleware,
+  requirePermission('user:assign_role'),
+  roleController.updateRole.bind(roleController)
+);
+
+// 删除角色
+router.delete(
+  '/:id',
+  authMiddleware,
+  requirePermission('user:assign_role'),
+  roleController.deleteRole.bind(roleController)
+);
+
+// 配置角色权限
+router.put(
+  '/:id/permissions',
+  authMiddleware,
+  requirePermission('user:assign_role'),
+  roleController.assignRolePermissions.bind(roleController)
 );
 
 export default router;

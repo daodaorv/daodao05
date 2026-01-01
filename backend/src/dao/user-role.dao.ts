@@ -1,6 +1,6 @@
-import { ResultSetHeader } from 'mysql2';
 import { BaseDao } from './base.dao';
 import { UserRole, UserRoleWithDetails, Role } from '../types/models/role.types';
+import { QueryBuilder } from '../db/query-builder';
 
 /**
  * 用户角色关联数据访问对象
@@ -15,8 +15,7 @@ export class UserRoleDAO extends BaseDao<UserRole> {
    */
   async findByUserId(userId: number): Promise<UserRole[]> {
     const query = `SELECT * FROM ${this.tableName} WHERE user_id = ?`;
-    const [rows] = await this.pool.execute<UserRole[]>(query, [userId]);
-    return rows;
+    return QueryBuilder.query<UserRole>(query, [userId]);
   }
 
   /**
@@ -37,7 +36,7 @@ export class UserRoleDAO extends BaseDao<UserRole> {
       INNER JOIN roles r ON ur.role_id = r.id
       WHERE ur.user_id = ? AND r.status = 'active'
     `;
-    const [rows] = await this.pool.execute<any[]>(query, [userId]);
+    const rows = await QueryBuilder.query<any>(query, [userId]);
 
     return rows.map(row => ({
       id: row.id,
@@ -62,6 +61,14 @@ export class UserRoleDAO extends BaseDao<UserRole> {
   }
 
   /**
+   * 根据角色ID查询用户列表
+   */
+  async findByRoleId(roleId: number): Promise<UserRole[]> {
+    const query = `SELECT * FROM ${this.tableName} WHERE role_id = ?`;
+    return QueryBuilder.query<UserRole>(query, [roleId]);
+  }
+
+  /**
    * 检查用户是否拥有指定角色
    */
   async hasRole(userId: number, roleCode: string): Promise<boolean> {
@@ -71,7 +78,7 @@ export class UserRoleDAO extends BaseDao<UserRole> {
       INNER JOIN roles r ON ur.role_id = r.id
       WHERE ur.user_id = ? AND r.code = ? AND r.status = 'active'
     `;
-    const [rows] = await this.pool.execute<any[]>(query, [userId, roleCode]);
+    const rows = await QueryBuilder.query<any>(query, [userId, roleCode]);
     return rows[0].count > 0;
   }
 
@@ -89,7 +96,7 @@ export class UserRoleDAO extends BaseDao<UserRole> {
       INSERT INTO ${this.tableName} (user_id, role_id, store_id, granted_by, expires_at)
       VALUES (?, ?, ?, ?, ?)
     `;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [
+    const result = await QueryBuilder.insert(query, [
       data.user_id,
       data.role_id,
       data.store_id || null,
@@ -111,8 +118,8 @@ export class UserRoleDAO extends BaseDao<UserRole> {
       params.push(storeId);
     }
 
-    const [result] = await this.pool.execute<ResultSetHeader>(query, params);
-    return result.affectedRows > 0;
+    const affectedRows = await QueryBuilder.delete(query, params);
+    return affectedRows > 0;
   }
 
   /**
@@ -120,8 +127,8 @@ export class UserRoleDAO extends BaseDao<UserRole> {
    */
   async removeAllRoles(userId: number): Promise<boolean> {
     const query = `DELETE FROM ${this.tableName} WHERE user_id = ?`;
-    const [result] = await this.pool.execute<ResultSetHeader>(query, [userId]);
-    return result.affectedRows > 0;
+    const affectedRows = await QueryBuilder.delete(query, [userId]);
+    return affectedRows > 0;
   }
 }
 
