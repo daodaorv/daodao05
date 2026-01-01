@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="finance-reports-container">
     <!-- 报表筛选 -->

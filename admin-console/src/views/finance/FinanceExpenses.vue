@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="finance-expenses-container">
     <!-- 搜索和操作 -->
