@@ -45,6 +45,13 @@
             {{ loading ? '登录中...' : '登录' }}
           </el-button>
         </el-form-item>
+
+        <!-- 注册入口 -->
+        <el-form-item>
+          <el-button text type="primary" @click="handleRegister" class="register-link">
+            还没有账号？申请注册
+          </el-button>
+        </el-form-item>
       </el-form>
 
       <!-- 底部信息 -->
@@ -105,6 +112,11 @@ const handleLogin = async () => {
   }
 }
 
+// 处理注册申请
+const handleRegister = () => {
+  router.push('/register')
+}
+
 // 初始化
 onMounted(() => {
   // 如果已登录，直接跳转到工作台
@@ -156,6 +168,12 @@ onMounted(() => {
       width: 100%;
       height: 48px;
       font-size: 16px;
+    }
+
+    .register-link {
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
     }
 
     .login-footer {

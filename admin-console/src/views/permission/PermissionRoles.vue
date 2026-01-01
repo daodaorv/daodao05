@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="permission-roles-container">
     <!-- 页面标题 -->

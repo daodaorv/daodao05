@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="employee-customer-service-container">
     <SearchForm
