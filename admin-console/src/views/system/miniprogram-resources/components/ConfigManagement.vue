@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="config-management">
     <!-- 二级 Tab：按配置类型分类 -->

@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="system-config-container">
     <!-- 页面标题 -->

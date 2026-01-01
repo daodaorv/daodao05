@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="miniprogram-preview">
     <el-card class="preview-card" shadow="never">

@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="system-audit-container">
     <!-- 页面标题 -->

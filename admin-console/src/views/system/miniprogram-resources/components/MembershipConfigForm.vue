@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="membership-config-form">
     <el-card v-loading="loading" shadow="never">

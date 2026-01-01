@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="banner-manager">
     <!-- 工具栏 -->

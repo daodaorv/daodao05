@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="agreement-manager">
     <!-- 协议类型选择 -->

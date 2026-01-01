@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="text-contents">
     <!-- 二级 Tab：按文本类型分类 -->

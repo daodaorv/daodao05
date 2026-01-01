@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="promo-card-manager">
     <!-- 工具栏 -->

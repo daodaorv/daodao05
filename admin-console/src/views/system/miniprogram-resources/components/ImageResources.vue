@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="image-resources">
     <!-- 二级 Tab：按图片类型分类 -->
