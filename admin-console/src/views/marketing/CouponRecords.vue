@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="coupon-records-container">
     <!-- 搜索筛选区 -->

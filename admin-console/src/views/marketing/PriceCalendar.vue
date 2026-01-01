@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="price-calendar-container">
     <!-- 筛选器 -->

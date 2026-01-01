@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <template>
   <div class="marketing-pricing-container">
     <el-tabs v-model="activeTab" type="border-card" class="pricing-tabs">

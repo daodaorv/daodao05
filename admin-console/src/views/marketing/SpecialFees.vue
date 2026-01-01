@@ -1,4 +1,3 @@
-<!-- @ts-nocheck -->
 <!-- 特殊费用管理页面 -->
 <template>
   <div class="special-fees-container">
